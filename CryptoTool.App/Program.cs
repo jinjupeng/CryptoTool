@@ -1,11 +1,6 @@
 ﻿using CryptoTool.Common;
-using Org.BouncyCastle.Crypto;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace CryptoTool.App
 {
@@ -69,24 +64,33 @@ namespace CryptoTool.App
 
             // 生成自签名的证书路径
             var pfxPath = "D:\\MyROOTCA.pfx";
-            GeneratePfxCertificate(pfxPath);
+            //Encrypter.GeneratePfxCertificate(pfxPath);
+            var pubPemPath = "D:\\MyROOTCA_Public.pem";
+            var priPemPath = "D:\\MyROOTCA_Private.pem";
+            //var x509 = Encrypter.GetX509Certificate2();
+            //Encrypter.GeneratePublicPemCert(x509, pubPemPath);
+            //Encrypter.GeneratePrivatePemCert(x509, priPemPath);
 
             // 对某个文件计算哈希值
             var filePath = "D:\\归档信息包.zip";
             var hashCode = HashUtil.GetHashCode(filePath);
             Console.WriteLine("文件哈希值：{0}", hashCode);
             // 加签
-            var signedData = Encrypter.SignData(pfxPath, "123456", hashCode, "MD5");
-            Console.WriteLine("加签结果：{0}", signedData);
+            var signedPemData = Encrypter.SignDataByPem(priPemPath, hashCode, "MD5");
+            var signePfxdData = Encrypter.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
+            Console.WriteLine("Pem加签结果：{0}", signedPemData);
+            Console.WriteLine("Pfx加签结果：{0}", signePfxdData);
 
-            var verifyResult = Encrypter.VerifySign(pfxPath, "123456", hashCode, "MD5", signedData);
-            Console.WriteLine("验签结果：{0}", verifyResult);
+            var verifyPemResult = Encrypter.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
+            var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
+            Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
+            Console.WriteLine("Pfx验签结果：{0}", verifyPfxResult);
             Console.WriteLine("输入任意键退出！");
             Console.ReadKey();
         }
 
         /// <summary>
-        /// 测试数字签名
+        /// RSA加签验签测试
         /// </summary>
         public static void TestSign()
         {
@@ -106,50 +110,17 @@ namespace CryptoTool.App
         }
 
         /// <summary>
-        /// 加签
+        /// pfx证书加签验签测试
         /// </summary>
         public static void SignData()
         {
             string noSignStr = "我要签名";
             string path = @"C:\Users\Administrator\Desktop\数字签名证书.pfx";
-            var result = Encrypter.SignData(path, "123456", noSignStr, "MD5");
-            // Console.WriteLine("加签结果：{0}", result);
+            var result = Encrypter.SignDataByPfx(path, "123456", noSignStr, "MD5");
+            Console.WriteLine("加签结果：{0}", result);
 
-            // byte[] signData = Encoding.Default.GetBytes(result);
-            var verifyResult = Encrypter.VerifySign(path, "123456", noSignStr, "MD5", result);
-
+            var verifyResult = Encrypter.VerifySignByPfx(path, "123456", noSignStr, "MD5", result);
             Console.WriteLine("验签结果：{0}", verifyResult);
-
-            //byte[] messagebytes = Encoding.UTF8.GetBytes("我要签名");
-            //string Path = @"C:\Users\Administrator\Desktop\数字证书.pfx";
-            //X509Certificate2 x509 = new X509Certificate2(Path, "123456");
-            //SHA1 sha1 = new SHA1CryptoServiceProvider();
-            //MD5 md5 = MD5.Create();
-            //byte[] hashbytes = md5.ComputeHash(messagebytes); //对要签名的数据进行哈希 
-            //RSAPKCS1SignatureFormatter signe = new RSAPKCS1SignatureFormatter();
-            //signe.SetKey(x509.PrivateKey); //设置签名用到的私钥 
-            //signe.SetHashAlgorithm("MD5"); //设置签名算法 
-            //byte[] result = signe.CreateSignature(hashbytes);
-            //Console.WriteLine("加签结果：{0}", Convert.ToBase64String(result));
-
-            //RSACryptoServiceProvider oRSA4 = new RSACryptoServiceProvider();
-            //oRSA4.FromXmlString(x509.PublicKey.Key.ToXmlString(false));
-            //bool bVerify = oRSA4.VerifyData(messagebytes, "MD5", result);
-            //Console.WriteLine("验签结果：{0}", bVerify);
-        }
-
-        /// <summary>
-        /// 生成自签名的pfx证书
-        /// </summary>
-        /// <param name="pfxPath">pfx证书存在路径</param>
-        public static void GeneratePfxCertificate(string pfxPath)
-        {
-            using FileStream fs = File.Create(pfxPath);
-            // var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.0.1", "CN=MyROOTCA");
-            var caPrivKey = DataCertificate.GenerateCACertificate("CN=root ca");
-            var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.01", "CN=root ca", caPrivKey);
-            var pfxArr = X509Certificate2.Export(X509ContentType.Pfx, "123456");
-            fs.Write(pfxArr);
         }
     }
 }
