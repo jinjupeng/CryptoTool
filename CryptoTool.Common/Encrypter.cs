@@ -658,15 +658,17 @@ namespace CryptoTool.Common
         /// 生成自签名的pfx证书
         /// </summary>
         /// <param name="pfxPath">pfx证书存在路径</param>
-        public static void GeneratePfxCertificate(string pfxPath)
+        /// <param name="password">pfx证书密码</param>
+        public static void GeneratePfxCertificate(string pfxPath, string password = "123456")
         {
             using FileStream fs = File.Create(pfxPath);
             // var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.0.1", "CN=MyROOTCA");
             var caPrivKey = DataCertificate.GenerateCACertificate("CN=root ca");
             var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.01", "CN=root ca", caPrivKey);
-            var pfxArr = X509Certificate2.Export(X509ContentType.Pfx, "123456");
+            var pfxArr = X509Certificate2.Export(X509ContentType.Pfx, password);
             fs.Write(pfxArr);
         }
+
 
         /// <summary>
         /// 生成证书对象数据

@@ -13,6 +13,7 @@ using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
 using System;
+using System.IO;
 using System.Security.Cryptography.X509Certificates;
 
 namespace CryptoTool.Common
@@ -21,6 +22,23 @@ namespace CryptoTool.Common
     {
 
         #region 从证书中获取信息   
+
+        /// <summary>
+        /// 修改pfx证书密码
+        /// </summary>
+        /// <param name="originPfxPath">pfx证书路径</param>
+        /// <param name="originPassword">原证书密码</param>
+        /// <param name="newPassword">新证书密码</param>
+        public static void ChangePfxCertPassword(string originPfxPath, string originPassword, string newPassword)
+        {
+            var x509 = GetCertificateFromPfxFile(originPfxPath, originPassword);
+            if(x509 != null)
+            {
+                var pfxArr = x509.Export(X509ContentType.Pfx, newPassword);
+                using FileStream fs = File.Create(originPfxPath);
+                fs.Write(pfxArr);
+            }
+        }
 
         /// <summary>   
         /// 根据私钥证书得到证书实体，得到实体后可以根据其公钥和私钥进行加解密   

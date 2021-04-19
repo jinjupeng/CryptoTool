@@ -64,6 +64,7 @@ namespace CryptoTool.App
 
             // 生成自签名的证书路径
             var pfxPath = "D:\\MyROOTCA.pfx";
+            DataCertificate.ChangePfxCertPassword(pfxPath, "123456", "78901234"); // 修改密码
             //Encrypter.GeneratePfxCertificate(pfxPath);
             var pubPemPath = "D:\\MyROOTCA_Public.pem";
             var priPemPath = "D:\\MyROOTCA_Private.pem";
@@ -78,8 +79,8 @@ namespace CryptoTool.App
             // 加签
             var signedPemData = Encrypter.SignDataByPem(priPemPath, hashCode, "MD5");
             var signePfxdData = Encrypter.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
-            Console.WriteLine("Pem加签结果：{0}", signedPemData);
-            Console.WriteLine("Pfx加签结果：{0}", signePfxdData);
+            Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
+            Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
 
             var verifyPemResult = Encrypter.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
             var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
