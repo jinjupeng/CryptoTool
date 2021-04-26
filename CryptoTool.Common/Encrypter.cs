@@ -54,7 +54,7 @@ namespace CryptoTool.Common
             SHA1 sha = new SHA1CryptoServiceProvider();
             byte[] bytes = Encoding.Unicode.GetBytes(input);
             byte[] result = sha.ComputeHash(bytes);
-            return BitConverter.ToString(result);
+            return Convert.ToBase64String(result); // BitConverter.ToString(result);
         }
         #endregion
 
@@ -806,5 +806,29 @@ namespace CryptoTool.Common
             return rsaKey;
 
         }
+
+        /// <summary>
+        /// 生成appId
+        /// </summary>
+        /// <returns></returns>
+        public static string GetAppId()
+        {
+            // https://stackoverflow.com/questions/14412132/whats-the-best-approach-for-generating-a-new-api-key
+            var key = new byte[32];
+            using (var generator = RandomNumberGenerator.Create())
+                generator.GetBytes(key);
+            string apiKey = Convert.ToBase64String(key);
+            return apiKey;
+        }
+
+        /// <summary>
+        /// 生成appSecret
+        /// </summary>
+        /// <returns></returns>
+        public static string GetAppSecret()
+        {
+            return "";
+        }
+
     }
 }

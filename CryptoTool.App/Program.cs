@@ -62,6 +62,9 @@ namespace CryptoTool.App
             //TestSign();
             //SignData();
 
+            var appkey = Encrypter.GetAppId();
+            var appSecret = Encrypter.EncryptBySHA1(appkey);
+
             // 生成自签名的证书路径
             var pfxPath = "D:\\MyROOTCA.pfx";
             DataCertificate.ChangePfxCertPassword(pfxPath, "123456", "78901234"); // 修改密码
