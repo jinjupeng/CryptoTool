@@ -35,8 +35,10 @@ namespace CryptoTool.Common
             if(x509 != null)
             {
                 var pfxArr = x509.Export(X509ContentType.Pfx, newPassword);
-                using FileStream fs = File.Create(originPfxPath);
-                fs.Write(pfxArr);
+                using (FileStream fs = File.Create(originPfxPath))
+                {
+                    fs.Write(pfxArr);
+                }
             }
         }
 

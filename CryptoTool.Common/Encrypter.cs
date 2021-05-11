@@ -1,6 +1,7 @@
 ﻿using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -530,6 +531,49 @@ namespace CryptoTool.Common
         /// 签名（私钥加签，公钥验签）
         /// 加密（公钥加密，私钥解密）
         /// </summary>
+        /// <param name="pfxByte">签名证书字节数组</param>
+        /// <param name="password">保护打开证书私钥的密码</param>
+        /// <param name="noSignData">需要签名的字符串</param>
+        /// <param name="signAlgorithm">加签算法</param>
+        /// <returns>已签名字符串</returns>
+        public static string SignDataByPfx(byte[] pfxByte, string password, string noSignData, string signAlgorithm)
+        {
+            string signData;
+            try
+            {
+                if (pfxByte.Length == 0)
+                {
+                    throw new Exception("数字证书不存在！");
+                }
+                // 找到证书文件
+                X509Certificate2 objx5092 = new X509Certificate2(pfxByte, password);
+                // 对要签名的数据计算哈希 
+                HashAlgorithm hashAlgorithm = HashAlgorithm.Create(signAlgorithm);
+                byte[] hashbytes = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(noSignData));
+
+                RSAPKCS1SignatureFormatter sign = new RSAPKCS1SignatureFormatter();
+                sign.SetKey(objx5092.PrivateKey); //设置签名用到的私钥 
+                sign.SetHashAlgorithm(signAlgorithm); //设置签名算法 
+
+                // 对哈希进行加签
+                var signBytes = sign.CreateSignature(hashbytes);
+
+                // 将加签后的数据进行base64编码，返回的就是已签名的数据 
+                signData = Convert.ToBase64String(signBytes);
+            }
+            catch
+            {
+                throw new Exception("加签失败！");
+            }
+
+            return signData;
+        }
+
+        /// <summary>
+        /// 根据pfx证书加签
+        /// 签名（私钥加签，公钥验签）
+        /// 加密（公钥加密，私钥解密）
+        /// </summary>
         /// <param name="filePath">签名证书所在路径</param>
         /// <param name="password">保护打开证书私钥的密码</param>
         /// <param name="noSignData">需要签名的字符串</param>
@@ -573,6 +617,63 @@ namespace CryptoTool.Common
         /// 签名（私钥加签，公钥验签）
         /// 加密（公钥加密，私钥解密）
         /// </summary>
+        /// <param name="pemByte">证书字节数组</param>
+        /// <param name="noSignData">需要签名的字符串</param>
+        /// <param name="signAlgorithm">签名算法</param>
+        /// <param name="signData">哈希值签名后的值</param>
+        /// <returns></returns>
+        public static bool VerifySignByPem(byte[] pemByte, string noSignData, string signAlgorithm, string signData)
+        {
+            bool bVerify;
+            try
+            {
+                if (pemByte.Length == 0)
+                {
+                    throw new Exception("数字证书不存在！");
+                }
+                // 找到证书文件
+                string publicKeyPem = Encoding.UTF8.GetString(pemByte);
+
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+
+                // keeping only the payload of the key 
+                publicKeyPem = publicKeyPem.Replace("-----BEGIN PUBLIC KEY-----", "");
+                publicKeyPem = publicKeyPem.Replace("-----END PUBLIC KEY-----", "");
+                byte[] publicKeyRaw = Convert.FromBase64String(publicKeyPem);
+
+                // creating the RSA key 
+                RSACryptoServiceProvider provider = new RSACryptoServiceProvider();
+
+                // https://github.com/dotnet/runtime/issues/31091
+                provider.ImportSubjectPublicKeyInfo(new ReadOnlySpan<byte>(publicKeyRaw), out _);
+
+#endif
+
+#if NETCOREAPP2_1 || NETCOREAPP2_2
+
+                // creating the RSA key 
+                RSACryptoServiceProvider provider = new RSACryptoServiceProvider();
+
+                var xmlPublicKey = ConvertPemToXmlPublicKey(publicKeyPem);
+                provider.FromXmlStringExtension(xmlPublicKey);
+
+#endif
+
+                bVerify = provider.VerifyData(Encoding.UTF8.GetBytes(noSignData), signAlgorithm, Convert.FromBase64String(signData));
+            }
+            catch
+            {
+                throw new Exception("验签失败！");
+            }
+            return bVerify;
+        }
+
+        /// <summary>
+        /// 根据pem证书验签
+        /// 签名（私钥加签，公钥验签）
+        /// 加密（公钥加密，私钥解密）
+        /// </summary>
         /// <param name="pemPath">证书所在路径</param>
         /// <param name="noSignData">需要签名的字符串</param>
         /// <param name="signAlgorithm">签名算法</param>
@@ -590,6 +691,9 @@ namespace CryptoTool.Common
                 // 找到证书文件
                 string publicKeyPem = File.ReadAllText(pemPath);
 
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+
                 // keeping only the payload of the key 
                 publicKeyPem = publicKeyPem.Replace("-----BEGIN PUBLIC KEY-----", "");
                 publicKeyPem = publicKeyPem.Replace("-----END PUBLIC KEY-----", "");
@@ -600,9 +704,22 @@ namespace CryptoTool.Common
 
                 // https://github.com/dotnet/runtime/issues/31091
                 provider.ImportSubjectPublicKeyInfo(new ReadOnlySpan<byte>(publicKeyRaw), out _);
+
+#endif
+
+#if NETCOREAPP2_1 || NETCOREAPP2_2
+
+                // creating the RSA key 
+                RSACryptoServiceProvider provider = new RSACryptoServiceProvider();
+
+                var xmlPublicKey = ConvertPemToXmlPublicKey(publicKeyPem);
+                provider.FromXmlStringExtension(xmlPublicKey);
+
+#endif
+
                 bVerify = provider.VerifyData(Encoding.UTF8.GetBytes(noSignData), signAlgorithm, Convert.FromBase64String(signData));
             }
-            catch
+            catch(Exception ex)
             {
                 throw new Exception("验签失败！");
             }
@@ -630,6 +747,9 @@ namespace CryptoTool.Common
                 // 找到证书文件
                 string privateKeyPem = File.ReadAllText(pemPath);
 
+
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+
                 // keeping only the payload of the key 
                 privateKeyPem = privateKeyPem.Replace("-----BEGIN RSA PRIVATE KEY-----", "");
                 privateKeyPem = privateKeyPem.Replace("-----END RSA PRIVATE KEY-----", "");
@@ -637,8 +757,19 @@ namespace CryptoTool.Common
 
                 // creating the RSA key 
                 RSACryptoServiceProvider provider = new RSACryptoServiceProvider();
-
                 provider.ImportRSAPrivateKey(new ReadOnlySpan<byte>(privateKeyRaw), out _);
+
+#endif
+
+#if NETCOREAPP2_1 || NETCOREAPP2_2
+
+                // creating the RSA key 
+                RSACryptoServiceProvider provider = new RSACryptoServiceProvider();
+
+                var xmlPrivateKey = ConvertPemToXmlPrivateKey(privateKeyPem);
+                provider.FromXmlStringExtension(xmlPrivateKey);
+
+#endif
 
                 // 签名
                 var signBytes = provider.SignData(Encoding.UTF8.GetBytes(noSignData), signAlgorithm);
@@ -646,7 +777,7 @@ namespace CryptoTool.Common
                 // 将加签后的数据进行base64编码，返回的就是已签名的数据 
                 signData = Convert.ToBase64String(signBytes);
             }
-            catch
+            catch (Exception ex)
             {
                 throw new Exception("加签失败！");
             }
@@ -661,12 +792,14 @@ namespace CryptoTool.Common
         /// <param name="password">pfx证书密码</param>
         public static void GeneratePfxCertificate(string pfxPath, string password = "123456")
         {
-            using FileStream fs = File.Create(pfxPath);
-            // var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.0.1", "CN=MyROOTCA");
-            var caPrivKey = DataCertificate.GenerateCACertificate("CN=root ca");
-            var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.01", "CN=root ca", caPrivKey);
-            var pfxArr = X509Certificate2.Export(X509ContentType.Pfx, password);
-            fs.Write(pfxArr);
+            using (FileStream fs = File.Create(pfxPath))
+            {
+                // var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.0.1", "CN=MyROOTCA");
+                var caPrivKey = DataCertificate.GenerateCACertificate("CN=root ca");
+                var X509Certificate2 = DataCertificate.GenerateSelfSignedCertificate("CN=127.0.01", "CN=root ca", caPrivKey);
+                var pfxArr = X509Certificate2.Export(X509ContentType.Pfx, password);
+                fs.Write(pfxArr);
+            }
         }
 
 
@@ -693,8 +826,10 @@ namespace CryptoTool.Common
             {
                 File.Delete(pemPublicPath);
             }
-            using FileStream fs = File.Create(pemPublicPath);
-            fs.Write(Encoding.UTF8.GetBytes(pemPublicKey));
+            using (FileStream fs = File.Create(pemPublicPath))
+            {
+                fs.Write(Encoding.UTF8.GetBytes(pemPublicKey));
+            }
         }
 
         /// <summary>
@@ -710,8 +845,10 @@ namespace CryptoTool.Common
             {
                 File.Delete(pemPrivatePath);
             }
-            using FileStream fs = File.Create(pemPrivatePath);
-            fs.Write(Encoding.UTF8.GetBytes(pemPrivateKey));
+            using (FileStream fs = File.Create(pemPrivatePath))
+            {
+                fs.Write(Encoding.UTF8.GetBytes(pemPrivateKey));
+            }
         }
 
         /// <summary>
@@ -805,6 +942,52 @@ namespace CryptoTool.Common
             }
             return rsaKey;
 
+        }
+
+        /// <summary>
+        /// 把pem私钥转xml格式
+        /// </summary>
+        /// <param name="privateKey">直接从private pem文件中读取的字符串</param>
+        /// <returns></returns>
+        public static string ConvertPemToXmlPrivateKey(string privateKey)
+        {
+            object pemObject = null;
+            using (StringReader sReader = new StringReader(privateKey))
+            {
+                var pemReader = new Org.BouncyCastle.OpenSsl.PemReader(sReader);
+                pemObject = pemReader.ReadObject();
+            }
+            RsaPrivateCrtKeyParameters key = (RsaPrivateCrtKeyParameters)((AsymmetricCipherKeyPair)pemObject).Private;
+            string xmlPrivateKey = string.Format("<RSAKeyValue><Modulus>{0}</Modulus><Exponent>{1}</Exponent><P>{2}</P><Q>{3}</Q><DP>{4}</DP><DQ>{5}</DQ><InverseQ>{6}</InverseQ><D>{7}</D></RSAKeyValue>",
+            Convert.ToBase64String(key.Modulus.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.PublicExponent.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.P.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.Q.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.DP.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.DQ.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.QInv.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.Exponent.ToByteArrayUnsigned()));
+            return xmlPrivateKey;
+        }
+
+        /// <summary>
+        /// 把pem公钥转换成xml格式
+        /// </summary>
+        /// <param name="publicKey">直接从public pem文件中读取出的字符串</param>
+        /// <returns></returns>
+        public static string ConvertPemToXmlPublicKey(string publicKey)
+        {
+            object pemObject = null;
+            using (StringReader sReader = new StringReader(publicKey))
+            {
+                var pemReader = new Org.BouncyCastle.OpenSsl.PemReader(sReader);
+                pemObject = pemReader.ReadObject();
+            }
+            RsaKeyParameters key = (RsaKeyParameters)pemObject;
+            string xmlpublicKey = string.Format("<RSAKeyValue><Modulus>{0}</Modulus><Exponent>{1}</Exponent></RSAKeyValue>",
+            Convert.ToBase64String(key.Modulus.ToByteArrayUnsigned()),
+            Convert.ToBase64String(key.Exponent.ToByteArrayUnsigned()));
+            return xmlpublicKey;
         }
 
         /// <summary>
