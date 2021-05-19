@@ -14,6 +14,7 @@ using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace CryptoTool.Common
@@ -177,11 +178,18 @@ namespace CryptoTool.Common
             RsaPrivateCrtKeyParameters rsaParams = new RsaPrivateCrtKeyParameters(
                 rsa.Modulus, rsa.PublicExponent, rsa.PrivateExponent, rsa.Prime1, rsa.Prime2, rsa.Exponent1, rsa.Exponent2, rsa.Coefficient);
 
-            //https://github.com/bcgit/bc-csharp/issues/160
-            // x509.PrivateKey = ToDotNetKey(rsaparams); //x509.PrivateKey = DotNetUtilities.ToRSA(rsaparams); // https://stackoverflow.com/questions/54752834/error-setting-x509certificate2-privatekey
-            var cert = x509.CopyWithPrivateKey(DotNetUtilities.ToRSA(rsaParams));
+            // https://github.com/bcgit/bc-csharp/issues/160
+            // https://stackoverflow.com/questions/54752834/error-setting-x509certificate2-privatekey
+            // x509.PrivateKey = DotNetUtilities.ToRSA(rsaParams); 
+            // return x509;
+            // [DotNetUtilities class only works on Windows](https://github.com/bcgit/bc-csharp/issues/160)
+            // if run on Linux will cause 'CspParameters' requires Windows Cryptographic API (CAPI), which is not available on this platform.
+            // var cert = x509.CopyWithPrivateKey(DotNetUtilities.ToRSA(rsaParams));
+            var parms = DotNetUtilities.ToRSAParameters(rsaParams);
+            var rsaCreate = RSA.Create();
+            rsaCreate.ImportParameters(parms);
+            var cert = x509.CopyWithPrivateKey(rsaCreate);
             return cert;
-            //return x509;
         }
 
         /// <summary>
@@ -311,9 +319,17 @@ namespace CryptoTool.Common
             RsaPrivateCrtKeyParameters rsaParams = new RsaPrivateCrtKeyParameters(
                 rsa.Modulus, rsa.PublicExponent, rsa.PrivateExponent, rsa.Prime1, rsa.Prime2, rsa.Exponent1, rsa.Exponent2, rsa.Coefficient);
 
-            //https://github.com/bcgit/bc-csharp/issues/160
-            //x509.PrivateKey = DotNetUtilities.ToRSA(rsaParams); // https://stackoverflow.com/questions/54752834/error-setting-x509certificate2-privatekey
-            var cert = x509.CopyWithPrivateKey(DotNetUtilities.ToRSA(rsaParams));
+            // https://github.com/bcgit/bc-csharp/issues/160
+            // https://stackoverflow.com/questions/54752834/error-setting-x509certificate2-privatekey
+            // x509.PrivateKey = DotNetUtilities.ToRSA(rsaParams); 
+            // return x509;
+            // [DotNetUtilities class only works on Windows](https://github.com/bcgit/bc-csharp/issues/160)
+            // if run on Linux will cause 'CspParameters' requires Windows Cryptographic API (CAPI), which is not available on this platform.
+            // var cert = x509.CopyWithPrivateKey(DotNetUtilities.ToRSA(rsaParams));
+            var parms = DotNetUtilities.ToRSAParameters(rsaParams);
+            var rsaCreate = RSA.Create();
+            rsaCreate.ImportParameters(parms);
+            var cert = x509.CopyWithPrivateKey(rsaCreate);
             return cert;
         }
 

@@ -66,29 +66,29 @@ namespace CryptoTool.App
             var appSecret = Encrypter.EncryptBySHA1(appkey);
 
             // 生成自签名的证书路径
-            //var pfxPath = "D:\\MyROOTCA.pfx";
-            //DataCertificate.ChangePfxCertPassword(pfxPath, "123456", "78901234"); // 修改密码
-            //Encrypter.GeneratePfxCertificate(pfxPath);
-            var pubPemPath = "D:\\MyROOTCA_Public.pem";
-            var priPemPath = "D:\\MyROOTCA_Private.pem";
-            //var x509 = Encrypter.GetX509Certificate2();
-            //Encrypter.GeneratePublicPemCert(x509, pubPemPath);
-            //Encrypter.GeneratePrivatePemCert(x509, priPemPath);
+            var pfxPath = "D:\\MyROOTCA.pfx";
+            DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
+            ////Encrypter.GeneratePfxCertificate(pfxPath);
+            //var pubPemPath = "D:\\MyROOTCA_Public.pem";
+            //var priPemPath = "D:\\MyROOTCA_Private.pem";
+            ////var x509 = Encrypter.GetX509Certificate2();
+            ////Encrypter.GeneratePublicPemCert(x509, pubPemPath);
+            ////Encrypter.GeneratePrivatePemCert(x509, priPemPath);
 
-            // 对某个文件计算哈希值
-            var filePath = "D:\\归档信息包.zip";
-            var hashCode = HashUtil.GetHashCode(filePath);
-            Console.WriteLine("文件哈希值：{0}", hashCode);
-            // 加签
-            var signedPemData = Encrypter.SignDataByPem(priPemPath, hashCode, "MD5");
-            //var signePfxdData = Encrypter.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
-            Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
-            //Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
+            //// 对某个文件计算哈希值
+            //var filePath = "D:\\归档信息包.zip";
+            //var hashCode = HashUtil.GetHashCode(filePath);
+            //Console.WriteLine("文件哈希值：{0}", hashCode);
+            //// 加签
+            //var signedPemData = Encrypter.SignDataByPem(priPemPath, hashCode, "MD5");
+            ////var signePfxdData = Encrypter.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
+            //Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
+            ////Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
 
-            var verifyPemResult = Encrypter.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
-            //var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
-            Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
-            //Console.WriteLine("Pfx验签结果：{0}", verifyPfxResult);
+            //var verifyPemResult = Encrypter.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
+            ////var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
+            //Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
+            ////Console.WriteLine("Pfx验签结果：{0}", verifyPfxResult);
             Console.WriteLine("输入任意键退出！");
             Console.ReadKey();
         }
