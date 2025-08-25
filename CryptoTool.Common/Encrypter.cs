@@ -635,7 +635,7 @@ namespace CryptoTool.Common
                 string publicKeyPem = Encoding.UTF8.GetString(pemByte);
 
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0 || NET5_0_OR_GREATER
 
                 // keeping only the payload of the key 
                 publicKeyPem = publicKeyPem.Replace("-----BEGIN PUBLIC KEY-----", "");
@@ -692,7 +692,7 @@ namespace CryptoTool.Common
                 string publicKeyPem = File.ReadAllText(pemPath);
 
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0 || NET5_0_OR_GREATER
 
                 // keeping only the payload of the key 
                 publicKeyPem = publicKeyPem.Replace("-----BEGIN PUBLIC KEY-----", "");
@@ -748,7 +748,7 @@ namespace CryptoTool.Common
                 string privateKeyPem = File.ReadAllText(pemPath);
 
 
-#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0
+#if NETCOREAPP3_0 || NETCOREAPP3_1 || NET5_0 || NET5_0_OR_GREATER
 
                 // keeping only the payload of the key 
                 privateKeyPem = privateKeyPem.Replace("-----BEGIN RSA PRIVATE KEY-----", "");
