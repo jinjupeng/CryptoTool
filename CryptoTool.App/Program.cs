@@ -1,6 +1,8 @@
 ﻿using CryptoTool.Common;
+using CryptoTool.Common.GM;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CryptoTool.App
 {
@@ -62,12 +64,12 @@ namespace CryptoTool.App
             //TestSign();
             //SignData();
 
-            var appkey = Encrypter.GetAppId();
-            var appSecret = Encrypter.EncryptBySHA1(appkey);
+            //var appkey = Encrypter.GetAppId();
+            //var appSecret = Encrypter.EncryptBySHA1(appkey);
 
-            // 生成自签名的证书路径
-            var pfxPath = "D:\\MyROOTCA.pfx";
-            DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
+            //// 生成自签名的证书路径
+            //var pfxPath = "D:\\MyROOTCA.pfx";
+            //DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
             ////Encrypter.GeneratePfxCertificate(pfxPath);
             //var pubPemPath = "D:\\MyROOTCA_Public.pem";
             //var priPemPath = "D:\\MyROOTCA_Private.pem";
@@ -89,6 +91,10 @@ namespace CryptoTool.App
             ////var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
             //Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
             ////Console.WriteLine("Pfx验签结果：{0}", verifyPfxResult);
+
+            SM2Test();
+            SM3Test();
+            SM4Test();
             Console.WriteLine("输入任意键退出！");
             Console.ReadKey();
         }
@@ -125,6 +131,68 @@ namespace CryptoTool.App
 
             var verifyResult = Encrypter.VerifySignByPfx(path, "123456", noSignStr, "MD5", result);
             Console.WriteLine("验签结果：{0}", verifyResult);
+        }
+
+        public static void SM2Test()
+        {
+            #region 国密SM2加解密测试
+
+            string base64PublicKey = "BDeIh9QcjT41pzR0re+3Dqq2KxlwHTHCdHwFwKTHlruOZD3QWpf0Stcu8y1F5YaHr/XqGfA64mdGECFJ5IS91XI=";
+            string base64PrivateKey = "M5Q+Zde6+EmAJ3JPdc2jK5iQfnxmjL1jckRnyosGUFQ=";
+            string plainText = "国密SM2非对称加密算法测试";
+
+            string cipherText = SM2Util.Encrypt(plainText, base64PublicKey);
+            Console.WriteLine("加密结果：" + cipherText);
+            string decryptedText = SM2Util.DecryptToString(cipherText, base64PrivateKey);
+            Console.WriteLine("解密结果：" + decryptedText);
+
+            string sign = SM2Util.SignSm3WithSm2(plainText, base64PrivateKey);
+            Console.WriteLine("签名结果：" + sign);
+            string isValid = SM2Util.VerifySm3WithSm2(plainText, sign, base64PublicKey) ? "有效" : "无效";
+            Console.WriteLine("验签结果：" + isValid);
+
+            #endregion
+        }
+
+        public static void SM3Test()
+        {
+            string input = "国密SM3哈希算法测试";
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = SM3Util.ComputeHash(input);
+            string hashStr = Convert.ToBase64String(hashBytes);
+            Console.WriteLine("哈希结果：" + hashStr);
+            bool isValid = SM3Util.VerifyHash(inputBytes, hashBytes);
+            Console.WriteLine("哈希验证结果：" + (isValid ? "成功" : "失败"));
+        }
+
+        public static void SM4Test()
+        {
+            #region 国密SM4加解密测试
+
+            // 加密示例
+            string plainText = "这是需要加密的内容";
+            string key = "1234567890abcdef"; // 16字节密钥
+            string encrypted = SM4Util.EncryptEcb(plainText, key);
+            Console.WriteLine("加密结果：" + encrypted);
+
+            // 解密示例
+            string decrypted = SM4Util.DecryptEcb(encrypted, key);
+            Console.WriteLine("解密结果：" + decrypted);
+
+            // CBC模式示例
+            string iv = "fedcba9876543210"; // 16字节初始化向量
+            string encryptedCbc = SM4Util.EncryptCbc(plainText, key, iv);
+            Console.WriteLine("CBC加密结果：" + encryptedCbc);
+            string decryptedCbc = SM4Util.DecryptCbc(encryptedCbc, key, iv);
+            Console.WriteLine("CBC解密结果：" + decryptedCbc);
+
+            // 生成随机密钥
+            string randomKey = SM4Util.GenerateKey();
+            Console.WriteLine("随机密钥：" + randomKey);
+            string randomIV = SM4Util.GenerateIV();
+            Console.WriteLine("随机IV：" + randomIV);
+
+            #endregion
         }
     }
 }
