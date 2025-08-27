@@ -136,19 +136,21 @@ namespace CryptoTool.App
         public static void SM2Test()
         {
             #region 国密SM2加解密测试
-
-            string base64PublicKey = "BDeIh9QcjT41pzR0re+3Dqq2KxlwHTHCdHwFwKTHlruOZD3QWpf0Stcu8y1F5YaHr/XqGfA64mdGECFJ5IS91XI=";
-            string base64PrivateKey = "M5Q+Zde6+EmAJ3JPdc2jK5iQfnxmjL1jckRnyosGUFQ=";
+            Console.WriteLine("--------------国密SM2非对称加密算法测试---------------");
+            string base64PublicKey = "04fd1b00c159476108d81a649eef2c03bf09e63cca59f8fc26c5d8fe58d904cf9abb135fa08a7293ece5e164663ccc26dd77fef19c17779362460d269f36b3ccec";
+            string base64PrivateKey = "0af453d26831e0a71cd8d1c2f36a3e3a52b8b30c69fc1944eaf7b216c254c5ea";
             string plainText = "国密SM2非对称加密算法测试";
 
-            string cipherText = SM2Util.Encrypt(plainText, base64PublicKey);
+            var publicKey = SM2Util.ParsePublicKeyFromHex(base64PublicKey);
+            var privateKey = SM2Util.ParsePrivateKeyFromHex(base64PrivateKey);
+            string cipherText = SM2Util.Encrypt(plainText, publicKey);
             Console.WriteLine("加密结果：" + cipherText);
-            string decryptedText = SM2Util.DecryptToString(cipherText, base64PrivateKey);
+            string decryptedText = SM2Util.DecryptToString(cipherText, privateKey);
             Console.WriteLine("解密结果：" + decryptedText);
 
-            string sign = SM2Util.SignSm3WithSm2(plainText, base64PrivateKey);
+            string sign = SM2Util.SignSm3WithSm2(Encoding.UTF8.GetBytes(plainText), privateKey);
             Console.WriteLine("签名结果：" + sign);
-            string isValid = SM2Util.VerifySm3WithSm2(plainText, sign, base64PublicKey) ? "有效" : "无效";
+            string isValid = SM2Util.VerifySm3WithSm2(Encoding.UTF8.GetBytes(plainText), sign, publicKey) ? "有效" : "无效";
             Console.WriteLine("验签结果：" + isValid);
 
             #endregion
@@ -156,6 +158,7 @@ namespace CryptoTool.App
 
         public static void SM3Test()
         {
+            Console.WriteLine("--------------国密SM3哈希算法测试---------------");
             string input = "国密SM3哈希算法测试";
             byte[] inputBytes = Encoding.UTF8.GetBytes(input);
             var hashBytes = SM3Util.ComputeHash(input);
@@ -169,15 +172,16 @@ namespace CryptoTool.App
         {
             #region 国密SM4加解密测试
 
+            Console.WriteLine("--------------国密SM4对称加密算法测试---------------");
             // 加密示例
             string plainText = "这是需要加密的内容";
             string key = "1234567890abcdef"; // 16字节密钥
             string encrypted = SM4Util.EncryptEcb(plainText, key);
-            Console.WriteLine("加密结果：" + encrypted);
+            Console.WriteLine("ECB加密结果：" + encrypted);
 
             // 解密示例
             string decrypted = SM4Util.DecryptEcb(encrypted, key);
-            Console.WriteLine("解密结果：" + decrypted);
+            Console.WriteLine("ECB解密结果：" + decrypted);
 
             // CBC模式示例
             string iv = "fedcba9876543210"; // 16字节初始化向量

@@ -19,13 +19,35 @@ namespace CryptoTool.Common.GM
         private const int BLOCK_SIZE = 16; // SM4分组长度为128位(16字节)
 
         /// <summary>
+        /// SM4填充模式
+        /// </summary>
+        public enum PaddingMode
+        {
+            /// <summary>
+            /// PKCS#7填充
+            /// </summary>
+            PKCS7,
+
+            /// <summary>
+            /// PKCS#5填充 (与PKCS#7类似，但针对8字节块)
+            /// </summary>
+            PKCS5,
+
+            /// <summary>
+            /// 不使用填充
+            /// </summary>
+            NoPadding
+        }
+
+        /// <summary>
         /// SM4-ECB模式加密
         /// </summary>
         /// <param name="plainText">明文</param>
         /// <param name="key">密钥(16字节)</param>
         /// <param name="encoding">编码方式，默认UTF-8</param>
+        /// <param name="paddingMode">填充模式，默认PKCS7</param>
         /// <returns>Base64编码的密文</returns>
-        public static string EncryptEcb(string plainText, string key, Encoding encoding = null)
+        public static string EncryptEcb(string plainText, string key, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             encoding = encoding ?? Encoding.UTF8;
             byte[] keyBytes = encoding.GetBytes(key);
@@ -36,7 +58,7 @@ namespace CryptoTool.Common.GM
                 throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
             }
 
-            byte[] cipherBytes = EncryptEcb(plainBytes, keyBytes);
+            byte[] cipherBytes = EncryptEcb(plainBytes, keyBytes, paddingMode);
             return Convert.ToBase64String(cipherBytes);
         }
 
@@ -46,8 +68,9 @@ namespace CryptoTool.Common.GM
         /// <param name="cipherText">Base64编码的密文</param>
         /// <param name="key">密钥(16字节)</param>
         /// <param name="encoding">编码方式，默认UTF-8</param>
+        /// <param name="paddingMode">填充模式，默认PKCS7</param>
         /// <returns>解密后的明文</returns>
-        public static string DecryptEcb(string cipherText, string key, Encoding encoding = null)
+        public static string DecryptEcb(string cipherText, string key, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             try
             {
@@ -60,7 +83,7 @@ namespace CryptoTool.Common.GM
                     throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
                 }
 
-                byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes);
+                byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
                 return encoding.GetString(plainBytes);
             }
             catch (Exception ex)
@@ -76,8 +99,9 @@ namespace CryptoTool.Common.GM
         /// <param name="key">密钥(16字节)</param>
         /// <param name="iv">初始向量(16字节)</param>
         /// <param name="encoding">编码方式，默认UTF-8</param>
+        /// <param name="paddingMode">填充模式，默认PKCS7</param>
         /// <returns>Base64编码的密文</returns>
-        public static string EncryptCbc(string plainText, string key, string iv, Encoding encoding = null)
+        public static string EncryptCbc(string plainText, string key, string iv, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             encoding = encoding ?? Encoding.UTF8;
             byte[] keyBytes = encoding.GetBytes(key);
@@ -94,7 +118,7 @@ namespace CryptoTool.Common.GM
                 throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
             }
 
-            byte[] cipherBytes = EncryptCbc(plainBytes, keyBytes, ivBytes);
+            byte[] cipherBytes = EncryptCbc(plainBytes, keyBytes, ivBytes, paddingMode);
             return Convert.ToBase64String(cipherBytes);
         }
 
@@ -105,8 +129,9 @@ namespace CryptoTool.Common.GM
         /// <param name="key">密钥(16字节)</param>
         /// <param name="iv">初始向量(16字节)</param>
         /// <param name="encoding">编码方式，默认UTF-8</param>
+        /// <param name="paddingMode">填充模式，默认PKCS7</param>
         /// <returns>解密后的明文</returns>
-        public static string DecryptCbc(string cipherText, string key, string iv, Encoding encoding = null)
+        public static string DecryptCbc(string cipherText, string key, string iv, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             try
             {
@@ -125,7 +150,7 @@ namespace CryptoTool.Common.GM
                     throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
                 }
 
-                byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes);
+                byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
                 return encoding.GetString(plainBytes);
             }
             catch (Exception ex)
@@ -185,24 +210,75 @@ namespace CryptoTool.Common.GM
         #region 内部实现方法
 
         /// <summary>
-        /// SM4-ECB模式加密
+        /// 获取指定的填充器
         /// </summary>
-        /// <param name="data">明文字节数组</param>
-        /// <param name="key">密钥字节数组</param>
-        /// <returns>密文字节数组</returns>
-        private static byte[] EncryptEcb(byte[] data, byte[] key)
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>IBlockCipherPadding 实例或 null (无填充)</returns>
+        private static IBlockCipherPadding GetPadding(PaddingMode paddingMode)
         {
-            // 创建SM4引擎
-            SM4Engine engine = new SM4Engine();
+            switch (paddingMode)
+            {
+                case PaddingMode.PKCS7:
+                    return new Pkcs7Padding();
+                case PaddingMode.PKCS5:
+                    // BouncyCastle中没有单独的PKCS5Padding实现，PKCS5本质上是针对8字节块的PKCS7
+                    // 在SM4中块大小为16字节，因此这里也使用PKCS7填充
+                    return new Pkcs7Padding();
+                case PaddingMode.NoPadding:
+                    return null;
+                default:
+                    return new Pkcs7Padding(); // 默认使用PKCS7
+            }
+        }
 
-            // 创建加密参数
-            KeyParameter keyParam = new KeyParameter(key);
+        /// <summary>
+        /// 创建块密码
+        /// </summary>
+        /// <param name="engine">加密引擎</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <param name="isEncryption">是否为加密模式</param>
+        /// <returns>缓冲块密码</returns>
+        private static IBufferedCipher CreateCipher(IBlockCipher engine, PaddingMode paddingMode, bool isEncryption)
+        {
+            IBlockCipherPadding padding = GetPadding(paddingMode);
 
-            // 使用PaddedBufferedBlockCipher进行ECB模式加密，默认使用PKCS7填充
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine);
-            cipher.Init(true, keyParam); // true表示加密模式
+            // 如果选择了无填充，使用BufferedBlockCipher而不是PaddedBufferedBlockCipher
+            if (paddingMode == PaddingMode.NoPadding)
+            {
+                BufferedBlockCipher cipher = new BufferedBlockCipher(engine);
+                cipher.Init(isEncryption, new KeyParameter(new byte[KEY_SIZE])); // 临时初始化以获取正确的类型
+                return cipher;
+            }
+            else
+            {
+                PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine, padding);
+                cipher.Init(isEncryption, new KeyParameter(new byte[KEY_SIZE])); // 临时初始化以获取正确的类型
+                return cipher;
+            }
+        }
 
-            // 计算输出缓冲区大小，包括可能的填充
+        /// <summary>
+        /// 处理密码操作
+        /// </summary>
+        /// <param name="cipher">密码实例</param>
+        /// <param name="data">输入数据</param>
+        /// <param name="parameters">密码参数</param>
+        /// <param name="isEncryption">是否为加密操作</param>
+        /// <returns>处理后的数据</returns>
+        private static byte[] ProcessCipher(IBufferedCipher cipher, byte[] data, ICipherParameters parameters, bool isEncryption)
+        {
+            cipher.Init(isEncryption, parameters);
+
+            // 验证无填充模式下数据长度
+            if (cipher is BufferedBlockCipher && !(cipher is PaddedBufferedBlockCipher) && isEncryption)
+            {
+                if (data.Length % BLOCK_SIZE != 0)
+                {
+                    throw new ArgumentException($"使用无填充模式时，数据长度必须是{BLOCK_SIZE}的整数倍");
+                }
+            }
+
+            // 计算输出缓冲区大小
             byte[] output = new byte[cipher.GetOutputSize(data.Length)];
 
             // 处理数据
@@ -223,41 +299,47 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
-        /// SM4-ECB模式解密
+        /// SM4-ECB模式加密
         /// </summary>
-        /// <param name="data">密文字节数组</param>
+        /// <param name="data">明文字节数组</param>
         /// <param name="key">密钥字节数组</param>
-        /// <returns>明文字节数组</returns>
-        private static byte[] DecryptEcb(byte[] data, byte[] key)
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>密文字节数组</returns>
+        private static byte[] EncryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
 
+            // 创建适当的密码实例
+            IBufferedCipher cipher = CreateCipher(engine, paddingMode, true);
+
+            // 创建加密参数
+            KeyParameter keyParam = new KeyParameter(key);
+
+            // 处理加密
+            return ProcessCipher(cipher, data, keyParam, true);
+        }
+
+        /// <summary>
+        /// SM4-ECB模式解密
+        /// </summary>
+        /// <param name="data">密文字节数组</param>
+        /// <param name="key">密钥字节数组</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>明文字节数组</returns>
+        private static byte[] DecryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            // 创建SM4引擎
+            SM4Engine engine = new SM4Engine();
+
+            // 创建适当的密码实例
+            IBufferedCipher cipher = CreateCipher(engine, paddingMode, false);
+
             // 创建解密参数
             KeyParameter keyParam = new KeyParameter(key);
 
-            // 使用PaddedBufferedBlockCipher进行ECB模式解密，默认使用PKCS7填充
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine);
-            cipher.Init(false, keyParam); // false表示解密模式
-
-            // 计算输出缓冲区大小
-            byte[] output = new byte[cipher.GetOutputSize(data.Length)];
-
-            // 处理数据
-            int length = cipher.ProcessBytes(data, 0, data.Length, output, 0);
-
-            // 处理最后的数据块和填充
-            length += cipher.DoFinal(output, length);
-
-            // 如果输出长度不等于输出缓冲区长度，则创建一个新的数组
-            if (length != output.Length)
-            {
-                byte[] temp = new byte[length];
-                Array.Copy(output, 0, temp, 0, length);
-                return temp;
-            }
-
-            return output;
+            // 处理解密
+            return ProcessCipher(cipher, data, keyParam, false);
         }
 
         /// <summary>
@@ -266,37 +348,33 @@ namespace CryptoTool.Common.GM
         /// <param name="data">明文字节数组</param>
         /// <param name="key">密钥字节数组</param>
         /// <param name="iv">初始向量字节数组</param>
+        /// <param name="paddingMode">填充模式</param>
         /// <returns>密文字节数组</returns>
-        private static byte[] EncryptCbc(byte[] data, byte[] key, byte[] iv)
+        private static byte[] EncryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
 
+            // 创建CBC模式的块密码
+            CbcBlockCipher cbcBlockCipher = new CbcBlockCipher(engine);
+
+            // 创建适当的密码实例
+            IBufferedCipher cipher;
+            if (paddingMode == PaddingMode.NoPadding)
+            {
+                cipher = new BufferedBlockCipher(cbcBlockCipher);
+            }
+            else
+            {
+                IBlockCipherPadding padding = GetPadding(paddingMode);
+                cipher = new PaddedBufferedBlockCipher(cbcBlockCipher, padding);
+            }
+
             // 创建加密参数，包括密钥和IV
             ParametersWithIV parameters = new ParametersWithIV(new KeyParameter(key), iv);
 
-            // 使用CBC模式
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(engine));
-            cipher.Init(true, parameters); // true表示加密模式
-
-            // 计算输出缓冲区大小，包括可能的填充
-            byte[] output = new byte[cipher.GetOutputSize(data.Length)];
-
-            // 处理数据
-            int length = cipher.ProcessBytes(data, 0, data.Length, output, 0);
-
-            // 处理最后的数据块和填充
-            length += cipher.DoFinal(output, length);
-
-            // 如果输出长度不等于输出缓冲区长度，则创建一个新的数组
-            if (length != output.Length)
-            {
-                byte[] temp = new byte[length];
-                Array.Copy(output, 0, temp, 0, length);
-                return temp;
-            }
-
-            return output;
+            // 处理加密
+            return ProcessCipher(cipher, data, parameters, true);
         }
 
         /// <summary>
@@ -305,37 +383,33 @@ namespace CryptoTool.Common.GM
         /// <param name="data">密文字节数组</param>
         /// <param name="key">密钥字节数组</param>
         /// <param name="iv">初始向量字节数组</param>
+        /// <param name="paddingMode">填充模式</param>
         /// <returns>明文字节数组</returns>
-        private static byte[] DecryptCbc(byte[] data, byte[] key, byte[] iv)
+        private static byte[] DecryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
 
+            // 创建CBC模式的块密码
+            CbcBlockCipher cbcBlockCipher = new CbcBlockCipher(engine);
+
+            // 创建适当的密码实例
+            IBufferedCipher cipher;
+            if (paddingMode == PaddingMode.NoPadding)
+            {
+                cipher = new BufferedBlockCipher(cbcBlockCipher);
+            }
+            else
+            {
+                IBlockCipherPadding padding = GetPadding(paddingMode);
+                cipher = new PaddedBufferedBlockCipher(cbcBlockCipher, padding);
+            }
+
             // 创建解密参数，包括密钥和IV
             ParametersWithIV parameters = new ParametersWithIV(new KeyParameter(key), iv);
 
-            // 使用CBC模式
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(engine));
-            cipher.Init(false, parameters); // false表示解密模式
-
-            // 计算输出缓冲区大小
-            byte[] output = new byte[cipher.GetOutputSize(data.Length)];
-
-            // 处理数据
-            int length = cipher.ProcessBytes(data, 0, data.Length, output, 0);
-
-            // 处理最后的数据块和填充
-            length += cipher.DoFinal(output, length);
-
-            // 如果输出长度不等于输出缓冲区长度，则创建一个新的数组
-            if (length != output.Length)
-            {
-                byte[] temp = new byte[length];
-                Array.Copy(output, 0, temp, 0, length);
-                return temp;
-            }
-
-            return output;
+            // 处理解密
+            return ProcessCipher(cipher, data, parameters, false);
         }
 
         #endregion
