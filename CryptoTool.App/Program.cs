@@ -2,6 +2,7 @@
 using CryptoTool.Common.GM;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CryptoTool.App
@@ -136,7 +137,7 @@ namespace CryptoTool.App
         public static void SM2Test()
         {
             #region 国密SM2加解密测试
-            Console.WriteLine("--------------国密SM2非对称加密算法测试---------------");
+            Console.WriteLine("\n--------------国密SM2非对称加密算法测试---------------");
             string base64PublicKey = "04fd1b00c159476108d81a649eef2c03bf09e63cca59f8fc26c5d8fe58d904cf9abb135fa08a7293ece5e164663ccc26dd77fef19c17779362460d269f36b3ccec";
             string base64PrivateKey = "0af453d26831e0a71cd8d1c2f36a3e3a52b8b30c69fc1944eaf7b216c254c5ea";
             string plainText = "国密SM2非对称加密算法测试";
@@ -154,11 +155,46 @@ namespace CryptoTool.App
             Console.WriteLine("验签结果：" + isValid);
 
             #endregion
+
+            #region 密文格式转换测试 (C1C2C3 <-> C1C3C2)
+            Console.WriteLine("\n--------------SM2密文格式转换测试---------------");
+
+            // 1. 生成新的密钥对和明文用于测试
+            var keyPair = SM2Util.GenerateKeyPair();
+            var testPublicKey = (Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)keyPair.Public;
+            var testPrivateKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)keyPair.Private;
+            string testPlainText = "测试密文格式转换";
+            Console.WriteLine($"测试原文: \"{testPlainText}\"");
+
+            // 2. 使用默认模式 (C1C2C3) 加密
+            string c1c2c3_base64 = SM2Util.Encrypt(testPlainText, testPublicKey, mode: SM2Util.SM2CipherMode.C1C2C3);
+            byte[] c1c2c3_bytes = Convert.FromBase64String(c1c2c3_base64);
+            Console.WriteLine($"C1C2C3 (BouncyCastle默认) 密文 (Base64): {c1c2c3_base64}");
+
+            // 3. C1C2C3 -> C1C3C2
+            byte[] c1c3c2_bytes = SM2Util.C1C2C3ToC1C3C2(c1c2c3_bytes);
+            Console.WriteLine($"转换为 C1C3C2 (国密标准) 密文 (Base64): {Convert.ToBase64String(c1c3c2_bytes)}");
+
+            // 4. C1C3C2 -> C1C2C3
+            byte[] roundtrip_c1c2c3_bytes = SM2Util.C1C3C2ToC1C2C3(c1c3c2_bytes);
+            Console.WriteLine($"转换回 C1C2C3 密文 (Base64): {Convert.ToBase64String(roundtrip_c1c2c3_bytes)}");
+
+            // 5. 验证往返转换是否一致
+            bool conversionSuccess = c1c2c3_bytes.SequenceEqual(roundtrip_c1c2c3_bytes);
+            Console.WriteLine($"往返转换验证: {(conversionSuccess ? "成功" : "失败")}");
+
+            // 6. 使用 C1C3C2 格式的密文进行解密
+            string decryptedFromC1C3C2 = SM2Util.DecryptToString(Convert.ToBase64String(c1c3c2_bytes), testPrivateKey, mode: SM2Util.SM2CipherMode.C1C3C2);
+            Console.WriteLine($"从C1C3C2格式解密结果: \"{decryptedFromC1C3C2}\"");
+            bool decryptionSuccess = testPlainText == decryptedFromC1C3C2;
+            Console.WriteLine($"C1C3C2解密验证: {(decryptionSuccess ? "成功" : "失败")}");
+
+            #endregion
         }
 
         public static void SM3Test()
         {
-            Console.WriteLine("--------------国密SM3哈希算法测试---------------");
+            Console.WriteLine("\n--------------国密SM3哈希算法测试---------------");
             string input = "国密SM3哈希算法测试";
             byte[] inputBytes = Encoding.UTF8.GetBytes(input);
             var hashBytes = SM3Util.ComputeHash(input);
@@ -172,7 +208,7 @@ namespace CryptoTool.App
         {
             #region 国密SM4加解密测试
 
-            Console.WriteLine("--------------国密SM4对称加密算法测试---------------");
+            Console.WriteLine("\n--------------国密SM4对称加密算法测试---------------");
             // 加密示例
             string plainText = "这是需要加密的内容";
             string key = "1234567890abcdef"; // 16字节密钥

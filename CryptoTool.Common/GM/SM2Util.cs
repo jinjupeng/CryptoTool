@@ -40,6 +40,21 @@ namespace CryptoTool.Common.GM
         private const string SM2_CURVE_NAME = "SM2P256v1";
 
         /// <summary>
+        /// SM2密文格式模式
+        /// </summary>
+        public enum SM2CipherMode
+        {
+            /// <summary>
+            /// C1C2C3格式，BouncyCastle默认格式
+            /// </summary>
+            C1C2C3,
+            /// <summary>
+            /// C1C3C2格式，国密标准推荐格式
+            /// </summary>
+            C1C3C2
+        }
+
+        /// <summary>
         /// 获取SM2曲线参数，这里使用sm2p256v1曲线
         /// </summary>
         private static readonly X9ECParameters SM2_ECX9_PARAMS = GMNamedCurves.GetByName(SM2_CURVE_NAME);
@@ -319,10 +334,11 @@ namespace CryptoTool.Common.GM
         /// </summary>
         /// <param name="data">待加密数据</param>
         /// <param name="publicKey">SM2公钥</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>加密后的数据（Base64编码）</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当数据长度为0时抛出</exception>
-        public static string Encrypt(byte[] data, ECPublicKeyParameters publicKey)
+        public static string Encrypt(byte[] data, ECPublicKeyParameters publicKey, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (data == null)
             {
@@ -342,8 +358,15 @@ namespace CryptoTool.Common.GM
             SM2Engine engine = new SM2Engine();
             ICipherParameters param = new ParametersWithRandom(publicKey, new SecureRandom());
             engine.Init(true, param);
-            byte[] encrypted = engine.ProcessBlock(data, 0, data.Length);
-            return Convert.ToBase64String(encrypted);
+            byte[] encryptedBytes = engine.ProcessBlock(data, 0, data.Length);
+
+            // 根据模式决定是否转换格式
+            if (mode == SM2CipherMode.C1C3C2)
+            {
+                encryptedBytes = C1C2C3ToC1C3C2(encryptedBytes);
+            }
+
+            return Convert.ToBase64String(encryptedBytes);
         }
 
         /// <summary>
@@ -351,11 +374,12 @@ namespace CryptoTool.Common.GM
         /// </summary>
         /// <param name="data">待加密数据</param>
         /// <param name="publicKeyBase64">SM2公钥的Base64编码</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>加密后的数据（Base64编码）</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当数据长度为0时抛出</exception>
         /// <exception cref="FormatException">当公钥格式无效时抛出</exception>
-        public static string Encrypt(byte[] data, string publicKeyBase64)
+        public static string Encrypt(byte[] data, string publicKeyBase64, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (data == null)
             {
@@ -373,7 +397,7 @@ namespace CryptoTool.Common.GM
             }
 
             ECPublicKeyParameters publicKey = ParsePublicKeyFromBase64(publicKeyBase64);
-            return Encrypt(data, publicKey);
+            return Encrypt(data, publicKey, mode);
         }
 
         /// <summary>
@@ -382,10 +406,11 @@ namespace CryptoTool.Common.GM
         /// <param name="plainText">待加密字符串</param>
         /// <param name="publicKey">SM2公钥</param>
         /// <param name="encoding">字符编码（默认UTF-8）</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>加密后的字符串（Base64编码）</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
-        public static string Encrypt(string plainText, ECPublicKeyParameters publicKey, Encoding encoding = null)
+        public static string Encrypt(string plainText, ECPublicKeyParameters publicKey, Encoding encoding = null, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(plainText))
             {
@@ -399,7 +424,7 @@ namespace CryptoTool.Common.GM
 
             encoding = encoding ?? Encoding.UTF8;
             byte[] data = encoding.GetBytes(plainText);
-            return Encrypt(data, publicKey);
+            return Encrypt(data, publicKey, mode);
         }
 
         /// <summary>
@@ -408,11 +433,12 @@ namespace CryptoTool.Common.GM
         /// <param name="plainText">待加密字符串</param>
         /// <param name="publicKeyBase64">SM2公钥的Base64编码</param>
         /// <param name="encoding">字符编码（默认UTF-8）</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>加密后的字符串（Base64编码）</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
         /// <exception cref="FormatException">当公钥格式无效时抛出</exception>
-        public static string Encrypt(string plainText, string publicKeyBase64, Encoding encoding = null)
+        public static string Encrypt(string plainText, string publicKeyBase64, Encoding encoding = null, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(plainText))
             {
@@ -426,7 +452,7 @@ namespace CryptoTool.Common.GM
 
             encoding = encoding ?? Encoding.UTF8;
             byte[] data = encoding.GetBytes(plainText);
-            return Encrypt(data, publicKeyBase64);
+            return Encrypt(data, publicKeyBase64, mode);
         }
 
         /// <summary>
@@ -434,11 +460,12 @@ namespace CryptoTool.Common.GM
         /// </summary>
         /// <param name="encryptedData">加密数据的Base64编码</param>
         /// <param name="privateKey">SM2私钥</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>解密后的数据</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
         /// <exception cref="FormatException">当加密数据格式无效时抛出</exception>
-        public static byte[] Decrypt(string encryptedData, ECPrivateKeyParameters privateKey)
+        public static byte[] Decrypt(string encryptedData, ECPrivateKeyParameters privateKey, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(encryptedData))
             {
@@ -453,6 +480,13 @@ namespace CryptoTool.Common.GM
             try
             {
                 byte[] data = Convert.FromBase64String(encryptedData);
+
+                // 如果是国密标准格式，先转换为BouncyCastle格式
+                if (mode == SM2CipherMode.C1C3C2)
+                {
+                    data = C1C3C2ToC1C2C3(data);
+                }
+
                 SM2Engine engine = new SM2Engine();
                 engine.Init(false, privateKey);
                 return engine.ProcessBlock(data, 0, data.Length);
@@ -472,11 +506,12 @@ namespace CryptoTool.Common.GM
         /// </summary>
         /// <param name="encryptedData">加密数据的Base64编码</param>
         /// <param name="privateKeyBase64">SM2私钥的Base64编码</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>解密后的数据</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
         /// <exception cref="FormatException">当格式无效时抛出</exception>
-        public static byte[] Decrypt(string encryptedData, string privateKeyBase64)
+        public static byte[] Decrypt(string encryptedData, string privateKeyBase64, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(encryptedData))
             {
@@ -489,7 +524,7 @@ namespace CryptoTool.Common.GM
             }
 
             ECPrivateKeyParameters privateKey = ParsePrivateKeyFromBase64(privateKeyBase64);
-            return Decrypt(encryptedData, privateKey);
+            return Decrypt(encryptedData, privateKey, mode);
         }
 
         /// <summary>
@@ -498,11 +533,12 @@ namespace CryptoTool.Common.GM
         /// <param name="encryptedData">加密的Base64字符串</param>
         /// <param name="privateKey">SM2私钥</param>
         /// <param name="encoding">字符编码（默认UTF-8）</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>解密后的原文</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
         /// <exception cref="FormatException">当加密数据格式无效时抛出</exception>
-        public static string DecryptToString(string encryptedData, ECPrivateKeyParameters privateKey, Encoding encoding = null)
+        public static string DecryptToString(string encryptedData, ECPrivateKeyParameters privateKey, Encoding encoding = null, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(encryptedData))
             {
@@ -515,7 +551,7 @@ namespace CryptoTool.Common.GM
             }
 
             encoding = encoding ?? Encoding.UTF8;
-            byte[] decryptedData = Decrypt(encryptedData, privateKey);
+            byte[] decryptedData = Decrypt(encryptedData, privateKey, mode);
             return encoding.GetString(decryptedData);
         }
 
@@ -525,11 +561,12 @@ namespace CryptoTool.Common.GM
         /// <param name="encryptedData">加密的Base64字符串</param>
         /// <param name="privateKeyBase64">SM2私钥的Base64编码</param>
         /// <param name="encoding">字符编码（默认UTF-8）</param>
+        /// <param name="mode">密文格式模式（默认为C1C2C3）</param>
         /// <returns>解密后的原文</returns>
         /// <exception cref="ArgumentNullException">当参数为null时抛出</exception>
         /// <exception cref="ArgumentException">当字符串为空时抛出</exception>
         /// <exception cref="FormatException">当格式无效时抛出</exception>
-        public static string DecryptToString(string encryptedData, string privateKeyBase64, Encoding encoding = null)
+        public static string DecryptToString(string encryptedData, string privateKeyBase64, Encoding encoding = null, SM2CipherMode mode = SM2CipherMode.C1C2C3)
         {
             if (string.IsNullOrEmpty(encryptedData))
             {
@@ -542,10 +579,9 @@ namespace CryptoTool.Common.GM
             }
 
             encoding = encoding ?? Encoding.UTF8;
-            byte[] decryptedData = Decrypt(encryptedData, privateKeyBase64);
+            byte[] decryptedData = Decrypt(encryptedData, privateKeyBase64, mode);
             return encoding.GetString(decryptedData);
         }
-
         #endregion
 
         #region SM2签名验签
@@ -811,6 +847,87 @@ namespace CryptoTool.Common.GM
             encoding = encoding ?? Encoding.UTF8;
             byte[] dataBytes = encoding.GetBytes(data);
             return VerifySm3WithSm2(dataBytes, signature, publicKeyBase64);
+        }
+
+        #endregion
+
+        #region 密文格式转换 (C1C2C3 <-> C1C3C2)
+
+        /// <summary>
+        /// 将BouncyCastle的C1C2C3密文格式转换为C1C3C2格式。
+        /// SM2标准推荐的密文顺序是C1C3C2，而BouncyCastle默认输出为C1C2C3。
+        /// </summary>
+        /// <param name="c1c2c3">C1C2C3格式的密文。</param>
+        /// <returns>C1C3C2格式的密文。</returns>
+        /// <exception cref="ArgumentException">当密文格式无效时抛出。</exception>
+        public static byte[] C1C2C3ToC1C3C2(byte[] c1c2c3)
+        {
+            // C1: 65 bytes (uncompressed point for 256-bit curve) 加密过程中生成的随机椭圆曲线点，未压缩格式下长度为65字节
+            // C3: 32 bytes (SM3 hash) 对明文计算的SM3哈希值，长度为32字节
+            // C2: variable length 实际的密文数据，长度与明文长度相同
+            const int c1Length = 65;
+            const int c3Length = 32;
+
+            if (c1c2c3 == null || c1c2c3.Length <= c1Length + c3Length)
+            {
+                throw new ArgumentException("无效的C1C2C3格式密文", nameof(c1c2c3));
+            }
+
+            int c2Length = c1c2c3.Length - c1Length - c3Length;
+
+            byte[] c1 = new byte[c1Length];
+            Buffer.BlockCopy(c1c2c3, 0, c1, 0, c1Length);
+
+            byte[] c2 = new byte[c2Length];
+            Buffer.BlockCopy(c1c2c3, c1Length, c2, 0, c2Length);
+
+            byte[] c3 = new byte[c3Length];
+            Buffer.BlockCopy(c1c2c3, c1Length + c2Length, c3, 0, c3Length);
+
+            byte[] c1c3c2 = new byte[c1c2c3.Length];
+            Buffer.BlockCopy(c1, 0, c1c3c2, 0, c1Length);
+            Buffer.BlockCopy(c3, 0, c1c3c2, c1Length, c3Length);
+            Buffer.BlockCopy(c2, 0, c1c3c2, c1Length + c3Length, c2Length);
+
+            return c1c3c2;
+        }
+
+        /// <summary>
+        /// 将C1C3C2密文格式转换为BouncyCastle兼容的C1C2C3格式。
+        /// </summary>
+        /// <param name="c1c3c2">C1C3C2格式的密文。</param>
+        /// <returns>C1C2C3格式的密文。</returns>
+        /// <exception cref="ArgumentException">当密文格式无效时抛出。</exception>
+        public static byte[] C1C3C2ToC1C2C3(byte[] c1c3c2)
+        {
+            // C1: 65 bytes (uncompressed point for 256-bit curve)
+            // C3: 32 bytes (SM3 hash)
+            // C2: variable length
+            const int c1Length = 65;
+            const int c3Length = 32;
+
+            if (c1c3c2 == null || c1c3c2.Length <= c1Length + c3Length)
+            {
+                throw new ArgumentException("无效的C1C3C2格式密文", nameof(c1c3c2));
+            }
+
+            int c2Length = c1c3c2.Length - c1Length - c3Length;
+
+            byte[] c1 = new byte[c1Length];
+            Buffer.BlockCopy(c1c3c2, 0, c1, 0, c1Length);
+
+            byte[] c3 = new byte[c3Length];
+            Buffer.BlockCopy(c1c3c2, c1Length, c3, 0, c3Length);
+
+            byte[] c2 = new byte[c2Length];
+            Buffer.BlockCopy(c1c3c2, c1Length + c3Length, c2, 0, c2Length);
+
+            byte[] c1c2c3 = new byte[c1c3c2.Length];
+            Buffer.BlockCopy(c1, 0, c1c2c3, 0, c1Length);
+            Buffer.BlockCopy(c2, 0, c1c2c3, c1Length, c2Length);
+            Buffer.BlockCopy(c3, 0, c1c2c3, c1Length + c2Length, c3Length);
+
+            return c1c2c3;
         }
 
         #endregion
