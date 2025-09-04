@@ -22,6 +22,7 @@ namespace CryptoTool.App
             SM3Test();
             SM4Test();
         }
+        #region DES测试
 
         public static void DESTest()
         {
@@ -59,8 +60,6 @@ namespace CryptoTool.App
 
             Console.WriteLine("\nDES算法全面测试完成！");
         }
-
-        #region DES Tests
 
         /// <summary>
         /// 测试基础DES功能
