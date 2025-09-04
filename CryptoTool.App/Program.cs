@@ -14,16 +14,941 @@ namespace CryptoTool.App
         static void Main(string[] args)
         {
             MD5Test();
-            //RSATest();
-            //AESTest();
-            //DESTest();
+            RSATest();
+            AESTest();
+            DESTest();
 
-            //SM2Test();
-            //SM3Test();
-            //SM4Test();
-            Console.WriteLine("输入任意键退出！");
-            Console.ReadKey();
+            SM2Test();
+            SM3Test();
+            SM4Test();
         }
+
+        public static void DESTest()
+        {
+            Console.WriteLine("--------------DES算法全面测试---------------");
+
+            // 1. 基础字符串加密测试
+            TestBasicDESFunctionality();
+
+            // 2. 多种加密模式测试
+            TestDESModes();
+
+            // 3. 填充模式测试
+            TestDESPaddingModes();
+
+            // 4. 输出格式测试
+            TestDESOutputFormats();
+
+            // 5. 文件加密测试
+            TestDESFileEncryption();
+
+            // 6. 流式加密测试
+            TestDESStreamEncryption();
+
+            // 7. 密钥生成测试
+            TestDESKeyGeneration();
+
+            // 8. 验证功能测试
+            TestDESVerification();
+
+            // 9. 异步操作测试
+            TestDESAsyncOperations();
+
+            // 10. 性能和边界测试
+            TestDESPerformanceAndBoundaries();
+
+            Console.WriteLine("\nDES算法全面测试完成！");
+        }
+
+        #region DES Tests
+
+        /// <summary>
+        /// 测试基础DES功能
+        /// </summary>
+        public static void TestBasicDESFunctionality()
+        {
+            Console.WriteLine("\n--- 基础DES功能测试 ---");
+
+            try
+            {
+                string[] testInputs = {
+                    "Hello World",
+                    "DES加密算法测试",
+                    "这是包含中文和English mixed content的测试!",
+                    "123456789",
+                    "The quick brown fox jumps over the lazy dog"
+                };
+
+                string key = "justdoit"; // 8字节密钥
+
+                foreach (string input in testInputs)
+                {
+                    try
+                    {
+                        // 使用默认参数加密解密
+                        string encrypted = DESUtil.EncryptByDES(input, key);
+                        string decrypted = DESUtil.DecryptByDES(encrypted, key);
+
+                        bool success = input == decrypted;
+                        Console.WriteLine($"输入: \"{(input.Length > 30 ? input.Substring(0, 30) + "..." : input)}\"");
+                        Console.WriteLine($"  加密结果: {encrypted.Substring(0, Math.Min(40, encrypted.Length))}...");
+                        Console.WriteLine($"  解密结果: {decrypted}");
+                        Console.WriteLine($"  测试结果: {(success ? "成功" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"输入 \"{input}\" 测试失败: {ex.Message}");
+                    }
+                }
+
+                // 测试空字符串
+                try
+                {
+                    DESUtil.EncryptByDES("", key);
+                    Console.WriteLine("空字符串测试: 失败 (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("空字符串测试: 成功 (正确抛出ArgumentException)");
+                }
+
+                // 测试null输入
+                try
+                {
+                    DESUtil.EncryptByDES(null, key);
+                    Console.WriteLine("null输入测试: 失败 (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("null输入测试: 成功 (正确抛出ArgumentException)");
+                }
+
+                // 测试无效密钥
+                try
+                {
+                    DESUtil.EncryptByDES("test", "短密钥");
+                    Console.WriteLine("短密钥测试: 失败 (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("短密钥测试: 成功 (正确抛出ArgumentException)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"基础DES功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的DES加密模式
+        /// </summary>
+        public static void TestDESModes()
+        {
+            Console.WriteLine("\n--- DES加密模式测试 ---");
+
+            string plaintext = "DES加密模式测试内容";
+            string key = "testkey1"; // 8字节密钥
+            string iv = "initvect"; // 8字节初始化向量
+
+            var modes = new[]
+            {
+                DESUtil.DESMode.ECB,
+                DESUtil.DESMode.CBC,
+                DESUtil.DESMode.CFB,
+                DESUtil.DESMode.OFB
+            };
+
+            foreach (var mode in modes)
+            {
+                try
+                {
+                    string currentIv = mode == DESUtil.DESMode.ECB ? null : iv;
+
+                    string encrypted = DESUtil.EncryptByDES(plaintext, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+
+                    bool success = plaintext == decrypted;
+                    Console.WriteLine($"{mode} 模式测试: {(success ? "成功" : "失败")}");
+                    Console.WriteLine($"  密文长度: {encrypted.Length}");
+                    Console.WriteLine($"  密文示例: {encrypted.Substring(0, Math.Min(50, encrypted.Length))}...");
+
+                    if (!success)
+                    {
+                        Console.WriteLine($"  原文: {plaintext}");
+                        Console.WriteLine($"  解密: {decrypted}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{mode} 模式测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的填充模式
+        /// </summary>
+        public static void TestDESPaddingModes()
+        {
+            Console.WriteLine("\n--- DES填充模式测试 ---");
+
+            string plaintext = "DES填充模式测试内容"; // 确保不是8字节的倍数
+            string key = "testkey1"; // 8字节密钥
+            string iv = "initvect"; // 8字节初始化向量
+
+            var paddingModes = new[]
+            {
+                DESUtil.DESPadding.PKCS7,
+                DESUtil.DESPadding.Zeros,
+                DESUtil.DESPadding.None
+            };
+
+            foreach (var padding in paddingModes)
+            {
+                try
+                {
+                    // None填充需要确保数据长度是8的倍数
+                    string testText = padding == DESUtil.DESPadding.None
+                        ? "12345678" // 8字节对齐
+                        : plaintext;
+
+                    string encrypted = DESUtil.EncryptByDES(testText, key, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
+
+                    bool success = false;
+                    switch (padding)
+                    {
+                        case DESUtil.DESPadding.PKCS7:
+                            success = testText == decrypted;
+                            break;
+                        case DESUtil.DESPadding.Zeros:
+                            success = decrypted.TrimEnd('\0') == testText;
+                            break;
+                        case DESUtil.DESPadding.None:
+                            success = testText == decrypted;
+                            break;
+                    }
+
+                    Console.WriteLine($"{padding} 填充测试: {(success ? "成功" : "失败")}");
+                    if (padding == DESUtil.DESPadding.Zeros && !success)
+                    {
+                        Console.WriteLine($"  原文: \"{testText}\"");
+                        Console.WriteLine($"  解密: \"{decrypted}\"");
+                        Console.WriteLine($"  去零: \"{decrypted.TrimEnd('\0')}\"");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{padding} 填充测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的输出格式
+        /// </summary>
+        public static void TestDESOutputFormats()
+        {
+            Console.WriteLine("\n--- DES输出格式测试 ---");
+
+            string plaintext = "DES输出格式测试内容";
+            string key = "testkey1"; // 8字节密钥
+            string iv = "initvect"; // 8字节初始化向量
+
+            var formats = new[]
+            {
+                DESUtil.OutputFormat.Base64,
+                DESUtil.OutputFormat.Hex
+            };
+
+            foreach (var format in formats)
+            {
+                try
+                {
+                    string encrypted = DESUtil.EncryptByDES(plaintext, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+
+                    bool success = plaintext == decrypted;
+                    Console.WriteLine($"{format} 格式测试: {(success ? "成功" : "失败")}");
+                    Console.WriteLine($"  密文长度: {encrypted.Length}");
+                    Console.WriteLine($"  密文示例: {encrypted.Substring(0, Math.Min(60, encrypted.Length))}...");
+
+                    // 验证格式正确性
+                    if (format == DESUtil.OutputFormat.Base64)
+                    {
+                        try
+                        {
+                            Convert.FromBase64String(encrypted);
+                            Console.WriteLine($"  Base64格式验证: 成功");
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"  Base64格式验证: 失败");
+                        }
+                    }
+                    else if (format == DESUtil.OutputFormat.Hex)
+                    {
+                        bool isValidHex = encrypted.All(c => "0123456789ABCDEFabcdef".Contains(c));
+                        Console.WriteLine($"  16进制格式验证: {(isValidHex ? "成功" : "失败")}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{format} 格式测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试DES文件加密
+        /// </summary>
+        public static void TestDESFileEncryption()
+        {
+            Console.WriteLine("\n--- DES文件加密测试 ---");
+
+            try
+            {
+                string testContent = "这是用于测试DES文件加密的内容。\n包含多行文本和特殊字符：!@#$%^&*()";
+                string tempDir = Path.GetTempPath();
+                string originalFile = Path.Combine(tempDir, "des_test_original.txt");
+                string encryptedFile = Path.Combine(tempDir, "des_test_encrypted.bin");
+                string decryptedFile = Path.Combine(tempDir, "des_test_decrypted.txt");
+
+                string key = "filekey1"; // 8字节密钥
+                string iv = "fileinit"; // 8字节初始化向量
+
+                try
+                {
+                    // 创建测试文件
+                    File.WriteAllText(originalFile, testContent, Encoding.UTF8);
+                    Console.WriteLine($"创建测试文件: {Path.GetFileName(originalFile)} ({new FileInfo(originalFile).Length} 字节)");
+
+                    // 加密文件
+                    var startTime = DateTime.Now;
+                    DESUtil.EncryptFile(originalFile, encryptedFile, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    var encryptTime = DateTime.Now - startTime;
+                    Console.WriteLine($"文件加密完成，耗时: {encryptTime.TotalMilliseconds:F2} ms");
+                    Console.WriteLine($"加密文件大小: {new FileInfo(encryptedFile).Length} 字节");
+
+                    // 解密文件
+                    startTime = DateTime.Now;
+                    DESUtil.DecryptFile(encryptedFile, decryptedFile, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    var decryptTime = DateTime.Now - startTime;
+                    Console.WriteLine($"文件解密完成，耗时: {decryptTime.TotalMilliseconds:F2} ms");
+
+                    // 验证内容
+                    string decryptedContent = File.ReadAllText(decryptedFile, Encoding.UTF8);
+                    bool success = testContent == decryptedContent;
+                    Console.WriteLine($"文件内容验证: {(success ? "成功" : "失败")}");
+
+                    if (!success)
+                    {
+                        Console.WriteLine($"原始内容长度: {testContent.Length}");
+                        Console.WriteLine($"解密内容长度: {decryptedContent.Length}");
+                    }
+                }
+                finally
+                {
+                    // 清理临时文件
+                    try
+                    {
+                        if (File.Exists(originalFile)) File.Delete(originalFile);
+                        if (File.Exists(encryptedFile)) File.Delete(encryptedFile);
+                        if (File.Exists(decryptedFile)) File.Delete(decryptedFile);
+                    }
+                    catch { }
+                }
+
+                // 测试大文件加密
+                Console.WriteLine("\n大文件加密测试:");
+                string largeFile = Path.Combine(tempDir, "des_large_test.txt");
+                string largeEncrypted = Path.Combine(tempDir, "des_large_encrypted.bin");
+                string largeDecrypted = Path.Combine(tempDir, "des_large_decrypted.txt");
+
+                try
+                {
+                    // 创建1MB的测试文件
+                    string largeContent = new string('A', 1024 * 1024);
+                    File.WriteAllText(largeFile, largeContent);
+                    Console.WriteLine($"创建大文件: {new FileInfo(largeFile).Length:N0} 字节");
+
+                    var largeStartTime = DateTime.Now;
+                    DESUtil.EncryptFile(largeFile, largeEncrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    var largeEncryptTime = DateTime.Now - largeStartTime;
+
+                    largeStartTime = DateTime.Now;
+                    DESUtil.DecryptFile(largeEncrypted, largeDecrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    var largeDecryptTime = DateTime.Now - largeStartTime;
+
+                    string largeDecryptedContent = File.ReadAllText(largeDecrypted);
+                    bool largeSuccess = largeContent == largeDecryptedContent;
+
+                    Console.WriteLine($"大文件加密时间: {largeEncryptTime.TotalMilliseconds:F2} ms");
+                    Console.WriteLine($"大文件解密时间: {largeDecryptTime.TotalMilliseconds:F2} ms");
+                    Console.WriteLine($"大文件验证: {(largeSuccess ? "成功" : "失败")}");
+                }
+                finally
+                {
+                    try
+                    {
+                        if (File.Exists(largeFile)) File.Delete(largeFile);
+                        if (File.Exists(largeEncrypted)) File.Delete(largeEncrypted);
+                        if (File.Exists(largeDecrypted)) File.Delete(largeDecrypted);
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"文件加密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试DES流式加密
+        /// </summary>
+        public static void TestDESStreamEncryption()
+        {
+            Console.WriteLine("\n--- DES流式加密测试 ---");
+
+            try
+            {
+                string testContent = "这是用于测试DES流式加密的内容，内容较长以测试流式处理的效果。" +
+                                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                                   "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+
+                string key = "streamk1"; // 8字节密钥
+                string iv = "streamiv"; // 8字节初始化向量
+                byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+                byte[] ivBytes = Encoding.UTF8.GetBytes(iv);
+
+                // 测试不同大小的数据流
+                string[] testData = {
+                    "小数据流",
+                    testContent,
+                    new string('X', 10000) // 10KB数据
+                };
+
+                foreach (string data in testData)
+                {
+                    try
+                    {
+                        using (var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(data)))
+                        using (var encryptedStream = new MemoryStream())
+                        using (var decryptedStream = new MemoryStream())
+                        {
+                            var startTime = DateTime.Now;
+
+                            // 加密
+                            DESUtil.EncryptStream(inputStream, encryptedStream, keyBytes, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, ivBytes);
+                            var encryptTime = DateTime.Now - startTime;
+
+                            Console.WriteLine($"数据大小: {data.Length:N0} 字节");
+                            Console.WriteLine($"  加密时间: {encryptTime.TotalMilliseconds:F2} ms");
+                            Console.WriteLine($"  加密后大小: {encryptedStream.Length:N0} 字节");
+
+                            // 解密
+                            encryptedStream.Position = 0;
+                            startTime = DateTime.Now;
+                            DESUtil.DecryptStream(encryptedStream, decryptedStream, keyBytes, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, ivBytes);
+                            var decryptTime = DateTime.Now - startTime;
+
+                            Console.WriteLine($"  解密时间: {decryptTime.TotalMilliseconds:F2} ms");
+
+                            // 验证
+                            string decryptedContent = Encoding.UTF8.GetString(decryptedStream.ToArray());
+                            bool success = data == decryptedContent;
+                            Console.WriteLine($"  验证结果: {(success ? "成功" : "失败")}");
+
+                            if (!success)
+                            {
+                                Console.WriteLine($"  原始长度: {data.Length}");
+                                Console.WriteLine($"  解密长度: {decryptedContent.Length}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"流加密测试失败 (数据长度: {data.Length}): {ex.Message}");
+                    }
+                }
+
+                // 测试null流异常处理
+                try
+                {
+                    DESUtil.EncryptStream(null, new MemoryStream(), keyBytes);
+                    Console.WriteLine("null输入流测试: 失败 (应该抛出异常)");
+                }
+                catch (ArgumentNullException)
+                {
+                    Console.WriteLine("null输入流测试: 成功 (正确抛出ArgumentNullException)");
+                }
+
+                try
+                {
+                    DESUtil.EncryptStream(new MemoryStream(), null, keyBytes);
+                    Console.WriteLine("null输出流测试: 失败 (应该抛出异常)");
+                }
+                catch (ArgumentNullException)
+                {
+                    Console.WriteLine("null输出流测试: 成功 (正确抛出ArgumentNullException)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"流式加密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试DES密钥生成
+        /// </summary>
+        public static void TestDESKeyGeneration()
+        {
+            Console.WriteLine("\n--- DES密钥生成测试 ---");
+
+            try
+            {
+                // 测试密钥生成
+                string key1 = DESUtil.GenerateKey(DESUtil.OutputFormat.Base64);
+                string key2 = DESUtil.GenerateKey(DESUtil.OutputFormat.Base64);
+                string hexKey = DESUtil.GenerateKey(DESUtil.OutputFormat.Hex);
+
+                Console.WriteLine($"Base64密钥1: {key1}");
+                Console.WriteLine($"Base64密钥2: {key2}");
+                Console.WriteLine($"16进制密钥: {hexKey}");
+
+                // 验证密钥格式
+                try
+                {
+                    byte[] key1Bytes = Convert.FromBase64String(key1);
+                    bool validLength1 = key1Bytes.Length == 8;
+                    Console.WriteLine($"Base64密钥1长度验证: {(validLength1 ? "成功" : "失败")} ({key1Bytes.Length} 字节)");
+                }
+                catch
+                {
+                    Console.WriteLine("Base64密钥1格式验证: 失败");
+                }
+
+                bool isValidHex = hexKey.All(c => "0123456789ABCDEFabcdef".Contains(c));
+                bool validHexLength = hexKey.Length == 16; // 8字节 = 16个16进制字符
+                Console.WriteLine($"16进制密钥格式验证: {(isValidHex ? "成功" : "失败")}");
+                Console.WriteLine($"16进制密钥长度验证: {(validHexLength ? "成功" : "失败")} ({hexKey.Length} 字符)");
+
+                // 验证密钥随机性
+                bool randomness = key1 != key2;
+                Console.WriteLine($"密钥随机性验证: {(randomness ? "成功" : "失败")}");
+
+                // 测试IV生成
+                string iv1 = DESUtil.GenerateIV(DESUtil.OutputFormat.Base64);
+                string iv2 = DESUtil.GenerateIV(DESUtil.OutputFormat.Base64);
+                string hexIV = DESUtil.GenerateIV(DESUtil.OutputFormat.Hex);
+
+                Console.WriteLine($"Base64 IV1: {iv1}");
+                Console.WriteLine($"Base64 IV2: {iv2}");
+                Console.WriteLine($"16进制 IV: {hexIV}");
+
+                // 验证IV格式
+                try
+                {
+                    byte[] iv1Bytes = Convert.FromBase64String(iv1);
+                    bool validIVLength = iv1Bytes.Length == 8;
+                    Console.WriteLine($"IV长度验证: {(validIVLength ? "成功" : "失败")} ({iv1Bytes.Length} 字节)");
+                }
+                catch
+                {
+                    Console.WriteLine("IV格式验证: 失败");
+                }
+
+                bool ivRandomness = iv1 != iv2;
+                Console.WriteLine($"IV随机性验证: {(ivRandomness ? "成功" : "失败")}");
+
+                // 使用生成的密钥进行加密测试
+                string testText = "使用生成密钥的测试";
+                try
+                {
+                    // 1. 将Base64格式的密钥和IV解码为字节数组
+                    byte[] keyBytes = Convert.FromBase64String(key1);
+                    byte[] ivBytes = Convert.FromBase64String(iv1);
+
+                    // 2. 将待加密的文本转换为字节数组
+                    byte[] textBytes = Encoding.UTF8.GetBytes(testText);
+
+                    // 3. 使用接受字节数组的重载方法进行加密
+                    byte[] encryptedBytes = DESUtil.EncryptByDES(textBytes, keyBytes, ivBytes: ivBytes);
+
+                    // 4. 解密
+                    byte[] decryptedBytes = DESUtil.DecryptByDES(encryptedBytes, keyBytes, ivBytes: ivBytes);
+
+                    // 5. 将解密后的字节数组转换回字符串并验证
+                    string decryptedText = Encoding.UTF8.GetString(decryptedBytes);
+                    bool keyTest = testText == decryptedText;
+                    Console.WriteLine($"生成密钥功能验证: {(keyTest ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"生成密钥功能验证: 失败 ({ex.Message})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"密钥生成测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试DES验证功能
+        /// </summary>
+        public static void TestDESVerification()
+        {
+            Console.WriteLine("\n--- DES验证功能测试 ---");
+
+            try
+            {
+                string originalText = "DES验证功能测试内容";
+                string key = "verifyky"; // 8字节密钥
+                string iv = "verifyiv"; // 8字节IV
+
+                // 测试正确验证
+                string encrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                bool correctVerify = DESUtil.VerifyDES(originalText, encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                Console.WriteLine($"正确验证测试: {(correctVerify ? "成功" : "失败")}");
+
+                // 测试错误的原文验证
+                bool wrongOriginal = DESUtil.VerifyDES("错误的原文", encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                Console.WriteLine($"错误原文验证: {(!wrongOriginal ? "成功" : "失败")}");
+
+                // 测试错误的密钥验证
+                bool wrongKey = DESUtil.VerifyDES(originalText, encrypted, "wrongkey", DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                Console.WriteLine($"错误密钥验证: {(!wrongKey ? "成功" : "失败")}");
+
+                // 测试错误的密文验证
+                bool wrongCipher = DESUtil.VerifyDES(originalText, "错误的密文", key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                Console.WriteLine($"错误密文验证: {(!wrongCipher ? "成功" : "失败")}");
+
+                // 测试不同模式的验证
+                var modes = new[] { DESUtil.DESMode.ECB, DESUtil.DESMode.CBC, DESUtil.DESMode.CFB, DESUtil.DESMode.OFB };
+                foreach (var mode in modes)
+                {
+                    try
+                    {
+                        string currentIv = mode == DESUtil.DESMode.ECB ? null : iv;
+                        string modeEncrypted = DESUtil.EncryptByDES(originalText, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                        bool modeVerify = DESUtil.VerifyDES(originalText, modeEncrypted, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                        Console.WriteLine($"{mode}模式验证: {(modeVerify ? "成功" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{mode}模式验证: 失败 ({ex.Message})");
+                    }
+                }
+
+                // 测试不同格式的验证
+                var formats = new[] { DESUtil.OutputFormat.Base64, DESUtil.OutputFormat.Hex };
+                foreach (var format in formats)
+                {
+                    try
+                    {
+                        string formatEncrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                        bool formatVerify = DESUtil.VerifyDES(originalText, formatEncrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                        Console.WriteLine($"{format}格式验证: {(formatVerify ? "成功" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{format}格式验证: 失败 ({ex.Message})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"验证功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试DES异步操作
+        /// </summary>
+        public static void TestDESAsyncOperations()
+        {
+            Console.WriteLine("\n--- DES异步操作测试 ---");
+
+            try
+            {
+                string tempDir = Path.GetTempPath();
+                string[] testFiles = new string[3];
+                testFiles[0] = Path.Combine(tempDir, "des_async_test1.txt");
+                testFiles[1] = Path.Combine(tempDir, "des_async_test2.txt");
+                testFiles[2] = Path.Combine(tempDir, "des_async_test3.txt");
+
+                string[] encryptedFiles = new string[3];
+                encryptedFiles[0] = Path.Combine(tempDir, "des_async_encrypted1.bin");
+                encryptedFiles[1] = Path.Combine(tempDir, "des_async_encrypted2.bin");
+                encryptedFiles[2] = Path.Combine(tempDir, "des_async_encrypted3.bin");
+
+                string[] decryptedFiles = new string[3];
+                decryptedFiles[0] = Path.Combine(tempDir, "des_async_decrypted1.txt");
+                decryptedFiles[1] = Path.Combine(tempDir, "des_async_decrypted2.txt");
+                decryptedFiles[2] = Path.Combine(tempDir, "des_async_decrypted3.txt");
+
+                string key = "asynckey"; // 8字节密钥
+
+                try
+                {
+                    // 创建测试文件
+                    File.WriteAllText(testFiles[0], "异步测试文件1", Encoding.UTF8);
+                    File.WriteAllText(testFiles[1], new string('B', 50000), Encoding.UTF8); // 50KB
+                    File.WriteAllText(testFiles[2], "异步测试文件3 - 与文件1不同内容", Encoding.UTF8);
+
+                    // 异步加密测试
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var startTime = DateTime.Now;
+
+                            // 并行异步加密
+                            var encryptTasks = new Task[3];
+                            for (int i = 0; i < 3; i++)
+                            {
+                                int index = i; // 捕获循环变量
+                                encryptTasks[i] = DESUtil.EncryptFileAsync(testFiles[index], encryptedFiles[index], key);
+                            }
+
+                            await Task.WhenAll(encryptTasks);
+                            var encryptTime = DateTime.Now - startTime;
+                            Console.WriteLine($"异步加密完成，总耗时: {encryptTime.TotalMilliseconds:F2} ms");
+
+                            // 并行异步解密
+                            startTime = DateTime.Now;
+                            var decryptTasks = new Task[3];
+                            for (int i = 0; i < 3; i++)
+                            {
+                                int index = i; // 捕获循环变量
+                                decryptTasks[i] = DESUtil.DecryptFileAsync(encryptedFiles[index], decryptedFiles[index], key);
+                            }
+
+                            await Task.WhenAll(decryptTasks);
+                            var decryptTime = DateTime.Now - startTime;
+                            Console.WriteLine($"异步解密完成，总耗时: {decryptTime.TotalMilliseconds:F2} ms");
+
+                            // 验证结果
+                            for (int i = 0; i < 3; i++)
+                            {
+                                if (File.Exists(testFiles[i]) && File.Exists(decryptedFiles[i]))
+                                {
+                                    string original = File.ReadAllText(testFiles[i], Encoding.UTF8);
+                                    string decrypted = File.ReadAllText(decryptedFiles[i], Encoding.UTF8);
+                                    bool success = original == decrypted;
+
+                                    var originalSize = new FileInfo(testFiles[i]).Length;
+                                    var encryptedSize = new FileInfo(encryptedFiles[i]).Length;
+                                    var decryptedSize = new FileInfo(decryptedFiles[i]).Length;
+
+                                    Console.WriteLine($"文件{i + 1}异步处理:");
+                                    Console.WriteLine($"  原始大小: {originalSize:N0} 字节");
+                                    Console.WriteLine($"  加密大小: {encryptedSize:N0} 字节");
+                                    Console.WriteLine($"  解密大小: {decryptedSize:N0} 字节");
+                                    Console.WriteLine($"  验证结果: {(success ? "成功" : "失败")}");
+                                }
+                            }
+
+                            // 测试异步异常处理
+                            try
+                            {
+                                await DESUtil.EncryptFileAsync("不存在的文件.txt", "输出.bin", key);
+                                Console.WriteLine("异步异常测试: 失败 (应该抛出异常)");
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                Console.WriteLine("异步异常测试: 成功 (正确抛出FileNotFoundException)");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"异步异常测试: 失败 (抛出了错误的异常类型: {ex.GetType().Name})");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"异步操作内部错误: {ex.Message}");
+                        }
+                    }).Wait(15000); // 等待最多15秒
+
+                    Console.WriteLine("异步操作测试完成");
+                }
+                finally
+                {
+                    // 清理测试文件
+                    var allFiles = testFiles.Concat(encryptedFiles).Concat(decryptedFiles);
+                    foreach (string file in allFiles)
+                    {
+                        try
+                        {
+                            if (File.Exists(file)) File.Delete(file);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"异步操作测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试DES性能和边界条件
+        /// </summary>
+        public static void TestDESPerformanceAndBoundaries()
+        {
+            Console.WriteLine("\n--- DES性能和边界测试 ---");
+
+            try
+            {
+                string key = "perfkey1"; // 8字节密钥
+
+                // 性能测试 - 大数据加密
+                Console.WriteLine("大数据加密性能测试:");
+                var dataSizes = new[] { 1024, 10240, 102400, 1048576 }; // 1KB, 10KB, 100KB, 1MB
+
+                foreach (int size in dataSizes)
+                {
+                    try
+                    {
+                        string largeData = new string('A', size);
+
+                        var startTime = DateTime.Now;
+                        string encrypted = DESUtil.EncryptByDES(largeData, key);
+                        var encryptTime = DateTime.Now - startTime;
+
+                        startTime = DateTime.Now;
+                        string decrypted = DESUtil.DecryptByDES(encrypted, key);
+                        var decryptTime = DateTime.Now - startTime;
+
+                        bool success = largeData == decrypted;
+
+                        Console.WriteLine($"  {size:N0} 字节数据:");
+                        Console.WriteLine($"    加密时间: {encryptTime.TotalMilliseconds:F2} ms");
+                        Console.WriteLine($"    解密时间: {decryptTime.TotalMilliseconds:F2} ms");
+                        Console.WriteLine($"    验证结果: {(success ? "成功" : "失败")}");
+                        Console.WriteLine($"    性能评估: {(encryptTime.TotalSeconds < 1 ? "优秀" : "需要优化")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {size:N0} 字节测试失败: {ex.Message}");
+                    }
+                }
+
+                // 边界条件测试
+                Console.WriteLine("\n边界条件测试:");
+
+                // 测试最短有效输入
+                try
+                {
+                    string shortText = "A";
+                    string encrypted = DESUtil.EncryptByDES(shortText, key);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key);
+                    bool shortSuccess = shortText == decrypted;
+                    Console.WriteLine($"单字符测试: {(shortSuccess ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"单字符测试失败: {ex.Message}");
+                }
+
+                // 测试各种字符编码
+                string[] specialTexts = {
+                    "🌍🚀💻🎉", // Unicode表情符号
+                    "测试中文字符",
+                    "English Text",
+                    "Mixed中英文Content混合",
+                    "特殊字符!@#$%^&*()_+-=[]{}|;':\",./<>?`~",
+                    "换行\r\n制表符\t测试\0控制字符"
+                };
+
+                foreach (string specialText in specialTexts)
+                {
+                    try
+                    {
+                        string encrypted = DESUtil.EncryptByDES(specialText, key);
+                        string decrypted = DESUtil.DecryptByDES(encrypted, key);
+                        bool success = specialText == decrypted;
+                        string description = specialText.Length > 20 ? specialText.Substring(0, 20) + "..." : specialText;
+                        Console.WriteLine($"特殊字符测试 \"{description}\": {(success ? "成功" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"特殊字符测试失败: {ex.Message}");
+                    }
+                }
+
+                // 密钥边界测试
+                Console.WriteLine("\n密钥边界测试:");
+
+                // 测试精确8字节密钥
+                string[] testKeys = {
+                    "12345678", // 精确8字节
+                    "测试密钥1", // 中文字符可能超过8字节
+                    "test1234" // 英文8字节
+                };
+
+                foreach (string testKey in testKeys)
+                {
+                    try
+                    {
+                        byte[] keyBytes = Encoding.UTF8.GetBytes(testKey);
+                        if (keyBytes.Length == 8)
+                        {
+                            string encrypted = DESUtil.EncryptByDES("测试内容", testKey);
+                            string decrypted = DESUtil.DecryptByDES(encrypted, testKey);
+                            bool success = "测试内容" == decrypted;
+                            Console.WriteLine($"密钥 \"{testKey}\" ({keyBytes.Length}字节): {(success ? "成功" : "失败")}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"密钥 \"{testKey}\" ({keyBytes.Length}字节): 长度不符合要求");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"密钥 \"{testKey}\" 测试失败: {ex.Message}");
+                    }
+                }
+
+                // 内存使用测试
+                Console.WriteLine("\n内存使用测试:");
+                try
+                {
+                    long beforeMemory = GC.GetTotalMemory(true);
+
+                    // 进行多次加密解密操作
+                    for (int i = 0; i < 100; i++)
+                    {
+                        string testData = $"内存测试数据 {i} " + new string('X', 1000);
+                        string encrypted = DESUtil.EncryptByDES(testData, key);
+                        string decrypted = DESUtil.DecryptByDES(encrypted, key);
+                    }
+
+                    long afterMemory = GC.GetTotalMemory(true);
+                    long memoryUsed = afterMemory - beforeMemory;
+
+                    Console.WriteLine($"内存使用量: {memoryUsed:N0} 字节");
+                    Console.WriteLine($"内存使用评估: {(memoryUsed < 1024 * 1024 ? "正常" : "偏高")}"); // 小于1MB为正常
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"内存使用测试失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"性能和边界测试失败: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region MD5测试
 
         /// <summary>
         /// MD5算法全面测试
@@ -772,6 +1697,9 @@ namespace CryptoTool.App
             }
         }
 
+        #endregion
+
+        #region AES测试
 
         public static void AESTest()
         {
@@ -1235,6 +2163,9 @@ namespace CryptoTool.App
             }
         }
 
+        #endregion
+
+        #region RSA测试
 
         /// <summary>
         /// 测试RSA功能
@@ -1571,17 +2502,9 @@ namespace CryptoTool.App
             }
         }
 
+        #endregion
 
-        public static void DESTest()
-        {
-            Console.WriteLine("\n--------------DES算法测试---------------");
-            string key = "justdoit";
-            string input = "DES对称加密算法测试";
-            string encryptResult = DESUtil.EncryptByDES(input, key); // DESUtil.EncryptString(input, key);
-            Console.WriteLine("DES加密结果：{0}", encryptResult);
-            string decrptResult = DESUtil.DecryptByDES(encryptResult, key); //DESUtil.DecryptString(encryptResult, key);
-            Console.WriteLine("DES解密结果：{0}", decrptResult);
-        }
+        #region 国密SM2测试
 
         public static void SM2Test()
         {
@@ -1769,6 +2692,10 @@ namespace CryptoTool.App
             #endregion
         }
 
+        #endregion
+
+        #region 国密SM3和SM4测试
+
         public static void SM3Test()
         {
             Console.WriteLine("\n--------------国密SM3哈希算法测试---------------");
@@ -1811,5 +2738,7 @@ namespace CryptoTool.App
 
             #endregion
         }
+
+        #endregion
     }
 }
