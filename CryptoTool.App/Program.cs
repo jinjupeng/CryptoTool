@@ -2,6 +2,7 @@
 using CryptoTool.Common.GM;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,15 +14,36 @@ namespace CryptoTool.App
     {
         static void Main(string[] args)
         {
-            MD5Test();
-            RSATest();
-            AESTest();
-            DESTest();
+            AliyunCSBTest();
+            //MD5Test();
+            //RSATest();
+            //AESTest();
+            //DESTest();
 
-            SM2Test();
-            SM3Test();
-            SM4Test();
+            //SM2Test();
+            //SM3Test();
+            //SM4Test();
         }
+
+        public static void AliyunCSBTest()
+        {
+            Console.WriteLine("--------------阿里云CSB签名测试---------------");
+            string apiName = "testService";
+            string apiVersion = "1.0.0";
+            long timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            string accessKey = "your_access_key";
+            string secretKey = "your_secret_key";
+            var formParams = new Dictionary<string, object[]>
+            {
+                { "param1", new object[] { "value1" } },
+                { "param2", new object[] { "value2", "value3" } }
+            };
+            string body = "{\"data\":\"test\"}";
+            string signature = AliyunCSBUtil.Sign(apiName, apiVersion, timeStamp, accessKey, secretKey, formParams, body);
+            Console.WriteLine($"生成的签名: {signature}");
+            Console.WriteLine("--------------阿里云CSB签名测试完成---------------");
+        }
+
         #region DES测试
 
         public static void DESTest()
