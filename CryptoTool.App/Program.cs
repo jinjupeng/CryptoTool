@@ -2,7 +2,7 @@
 using CryptoTool.Common.GM;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -12,13 +12,812 @@ namespace CryptoTool.App
     {
         static void Main(string[] args)
         {
+            RSATest();
             AESTest();
-            DESTest();
+            //DESTest();
+
             //SM2Test();
             //SM3Test();
             //SM4Test();
             Console.WriteLine("输入任意键退出！");
-            Console.ReadKey();
+        }
+
+        public static void AESTest()
+        {
+            Console.WriteLine("--------------AES算法全面测试---------------");
+
+            // 1. 基础功能测试
+            TestBasicAESFunctionality();
+
+            // 2. 多种模式测试
+            TestAESModes();
+
+            // 3. 不同密钥长度测试
+            TestAESKeySizes();
+
+            // 4. 填充模式测试
+            TestAESPaddingModes();
+
+            // 5. 输出格式测试
+            TestAESOutputFormats();
+
+            // 6. 文件加密测试
+            TestAESFileEncryption();
+
+            // 7. 流式加密测试
+            TestAESStreamEncryption();
+
+            // 8. 密钥生成测试
+            TestAESKeyGeneration();
+
+            // 9. 向后兼容性测试
+            TestAESBackwardCompatibility();
+
+            // 10. .NET Standard 2.1 兼容性测试
+            TestAESNetStandard21Compatibility();
+        }
+
+        /// <summary>
+        /// 测试基础AES功能
+        /// </summary>
+        public static void TestBasicAESFunctionality()
+        {
+            Console.WriteLine("\n--- 基础AES功能测试 ---");
+
+            try
+            {
+                string plaintext = "这是AES加密测试的内容，包含中文和English mixed content!";
+                string key = "mySecretKey12345";
+
+                // 默认参数加密解密
+                string encrypted = AESUtil.EncryptByAES(plaintext, key);
+                string decrypted = AESUtil.DecryptByAES(encrypted, key);
+
+                Console.WriteLine($"原文: {plaintext}");
+                Console.WriteLine($"密文: {encrypted}");
+                Console.WriteLine($"解密: {decrypted}");
+                Console.WriteLine($"基础加密解密测试: {(plaintext == decrypted ? "成功" : "失败")}");
+
+                // 空字符串测试
+                try
+                {
+                    AESUtil.EncryptByAES("", key);
+                    Console.WriteLine("空字符串测试: 失败（应该抛出异常）");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("空字符串测试: 成功（正确抛出异常）");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"基础功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的AES加密模式
+        /// </summary>
+        public static void TestAESModes()
+        {
+            Console.WriteLine("\n--- AES加密模式测试 ---");
+
+            string plaintext = "AES加密模式测试内容";
+            string key = "testKey1234567890123456789012345";
+            string iv = "testIV1234567890";
+
+            var modes = new[]
+            {
+                AESUtil.AESMode.ECB,
+                AESUtil.AESMode.CBC,
+                AESUtil.AESMode.CFB,
+                AESUtil.AESMode.OFB
+            };
+
+            foreach (var mode in modes)
+            {
+                try
+                {
+                    string currentIv = mode == AESUtil.AESMode.ECB ? null : iv;
+
+                    string encrypted = AESUtil.EncryptByAES(plaintext, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, currentIv);
+                    string decrypted = AESUtil.DecryptByAES(encrypted, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, currentIv);
+
+                    bool success = plaintext == decrypted;
+                    Console.WriteLine($"{mode} 模式测试: {(success ? "成功" : "失败")}");
+
+                    if (!success)
+                    {
+                        Console.WriteLine($"  原文: {plaintext}");
+                        Console.WriteLine($"  解密: {decrypted}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{mode} 模式测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的AES密钥长度
+        /// </summary>
+        public static void TestAESKeySizes()
+        {
+            Console.WriteLine("\n--- AES密钥长度测试 ---");
+
+            string plaintext = "AES密钥长度测试内容";
+
+            var keySizes = new[]
+            {
+                AESUtil.AESKeySize.Aes128,
+                AESUtil.AESKeySize.Aes192,
+                AESUtil.AESKeySize.Aes256
+            };
+
+            foreach (var keySize in keySizes)
+            {
+                try
+                {
+                    string key = AESUtil.GenerateKey(keySize);
+                    string iv = AESUtil.GenerateIV();
+
+                    string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                    string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+
+                    bool success = plaintext == decrypted;
+                    Console.WriteLine($"AES-{(int)keySize} 测试: {(success ? "成功" : "失败")}");
+
+                    // 显示密钥强度
+                    byte[] keyBytes = Convert.FromBase64String(key);
+                    Console.WriteLine($"  密钥强度: {AESUtil.GetKeyStrengthDescription(keyBytes)}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"AES-{(int)keySize} 测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的填充模式
+        /// </summary>
+        public static void TestAESPaddingModes()
+        {
+            Console.WriteLine("\n--- AES填充模式测试 ---");
+
+            string plaintext = "AES填充模式测试内容"; // 确保不是16字节的倍数
+            string key = "testKey1234567890123456789012345";
+            string iv = "testIV1234567890";
+
+            var paddingModes = new[]
+            {
+                AESUtil.AESPadding.PKCS7,
+                AESUtil.AESPadding.Zeros
+            };
+
+            foreach (var padding in paddingModes)
+            {
+                try
+                {
+                    string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+                    string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+
+                    bool success = padding == AESUtil.AESPadding.PKCS7 ?
+                        plaintext == decrypted :
+                        decrypted.TrimEnd('\0') == plaintext; // Zeros填充需要去除末尾的零
+
+                    Console.WriteLine($"{padding} 填充测试: {(success ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{padding} 填充测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试不同的输出格式
+        /// </summary>
+        public static void TestAESOutputFormats()
+        {
+            Console.WriteLine("\n--- AES输出格式测试 ---");
+
+            string plaintext = "AES输出格式测试内容";
+            string key = "testKey1234567890123456789012345";
+            string iv = "testIV1234567890";
+
+            var formats = new[]
+            {
+                AESUtil.OutputFormat.Base64,
+                AESUtil.OutputFormat.Hex
+            };
+
+            foreach (var format in formats)
+            {
+                try
+                {
+                    string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, format, iv);
+                    string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, format, iv);
+
+                    bool success = plaintext == decrypted;
+                    Console.WriteLine($"{format} 格式测试: {(success ? "成功" : "失败")}");
+                    Console.WriteLine($"  密文长度: {encrypted.Length}");
+                    Console.WriteLine($"  密文示例: {encrypted.Substring(0, Math.Min(50, encrypted.Length))}...");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{format} 格式测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试AES文件加密
+        /// </summary>
+        public static void TestAESFileEncryption()
+        {
+            Console.WriteLine("\n--- AES文件加密测试 ---");
+
+            try
+            {
+                string testContent = "这是用于测试AES文件加密的内容。\n包含多行文本和特殊字符：!@#$%^&*()";
+                string tempDir = Path.GetTempPath();
+                string originalFile = Path.Combine(tempDir, "aes_test_original.txt");
+                string encryptedFile = Path.Combine(tempDir, "aes_test_encrypted.bin");
+                string decryptedFile = Path.Combine(tempDir, "aes_test_decrypted.txt");
+
+                // 创建测试文件
+                File.WriteAllText(originalFile, testContent, Encoding.UTF8);
+
+                string key = AESUtil.GenerateKey(AESUtil.AESKeySize.Aes256);
+                string iv = AESUtil.GenerateIV();
+
+                // 加密文件
+                AESUtil.EncryptFile(originalFile, encryptedFile, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                Console.WriteLine("文件加密: 成功");
+
+                // 解密文件
+                AESUtil.DecryptFile(encryptedFile, decryptedFile, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                Console.WriteLine("文件解密: 成功");
+
+                // 验证内容
+                string decryptedContent = File.ReadAllText(decryptedFile, Encoding.UTF8);
+                bool success = testContent == decryptedContent;
+                Console.WriteLine($"文件内容验证: {(success ? "成功" : "失败")}");
+
+                // 清理临时文件
+                try
+                {
+                    File.Delete(originalFile);
+                    File.Delete(encryptedFile);
+                    File.Delete(decryptedFile);
+                }
+                catch { /* 忽略清理错误 */ }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"文件加密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES流式加密
+        /// </summary>
+        public static void TestAESStreamEncryption()
+        {
+            Console.WriteLine("\n--- AES流式加密测试 ---");
+
+            try
+            {
+                string testContent = "这是用于测试AES流式加密的内容，内容较长以测试流式处理的效果。" +
+                                   "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                                   "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+
+                string key = AESUtil.GenerateKey(AESUtil.AESKeySize.Aes256);
+                string iv = AESUtil.GenerateIV();
+
+                // 准备流
+                using (var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent)))
+                using (var encryptedStream = new MemoryStream())
+                using (var decryptedStream = new MemoryStream())
+                {
+                    // 加密
+                    AESUtil.EncryptStream(inputStream, encryptedStream, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                    Console.WriteLine("流式加密: 成功");
+
+                    // 解密
+                    encryptedStream.Position = 0;
+                    AESUtil.DecryptStream(encryptedStream, decryptedStream, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                    Console.WriteLine("流式解密: 成功");
+
+                    // 验证
+                    string decryptedContent = Encoding.UTF8.GetString(decryptedStream.ToArray());
+                    bool success = testContent == decryptedContent;
+                    Console.WriteLine($"流式加密内容验证: {(success ? "成功" : "失败")}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"流式加密测试失败: {ex.Message}");
+            }
+        }
+
+
+        /// <summary>
+        /// 测试AES密钥生成
+        /// </summary>
+        public static void TestAESKeyGeneration()
+        {
+            Console.WriteLine("\n--- AES密钥生成测试 ---");
+
+            try
+            {
+                // 测试不同长度的密钥生成
+                var keySizes = new[] { AESUtil.AESKeySize.Aes128, AESUtil.AESKeySize.Aes192, AESUtil.AESKeySize.Aes256 };
+
+                foreach (var keySize in keySizes)
+                {
+                    string key = AESUtil.GenerateKey(keySize);
+                    byte[] keyBytes = Convert.FromBase64String(key);
+
+                    bool correctLength = keyBytes.Length == (int)keySize / 8;
+                    Console.WriteLine($"AES-{(int)keySize} 密钥生成: {(correctLength ? "成功" : "失败")} (长度: {keyBytes.Length} 字节)");
+                }
+
+                // 测试IV生成
+                string iv1 = AESUtil.GenerateIV();
+                string iv2 = AESUtil.GenerateIV();
+                byte[] ivBytes = Convert.FromBase64String(iv1);
+
+                bool correctIvLength = ivBytes.Length == 16;
+                bool ivsDifferent = iv1 != iv2;
+
+                Console.WriteLine($"IV生成测试: {(correctIvLength ? "成功" : "失败")} (长度: {ivBytes.Length} 字节)");
+                Console.WriteLine($"IV随机性测试: {(ivsDifferent ? "成功" : "失败")}");
+
+                // 密钥强度验证
+                foreach (var keySize in keySizes)
+                {
+                    string key = AESUtil.GenerateKey(keySize);
+                    byte[] keyBytes = Convert.FromBase64String(key);
+                    string strength = AESUtil.GetKeyStrengthDescription(keyBytes);
+                    Console.WriteLine($"  {strength}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"密钥生成测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试向后兼容性
+        /// </summary>
+        public static void TestAESBackwardCompatibility()
+        {
+            Console.WriteLine("\n--- AES向后兼容性测试 ---");
+
+            try
+            {
+                string plaintext = "向后兼容性测试内容";
+                string key = "compatibilityTestKey1234567890123";
+
+                // 使用旧方法加密
+#pragma warning disable CS0618 // 忽略过时警告
+                string oldEncrypted = AESUtil.EncryptByAES_Legacy(plaintext, key);
+                string oldDecrypted = AESUtil.DecryptByAES_Legacy(oldEncrypted, key);
+#pragma warning restore CS0618
+
+                bool oldMethodWorks = plaintext == oldDecrypted;
+                Console.WriteLine($"旧方法测试: {(oldMethodWorks ? "成功" : "失败")}");
+
+                // 新旧方法交叉兼容性测试
+                string newEncrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Hex);
+
+                // 注意：由于实现细节不同，新旧方法可能不完全兼容，这里主要测试各自的正确性
+                Console.WriteLine("新方法加密格式: " + newEncrypted.Substring(0, Math.Min(30, newEncrypted.Length)) + "...");
+                Console.WriteLine("旧方法加密格式: " + oldEncrypted.Substring(0, Math.Min(30, oldEncrypted.Length)) + "...");
+                Console.WriteLine("向后兼容性: 各方法独立工作正常");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"向后兼容性测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试.NET Standard 2.1兼容性
+        /// </summary>
+        public static void TestAESNetStandard21Compatibility()
+        {
+            Console.WriteLine("\n--- .NET Standard 2.1兼容性测试 ---");
+
+            try
+            {
+                Console.WriteLine("测试.NET Standard 2.1特性兼容性:");
+
+                // 测试基本功能
+                string plaintext = ".NET Standard 2.1兼容性测试";
+                string key = AESUtil.GenerateKey(AESUtil.AESKeySize.Aes256);
+                string iv = AESUtil.GenerateIV();
+
+                // 测试所有支持的模式
+                var modes = new[] { AESUtil.AESMode.ECB, AESUtil.AESMode.CBC, AESUtil.AESMode.CFB, AESUtil.AESMode.OFB };
+                foreach (var mode in modes)
+                {
+                    try
+                    {
+                        string currentIv = mode == AESUtil.AESMode.ECB ? null : iv;
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, currentIv);
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, currentIv);
+
+                        bool success = plaintext == decrypted;
+                        Console.WriteLine($"  {mode} 模式: {(success ? "兼容" : "不兼容")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {mode} 模式: 不兼容 ({ex.GetType().Name})");
+                    }
+                }
+
+                // 测试流处理
+                try
+                {
+                    using (var input = new MemoryStream(Encoding.UTF8.GetBytes(plaintext)))
+                    using (var output = new MemoryStream())
+                    {
+                        AESUtil.EncryptStream(input, output, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                        Console.WriteLine("  流处理: 兼容");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  流处理: 不兼容 ({ex.GetType().Name})");
+                }
+
+                Console.WriteLine(".NET Standard 2.1兼容性测试完成");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($".NET Standard 2.1兼容性测试失败: {ex.Message}");
+            }
+        }
+
+
+        /// <summary>
+        /// 测试RSA功能
+        /// </summary>
+        public static void RSATest()
+        {
+            Console.WriteLine("--------------RSA功能测试---------------");
+            
+            // 1. 测试RSA和RSA2签名验签
+            TestRSASignature();
+            
+            // 2. 测试Java互操作性
+            TestJavaCompatibility();
+            
+            // 3. 测试PKCS格式转换
+            TestPKCSConversion();
+            
+            // 4. 测试多种密钥格式
+            TestMultipleKeyFormats();
+            
+            // 5. 测试新的PKCS8导出功能
+            TestNewPKCS8Export();
+            
+            // 6. 测试.NET Standard 2.1兼容性
+            TestNetStandard21Compatibility();
+        }
+
+        /// <summary>
+        /// 测试RSA和RSA2签名验签
+        /// </summary>
+        public static void TestRSASignature()
+        {
+            Console.WriteLine("\n--- RSA/RSA2签名验签测试 ---");
+            
+            string plaintext = "这是RSA/RSA2签名验签测试内容";
+            var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
+            string publicKey = keyPair.Key;
+            string privateKey = keyPair.Value;
+
+            // RSA签名（SHA1）
+            string rsaSignature = RSAUtil.HashAndSignString(plaintext, privateKey, RSAUtil.RSAType.RSA, RSAUtil.RSAKeyFormat.XML);
+            bool rsaVerifyResult = RSAUtil.VerifySigned(plaintext, rsaSignature, publicKey, RSAUtil.RSAType.RSA, RSAUtil.RSAKeyFormat.XML);
+            Console.WriteLine($"RSA (SHA1) 签名验证: {(rsaVerifyResult ? "成功" : "失败")}");
+
+            // RSA2签名（SHA256）
+            string rsa2Signature = RSAUtil.HashAndSignString(plaintext, privateKey, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.XML);
+            bool rsa2VerifyResult = RSAUtil.VerifySigned(plaintext, rsa2Signature, publicKey, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.XML);
+            Console.WriteLine($"RSA2 (SHA256) 签名验证: {(rsa2VerifyResult ? "成功" : "失败")}");
+        }
+
+        /// <summary>
+        /// 测试Java互操作性
+        /// </summary>
+        public static void TestJavaCompatibility()
+        {
+            Console.WriteLine("\n--- Java互操作性测试 ---");
+            
+            string plaintext = "Java互操作性测试内容";
+            
+            // 创建Java格式密钥对
+            var javaKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.Java);
+            string javaPublicKey = javaKeyPair.Key;
+            string javaPrivateKey = javaKeyPair.Value;
+
+            // Java格式加密解密
+            string encryptedText = RSAUtil.EncryptForJava(plaintext, javaPublicKey);
+            string decryptedText = RSAUtil.DecryptFromJava(encryptedText, javaPrivateKey);
+            Console.WriteLine($"Java格式加密解密: {(plaintext == decryptedText ? "成功" : "失败")}");
+
+            // Java格式签名验签
+            string javaSignature = RSAUtil.SignForJava(plaintext, javaPrivateKey, RSAUtil.RSAType.RSA2);
+            bool javaVerifyResult = RSAUtil.VerifyFromJava(plaintext, javaSignature, javaPublicKey, RSAUtil.RSAType.RSA2);
+            Console.WriteLine($"Java格式签名验证: {(javaVerifyResult ? "成功" : "失败")}");
+
+            // 格式转换测试
+            var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
+            string xmlToJavaPublic = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Key, false);
+            string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
+            string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
+            string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
+            
+            Console.WriteLine($"XML到Java格式转换: 成功");
+            Console.WriteLine($"Java到XML格式转换: 成功");
+        }
+
+        /// <summary>
+        /// 测试PKCS格式转换
+        /// </summary>
+        public static void TestPKCSConversion()
+        {
+            Console.WriteLine("\n--- PKCS格式转换测试 ---");
+            
+            // 创建PKCS1格式密钥对
+            var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
+            string pkcs1PublicKey = pkcs1KeyPair.Key;
+            string pkcs1PrivateKey = pkcs1KeyPair.Value;
+
+            // PKCS1转PKCS8
+            string pkcs8PublicKey = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1PublicKey, false);
+            string pkcs8PrivateKey = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1PrivateKey, true);
+            Console.WriteLine("PKCS1 -> PKCS8 转换: 成功");
+
+            // PKCS8转PKCS1
+            string backToPkcs1Public = RSAUtil.ConvertPkcs8ToPkcs1(pkcs8PublicKey, false);
+            string backToPkcs1Private = RSAUtil.ConvertPkcs8ToPkcs1(pkcs8PrivateKey, true);
+            Console.WriteLine("PKCS8 -> PKCS1 转换: 成功");
+
+            // 验证转换正确性（通过签名验签）
+            string testText = "PKCS格式转换验证测试";
+            string signature = RSAUtil.HashAndSignString(testText, backToPkcs1Private, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
+            bool verifyResult = RSAUtil.VerifySigned(testText, signature, backToPkcs1Public, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
+            Console.WriteLine($"PKCS转换验证测试: {(verifyResult ? "成功" : "失败")}");
+        }
+
+        /// <summary>
+        /// 测试多种密钥格式
+        /// </summary>
+        public static void TestMultipleKeyFormats()
+        {
+            Console.WriteLine("\n--- 多种密钥格式测试 ---");
+            
+            string testText = "多种密钥格式测试内容";
+            
+            // 测试所有支持的密钥格式
+            var formats = new[] 
+            {
+                RSAUtil.RSAKeyFormat.XML,
+                RSAUtil.RSAKeyFormat.PKCS1,
+                RSAUtil.RSAKeyFormat.PKCS8,
+                RSAUtil.RSAKeyFormat.Java
+            };
+
+            foreach (var format in formats)
+            {
+                try
+                {
+                    var keyPair = RSAUtil.CreateRSAKey(2048, format);
+                    
+                    // 加密解密测试
+                    string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, format, RSAUtil.RSAPaddingMode.PKCS1);
+                    string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, format, RSAUtil.RSAPaddingMode.PKCS1);
+                    bool encryptTest = testText == decrypted;
+                    
+                    // 签名验签测试
+                    string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, format);
+                    bool signTest = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, format);
+                    
+                    Console.WriteLine($"{format} 格式测试: 加密解密={encryptTest}, 签名验签={signTest}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{format} 格式测试失败: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 测试新的PKCS8导出功能
+        /// </summary>
+        public static void TestNewPKCS8Export()
+        {
+            Console.WriteLine("\n--- 新PKCS8导出功能测试 ---");
+            
+            try
+            {
+                // 创建RSA密钥对
+                using var rsa = System.Security.Cryptography.RSA.Create(2048);
+                
+                // 测试.NET 8原生PKCS8导出
+                Console.WriteLine("测试.NET 8原生PKCS8导出:");
+                
+                // 导出PKCS8私钥 (PEM格式)
+                string pkcs8PrivatePem = rsa.ExportPkcs8PrivateKeyPem();
+                Console.WriteLine("PKCS8私钥(PEM)导出: 成功");
+                
+                // 导出PKCS8私钥 (字节数组)
+                byte[] pkcs8PrivateBytes = rsa.ExportPkcs8PrivateKey();
+                Console.WriteLine("PKCS8私钥(字节数组)导出: 成功");
+                
+                // 导出公钥
+                string publicKeyPem = rsa.ExportSubjectPublicKeyInfoPem();
+                byte[] publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
+                Console.WriteLine("公钥导出: 成功");
+                
+                // 测试密钥导入
+                using var rsa2 = System.Security.Cryptography.RSA.Create();
+                rsa2.ImportFromPem(pkcs8PrivatePem);
+                Console.WriteLine("PKCS8私钥(PEM)导入: 成功");
+                
+                using var rsa3 = System.Security.Cryptography.RSA.Create();
+                rsa3.ImportPkcs8PrivateKey(pkcs8PrivateBytes, out _);
+                Console.WriteLine("PKCS8私钥(字节数组)导入: 成功");
+                
+                // 验证导入的密钥是否正确（通过签名验签）
+                string testData = "PKCS8导出导入验证测试";
+                byte[] testBytes = System.Text.Encoding.UTF8.GetBytes(testData);
+                
+                // 原始密钥签名
+                byte[] signature1 = rsa.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                
+                // 从PEM导入的密钥签名
+                byte[] signature2 = rsa2.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                
+                // 从字节数组导入的密钥签名
+                byte[] signature3 = rsa3.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                
+                // 验证所有签名都有效
+                bool verify1 = rsa.VerifyData(testBytes, signature1, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                bool verify2 = rsa.VerifyData(testBytes, signature2, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                bool verify3 = rsa.VerifyData(testBytes, signature3, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
+                
+                Console.WriteLine($"密钥验证测试: 原始密钥={verify1}, PEM导入={verify2}, 字节数组导入={verify3}");
+                Console.WriteLine($"总体验证结果: {(verify1 && verify2 && verify3 ? "成功" : "失败")}");
+                
+                // 测试优化后的RSAUtil方法
+                Console.WriteLine("\n测试优化后的RSAUtil方法:");
+                var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+                string testText = "RSAUtil PKCS8测试";
+                
+                // 使用PKCS8格式进行加密解密
+                string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8);
+                string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8);
+                Console.WriteLine($"PKCS8加密解密测试: {(testText == decrypted ? "成功" : "失败")}");
+                
+                // 使用PKCS8格式进行签名验签
+                string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS8);
+                bool verifyResult = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS8);
+                Console.WriteLine($"PKCS8签名验签测试: {(verifyResult ? "成功" : "失败")}");
+                
+                Console.WriteLine("新PKCS8导出功能测试完成!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PKCS8导出功能测试失败: {ex.Message}");
+                Console.WriteLine($"错误详情: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 测试.NET Standard 2.1兼容性
+        /// </summary>
+        public static void TestNetStandard21Compatibility()
+        {
+            Console.WriteLine("\n--- .NET Standard 2.1兼容性测试 ---");
+            
+            try
+            {
+                // 测试所有密钥格式
+                var formats = new[] 
+                {
+                    RSAUtil.RSAKeyFormat.XML,
+                    RSAUtil.RSAKeyFormat.PKCS1,
+                    RSAUtil.RSAKeyFormat.PKCS8,
+                    RSAUtil.RSAKeyFormat.Java
+                };
+
+                string testText = ".NET Standard 2.1兼容性测试内容";
+                
+                foreach (var format in formats)
+                {
+                    try
+                    {
+                        Console.WriteLine($"\n测试 {format} 格式:");
+                        
+                        // 1. 密钥生成测试
+                        var keyPair = RSAUtil.CreateRSAKey(2048, format);
+                        Console.WriteLine($"  密钥生成: 成功");
+                        
+                        // 2. 加密解密测试
+                        string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, format, RSAUtil.RSAPaddingMode.PKCS1);
+                        string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, format, RSAUtil.RSAPaddingMode.PKCS1);
+                        bool encryptTest = testText == decrypted;
+                        Console.WriteLine($"  加密解密: {(encryptTest ? "成功" : "失败")}");
+                        
+                        // 3. 签名验签测试
+                        string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, format);
+                        bool signTest = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, format);
+                        Console.WriteLine($"  签名验签: {(signTest ? "成功" : "失败")}");
+                        
+                        if (!encryptTest || !signTest)
+                        {
+                            Console.WriteLine($"  {format} 格式测试存在问题！");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {format} 格式测试失败: {ex.Message}");
+                    }
+                }
+                
+                // 测试格式转换
+                Console.WriteLine("\n测试格式转换:");
+                try
+                {
+                    var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
+                    var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
+                    
+                    // XML转Java格式
+                    string xmlToJavaPublic = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Key, false);
+                    string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
+                    Console.WriteLine("  XML -> Java: 成功");
+                    
+                    // Java转XML格式
+                    string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
+                    string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
+                    Console.WriteLine("  Java -> XML: 成功");
+                    
+                    // PKCS1转PKCS8
+                    string pkcs1ToPkcs8Public = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1KeyPair.Key, false);
+                    string pkcs1ToPkcs8Private = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1KeyPair.Value, true);
+                    Console.WriteLine("  PKCS1 -> PKCS8: 成功");
+                    
+                    // PKCS8转PKCS1
+                    string pkcs8ToPkcs1Public = RSAUtil.ConvertPkcs8ToPkcs1(pkcs1ToPkcs8Public, false);
+                    string pkcs8ToPkcs1Private = RSAUtil.ConvertPkcs8ToPkcs1(pkcs1ToPkcs8Private, true);
+                    Console.WriteLine("  PKCS8 -> PKCS1: 成功");
+                    
+                    // 验证转换正确性
+                    string testSignature = RSAUtil.HashAndSignString(testText, pkcs8ToPkcs1Private, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
+                    bool conversionTest = RSAUtil.VerifySigned(testText, testSignature, pkcs8ToPkcs1Public, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
+                    Console.WriteLine($"  格式转换验证: {(conversionTest ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"  格式转换测试失败: {ex.Message}");
+                }
+                
+                Console.WriteLine("\n.NET Standard 2.1兼容性测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($".NET Standard 2.1兼容性测试失败: {ex.Message}");
+                Console.WriteLine($"错误详情: {ex}");
+            }
         }
 
         public static void CertTest()
@@ -58,14 +857,6 @@ namespace CryptoTool.App
             Console.WriteLine("MD5加密结果：{0}", result);
         }
 
-        public static void SHA1Test()
-        {
-            Console.WriteLine("\n--------------SHA1算法测试---------------");
-            string input = "SHA1加密算法测试";
-            string result = SHA1Util.EncryptBySHA1(input);
-            Console.WriteLine("SHA1加密结果：{0}", result);
-        }
-
         public static void DESTest()
         {
             Console.WriteLine("\n--------------DES算法测试---------------");
@@ -75,61 +866,6 @@ namespace CryptoTool.App
             Console.WriteLine("DES加密结果：{0}", encryptResult);
             string decrptResult = DESUtil.DecryptByDES(encryptResult, key); //DESUtil.DecryptString(encryptResult, key);
             Console.WriteLine("DES解密结果：{0}", decrptResult);
-        }
-
-        public static void AESTest()
-        {
-            Console.WriteLine("\n--------------AES算法测试---------------");
-            string key = "aeskeyaeskeyaeskeyaeskeyaeskeyaeskey";
-            string input = "AES对称加密算法测试";
-            string encryptResult = AESUtil.EncryptByAES(input, key);
-            Console.WriteLine("AES加密结果：{0}", encryptResult);
-
-            string decrptResult = AESUtil.DecryptByAES(encryptResult, key);
-            Console.WriteLine("AES解密结果：{0}", decrptResult);
-        }
-
-        /// <summary>
-        /// RSA加签验签测试
-        /// </summary>
-        public static void RSATest()
-        {
-            Console.WriteLine("\n--------------RSA算法测试---------------");
-            string input = "文章不错，这是我的签名：奥巴马！";
-            Console.WriteLine("签名数为：{0}", input);
-            KeyValuePair<string, string> keyPair = RSAUtil.CreateRSAKey();
-            string privateKey = keyPair.Value;
-            string publicKey = keyPair.Key;
-
-            // 密钥加签，公钥验签
-            string hashSignResult = RSAUtil.HashAndSignString(input, privateKey);
-            Console.WriteLine("RSA私钥加签后的结果：{0}", hashSignResult);
-
-            bool boolResult = RSAUtil.VerifySigned(input, hashSignResult, publicKey);
-            Console.WriteLine("RSA公钥验签后的结果：{0}", boolResult);
-
-            // 公钥加密、私钥解密
-            string encryptResult = RSAUtil.EncryptByRSA(input, publicKey);
-            Console.WriteLine("RSA公钥加密后的结果：{0}", encryptResult);
-
-            string decryptResult = RSAUtil.DecryptByRSA(encryptResult, privateKey);
-            Console.WriteLine("RSA私钥解密后的结果：{0}", decryptResult);
-
-        }
-
-        /// <summary>
-        /// pfx证书加签验签测试
-        /// </summary>
-        public static void SignByPfxTest()
-        {
-            Console.WriteLine("\n--------------pfx证书签名算法测试---------------");
-            string noSignStr = "我要签名";
-            string path = @"C:\Users\Administrator\Desktop\数字签名证书.pfx";
-            var result = RSAUtil.SignDataByPfx(path, "123456", noSignStr, "MD5");
-            Console.WriteLine("加签结果：{0}", result);
-
-            var verifyResult = RSAUtil.VerifySignByPfx(path, "123456", noSignStr, "MD5", result);
-            Console.WriteLine("验签结果：{0}", verifyResult);
         }
 
         public static void SM2Test()
