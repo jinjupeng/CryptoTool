@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CryptoTool.App
 {
@@ -12,15 +13,765 @@ namespace CryptoTool.App
     {
         static void Main(string[] args)
         {
-            RSATest();
-            AESTest();
+            MD5Test();
+            //RSATest();
+            //AESTest();
             //DESTest();
 
             //SM2Test();
             //SM3Test();
             //SM4Test();
             Console.WriteLine("输入任意键退出！");
+            Console.ReadKey();
         }
+
+        /// <summary>
+        /// MD5算法全面测试
+        /// </summary>
+        public static void MD5Test()
+        {
+            Console.WriteLine("--------------MD5算法全面测试---------------");
+
+            // 1. 基础字符串加密测试
+            TestBasicMD5Functionality();
+
+            // 2. 多种编码格式测试
+            TestMD5Encodings();
+
+            // 3. 文件MD5测试
+            TestFileMD5();
+
+            // 4. 流MD5测试
+            TestStreamMD5();
+
+            // 5. MD5验证测试
+            TestMD5Verification();
+
+            // 6. 工具方法测试
+            TestMD5UtilityMethods();
+
+            // 7. API密钥生成测试
+            TestAPIKeyGeneration();
+
+            // 8. 性能和边界测试
+            TestMD5PerformanceAndBoundaries();
+
+            // 9. 异步操作测试
+            TestMD5AsyncOperations();
+
+            Console.WriteLine("\nMD5算法全面测试完成！");
+        }
+
+        /// <summary>
+        /// 测试基础MD5功能
+        /// </summary>
+        public static void TestBasicMD5Functionality()
+        {
+            Console.WriteLine("\n--- 基础MD5功能测试 ---");
+
+            try
+            {
+                string[] testInputs = {
+                    "Hello World",
+                    "MD5加密算法测试",
+                    "这是包含中文和English mixed content的测试!",
+                    "",
+                    "123456789",
+                    "The quick brown fox jumps over the lazy dog"
+                };
+
+                foreach (string input in testInputs)
+                {
+                    try
+                    {
+                        // 测试小写MD5
+                        string lowerHash = MD5Util.EncryptByMD5(input);
+
+                        // 测试大写MD5
+                        string upperHash = MD5Util.EncryptByMD5Upper(input);
+
+                        // 测试Base64格式
+                        string base64Hash = MD5Util.EncryptByMD5ToBase64(input);
+
+                        // 验证格式正确性
+                        bool isValidLower = lowerHash.Length == 32 && lowerHash.All(c => "0123456789abcdef".Contains(c));
+                        bool isValidUpper = upperHash.Length == 32 && upperHash.All(c => "0123456789ABCDEF".Contains(c));
+                        bool isValidBase64 = !string.IsNullOrEmpty(base64Hash);
+
+                        Console.WriteLine($"输入: \"{(input.Length > 20 ? input.Substring(0, 20) + "..." : input)}\"");
+                        Console.WriteLine($"  小写MD5: {lowerHash} - {(isValidLower ? "true" : "false")}");
+                        Console.WriteLine($"  大写MD5: {upperHash} - {(isValidUpper ? "true" : "false")}");
+                        Console.WriteLine($"  Base64:  {base64Hash} - {(isValidBase64 ? "true" : "false")}");
+
+                        // 验证大小写转换正确性
+                        bool caseConsistent = lowerHash.ToUpper() == upperHash;
+                        Console.WriteLine($"  大小写一致性: {(caseConsistent ? "true" : "false")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"输入 \"{input}\" 测试失败: {ex.Message}");
+                    }
+                }
+
+                // 测试null输入
+                try
+                {
+                    MD5Util.EncryptByMD5(null);
+                    Console.WriteLine("null输入测试: false (应该抛出异常)");
+                }
+                catch (ArgumentNullException)
+                {
+                    Console.WriteLine("null输入测试: true (正确抛出ArgumentNullException)");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"null输入测试: false (抛出了错误的异常类型: {ex.GetType().Name})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"基础MD5功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试多种编码格式
+        /// </summary>
+        public static void TestMD5Encodings()
+        {
+            Console.WriteLine("\n--- MD5编码格式测试 ---");
+
+            try
+            {
+                string testInput = "编码测试内容";
+                var encodings = new[]
+                {
+                    Encoding.UTF8,
+                    Encoding.Unicode,
+                    Encoding.ASCII,
+                    Encoding.UTF32
+                };
+
+                foreach (var encoding in encodings)
+                {
+                    try
+                    {
+                        string hash = MD5Util.EncryptByMD5(testInput, encoding);
+                        byte[] hashBytes = MD5Util.ComputeMD5Hash(testInput, encoding);
+
+                        Console.WriteLine($"{encoding.EncodingName}:");
+                        Console.WriteLine($"  哈希值: {hash}");
+                        Console.WriteLine($"  字节长度: {hashBytes.Length}");
+                        Console.WriteLine($"  格式正确: {(hash.Length == 32 ? "true" : "false")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{encoding.EncodingName} 编码测试失败: {ex.Message}");
+                    }
+                }
+
+                // 验证同一编码多次计算结果一致
+                string consistencyInput = "一致性测试";
+                string hash1 = MD5Util.EncryptByMD5(consistencyInput);
+                string hash2 = MD5Util.EncryptByMD5(consistencyInput);
+                Console.WriteLine($"一致性测试: {(hash1 == hash2 ? "true" : "false")}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"编码格式测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试文件MD5
+        /// </summary>
+        public static void TestFileMD5()
+        {
+            Console.WriteLine("\n--- 文件MD5测试 ---");
+
+            try
+            {
+                string tempDir = Path.GetTempPath();
+                string[] testFiles = new string[4];
+
+                // 创建测试文件
+                testFiles[0] = Path.Combine(tempDir, "md5_test_empty.txt");
+                testFiles[1] = Path.Combine(tempDir, "md5_test_small.txt");
+                testFiles[2] = Path.Combine(tempDir, "md5_test_large.txt");
+                testFiles[3] = Path.Combine(tempDir, "md5_test_chinese.txt");
+
+                try
+                {
+                    // 空文件
+                    File.WriteAllText(testFiles[0], "", Encoding.UTF8);
+
+                    // 小文件
+                    File.WriteAllText(testFiles[1], "Hello World", Encoding.UTF8);
+
+                    // 大文件 (1MB)
+                    string largeContent = new string('A', 1024 * 1024);
+                    File.WriteAllText(testFiles[2], largeContent, Encoding.UTF8);
+
+                    // 中文文件
+                    File.WriteAllText(testFiles[3], "这是中文测试内容，包含特殊字符！@#$%^&*()", Encoding.UTF8);
+
+                    foreach (string filePath in testFiles)
+                    {
+                        if (File.Exists(filePath))
+                        {
+                            try
+                            {
+                                var startTime = DateTime.Now;
+
+                                // 测试文件MD5计算
+                                string fileMD5 = MD5Util.GetFileHashCode(filePath, "MD5");
+                                string fileMD5Upper = MD5Util.GetFileHashCode(filePath, "MD5", true);
+
+                                var endTime = DateTime.Now;
+                                var duration = endTime - startTime;
+
+                                FileInfo info = new FileInfo(filePath);
+                                Console.WriteLine($"文件: {Path.GetFileName(filePath)} ({info.Length} 字节)");
+                                Console.WriteLine($"  MD5(小写): {fileMD5}");
+                                Console.WriteLine($"  MD5(大写): {fileMD5Upper}");
+                                Console.WriteLine($"  计算时间: {duration.TotalMilliseconds:F2} ms");
+                                Console.WriteLine($"  格式正确: {(fileMD5.Length == 32 ? "true" : "false")}");
+                                Console.WriteLine($"  大小写一致: {(fileMD5.ToUpper() == fileMD5Upper ? "true" : "false")}");
+
+                                // 验证文件MD5
+                                bool verifyResult = MD5Util.VerifyFileMD5(filePath, fileMD5);
+                                Console.WriteLine($"  验证结果: {(verifyResult ? "true" : "false")}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"文件 {Path.GetFileName(filePath)} 测试失败: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    // 测试文件比较
+                    Console.WriteLine("\n文件比较测试:");
+
+                    // 创建两个相同内容的文件
+                    string file1 = Path.Combine(tempDir, "md5_compare1.txt");
+                    string file2 = Path.Combine(tempDir, "md5_compare2.txt");
+                    string file3 = Path.Combine(tempDir, "md5_compare3.txt");
+
+                    File.WriteAllText(file1, "相同内容", Encoding.UTF8);
+                    File.WriteAllText(file2, "相同内容", Encoding.UTF8);
+                    File.WriteAllText(file3, "不同内容", Encoding.UTF8);
+
+                    bool sameFiles = MD5Util.CompareFileMD5(file1, file2);
+                    bool differentFiles = MD5Util.CompareFileMD5(file1, file3);
+
+                    Console.WriteLine($"  相同文件比较: {(sameFiles ? "true" : "false")}");
+                    Console.WriteLine($"  不同文件比较: {(!differentFiles ? "true" : "false")}");
+
+                    // 清理比较测试文件
+                    try
+                    {
+                        File.Delete(file1);
+                        File.Delete(file2);
+                        File.Delete(file3);
+                    }
+                    catch { }
+
+                    // 测试不存在的文件
+                    string nonExistentFile = Path.Combine(tempDir, "nonexistent.txt");
+                    string nonExistentResult = MD5Util.GetFileHashCode(nonExistentFile);
+                    Console.WriteLine($"  不存在文件测试: {(nonExistentResult == string.Empty ? "true" : "false")}");
+                }
+                finally
+                {
+                    // 清理测试文件
+                    foreach (string file in testFiles)
+                    {
+                        try
+                        {
+                            if (File.Exists(file))
+                                File.Delete(file);
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"文件MD5测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试流MD5
+        /// </summary>
+        public static void TestStreamMD5()
+        {
+            Console.WriteLine("\n--- 流MD5测试 ---");
+
+            try
+            {
+                string[] testContents = {
+                    "",
+                    "小流测试",
+                    "这是一个较长的流测试内容，用于验证流式MD5计算功能的正确性。",
+                    new string('X', 10000) // 10KB内容
+                };
+
+                foreach (string content in testContents)
+                {
+                    try
+                    {
+                        byte[] contentBytes = Encoding.UTF8.GetBytes(content);
+
+                        using (var stream = new MemoryStream(contentBytes))
+                        {
+                            var startTime = DateTime.Now;
+
+                            // 计算流MD5
+                            string streamMD5 = MD5Util.ComputeStreamMD5(stream);
+
+                            var endTime = DateTime.Now;
+                            var duration = endTime - startTime;
+
+                            // 重置流位置，计算大写版本
+                            stream.Position = 0;
+                            string streamMD5Upper = MD5Util.ComputeStreamMD5(stream, true);
+
+                            // 比较与字符串MD5是否一致
+                            string stringMD5 = MD5Util.EncryptByMD5(content);
+
+                            Console.WriteLine($"流内容长度: {contentBytes.Length} 字节");
+                            Console.WriteLine($"  流MD5(小写): {streamMD5}");
+                            Console.WriteLine($"  流MD5(大写): {streamMD5Upper}");
+                            Console.WriteLine($"  字符串MD5: {stringMD5}");
+                            Console.WriteLine($"  计算时间: {duration.TotalMilliseconds:F2} ms");
+                            Console.WriteLine($"  与字符串一致: {(streamMD5 == stringMD5 ? "true" : "false")}");
+                            Console.WriteLine($"  大小写一致: {(streamMD5.ToUpper() == streamMD5Upper ? "true" : "false")}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"流测试失败 (长度: {content.Length}): {ex.Message}");
+                    }
+                }
+
+                // 测试null流
+                try
+                {
+                    MD5Util.ComputeStreamMD5(null);
+                    Console.WriteLine("null流测试: false (应该抛出异常)");
+                }
+                catch (ArgumentNullException)
+                {
+                    Console.WriteLine("null流测试: true (正确抛出ArgumentNullException)");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"null流测试: false (抛出了错误的异常类型: {ex.GetType().Name})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"流MD5测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试MD5验证
+        /// </summary>
+        public static void TestMD5Verification()
+        {
+            Console.WriteLine("\n--- MD5验证测试 ---");
+
+            try
+            {
+                string testInput = "验证测试内容";
+                string correctHash = MD5Util.EncryptByMD5(testInput);
+                string incorrectHash = "incorrect_hash_value_123456789";
+                string upperHash = correctHash.ToUpper();
+
+                // 测试正确验证
+                bool correctVerify = MD5Util.VerifyMD5(testInput, correctHash);
+                Console.WriteLine($"正确哈希验证: {(correctVerify ? "true" : "false")}");
+
+                // 测试错误验证
+                bool incorrectVerify = MD5Util.VerifyMD5(testInput, incorrectHash);
+                Console.WriteLine($"错误哈希验证: {(!incorrectVerify ? "true" : "false")}");
+
+                // 测试大小写不敏感
+                bool caseInsensitiveVerify = MD5Util.VerifyMD5(testInput, upperHash);
+                Console.WriteLine($"大小写不敏感验证: {(caseInsensitiveVerify ? "true" : "false")}");
+
+                // 测试空值验证
+                bool nullInputVerify = MD5Util.VerifyMD5(null, correctHash);
+                bool nullHashVerify = MD5Util.VerifyMD5(testInput, null);
+                Console.WriteLine($"null输入验证: {(!nullInputVerify ? "true" : "false")}");
+                Console.WriteLine($"null哈希验证: {(!nullHashVerify ? "true" : "false")}");
+
+                // 创建临时文件进行文件验证测试
+                string tempFile = Path.GetTempFileName();
+                try
+                {
+                    File.WriteAllText(tempFile, testInput, Encoding.UTF8);
+                    string fileHash = MD5Util.GetFileHashCode(tempFile, "MD5");
+
+                    bool fileVerifyCorrect = MD5Util.VerifyFileMD5(tempFile, fileHash);
+                    bool fileVerifyIncorrect = MD5Util.VerifyFileMD5(tempFile, incorrectHash);
+
+                    Console.WriteLine($"文件正确验证: {(fileVerifyCorrect ? "true" : "false")}");
+                    Console.WriteLine($"文件错误验证: {(!fileVerifyIncorrect ? "true" : "false")}");
+                }
+                finally
+                {
+                    try
+                    {
+                        if (File.Exists(tempFile))
+                            File.Delete(tempFile);
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"MD5验证测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试MD5工具方法
+        /// </summary>
+        public static void TestMD5UtilityMethods()
+        {
+            Console.WriteLine("\n--- MD5工具方法测试 ---");
+
+            try
+            {
+                // 测试16进制字符串转换
+                string hexString = "48-65-6C-6C-6F"; // "Hello" in hex
+                byte[] expectedBytes = { 0x48, 0x65, 0x6C, 0x6C, 0x6F };
+
+                try
+                {
+                    byte[] convertedBytes = MD5Util.GetBytesFromHexString(hexString);
+                    bool bytesMatch = convertedBytes.SequenceEqual(expectedBytes);
+                    Console.WriteLine($"16进制字符串转字节: {(bytesMatch ? "true" : "false")}");
+
+                    // 反向转换测试
+                    string reconvertedHex = MD5Util.GetHexStringFromBytes(convertedBytes);
+                    string reconvertedHexUpper = MD5Util.GetHexStringFromBytes(convertedBytes, true);
+
+                    Console.WriteLine($"字节转16进制(小写): {reconvertedHex}");
+                    Console.WriteLine($"字节转16进制(大写): {reconvertedHexUpper}");
+
+                    bool hexMatch = string.Equals(hexString, reconvertedHex, StringComparison.OrdinalIgnoreCase);
+                    Console.WriteLine($"往返转换正确: {(hexMatch ? "true" : "false")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"16进制转换测试失败: {ex.Message}");
+                }
+
+                // 测试无效16进制字符串
+                try
+                {
+                    MD5Util.GetBytesFromHexString("GG-HH-II");
+                    Console.WriteLine("无效16进制测试: false (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("无效16进制测试: true (正确抛出ArgumentException)");
+                }
+
+                // 测试null参数
+                try
+                {
+                    MD5Util.GetBytesFromHexString(null);
+                    Console.WriteLine("null字符串测试: false (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("null字符串测试: true (正确抛出ArgumentException)");
+                }
+
+                try
+                {
+                    MD5Util.GetHexStringFromBytes(null);
+                    Console.WriteLine("null字节数组测试: false (应该抛出异常)");
+                }
+                catch (ArgumentNullException)
+                {
+                    Console.WriteLine("null字节数组测试: true (正确抛出ArgumentNullException)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"工具方法测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试API密钥生成
+        /// </summary>
+        public static void TestAPIKeyGeneration()
+        {
+            Console.WriteLine("\n--- API密钥生成测试 ---");
+
+            try
+            {
+                // 测试AppId生成
+                string appId1 = MD5Util.GenerateAppId();
+                string appId2 = MD5Util.GenerateAppId();
+
+                Console.WriteLine($"AppId生成测试:");
+                Console.WriteLine($"  AppId1: {appId1.Substring(0, Math.Min(20, appId1.Length))}...");
+                Console.WriteLine($"  AppId2: {appId2.Substring(0, Math.Min(20, appId2.Length))}...");
+                Console.WriteLine($"  随机性: {(appId1 != appId2 ? "true" : "false")}");
+
+                // 验证Base64格式
+                try
+                {
+                    byte[] decodedAppId = Convert.FromBase64String(appId1);
+                    Console.WriteLine($"  Base64格式: true (长度: {decodedAppId.Length} 字节)");
+                }
+                catch
+                {
+                    Console.WriteLine($"  Base64格式: false");
+                }
+
+                // 测试AppSecret生成
+                string appSecret1 = MD5Util.GenerateAppSecret();
+                string appSecret2 = MD5Util.GenerateAppSecret();
+
+                Console.WriteLine($"AppSecret生成测试:");
+                Console.WriteLine($"  AppSecret1: {appSecret1.Substring(0, Math.Min(20, appSecret1.Length))}...");
+                Console.WriteLine($"  AppSecret2: {appSecret2.Substring(0, Math.Min(20, appSecret2.Length))}...");
+                Console.WriteLine($"  随机性: {(appSecret1 != appSecret2 ? "true" : "false")}");
+
+                // 验证Base64格式
+                try
+                {
+                    byte[] decodedAppSecret = Convert.FromBase64String(appSecret1);
+                    Console.WriteLine($"  Base64格式: true (长度: {decodedAppSecret.Length} 字节)");
+                }
+                catch
+                {
+                    Console.WriteLine($"  Base64格式: false");
+                }
+
+                // 测试16进制密钥生成
+                string hexKey1 = MD5Util.GenerateHexKey();
+                string hexKey2 = MD5Util.GenerateHexKey(32, true);
+
+                Console.WriteLine($"16进制密钥生成测试:");
+                Console.WriteLine($"  小写16进制: {hexKey1}");
+                Console.WriteLine($"  大写16进制: {hexKey2}");
+                Console.WriteLine($"  随机性: {(!hexKey1.Equals(hexKey2, StringComparison.OrdinalIgnoreCase) ? "true" : "false")}");
+                Console.WriteLine($"  格式正确: {(hexKey1.All(c => "0123456789abcdef".Contains(c)) ? "true" : "false")}");
+
+                // 测试自定义长度
+                string customAppId = MD5Util.GenerateAppId(16);
+                string customHexKey = MD5Util.GenerateHexKey(8);
+
+                try
+                {
+                    byte[] customDecoded = Convert.FromBase64String(customAppId);
+                    Console.WriteLine($"自定义长度AppId: true (期望16字节，实际{customDecoded.Length}字节)");
+                }
+                catch
+                {
+                    Console.WriteLine($"自定义长度AppId: false");
+                }
+
+                Console.WriteLine($"自定义长度16进制: {(customHexKey.Length == 16 ? "true" : "false")} (期望16字符，实际{customHexKey.Length}字符)");
+
+                // 测试无效长度
+                try
+                {
+                    MD5Util.GenerateAppId(0);
+                    Console.WriteLine("无效长度测试: false (应该抛出异常)");
+                }
+                catch (ArgumentException)
+                {
+                    Console.WriteLine("无效长度测试: true (正确抛出ArgumentException)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"API密钥生成测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试性能和边界条件
+        /// </summary>
+        public static void TestMD5PerformanceAndBoundaries()
+        {
+            Console.WriteLine("\n--- MD5性能和边界测试 ---");
+
+            try
+            {
+                // 测试大文本性能
+                string largeText = new string('A', 1_000_000); // 1MB文本
+                var startTime = DateTime.Now;
+                string largeTextMD5 = MD5Util.EncryptByMD5(largeText);
+                var endTime = DateTime.Now;
+                var duration = endTime - startTime;
+
+                Console.WriteLine($"大文本MD5计算:");
+                Console.WriteLine($"  文本大小: {largeText.Length:N0} 字符");
+                Console.WriteLine($"  计算时间: {duration.TotalMilliseconds:F2} ms");
+                Console.WriteLine($"  结果长度: {largeTextMD5.Length}");
+                Console.WriteLine($"  性能测试: {(duration.TotalSeconds < 5 ? "true" : "false")} (< 5秒)");
+
+                // 测试Unicode字符
+                string unicodeText = "🌍🚀💻🎉测试Unicode字符";
+                string unicodeMD5 = MD5Util.EncryptByMD5(unicodeText);
+                Console.WriteLine($"Unicode字符测试: true");
+                Console.WriteLine($"  输入: {unicodeText}");
+                Console.WriteLine($"  MD5: {unicodeMD5}");
+
+                // 测试特殊字符
+                string specialChars = "!@#$%^&*()_+-=[]{}|;':\",./<>?`~";
+                string specialMD5 = MD5Util.EncryptByMD5(specialChars);
+                Console.WriteLine($"特殊字符测试: true");
+                Console.WriteLine($"  MD5: {specialMD5}");
+
+                // 测试换行符和控制字符
+                string controlChars = "测试\r\n\t\0控制字符";
+                string controlMD5 = MD5Util.EncryptByMD5(controlChars);
+                Console.WriteLine($"控制字符测试: true");
+                Console.WriteLine($"  MD5: {controlMD5}");
+
+                // 测试极长路径（文件测试）
+                try
+                {
+                    string invalidPath = new string('a', 300) + ".txt"; // 超长路径
+                    string invalidResult = MD5Util.GetFileHashCode(invalidPath);
+                    Console.WriteLine($"无效路径测试: {(invalidResult == string.Empty ? "true" : "false")}");
+                }
+                catch
+                {
+                    Console.WriteLine($"无效路径测试: true (正确处理异常)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"性能和边界测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试异步操作
+        /// </summary>
+        public static void TestMD5AsyncOperations()
+        {
+            Console.WriteLine("\n--- MD5异步操作测试 ---");
+
+            try
+            {
+                // 创建测试文件
+                string tempDir = Path.GetTempPath();
+                string testFile1 = Path.Combine(tempDir, "async_test1.txt");
+                string testFile2 = Path.Combine(tempDir, "async_test2.txt");
+                string testFile3 = Path.Combine(tempDir, "async_test3.txt");
+
+                try
+                {
+                    // 创建不同大小的测试文件
+                    File.WriteAllText(testFile1, "小文件异步测试", Encoding.UTF8);
+                    File.WriteAllText(testFile2, new string('B', 100000), Encoding.UTF8); // 100KB
+                    File.WriteAllText(testFile3, "小文件异步测试", Encoding.UTF8); // 与test1相同内容
+
+                    // 异步计算文件MD5
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var startTime = DateTime.Now;
+
+                            // 并行计算多个文件的MD5
+                            var task1 = MD5Util.GetFileMD5Async(testFile1);
+                            var task2 = MD5Util.GetFileMD5Async(testFile2);
+                            var task3 = MD5Util.GetFileMD5Async(testFile3);
+
+                            await Task.WhenAll(task1, task2, task3);
+
+                            var endTime = DateTime.Now;
+                            var duration = endTime - startTime;
+
+                            string hash1 = task1.Result;
+                            string hash2 = task2.Result;
+                            string hash3 = task3.Result;
+
+                            Console.WriteLine($"异步文件MD5计算:");
+                            Console.WriteLine($"  文件1 MD5: {hash1}");
+                            Console.WriteLine($"  文件2 MD5: {hash2}");
+                            Console.WriteLine($"  文件3 MD5: {hash3}");
+                            Console.WriteLine($"  并行计算时间: {duration.TotalMilliseconds:F2} ms");
+                            Console.WriteLine($"  文件1与3相同: {(hash1 == hash3 ? "true" : "false")}");
+
+                            // 异步文件比较
+                            bool asyncCompareResult = await MD5Util.CompareFileMD5Async(testFile1, testFile3);
+                            bool asyncCompareDifferent = await MD5Util.CompareFileMD5Async(testFile1, testFile2);
+
+                            Console.WriteLine($"异步文件比较:");
+                            Console.WriteLine($"  相同文件比较: {(asyncCompareResult ? "true" : "false")}");
+                            Console.WriteLine($"  不同文件比较: {(!asyncCompareDifferent ? "true" : "false")}");
+
+                            // 测试异步流MD5
+                            byte[] testData = Encoding.UTF8.GetBytes("异步流测试数据");
+                            using (var stream = new MemoryStream(testData))
+                            {
+                                string asyncStreamMD5 = await MD5Util.ComputeStreamMD5Async(stream);
+                                string syncStreamMD5 = MD5Util.EncryptByMD5("异步流测试数据");
+
+                                Console.WriteLine($"异步流MD5:");
+                                Console.WriteLine($"  异步结果: {asyncStreamMD5}");
+                                Console.WriteLine($"  同步结果: {syncStreamMD5}");
+                                Console.WriteLine($"  结果一致: {(asyncStreamMD5 == syncStreamMD5 ? "true" : "false")}");
+                            }
+
+                            // 测试异步异常处理
+                            try
+                            {
+                                await MD5Util.GetFileMD5Async("不存在的文件.txt");
+                                Console.WriteLine("异步异常测试: false (应该抛出异常)");
+                            }
+                            catch (FileNotFoundException)
+                            {
+                                Console.WriteLine("异步异常测试: true (正确抛出FileNotFoundException)");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"异步异常测试: false (抛出了错误的异常类型: {ex.GetType().Name})");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"异步操作测试失败: {ex.Message}");
+                        }
+                    }).Wait(10000); // 等待最多10秒
+
+                    Console.WriteLine("异步操作测试完成");
+                }
+                finally
+                {
+                    // 清理测试文件
+                    try
+                    {
+                        if (File.Exists(testFile1)) File.Delete(testFile1);
+                        if (File.Exists(testFile2)) File.Delete(testFile2);
+                        if (File.Exists(testFile3)) File.Delete(testFile3);
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"异步操作测试失败: {ex.Message}");
+            }
+        }
+
 
         public static void AESTest()
         {
@@ -491,22 +1242,22 @@ namespace CryptoTool.App
         public static void RSATest()
         {
             Console.WriteLine("--------------RSA功能测试---------------");
-            
+
             // 1. 测试RSA和RSA2签名验签
             TestRSASignature();
-            
+
             // 2. 测试Java互操作性
             TestJavaCompatibility();
-            
+
             // 3. 测试PKCS格式转换
             TestPKCSConversion();
-            
+
             // 4. 测试多种密钥格式
             TestMultipleKeyFormats();
-            
+
             // 5. 测试新的PKCS8导出功能
             TestNewPKCS8Export();
-            
+
             // 6. 测试.NET Standard 2.1兼容性
             TestNetStandard21Compatibility();
         }
@@ -517,7 +1268,7 @@ namespace CryptoTool.App
         public static void TestRSASignature()
         {
             Console.WriteLine("\n--- RSA/RSA2签名验签测试 ---");
-            
+
             string plaintext = "这是RSA/RSA2签名验签测试内容";
             var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
             string publicKey = keyPair.Key;
@@ -540,9 +1291,9 @@ namespace CryptoTool.App
         public static void TestJavaCompatibility()
         {
             Console.WriteLine("\n--- Java互操作性测试 ---");
-            
+
             string plaintext = "Java互操作性测试内容";
-            
+
             // 创建Java格式密钥对
             var javaKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.Java);
             string javaPublicKey = javaKeyPair.Key;
@@ -564,7 +1315,7 @@ namespace CryptoTool.App
             string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
             string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
             string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
-            
+
             Console.WriteLine($"XML到Java格式转换: 成功");
             Console.WriteLine($"Java到XML格式转换: 成功");
         }
@@ -575,7 +1326,7 @@ namespace CryptoTool.App
         public static void TestPKCSConversion()
         {
             Console.WriteLine("\n--- PKCS格式转换测试 ---");
-            
+
             // 创建PKCS1格式密钥对
             var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
             string pkcs1PublicKey = pkcs1KeyPair.Key;
@@ -604,11 +1355,11 @@ namespace CryptoTool.App
         public static void TestMultipleKeyFormats()
         {
             Console.WriteLine("\n--- 多种密钥格式测试 ---");
-            
+
             string testText = "多种密钥格式测试内容";
-            
+
             // 测试所有支持的密钥格式
-            var formats = new[] 
+            var formats = new[]
             {
                 RSAUtil.RSAKeyFormat.XML,
                 RSAUtil.RSAKeyFormat.PKCS1,
@@ -621,16 +1372,16 @@ namespace CryptoTool.App
                 try
                 {
                     var keyPair = RSAUtil.CreateRSAKey(2048, format);
-                    
+
                     // 加密解密测试
                     string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, format, RSAUtil.RSAPaddingMode.PKCS1);
                     string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, format, RSAUtil.RSAPaddingMode.PKCS1);
                     bool encryptTest = testText == decrypted;
-                    
+
                     // 签名验签测试
                     string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, format);
                     bool signTest = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, format);
-                    
+
                     Console.WriteLine($"{format} 格式测试: 加密解密={encryptTest}, 签名验签={signTest}");
                 }
                 catch (Exception ex)
@@ -646,73 +1397,73 @@ namespace CryptoTool.App
         public static void TestNewPKCS8Export()
         {
             Console.WriteLine("\n--- 新PKCS8导出功能测试 ---");
-            
+
             try
             {
                 // 创建RSA密钥对
                 using var rsa = System.Security.Cryptography.RSA.Create(2048);
-                
+
                 // 测试.NET 8原生PKCS8导出
                 Console.WriteLine("测试.NET 8原生PKCS8导出:");
-                
+
                 // 导出PKCS8私钥 (PEM格式)
                 string pkcs8PrivatePem = rsa.ExportPkcs8PrivateKeyPem();
                 Console.WriteLine("PKCS8私钥(PEM)导出: 成功");
-                
+
                 // 导出PKCS8私钥 (字节数组)
                 byte[] pkcs8PrivateBytes = rsa.ExportPkcs8PrivateKey();
                 Console.WriteLine("PKCS8私钥(字节数组)导出: 成功");
-                
+
                 // 导出公钥
                 string publicKeyPem = rsa.ExportSubjectPublicKeyInfoPem();
                 byte[] publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
                 Console.WriteLine("公钥导出: 成功");
-                
+
                 // 测试密钥导入
                 using var rsa2 = System.Security.Cryptography.RSA.Create();
                 rsa2.ImportFromPem(pkcs8PrivatePem);
                 Console.WriteLine("PKCS8私钥(PEM)导入: 成功");
-                
+
                 using var rsa3 = System.Security.Cryptography.RSA.Create();
                 rsa3.ImportPkcs8PrivateKey(pkcs8PrivateBytes, out _);
                 Console.WriteLine("PKCS8私钥(字节数组)导入: 成功");
-                
+
                 // 验证导入的密钥是否正确（通过签名验签）
                 string testData = "PKCS8导出导入验证测试";
                 byte[] testBytes = System.Text.Encoding.UTF8.GetBytes(testData);
-                
+
                 // 原始密钥签名
                 byte[] signature1 = rsa.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
-                
+
                 // 从PEM导入的密钥签名
                 byte[] signature2 = rsa2.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
-                
+
                 // 从字节数组导入的密钥签名
                 byte[] signature3 = rsa3.SignData(testBytes, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
-                
+
                 // 验证所有签名都有效
                 bool verify1 = rsa.VerifyData(testBytes, signature1, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
                 bool verify2 = rsa.VerifyData(testBytes, signature2, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
                 bool verify3 = rsa.VerifyData(testBytes, signature3, System.Security.Cryptography.HashAlgorithmName.SHA256, System.Security.Cryptography.RSASignaturePadding.Pkcs1);
-                
+
                 Console.WriteLine($"密钥验证测试: 原始密钥={verify1}, PEM导入={verify2}, 字节数组导入={verify3}");
                 Console.WriteLine($"总体验证结果: {(verify1 && verify2 && verify3 ? "成功" : "失败")}");
-                
+
                 // 测试优化后的RSAUtil方法
                 Console.WriteLine("\n测试优化后的RSAUtil方法:");
                 var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
                 string testText = "RSAUtil PKCS8测试";
-                
+
                 // 使用PKCS8格式进行加密解密
                 string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8);
                 string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8);
                 Console.WriteLine($"PKCS8加密解密测试: {(testText == decrypted ? "成功" : "失败")}");
-                
+
                 // 使用PKCS8格式进行签名验签
                 string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS8);
                 bool verifyResult = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS8);
                 Console.WriteLine($"PKCS8签名验签测试: {(verifyResult ? "成功" : "失败")}");
-                
+
                 Console.WriteLine("新PKCS8导出功能测试完成!");
             }
             catch (Exception ex)
@@ -728,11 +1479,11 @@ namespace CryptoTool.App
         public static void TestNetStandard21Compatibility()
         {
             Console.WriteLine("\n--- .NET Standard 2.1兼容性测试 ---");
-            
+
             try
             {
                 // 测试所有密钥格式
-                var formats = new[] 
+                var formats = new[]
                 {
                     RSAUtil.RSAKeyFormat.XML,
                     RSAUtil.RSAKeyFormat.PKCS1,
@@ -741,28 +1492,28 @@ namespace CryptoTool.App
                 };
 
                 string testText = ".NET Standard 2.1兼容性测试内容";
-                
+
                 foreach (var format in formats)
                 {
                     try
                     {
                         Console.WriteLine($"\n测试 {format} 格式:");
-                        
+
                         // 1. 密钥生成测试
                         var keyPair = RSAUtil.CreateRSAKey(2048, format);
                         Console.WriteLine($"  密钥生成: 成功");
-                        
+
                         // 2. 加密解密测试
                         string encrypted = RSAUtil.EncryptByRSA(testText, keyPair.Key, format, RSAUtil.RSAPaddingMode.PKCS1);
                         string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, format, RSAUtil.RSAPaddingMode.PKCS1);
                         bool encryptTest = testText == decrypted;
                         Console.WriteLine($"  加密解密: {(encryptTest ? "成功" : "失败")}");
-                        
+
                         // 3. 签名验签测试
                         string signature = RSAUtil.HashAndSignString(testText, keyPair.Value, RSAUtil.RSAType.RSA2, format);
                         bool signTest = RSAUtil.VerifySigned(testText, signature, keyPair.Key, RSAUtil.RSAType.RSA2, format);
                         Console.WriteLine($"  签名验签: {(signTest ? "成功" : "失败")}");
-                        
+
                         if (!encryptTest || !signTest)
                         {
                             Console.WriteLine($"  {format} 格式测试存在问题！");
@@ -773,34 +1524,34 @@ namespace CryptoTool.App
                         Console.WriteLine($"  {format} 格式测试失败: {ex.Message}");
                     }
                 }
-                
+
                 // 测试格式转换
                 Console.WriteLine("\n测试格式转换:");
                 try
                 {
                     var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
                     var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
-                    
+
                     // XML转Java格式
                     string xmlToJavaPublic = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Key, false);
                     string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
                     Console.WriteLine("  XML -> Java: 成功");
-                    
+
                     // Java转XML格式
                     string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
                     string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
                     Console.WriteLine("  Java -> XML: 成功");
-                    
+
                     // PKCS1转PKCS8
                     string pkcs1ToPkcs8Public = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1KeyPair.Key, false);
                     string pkcs1ToPkcs8Private = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1KeyPair.Value, true);
                     Console.WriteLine("  PKCS1 -> PKCS8: 成功");
-                    
+
                     // PKCS8转PKCS1
                     string pkcs8ToPkcs1Public = RSAUtil.ConvertPkcs8ToPkcs1(pkcs1ToPkcs8Public, false);
                     string pkcs8ToPkcs1Private = RSAUtil.ConvertPkcs8ToPkcs1(pkcs1ToPkcs8Private, true);
                     Console.WriteLine("  PKCS8 -> PKCS1: 成功");
-                    
+
                     // 验证转换正确性
                     string testSignature = RSAUtil.HashAndSignString(testText, pkcs8ToPkcs1Private, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
                     bool conversionTest = RSAUtil.VerifySigned(testText, testSignature, pkcs8ToPkcs1Public, RSAUtil.RSAType.RSA2, RSAUtil.RSAKeyFormat.PKCS1);
@@ -810,7 +1561,7 @@ namespace CryptoTool.App
                 {
                     Console.WriteLine($"  格式转换测试失败: {ex.Message}");
                 }
-                
+
                 Console.WriteLine("\n.NET Standard 2.1兼容性测试完成！");
             }
             catch (Exception ex)
@@ -820,42 +1571,6 @@ namespace CryptoTool.App
             }
         }
 
-        public static void CertTest()
-        {
-            Console.WriteLine("--------------证书算法测试---------------");
-
-            //// 生成自签名的证书路径
-            var pfxPath = "D:\\MyROOTCA.pfx";
-            DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
-            RSAUtil.GeneratePfxCertificate(pfxPath);
-            var pubPemPath = "D:\\MyROOTCA_Public.pem";
-            var priPemPath = "D:\\MyROOTCA_Private.pem";
-            var x509 = RSAUtil.GetX509Certificate2();
-            RSAUtil.GeneratePublicPemCert(x509, pubPemPath);
-            RSAUtil.GeneratePrivatePemCert(x509, priPemPath);
-
-            // 对某个文件计算哈希值
-            var filePath = "D:\\test.zip";
-            var hashCode = HashUtil.GetHashCode(filePath);
-            Console.WriteLine("文件哈希值：{0}", hashCode);
-            // 加签
-            var signedPemData = RSAUtil.SignDataByPem(priPemPath, hashCode, "MD5");
-            //var signePfxdData = RSAUtil.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
-            Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
-            //Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
-
-            var verifyPemResult = RSAUtil.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
-            //var verifyPfxResult = RSAUtil.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
-            Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
-        }
-
-        public static void MD5Test()
-        {
-            Console.WriteLine("--------------MD5算法测试---------------");
-            string input = "MD5加密算法测试";
-            string result = MD5Util.EncryptByMD5(input);
-            Console.WriteLine("MD5加密结果：{0}", result);
-        }
 
         public static void DESTest()
         {
@@ -993,10 +1708,10 @@ namespace CryptoTool.App
 
             #region 签名格式转换测试 (ASN.1 <-> RS) - 增强版
             Console.WriteLine("\n--------------SM2签名格式转换测试 (Java兼容性)---------------");
-            
+
             // 使用同一个ASN.1签名进行转换测试
             byte[] asn1_sig_bytes = Hex.Decode(sign_ASN1);
-            
+
             // 验证ASN.1签名格式有效性
             bool asn1Valid = SM2Util.IsValidAsn1Signature(asn1_sig_bytes);
             Console.WriteLine($"ASN.1 签名格式验证: {(asn1Valid ? "有效" : "无效")}");
@@ -1017,19 +1732,19 @@ namespace CryptoTool.App
             // 3. 16进制字符串格式转换测试 (便于与Java互转)
             string hexAsn1FromRs = SM2Util.ConvertHexRsToHexAsn1(sign_RS);
             string hexRsFromAsn1 = SM2Util.ConvertHexAsn1ToHexRs(sign_ASN1);
-            
+
             Console.WriteLine($"原始 ASN.1 签名: {sign_ASN1}");
             Console.WriteLine($"原始 RS 签名: {sign_RS}");
             Console.WriteLine($"RS -> ASN.1 转换结果: {hexAsn1FromRs}");
             Console.WriteLine($"ASN.1 -> RS 转换结果: {hexRsFromAsn1}");
-            
+
             Console.WriteLine($"Hex格式转换验证 (RS): {(sign_RS.Equals(hexRsFromAsn1, StringComparison.OrdinalIgnoreCase) ? "成功" : "失败")}");
             Console.WriteLine($"Hex格式转换验证 (ASN.1): {(sign_ASN1.Equals(hexAsn1FromRs, StringComparison.OrdinalIgnoreCase) ? "成功" : "失败")}");
 
             // 4. 跨格式验签测试 (确保转换后的签名仍然有效)
             bool rsFromAsn1Valid = SM2Util.VerifySm3WithSm2(plainTextBytes, hexRsFromAsn1, publicKey, SM2Util.SM2SignatureFormat.RS);
             bool asn1FromRsValid = SM2Util.VerifySm3WithSm2(plainTextBytes, hexAsn1FromRs, publicKey, SM2Util.SM2SignatureFormat.ASN1);
-            
+
             Console.WriteLine($"转换后的RS签名验签: {(rsFromAsn1Valid ? "有效" : "无效")}");
             Console.WriteLine($"转换后的ASN.1签名验签: {(asn1FromRsValid ? "有效" : "无效")}");
 
