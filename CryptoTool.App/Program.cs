@@ -1,5 +1,6 @@
 ﻿using CryptoTool.Common;
 using CryptoTool.Common.GM;
+using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,183 +12,308 @@ namespace CryptoTool.App
     {
         static void Main(string[] args)
         {
-            //string input = "abc";
-            //input = "银行密码统统都给我";
-            //string key = "justdoit";
-            //string result = string.Empty;
-            //result = Encrypter.EncryptByMD5(input);
-            //Console.WriteLine("MD5加密结果：{0}", result);
-
-            //result = Encrypter.EncryptBySHA1(input);
-            //Console.WriteLine("SHA1加密结果：{0}", result);
-
-            //result = Encrypter.EncryptString(input, key);
-            //Console.WriteLine("DES加密结果：{0}", result);
-
-
-            //result = Encrypter.DecryptString(result, key);
-            //Console.WriteLine("DES解密结果：{0}", result);
-
-            //result = Encrypter.EncryptByDES(input, key);
-            //Console.WriteLine("DES加密结果：{0}", result);
-
-
-            //result = Encrypter.DecryptByDES(result, key);
-            //Console.WriteLine("DES解密结果：{0}", result); //结果："银行密码统统都给我�\nJn7"，与明文不一致，为什么呢？在加密后，通过base64编码转为字符串，可能是这个问题。
-
-            //key = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
-
-            //result = Encrypter.EncryptByAES(input, key);
-            //Console.WriteLine("AES加密结果：{0}", result);
-
-            //result = Encrypter.DecryptByAES(result, key);
-            //Console.WriteLine("AES解密结果：{0}", result);
-
-
-            //KeyValuePair<string, string> keyPair = Encrypter.CreateRSAKey();
-            //string privateKey = keyPair.Value;
-            //string publicKey = keyPair.Key;
-
-            //// 公钥加密、私钥解密
-            //result = Encrypter.EncryptByRSA(input, publicKey);
-            //Console.WriteLine("RSA公钥加密后的结果：{0}", result);
-
-            //result = Encrypter.DecryptByRSA(result, privateKey);
-            //Console.WriteLine("RSA私钥解密后的结果：{0}", result);
-
-            //// 密钥加签，公钥验签
-            //result = Encrypter.HashAndSignString(input, privateKey);
-            //Console.WriteLine("RSA私钥加签后的结果：{0}", result);
-
-            //bool boolResult = Encrypter.VerifySigned(input, result, publicKey);
-            //Console.WriteLine("RSA公钥验签后的结果：{0}", boolResult);
-
-            //TestSign();
-            //SignData();
-
-            //var appkey = Encrypter.GetAppId();
-            //var appSecret = Encrypter.EncryptBySHA1(appkey);
-
-            //// 生成自签名的证书路径
-            //var pfxPath = "D:\\MyROOTCA.pfx";
-            //DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
-            ////Encrypter.GeneratePfxCertificate(pfxPath);
-            //var pubPemPath = "D:\\MyROOTCA_Public.pem";
-            //var priPemPath = "D:\\MyROOTCA_Private.pem";
-            ////var x509 = Encrypter.GetX509Certificate2();
-            ////Encrypter.GeneratePublicPemCert(x509, pubPemPath);
-            ////Encrypter.GeneratePrivatePemCert(x509, priPemPath);
-
-            //// 对某个文件计算哈希值
-            //var filePath = "D:\\归档信息包.zip";
-            //var hashCode = HashUtil.GetHashCode(filePath);
-            //Console.WriteLine("文件哈希值：{0}", hashCode);
-            //// 加签
-            //var signedPemData = Encrypter.SignDataByPem(priPemPath, hashCode, "MD5");
-            ////var signePfxdData = Encrypter.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
-            //Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
-            ////Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
-
-            //var verifyPemResult = Encrypter.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
-            ////var verifyPfxResult = Encrypter.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
-            //Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
-            ////Console.WriteLine("Pfx验签结果：{0}", verifyPfxResult);
-
-            SM2Test();
-            SM3Test();
-            SM4Test();
+            AESTest();
+            DESTest();
+            //SM2Test();
+            //SM3Test();
+            //SM4Test();
             Console.WriteLine("输入任意键退出！");
             Console.ReadKey();
+        }
+
+        public static void CertTest()
+        {
+            Console.WriteLine("--------------证书算法测试---------------");
+
+            //// 生成自签名的证书路径
+            var pfxPath = "D:\\MyROOTCA.pfx";
+            DataCertificate.ChangePfxCertPassword(pfxPath, "78901234", "123456"); // 修改密码
+            RSAUtil.GeneratePfxCertificate(pfxPath);
+            var pubPemPath = "D:\\MyROOTCA_Public.pem";
+            var priPemPath = "D:\\MyROOTCA_Private.pem";
+            var x509 = RSAUtil.GetX509Certificate2();
+            RSAUtil.GeneratePublicPemCert(x509, pubPemPath);
+            RSAUtil.GeneratePrivatePemCert(x509, priPemPath);
+
+            // 对某个文件计算哈希值
+            var filePath = "D:\\test.zip";
+            var hashCode = HashUtil.GetHashCode(filePath);
+            Console.WriteLine("文件哈希值：{0}", hashCode);
+            // 加签
+            var signedPemData = RSAUtil.SignDataByPem(priPemPath, hashCode, "MD5");
+            //var signePfxdData = RSAUtil.SignDataByPfx(pfxPath, "123456", hashCode, "MD5");
+            Console.WriteLine("Pem加签结果：\n{0}", signedPemData);
+            //Console.WriteLine("Pfx加签结果：\n{0}", signePfxdData);
+
+            var verifyPemResult = RSAUtil.VerifySignByPem(pubPemPath, hashCode, "MD5", signedPemData);
+            //var verifyPfxResult = RSAUtil.VerifySignByPfx(pfxPath, "123456", hashCode, "MD5", signePfxdData);
+            Console.WriteLine("Pem验签结果：{0}", verifyPemResult);
+        }
+
+        public static void MD5Test()
+        {
+            Console.WriteLine("--------------MD5算法测试---------------");
+            string input = "MD5加密算法测试";
+            string result = MD5Util.EncryptByMD5(input);
+            Console.WriteLine("MD5加密结果：{0}", result);
+        }
+
+        public static void SHA1Test()
+        {
+            Console.WriteLine("\n--------------SHA1算法测试---------------");
+            string input = "SHA1加密算法测试";
+            string result = SHA1Util.EncryptBySHA1(input);
+            Console.WriteLine("SHA1加密结果：{0}", result);
+        }
+
+        public static void DESTest()
+        {
+            Console.WriteLine("\n--------------DES算法测试---------------");
+            string key = "justdoit";
+            string input = "DES对称加密算法测试";
+            string encryptResult = DESUtil.EncryptByDES(input, key); // DESUtil.EncryptString(input, key);
+            Console.WriteLine("DES加密结果：{0}", encryptResult);
+            string decrptResult = DESUtil.DecryptByDES(encryptResult, key); //DESUtil.DecryptString(encryptResult, key);
+            Console.WriteLine("DES解密结果：{0}", decrptResult);
+        }
+
+        public static void AESTest()
+        {
+            Console.WriteLine("\n--------------AES算法测试---------------");
+            string key = "aeskeyaeskeyaeskeyaeskeyaeskeyaeskey";
+            string input = "AES对称加密算法测试";
+            string encryptResult = AESUtil.EncryptByAES(input, key);
+            Console.WriteLine("AES加密结果：{0}", encryptResult);
+
+            string decrptResult = AESUtil.DecryptByAES(encryptResult, key);
+            Console.WriteLine("AES解密结果：{0}", decrptResult);
         }
 
         /// <summary>
         /// RSA加签验签测试
         /// </summary>
-        public static void TestSign()
+        public static void RSATest()
         {
-            string originalData = "文章不错，这是我的签名：奥巴马！";
-            Console.WriteLine("签名数为：{0}", originalData);
-            KeyValuePair<string, string> keyPair = Encrypter.CreateRSAKey();
+            Console.WriteLine("\n--------------RSA算法测试---------------");
+            string input = "文章不错，这是我的签名：奥巴马！";
+            Console.WriteLine("签名数为：{0}", input);
+            KeyValuePair<string, string> keyPair = RSAUtil.CreateRSAKey();
             string privateKey = keyPair.Value;
             string publicKey = keyPair.Key;
 
-            //1、生成签名，通过摘要算法
-            string signedData = Encrypter.HashAndSignString(originalData, privateKey);
-            Console.WriteLine("数字签名:{0}", signedData);
+            // 密钥加签，公钥验签
+            string hashSignResult = RSAUtil.HashAndSignString(input, privateKey);
+            Console.WriteLine("RSA私钥加签后的结果：{0}", hashSignResult);
 
-            //2、验证签名
-            bool verify = Encrypter.VerifySigned(originalData, signedData, publicKey);
-            Console.WriteLine("签名验证结果：{0}", verify);
+            bool boolResult = RSAUtil.VerifySigned(input, hashSignResult, publicKey);
+            Console.WriteLine("RSA公钥验签后的结果：{0}", boolResult);
+
+            // 公钥加密、私钥解密
+            string encryptResult = RSAUtil.EncryptByRSA(input, publicKey);
+            Console.WriteLine("RSA公钥加密后的结果：{0}", encryptResult);
+
+            string decryptResult = RSAUtil.DecryptByRSA(encryptResult, privateKey);
+            Console.WriteLine("RSA私钥解密后的结果：{0}", decryptResult);
+
         }
 
         /// <summary>
         /// pfx证书加签验签测试
         /// </summary>
-        public static void SignData()
+        public static void SignByPfxTest()
         {
+            Console.WriteLine("\n--------------pfx证书签名算法测试---------------");
             string noSignStr = "我要签名";
             string path = @"C:\Users\Administrator\Desktop\数字签名证书.pfx";
-            var result = Encrypter.SignDataByPfx(path, "123456", noSignStr, "MD5");
+            var result = RSAUtil.SignDataByPfx(path, "123456", noSignStr, "MD5");
             Console.WriteLine("加签结果：{0}", result);
 
-            var verifyResult = Encrypter.VerifySignByPfx(path, "123456", noSignStr, "MD5", result);
+            var verifyResult = RSAUtil.VerifySignByPfx(path, "123456", noSignStr, "MD5", result);
             Console.WriteLine("验签结果：{0}", verifyResult);
         }
 
         public static void SM2Test()
         {
             #region 国密SM2加解密测试
+
             Console.WriteLine("\n--------------国密SM2非对称加密算法测试---------------");
-            string base64PublicKey = "04fd1b00c159476108d81a649eef2c03bf09e63cca59f8fc26c5d8fe58d904cf9abb135fa08a7293ece5e164663ccc26dd77fef19c17779362460d269f36b3ccec";
-            string base64PrivateKey = "0af453d26831e0a71cd8d1c2f36a3e3a52b8b30c69fc1944eaf7b216c254c5ea";
             string plainText = "国密SM2非对称加密算法测试";
+            Console.WriteLine($"原文: \"{plainText}\"");
 
-            var publicKey = SM2Util.ParsePublicKeyFromHex(base64PublicKey);
-            var privateKey = SM2Util.ParsePrivateKeyFromHex(base64PrivateKey);
-            string cipherText = SM2Util.Encrypt(plainText, publicKey);
-            Console.WriteLine("加密结果：" + cipherText);
-            string decryptedText = SM2Util.DecryptToString(cipherText, privateKey);
-            Console.WriteLine("解密结果：" + decryptedText);
+            // 使用新生成的密钥对进行测试，确保结果的通用性
+            var keyPair = SM2Util.GenerateKeyPair();
+            var publicKey = (Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)keyPair.Public;
+            var privateKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)keyPair.Private;
 
-            string sign = SM2Util.SignSm3WithSm2(Encoding.UTF8.GetBytes(plainText), privateKey);
-            Console.WriteLine("签名结果：" + sign);
-            string isValid = SM2Util.VerifySm3WithSm2(Encoding.UTF8.GetBytes(plainText), sign, publicKey) ? "有效" : "无效";
-            Console.WriteLine("验签结果：" + isValid);
+            // 输出密钥信息（便于与Java对比测试）
+            Console.WriteLine($"公钥 (Hex): {SM2Util.PublicKeyToHex(publicKey)}");
+            Console.WriteLine($"私钥 (Hex): {SM2Util.PrivateKeyToHex(privateKey)}");
+
+            // 默认C1C3C2格式加解密
+            string cipherText_C1C3C2 = SM2Util.Encrypt(plainText, publicKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine("C1C3C2 加密结果: " + cipherText_C1C3C2);
+            string decryptedText_C1C3C2 = SM2Util.DecryptToString(cipherText_C1C3C2, privateKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine("C1C3C2 解密结果: " + decryptedText_C1C3C2);
+            Console.WriteLine($"C1C3C2 验证: {(plainText == decryptedText_C1C3C2 ? "成功" : "失败")}");
+
+            // ASN.1格式加解密
+            string cipherText_ASN1 = SM2Util.Encrypt(plainText, publicKey, format: SM2Util.SM2CipherFormat.ASN1);
+            Console.WriteLine("ASN.1 加密结果: " + cipherText_ASN1);
+            string decryptedText_ASN1 = SM2Util.DecryptToString(cipherText_ASN1, privateKey, format: SM2Util.SM2CipherFormat.ASN1);
+            Console.WriteLine("ASN.1 解密结果: " + decryptedText_ASN1);
+            Console.WriteLine($"ASN.1 验证: {(plainText == decryptedText_ASN1 ? "成功" : "失败")}");
 
             #endregion
 
-            #region 密文格式转换测试 (C1C2C3 <-> C1C3C2)
+            #region Java兼容性加解密测试
+
+            Console.WriteLine("\n--------------Java兼容性加解密测试---------------");
+
+            // 生成Java兼容的密文（自动移除0x04前缀）
+            string javaCompatibleCiphertext = SM2Util.EncryptForJava(plainText, publicKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine("Java兼容密文: " + javaCompatibleCiphertext);
+
+            // 使用Java兼容解密方法
+            string decryptedFromJava = SM2Util.DecryptFromJavaToString(javaCompatibleCiphertext, privateKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine("Java兼容解密结果: " + decryptedFromJava);
+            Console.WriteLine($"Java兼容性验证: {(plainText == decryptedFromJava ? "成功" : "失败")}");
+
+            // 测试智能解密功能
+            Console.WriteLine("\n--- 智能解密测试 ---");
+
+            // 测试.NET格式密文
+            Console.WriteLine("测试.NET格式密文智能解密:");
+            string smartDecrypt1 = SM2Util.SmartDecryptToString(cipherText_C1C3C2, privateKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine($"智能解密结果: {smartDecrypt1}");
+            Console.WriteLine($"智能解密验证: {(plainText == smartDecrypt1 ? "成功" : "失败")}");
+
+            // 测试Java格式密文
+            Console.WriteLine("测试Java格式密文智能解密:");
+            string smartDecrypt2 = SM2Util.SmartDecryptToString(javaCompatibleCiphertext, privateKey, format: SM2Util.SM2CipherFormat.C1C3C2);
+            Console.WriteLine($"智能解密结果: {smartDecrypt2}");
+            Console.WriteLine($"智能解密验证: {(plainText == smartDecrypt2 ? "成功" : "失败")}");
+
+            // 密文格式检测测试
+            Console.WriteLine("\n--- 密文格式检测测试 ---");
+            byte[] dotNetBytes = Convert.FromBase64String(cipherText_C1C3C2);
+            byte[] javaBytes = Convert.FromBase64String(javaCompatibleCiphertext);
+
+            bool isDotNetFormat = !SM2Util.IsJavaFormat(dotNetBytes, SM2Util.SM2CipherFormat.C1C3C2);
+            bool isJavaFormat = SM2Util.IsJavaFormat(javaBytes, SM2Util.SM2CipherFormat.C1C3C2);
+
+            Console.WriteLine($".NET密文格式检测: {(isDotNetFormat ? ".NET格式" : "Java格式")}");
+            Console.WriteLine($"Java密文格式检测: {(isJavaFormat ? "Java格式" : ".NET格式")}");
+            Console.WriteLine($"密文格式检测验证: {(isDotNetFormat && isJavaFormat ? "成功" : "失败")}");
+
+            #endregion
+
+
+            #region 国密SM2签名验签测试
+
+            Console.WriteLine("\n--------------国密SM2签名与验签测试---------------");
+            byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+
+            // 先生成ASN.1格式签名，然后转换为RS格式（确保使用同一个签名值）
+            string sign_ASN1 = SM2Util.SignSm3WithSm2(plainTextBytes, privateKey, SM2Util.SM2SignatureFormat.ASN1);
+            Console.WriteLine("ASN.1 签名结果: " + sign_ASN1);
+            bool isValid_ASN1 = SM2Util.VerifySm3WithSm2(plainTextBytes, sign_ASN1, publicKey, SM2Util.SM2SignatureFormat.ASN1);
+            Console.WriteLine("ASN.1 验签结果: " + (isValid_ASN1 ? "有效" : "无效"));
+
+            // 从ASN.1签名转换为RS格式
+            string sign_RS = SM2Util.ConvertHexAsn1ToHexRs(sign_ASN1);
+            Console.WriteLine("RS 签名结果 (从ASN.1转换): " + sign_RS);
+            bool isValid_RS = SM2Util.VerifySm3WithSm2(plainTextBytes, sign_RS, publicKey, SM2Util.SM2SignatureFormat.RS);
+            Console.WriteLine("RS 验签结果: " + (isValid_RS ? "有效" : "无效"));
+
+            #endregion
+
+            #region 密文格式转换测试 (C1C2C3 <-> C1C3C2 <-> ASN.1)
             Console.WriteLine("\n--------------SM2密文格式转换测试---------------");
 
-            // 1. 生成新的密钥对和明文用于测试
-            var keyPair = SM2Util.GenerateKeyPair();
-            var testPublicKey = (Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)keyPair.Public;
-            var testPrivateKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)keyPair.Private;
-            string testPlainText = "测试密文格式转换";
-            Console.WriteLine($"测试原文: \"{testPlainText}\"");
-
-            // 2. 使用默认模式 (C1C2C3) 加密
-            string c1c2c3_base64 = SM2Util.Encrypt(testPlainText, testPublicKey, mode: SM2Util.SM2CipherMode.C1C2C3);
+            // 1. 使用C1C2C3格式加密作为基准
+            string c1c2c3_base64 = SM2Util.Encrypt(plainText, publicKey, format: SM2Util.SM2CipherFormat.C1C2C3);
             byte[] c1c2c3_bytes = Convert.FromBase64String(c1c2c3_base64);
-            Console.WriteLine($"C1C2C3 (BouncyCastle默认) 密文 (Base64): {c1c2c3_base64}");
+            Console.WriteLine($"C1C2C3 (BouncyCastle) 密文 (Base64): {c1c2c3_base64}");
 
-            // 3. C1C2C3 -> C1C3C2
+            // 2. C1C2C3 -> C1C3C2
             byte[] c1c3c2_bytes = SM2Util.C1C2C3ToC1C3C2(c1c2c3_bytes);
             Console.WriteLine($"转换为 C1C3C2 (国密标准) 密文 (Base64): {Convert.ToBase64String(c1c3c2_bytes)}");
 
-            // 4. C1C3C2 -> C1C2C3
+            // 3. C1C3C2 -> C1C2C3
             byte[] roundtrip_c1c2c3_bytes = SM2Util.C1C3C2ToC1C2C3(c1c3c2_bytes);
-            Console.WriteLine($"转换回 C1C2C3 密文 (Base64): {Convert.ToBase64String(roundtrip_c1c2c3_bytes)}");
+            Console.WriteLine($"C1C3C2转换回 C1C2C3 密文 (Base64): {Convert.ToBase64String(roundtrip_c1c2c3_bytes)}");
+            Console.WriteLine($"C1C3C2往返转换验证: {(c1c2c3_bytes.SequenceEqual(roundtrip_c1c2c3_bytes) ? "成功" : "失败")}");
 
-            // 5. 验证往返转换是否一致
-            bool conversionSuccess = c1c2c3_bytes.SequenceEqual(roundtrip_c1c2c3_bytes);
-            Console.WriteLine($"往返转换验证: {(conversionSuccess ? "成功" : "失败")}");
+            // 4. C1C2C3 -> ASN.1
+            byte[] asn1_bytes = SM2Util.C1C2C3ToAsn1(c1c2c3_bytes);
+            Console.WriteLine($"转换为 ASN.1 密文 (Base64): {Convert.ToBase64String(asn1_bytes)}");
 
-            // 6. 使用 C1C3C2 格式的密文进行解密
-            string decryptedFromC1C3C2 = SM2Util.DecryptToString(Convert.ToBase64String(c1c3c2_bytes), testPrivateKey, mode: SM2Util.SM2CipherMode.C1C3C2);
-            Console.WriteLine($"从C1C3C2格式解密结果: \"{decryptedFromC1C3C2}\"");
-            bool decryptionSuccess = testPlainText == decryptedFromC1C3C2;
-            Console.WriteLine($"C1C3C2解密验证: {(decryptionSuccess ? "成功" : "失败")}");
+            // 5. ASN.1 -> C1C2C3
+            byte[] roundtrip_c1c2c3_from_asn1_bytes = SM2Util.Asn1ToC1C2C3(asn1_bytes);
+            Console.WriteLine($"ASN.1转换回 C1C2C3 密文 (Base64): {Convert.ToBase64String(roundtrip_c1c2c3_from_asn1_bytes)}");
+            Console.WriteLine($"ASN.1往返转换验证: {(c1c2c3_bytes.SequenceEqual(roundtrip_c1c2c3_from_asn1_bytes) ? "成功" : "失败")}");
+
+            #endregion
+
+            #region 签名格式转换测试 (ASN.1 <-> RS) - 增强版
+            Console.WriteLine("\n--------------SM2签名格式转换测试 (Java兼容性)---------------");
+            
+            // 使用同一个ASN.1签名进行转换测试
+            byte[] asn1_sig_bytes = Hex.Decode(sign_ASN1);
+            
+            // 验证ASN.1签名格式有效性
+            bool asn1Valid = SM2Util.IsValidAsn1Signature(asn1_sig_bytes);
+            Console.WriteLine($"ASN.1 签名格式验证: {(asn1Valid ? "有效" : "无效")}");
+
+            // 1. ASN.1 -> RS (字节数组方式)
+            byte[] converted_rs_bytes = SM2Util.ConvertAsn1ToRs(asn1_sig_bytes);
+            byte[] expected_rs_bytes = Hex.Decode(sign_RS);
+            Console.WriteLine($"ASN.1 -> RS 转换验证: {(expected_rs_bytes.SequenceEqual(converted_rs_bytes) ? "成功" : "失败")}");
+
+            // 验证RS签名格式有效性
+            bool rsValid = SM2Util.IsValidRsSignature(converted_rs_bytes);
+            Console.WriteLine($"RS 签名格式验证: {(rsValid ? "有效" : "无效")}");
+
+            // 2. RS -> ASN.1 (字节数组方式)
+            byte[] converted_asn1_bytes = SM2Util.ConvertRsToAsn1(converted_rs_bytes);
+            Console.WriteLine($"RS -> ASN.1 转换验证: {(asn1_sig_bytes.SequenceEqual(converted_asn1_bytes) ? "成功" : "失败")}");
+
+            // 3. 16进制字符串格式转换测试 (便于与Java互转)
+            string hexAsn1FromRs = SM2Util.ConvertHexRsToHexAsn1(sign_RS);
+            string hexRsFromAsn1 = SM2Util.ConvertHexAsn1ToHexRs(sign_ASN1);
+            
+            Console.WriteLine($"原始 ASN.1 签名: {sign_ASN1}");
+            Console.WriteLine($"原始 RS 签名: {sign_RS}");
+            Console.WriteLine($"RS -> ASN.1 转换结果: {hexAsn1FromRs}");
+            Console.WriteLine($"ASN.1 -> RS 转换结果: {hexRsFromAsn1}");
+            
+            Console.WriteLine($"Hex格式转换验证 (RS): {(sign_RS.Equals(hexRsFromAsn1, StringComparison.OrdinalIgnoreCase) ? "成功" : "失败")}");
+            Console.WriteLine($"Hex格式转换验证 (ASN.1): {(sign_ASN1.Equals(hexAsn1FromRs, StringComparison.OrdinalIgnoreCase) ? "成功" : "失败")}");
+
+            // 4. 跨格式验签测试 (确保转换后的签名仍然有效)
+            bool rsFromAsn1Valid = SM2Util.VerifySm3WithSm2(plainTextBytes, hexRsFromAsn1, publicKey, SM2Util.SM2SignatureFormat.RS);
+            bool asn1FromRsValid = SM2Util.VerifySm3WithSm2(plainTextBytes, hexAsn1FromRs, publicKey, SM2Util.SM2SignatureFormat.ASN1);
+            
+            Console.WriteLine($"转换后的RS签名验签: {(rsFromAsn1Valid ? "有效" : "无效")}");
+            Console.WriteLine($"转换后的ASN.1签名验签: {(asn1FromRsValid ? "有效" : "无效")}");
+
+            // 5. 详细调试信息
+            if (!sign_RS.Equals(hexRsFromAsn1, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"调试信息:");
+                Console.WriteLine($"  原始RS长度: {sign_RS.Length}");
+                Console.WriteLine($"  转换RS长度: {hexRsFromAsn1.Length}");
+                Console.WriteLine($"  原始ASN.1长度: {sign_ASN1.Length}");
+                Console.WriteLine($"  转换ASN.1长度: {hexAsn1FromRs.Length}");
+            }
+
+            // 6. Java兼容性提示
+            Console.WriteLine("\n--- Java兼容性说明 ---");
+            Console.WriteLine("1. 密钥格式：使用Hex格式可直接与Java BigInteger互转");
+            Console.WriteLine("2. RS格式：与Java的 r.toByteArray() + s.toByteArray() 兼容");
+            Console.WriteLine("3. ASN.1格式：与Java的 Signature.sign() 默认输出兼容");
+            Console.WriteLine("4. 测试时请确保Java端使用相同的密钥和明文");
+            Console.WriteLine("5. 注意：相同数据每次签名结果不同是正常的（包含随机数）");
 
             #endregion
         }
