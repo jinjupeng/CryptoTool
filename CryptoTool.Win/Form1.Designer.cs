@@ -1,4 +1,4 @@
-﻿namespace CryptoTool.Win
+namespace CryptoTool.Win
 {
     partial class Form1
     {
@@ -28,618 +28,1050 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabRSA = new System.Windows.Forms.TabPage();
-            this.groupBoxRSAKeys = new System.Windows.Forms.GroupBox();
-            this.btnGenerateRSAKey = new System.Windows.Forms.Button();
-            this.comboRSAKeySize = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.comboRSAKeyFormat = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textRSAPublicKey = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.textRSAPrivateKey = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.groupBoxRSAEncrypt = new System.Windows.Forms.GroupBox();
-            this.btnRSAEncrypt = new System.Windows.Forms.Button();
-            this.btnRSADecrypt = new System.Windows.Forms.Button();
-            this.textRSAPlainText = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.textRSACipherText = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.groupBoxRSASign = new System.Windows.Forms.GroupBox();
-            this.btnRSASign = new System.Windows.Forms.Button();
-            this.btnRSAVerify = new System.Windows.Forms.Button();
-            this.textRSASignData = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.textRSASignature = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.comboRSAType = new System.Windows.Forms.ComboBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.labelRSAVerifyResult = new System.Windows.Forms.Label();
-            this.tabSM4 = new System.Windows.Forms.TabPage();
-            this.groupBoxSM4Keys = new System.Windows.Forms.GroupBox();
-            this.btnGenerateSM4Key = new System.Windows.Forms.Button();
-            this.btnGenerateSM4IV = new System.Windows.Forms.Button();
-            this.textSM4Key = new System.Windows.Forms.TextBox();
-            this.label10 = new System.Windows.Forms.Label();
-            this.textSM4IV = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.groupBoxSM4Encrypt = new System.Windows.Forms.GroupBox();
-            this.btnSM4Encrypt = new System.Windows.Forms.Button();
-            this.btnSM4Decrypt = new System.Windows.Forms.Button();
-            this.textSM4PlainText = new System.Windows.Forms.TextBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.textSM4CipherText = new System.Windows.Forms.TextBox();
-            this.label13 = new System.Windows.Forms.Label();
-            this.comboSM4Mode = new System.Windows.Forms.ComboBox();
-            this.label14 = new System.Windows.Forms.Label();
-            this.comboSM4Padding = new System.Windows.Forms.ComboBox();
-            this.label15 = new System.Windows.Forms.Label();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.tabControl1.SuspendLayout();
-            this.tabRSA.SuspendLayout();
-            this.groupBoxRSAKeys.SuspendLayout();
-            this.groupBoxRSAEncrypt.SuspendLayout();
-            this.groupBoxRSASign.SuspendLayout();
-            this.tabSM4.SuspendLayout();
-            this.groupBoxSM4Keys.SuspendLayout();
-            this.groupBoxSM4Encrypt.SuspendLayout();
-            this.statusStrip1.SuspendLayout();
-            this.SuspendLayout();
+            tabControl1 = new TabControl();
+            tabRSA = new TabPage();
+            groupBoxRSASign = new GroupBox();
+            labelRSAVerifyResult = new Label();
+            label9 = new Label();
+            comboRSAType = new ComboBox();
+            label8 = new Label();
+            textRSASignature = new TextBox();
+            label7 = new Label();
+            textRSASignData = new TextBox();
+            btnRSAVerify = new Button();
+            btnRSASign = new Button();
+            groupBoxRSAEncrypt = new GroupBox();
+            label6 = new Label();
+            textRSACipherText = new TextBox();
+            label5 = new Label();
+            textRSAPlainText = new TextBox();
+            btnRSADecrypt = new Button();
+            btnRSAEncrypt = new Button();
+            groupBoxRSAKeys = new GroupBox();
+            btnExportRSAKey = new Button();
+            btnImportRSAKey = new Button();
+            label4 = new Label();
+            textRSAPrivateKey = new TextBox();
+            label3 = new Label();
+            textRSAPublicKey = new TextBox();
+            label2 = new Label();
+            comboRSAKeyFormat = new ComboBox();
+            label1 = new Label();
+            comboRSAKeySize = new ComboBox();
+            btnGenerateRSAKey = new Button();
+            tabSM4 = new TabPage();
+            groupBoxSM4Encrypt = new GroupBox();
+            labelSM4DataFormat = new Label();
+            comboSM4DataFormat = new ComboBox();
+            label15 = new Label();
+            comboSM4Padding = new ComboBox();
+            label14 = new Label();
+            comboSM4Mode = new ComboBox();
+            label13 = new Label();
+            textSM4CipherText = new TextBox();
+            label12 = new Label();
+            textSM4PlainText = new TextBox();
+            btnSM4Decrypt = new Button();
+            btnSM4Encrypt = new Button();
+            groupBoxSM4Keys = new GroupBox();
+            labelSM4IVFormat = new Label();
+            comboSM4IVFormat = new ComboBox();
+            labelSM4KeyFormat = new Label();
+            comboSM4KeyFormat = new ComboBox();
+            label11 = new Label();
+            textSM4IV = new TextBox();
+            label10 = new Label();
+            textSM4Key = new TextBox();
+            btnGenerateSM4IV = new Button();
+            btnGenerateSM4Key = new Button();
+            tabSM2 = new TabPage();
+            groupBoxSM2Sign = new GroupBox();
+            labelSM2VerifyResult = new Label();
+            label24 = new Label();
+            textSM2Signature = new TextBox();
+            label23 = new Label();
+            textSM2SignData = new TextBox();
+            btnSM2Verify = new Button();
+            btnSM2Sign = new Button();
+            label22 = new Label();
+            comboSM2SignFormat = new ComboBox();
+            groupBoxSM2Encrypt = new GroupBox();
+            label21 = new Label();
+            textSM2CipherText = new TextBox();
+            label20 = new Label();
+            textSM2PlainText = new TextBox();
+            btnSM2Decrypt = new Button();
+            btnSM2Encrypt = new Button();
+            label19 = new Label();
+            comboSM2CipherFormat = new ComboBox();
+            groupBoxSM2Keys = new GroupBox();
+            btnExportSM2Key = new Button();
+            btnImportSM2Key = new Button();
+            label18 = new Label();
+            textSM2PrivateKey = new TextBox();
+            label17 = new Label();
+            textSM2PublicKey = new TextBox();
+            label16 = new Label();
+            comboSM2KeyFormat = new ComboBox();
+            btnGenerateSM2Key = new Button();
+            statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            tabControl1.SuspendLayout();
+            tabRSA.SuspendLayout();
+            groupBoxRSASign.SuspendLayout();
+            groupBoxRSAEncrypt.SuspendLayout();
+            groupBoxRSAKeys.SuspendLayout();
+            tabSM4.SuspendLayout();
+            groupBoxSM4Encrypt.SuspendLayout();
+            groupBoxSM4Keys.SuspendLayout();
+            tabSM2.SuspendLayout();
+            groupBoxSM2Sign.SuspendLayout();
+            groupBoxSM2Encrypt.SuspendLayout();
+            groupBoxSM2Keys.SuspendLayout();
+            statusStrip1.SuspendLayout();
+            SuspendLayout();
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabRSA);
-            this.tabControl1.Controls.Add(this.tabSM4);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1000, 650);
-            this.tabControl1.TabIndex = 0;
+            tabControl1.Controls.Add(tabRSA);
+            tabControl1.Controls.Add(tabSM4);
+            tabControl1.Controls.Add(tabSM2);
+            tabControl1.Dock = DockStyle.Fill;
+            tabControl1.Location = new Point(0, 0);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(1000, 650);
+            tabControl1.TabIndex = 0;
             // 
             // tabRSA
             // 
-            this.tabRSA.Controls.Add(this.groupBoxRSASign);
-            this.tabRSA.Controls.Add(this.groupBoxRSAEncrypt);
-            this.tabRSA.Controls.Add(this.groupBoxRSAKeys);
-            this.tabRSA.Location = new System.Drawing.Point(4, 24);
-            this.tabRSA.Name = "tabRSA";
-            this.tabRSA.Padding = new System.Windows.Forms.Padding(3);
-            this.tabRSA.Size = new System.Drawing.Size(992, 622);
-            this.tabRSA.TabIndex = 0;
-            this.tabRSA.Text = "RSA算法";
-            this.tabRSA.UseVisualStyleBackColor = true;
-            // 
-            // groupBoxRSAKeys
-            // 
-            this.groupBoxRSAKeys.Controls.Add(this.label4);
-            this.groupBoxRSAKeys.Controls.Add(this.textRSAPrivateKey);
-            this.groupBoxRSAKeys.Controls.Add(this.label3);
-            this.groupBoxRSAKeys.Controls.Add(this.textRSAPublicKey);
-            this.groupBoxRSAKeys.Controls.Add(this.label2);
-            this.groupBoxRSAKeys.Controls.Add(this.comboRSAKeyFormat);
-            this.groupBoxRSAKeys.Controls.Add(this.label1);
-            this.groupBoxRSAKeys.Controls.Add(this.comboRSAKeySize);
-            this.groupBoxRSAKeys.Controls.Add(this.btnGenerateRSAKey);
-            this.groupBoxRSAKeys.Location = new System.Drawing.Point(6, 6);
-            this.groupBoxRSAKeys.Name = "groupBoxRSAKeys";
-            this.groupBoxRSAKeys.Size = new System.Drawing.Size(980, 200);
-            this.groupBoxRSAKeys.TabIndex = 0;
-            this.groupBoxRSAKeys.TabStop = false;
-            this.groupBoxRSAKeys.Text = "RSA密钥生成";
-            // 
-            // btnGenerateRSAKey
-            // 
-            this.btnGenerateRSAKey.Location = new System.Drawing.Point(380, 25);
-            this.btnGenerateRSAKey.Name = "btnGenerateRSAKey";
-            this.btnGenerateRSAKey.Size = new System.Drawing.Size(100, 30);
-            this.btnGenerateRSAKey.TabIndex = 0;
-            this.btnGenerateRSAKey.Text = "生成密钥对";
-            this.btnGenerateRSAKey.UseVisualStyleBackColor = true;
-            this.btnGenerateRSAKey.Click += new System.EventHandler(this.btnGenerateRSAKey_Click);
-            // 
-            // comboRSAKeySize
-            // 
-            this.comboRSAKeySize.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboRSAKeySize.FormattingEnabled = true;
-            this.comboRSAKeySize.Items.AddRange(new object[] {
-            "1024",
-            "2048",
-            "3072",
-            "4096"});
-            this.comboRSAKeySize.Location = new System.Drawing.Point(80, 25);
-            this.comboRSAKeySize.Name = "comboRSAKeySize";
-            this.comboRSAKeySize.Size = new System.Drawing.Size(100, 25);
-            this.comboRSAKeySize.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(15, 28);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(59, 17);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "密钥长度:";
-            // 
-            // comboRSAKeyFormat
-            // 
-            this.comboRSAKeyFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboRSAKeyFormat.FormattingEnabled = true;
-            this.comboRSAKeyFormat.Items.AddRange(new object[] {
-            "XML",
-            "PKCS1",
-            "PKCS8",
-            "Java"});
-            this.comboRSAKeyFormat.Location = new System.Drawing.Point(260, 25);
-            this.comboRSAKeyFormat.Name = "comboRSAKeyFormat";
-            this.comboRSAKeyFormat.Size = new System.Drawing.Size(100, 25);
-            this.comboRSAKeyFormat.TabIndex = 3;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(195, 28);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(59, 17);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "密钥格式:";
-            // 
-            // textRSAPublicKey
-            // 
-            this.textRSAPublicKey.Location = new System.Drawing.Point(80, 65);
-            this.textRSAPublicKey.Multiline = true;
-            this.textRSAPublicKey.Name = "textRSAPublicKey";
-            this.textRSAPublicKey.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSAPublicKey.Size = new System.Drawing.Size(885, 60);
-            this.textRSAPublicKey.TabIndex = 5;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(15, 68);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 17);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "公钥:";
-            // 
-            // textRSAPrivateKey
-            // 
-            this.textRSAPrivateKey.Location = new System.Drawing.Point(80, 135);
-            this.textRSAPrivateKey.Multiline = true;
-            this.textRSAPrivateKey.Name = "textRSAPrivateKey";
-            this.textRSAPrivateKey.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSAPrivateKey.Size = new System.Drawing.Size(885, 60);
-            this.textRSAPrivateKey.TabIndex = 7;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(15, 138);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 17);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "私钥:";
-            // 
-            // groupBoxRSAEncrypt
-            // 
-            this.groupBoxRSAEncrypt.Controls.Add(this.label6);
-            this.groupBoxRSAEncrypt.Controls.Add(this.textRSACipherText);
-            this.groupBoxRSAEncrypt.Controls.Add(this.label5);
-            this.groupBoxRSAEncrypt.Controls.Add(this.textRSAPlainText);
-            this.groupBoxRSAEncrypt.Controls.Add(this.btnRSADecrypt);
-            this.groupBoxRSAEncrypt.Controls.Add(this.btnRSAEncrypt);
-            this.groupBoxRSAEncrypt.Location = new System.Drawing.Point(6, 212);
-            this.groupBoxRSAEncrypt.Name = "groupBoxRSAEncrypt";
-            this.groupBoxRSAEncrypt.Size = new System.Drawing.Size(980, 180);
-            this.groupBoxRSAEncrypt.TabIndex = 1;
-            this.groupBoxRSAEncrypt.TabStop = false;
-            this.groupBoxRSAEncrypt.Text = "RSA加密解密";
-            // 
-            // btnRSAEncrypt
-            // 
-            this.btnRSAEncrypt.Location = new System.Drawing.Point(200, 140);
-            this.btnRSAEncrypt.Name = "btnRSAEncrypt";
-            this.btnRSAEncrypt.Size = new System.Drawing.Size(80, 30);
-            this.btnRSAEncrypt.TabIndex = 0;
-            this.btnRSAEncrypt.Text = "加密";
-            this.btnRSAEncrypt.UseVisualStyleBackColor = true;
-            this.btnRSAEncrypt.Click += new System.EventHandler(this.btnRSAEncrypt_Click);
-            // 
-            // btnRSADecrypt
-            // 
-            this.btnRSADecrypt.Location = new System.Drawing.Point(300, 140);
-            this.btnRSADecrypt.Name = "btnRSADecrypt";
-            this.btnRSADecrypt.Size = new System.Drawing.Size(80, 30);
-            this.btnRSADecrypt.TabIndex = 1;
-            this.btnRSADecrypt.Text = "解密";
-            this.btnRSADecrypt.UseVisualStyleBackColor = true;
-            this.btnRSADecrypt.Click += new System.EventHandler(this.btnRSADecrypt_Click);
-            // 
-            // textRSAPlainText
-            // 
-            this.textRSAPlainText.Location = new System.Drawing.Point(80, 25);
-            this.textRSAPlainText.Multiline = true;
-            this.textRSAPlainText.Name = "textRSAPlainText";
-            this.textRSAPlainText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSAPlainText.Size = new System.Drawing.Size(885, 50);
-            this.textRSAPlainText.TabIndex = 2;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(15, 28);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(35, 17);
-            this.label5.TabIndex = 3;
-            this.label5.Text = "明文:";
-            // 
-            // textRSACipherText
-            // 
-            this.textRSACipherText.Location = new System.Drawing.Point(80, 85);
-            this.textRSACipherText.Multiline = true;
-            this.textRSACipherText.Name = "textRSACipherText";
-            this.textRSACipherText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSACipherText.Size = new System.Drawing.Size(885, 50);
-            this.textRSACipherText.TabIndex = 4;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(15, 88);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(35, 17);
-            this.label6.TabIndex = 5;
-            this.label6.Text = "密文:";
+            tabRSA.Controls.Add(groupBoxRSASign);
+            tabRSA.Controls.Add(groupBoxRSAEncrypt);
+            tabRSA.Controls.Add(groupBoxRSAKeys);
+            tabRSA.Location = new Point(4, 26);
+            tabRSA.Name = "tabRSA";
+            tabRSA.Padding = new Padding(3);
+            tabRSA.Size = new Size(992, 620);
+            tabRSA.TabIndex = 0;
+            tabRSA.Text = "RSA算法";
+            tabRSA.UseVisualStyleBackColor = true;
             // 
             // groupBoxRSASign
             // 
-            this.groupBoxRSASign.Controls.Add(this.labelRSAVerifyResult);
-            this.groupBoxRSASign.Controls.Add(this.label9);
-            this.groupBoxRSASign.Controls.Add(this.comboRSAType);
-            this.groupBoxRSASign.Controls.Add(this.label8);
-            this.groupBoxRSASign.Controls.Add(this.textRSASignature);
-            this.groupBoxRSASign.Controls.Add(this.label7);
-            this.groupBoxRSASign.Controls.Add(this.textRSASignData);
-            this.groupBoxRSASign.Controls.Add(this.btnRSAVerify);
-            this.groupBoxRSASign.Controls.Add(this.btnRSASign);
-            this.groupBoxRSASign.Location = new System.Drawing.Point(6, 398);
-            this.groupBoxRSASign.Name = "groupBoxRSASign";
-            this.groupBoxRSASign.Size = new System.Drawing.Size(980, 218);
-            this.groupBoxRSASign.TabIndex = 2;
-            this.groupBoxRSASign.TabStop = false;
-            this.groupBoxRSASign.Text = "RSA数字签名";
-            // 
-            // btnRSASign
-            // 
-            this.btnRSASign.Location = new System.Drawing.Point(200, 175);
-            this.btnRSASign.Name = "btnRSASign";
-            this.btnRSASign.Size = new System.Drawing.Size(80, 30);
-            this.btnRSASign.TabIndex = 0;
-            this.btnRSASign.Text = "签名";
-            this.btnRSASign.UseVisualStyleBackColor = true;
-            this.btnRSASign.Click += new System.EventHandler(this.btnRSASign_Click);
-            // 
-            // btnRSAVerify
-            // 
-            this.btnRSAVerify.Location = new System.Drawing.Point(300, 175);
-            this.btnRSAVerify.Name = "btnRSAVerify";
-            this.btnRSAVerify.Size = new System.Drawing.Size(80, 30);
-            this.btnRSAVerify.TabIndex = 1;
-            this.btnRSAVerify.Text = "验签";
-            this.btnRSAVerify.UseVisualStyleBackColor = true;
-            this.btnRSAVerify.Click += new System.EventHandler(this.btnRSAVerify_Click);
-            // 
-            // textRSASignData
-            // 
-            this.textRSASignData.Location = new System.Drawing.Point(80, 60);
-            this.textRSASignData.Multiline = true;
-            this.textRSASignData.Name = "textRSASignData";
-            this.textRSASignData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSASignData.Size = new System.Drawing.Size(885, 50);
-            this.textRSASignData.TabIndex = 2;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(15, 63);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(59, 17);
-            this.label7.TabIndex = 3;
-            this.label7.Text = "原文数据:";
-            // 
-            // textRSASignature
-            // 
-            this.textRSASignature.Location = new System.Drawing.Point(80, 120);
-            this.textRSASignature.Multiline = true;
-            this.textRSASignature.Name = "textRSASignature";
-            this.textRSASignature.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textRSASignature.Size = new System.Drawing.Size(885, 50);
-            this.textRSASignature.TabIndex = 4;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(15, 123);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(35, 17);
-            this.label8.TabIndex = 5;
-            this.label8.Text = "签名:";
-            // 
-            // comboRSAType
-            // 
-            this.comboRSAType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboRSAType.FormattingEnabled = true;
-            this.comboRSAType.Items.AddRange(new object[] {
-            "RSA",
-            "RSA2"});
-            this.comboRSAType.Location = new System.Drawing.Point(80, 25);
-            this.comboRSAType.Name = "comboRSAType";
-            this.comboRSAType.Size = new System.Drawing.Size(100, 25);
-            this.comboRSAType.TabIndex = 6;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(15, 28);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(59, 17);
-            this.label9.TabIndex = 7;
-            this.label9.Text = "签名类型:";
+            groupBoxRSASign.Controls.Add(labelRSAVerifyResult);
+            groupBoxRSASign.Controls.Add(label9);
+            groupBoxRSASign.Controls.Add(comboRSAType);
+            groupBoxRSASign.Controls.Add(label8);
+            groupBoxRSASign.Controls.Add(textRSASignature);
+            groupBoxRSASign.Controls.Add(label7);
+            groupBoxRSASign.Controls.Add(textRSASignData);
+            groupBoxRSASign.Controls.Add(btnRSAVerify);
+            groupBoxRSASign.Controls.Add(btnRSASign);
+            groupBoxRSASign.Location = new Point(6, 398);
+            groupBoxRSASign.Name = "groupBoxRSASign";
+            groupBoxRSASign.Size = new Size(980, 218);
+            groupBoxRSASign.TabIndex = 2;
+            groupBoxRSASign.TabStop = false;
+            groupBoxRSASign.Text = "RSA数字签名";
             // 
             // labelRSAVerifyResult
             // 
-            this.labelRSAVerifyResult.AutoSize = true;
-            this.labelRSAVerifyResult.Location = new System.Drawing.Point(400, 182);
-            this.labelRSAVerifyResult.Name = "labelRSAVerifyResult";
-            this.labelRSAVerifyResult.Size = new System.Drawing.Size(59, 17);
-            this.labelRSAVerifyResult.TabIndex = 8;
-            this.labelRSAVerifyResult.Text = "验签结果:";
+            labelRSAVerifyResult.AutoSize = true;
+            labelRSAVerifyResult.Location = new Point(400, 182);
+            labelRSAVerifyResult.Name = "labelRSAVerifyResult";
+            labelRSAVerifyResult.Size = new Size(59, 17);
+            labelRSAVerifyResult.TabIndex = 8;
+            labelRSAVerifyResult.Text = "验签结果:";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(15, 28);
+            label9.Name = "label9";
+            label9.Size = new Size(59, 17);
+            label9.TabIndex = 7;
+            label9.Text = "签名类型:";
+            // 
+            // comboRSAType
+            // 
+            comboRSAType.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAType.FormattingEnabled = true;
+            comboRSAType.Items.AddRange(new object[] { "RSA", "RSA2" });
+            comboRSAType.Location = new Point(80, 25);
+            comboRSAType.Name = "comboRSAType";
+            comboRSAType.Size = new Size(100, 25);
+            comboRSAType.TabIndex = 6;
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(15, 123);
+            label8.Name = "label8";
+            label8.Size = new Size(35, 17);
+            label8.TabIndex = 5;
+            label8.Text = "签名:";
+            // 
+            // textRSASignature
+            // 
+            textRSASignature.Location = new Point(80, 120);
+            textRSASignature.Multiline = true;
+            textRSASignature.Name = "textRSASignature";
+            textRSASignature.ScrollBars = ScrollBars.Both;
+            textRSASignature.Size = new Size(885, 50);
+            textRSASignature.TabIndex = 4;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(15, 63);
+            label7.Name = "label7";
+            label7.Size = new Size(59, 17);
+            label7.TabIndex = 3;
+            label7.Text = "原文数据:";
+            // 
+            // textRSASignData
+            // 
+            textRSASignData.Location = new Point(80, 60);
+            textRSASignData.Multiline = true;
+            textRSASignData.Name = "textRSASignData";
+            textRSASignData.ScrollBars = ScrollBars.Both;
+            textRSASignData.Size = new Size(885, 50);
+            textRSASignData.TabIndex = 2;
+            // 
+            // btnRSAVerify
+            // 
+            btnRSAVerify.Location = new Point(300, 20);
+            btnRSAVerify.Name = "btnRSAVerify";
+            btnRSAVerify.Size = new Size(80, 30);
+            btnRSAVerify.TabIndex = 1;
+            btnRSAVerify.Text = "验签";
+            btnRSAVerify.UseVisualStyleBackColor = true;
+            btnRSAVerify.Click += btnRSAVerify_Click;
+            // 
+            // btnRSASign
+            // 
+            btnRSASign.Location = new Point(200, 25);
+            btnRSASign.Name = "btnRSASign";
+            btnRSASign.Size = new Size(80, 30);
+            btnRSASign.TabIndex = 0;
+            btnRSASign.Text = "签名";
+            btnRSASign.UseVisualStyleBackColor = true;
+            btnRSASign.Click += btnRSASign_Click;
+            // 
+            // groupBoxRSAEncrypt
+            // 
+            groupBoxRSAEncrypt.Controls.Add(label6);
+            groupBoxRSAEncrypt.Controls.Add(textRSACipherText);
+            groupBoxRSAEncrypt.Controls.Add(label5);
+            groupBoxRSAEncrypt.Controls.Add(textRSAPlainText);
+            groupBoxRSAEncrypt.Controls.Add(btnRSADecrypt);
+            groupBoxRSAEncrypt.Controls.Add(btnRSAEncrypt);
+            groupBoxRSAEncrypt.Location = new Point(6, 212);
+            groupBoxRSAEncrypt.Name = "groupBoxRSAEncrypt";
+            groupBoxRSAEncrypt.Size = new Size(980, 180);
+            groupBoxRSAEncrypt.TabIndex = 1;
+            groupBoxRSAEncrypt.TabStop = false;
+            groupBoxRSAEncrypt.Text = "RSA加密解密";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(15, 88);
+            label6.Name = "label6";
+            label6.Size = new Size(35, 17);
+            label6.TabIndex = 5;
+            label6.Text = "密文:";
+            // 
+            // textRSACipherText
+            // 
+            textRSACipherText.Location = new Point(80, 85);
+            textRSACipherText.Multiline = true;
+            textRSACipherText.Name = "textRSACipherText";
+            textRSACipherText.ScrollBars = ScrollBars.Both;
+            textRSACipherText.Size = new Size(885, 50);
+            textRSACipherText.TabIndex = 4;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(15, 28);
+            label5.Name = "label5";
+            label5.Size = new Size(35, 17);
+            label5.TabIndex = 3;
+            label5.Text = "明文:";
+            // 
+            // textRSAPlainText
+            // 
+            textRSAPlainText.Location = new Point(80, 25);
+            textRSAPlainText.Multiline = true;
+            textRSAPlainText.Name = "textRSAPlainText";
+            textRSAPlainText.ScrollBars = ScrollBars.Both;
+            textRSAPlainText.Size = new Size(885, 50);
+            textRSAPlainText.TabIndex = 2;
+            // 
+            // btnRSADecrypt
+            // 
+            btnRSADecrypt.Location = new Point(300, 140);
+            btnRSADecrypt.Name = "btnRSADecrypt";
+            btnRSADecrypt.Size = new Size(80, 30);
+            btnRSADecrypt.TabIndex = 1;
+            btnRSADecrypt.Text = "解密";
+            btnRSADecrypt.UseVisualStyleBackColor = true;
+            btnRSADecrypt.Click += btnRSADecrypt_Click;
+            // 
+            // btnRSAEncrypt
+            // 
+            btnRSAEncrypt.Location = new Point(200, 140);
+            btnRSAEncrypt.Name = "btnRSAEncrypt";
+            btnRSAEncrypt.Size = new Size(80, 30);
+            btnRSAEncrypt.TabIndex = 0;
+            btnRSAEncrypt.Text = "加密";
+            btnRSAEncrypt.UseVisualStyleBackColor = true;
+            btnRSAEncrypt.Click += btnRSAEncrypt_Click;
+            // 
+            // groupBoxRSAKeys
+            // 
+            groupBoxRSAKeys.Controls.Add(btnExportRSAKey);
+            groupBoxRSAKeys.Controls.Add(btnImportRSAKey);
+            groupBoxRSAKeys.Controls.Add(label4);
+            groupBoxRSAKeys.Controls.Add(textRSAPrivateKey);
+            groupBoxRSAKeys.Controls.Add(label3);
+            groupBoxRSAKeys.Controls.Add(textRSAPublicKey);
+            groupBoxRSAKeys.Controls.Add(label2);
+            groupBoxRSAKeys.Controls.Add(comboRSAKeyFormat);
+            groupBoxRSAKeys.Controls.Add(label1);
+            groupBoxRSAKeys.Controls.Add(comboRSAKeySize);
+            groupBoxRSAKeys.Controls.Add(btnGenerateRSAKey);
+            groupBoxRSAKeys.Location = new Point(6, 6);
+            groupBoxRSAKeys.Name = "groupBoxRSAKeys";
+            groupBoxRSAKeys.Size = new Size(980, 200);
+            groupBoxRSAKeys.TabIndex = 0;
+            groupBoxRSAKeys.TabStop = false;
+            groupBoxRSAKeys.Text = "RSA密钥生成";
+            // 
+            // btnExportRSAKey
+            // 
+            btnExportRSAKey.Location = new Point(600, 25);
+            btnExportRSAKey.Name = "btnExportRSAKey";
+            btnExportRSAKey.Size = new Size(80, 30);
+            btnExportRSAKey.TabIndex = 10;
+            btnExportRSAKey.Text = "导出密钥";
+            btnExportRSAKey.UseVisualStyleBackColor = true;
+            btnExportRSAKey.Click += btnExportRSAKey_Click;
+            // 
+            // btnImportRSAKey
+            // 
+            btnImportRSAKey.Location = new Point(500, 25);
+            btnImportRSAKey.Name = "btnImportRSAKey";
+            btnImportRSAKey.Size = new Size(80, 30);
+            btnImportRSAKey.TabIndex = 9;
+            btnImportRSAKey.Text = "导入密钥";
+            btnImportRSAKey.UseVisualStyleBackColor = true;
+            btnImportRSAKey.Click += btnImportRSAKey_Click;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(15, 138);
+            label4.Name = "label4";
+            label4.Size = new Size(35, 17);
+            label4.TabIndex = 8;
+            label4.Text = "私钥:";
+            // 
+            // textRSAPrivateKey
+            // 
+            textRSAPrivateKey.Location = new Point(80, 135);
+            textRSAPrivateKey.Multiline = true;
+            textRSAPrivateKey.Name = "textRSAPrivateKey";
+            textRSAPrivateKey.ScrollBars = ScrollBars.Both;
+            textRSAPrivateKey.Size = new Size(885, 60);
+            textRSAPrivateKey.TabIndex = 7;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(15, 68);
+            label3.Name = "label3";
+            label3.Size = new Size(35, 17);
+            label3.TabIndex = 6;
+            label3.Text = "公钥:";
+            // 
+            // textRSAPublicKey
+            // 
+            textRSAPublicKey.Location = new Point(80, 65);
+            textRSAPublicKey.Multiline = true;
+            textRSAPublicKey.Name = "textRSAPublicKey";
+            textRSAPublicKey.ScrollBars = ScrollBars.Both;
+            textRSAPublicKey.Size = new Size(885, 60);
+            textRSAPublicKey.TabIndex = 5;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(195, 28);
+            label2.Name = "label2";
+            label2.Size = new Size(59, 17);
+            label2.TabIndex = 4;
+            label2.Text = "密钥格式:";
+            // 
+            // comboRSAKeyFormat
+            // 
+            comboRSAKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAKeyFormat.FormattingEnabled = true;
+            comboRSAKeyFormat.Items.AddRange(new object[] { "XML", "PKCS1", "PKCS8", "Java" });
+            comboRSAKeyFormat.Location = new Point(260, 25);
+            comboRSAKeyFormat.Name = "comboRSAKeyFormat";
+            comboRSAKeyFormat.Size = new Size(100, 25);
+            comboRSAKeyFormat.TabIndex = 3;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(15, 28);
+            label1.Name = "label1";
+            label1.Size = new Size(59, 17);
+            label1.TabIndex = 2;
+            label1.Text = "密钥长度:";
+            // 
+            // comboRSAKeySize
+            // 
+            comboRSAKeySize.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAKeySize.FormattingEnabled = true;
+            comboRSAKeySize.Items.AddRange(new object[] { "1024", "2048", "3072", "4096" });
+            comboRSAKeySize.Location = new Point(80, 25);
+            comboRSAKeySize.Name = "comboRSAKeySize";
+            comboRSAKeySize.Size = new Size(100, 25);
+            comboRSAKeySize.TabIndex = 1;
+            // 
+            // btnGenerateRSAKey
+            // 
+            btnGenerateRSAKey.Location = new Point(380, 25);
+            btnGenerateRSAKey.Name = "btnGenerateRSAKey";
+            btnGenerateRSAKey.Size = new Size(100, 30);
+            btnGenerateRSAKey.TabIndex = 0;
+            btnGenerateRSAKey.Text = "生成密钥对";
+            btnGenerateRSAKey.UseVisualStyleBackColor = true;
+            btnGenerateRSAKey.Click += btnGenerateRSAKey_Click;
             // 
             // tabSM4
             // 
-            this.tabSM4.Controls.Add(this.groupBoxSM4Encrypt);
-            this.tabSM4.Controls.Add(this.groupBoxSM4Keys);
-            this.tabSM4.Location = new System.Drawing.Point(4, 24);
-            this.tabSM4.Name = "tabSM4";
-            this.tabSM4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSM4.Size = new System.Drawing.Size(992, 622);
-            this.tabSM4.TabIndex = 1;
-            this.tabSM4.Text = "SM4算法";
-            this.tabSM4.UseVisualStyleBackColor = true;
-            // 
-            // groupBoxSM4Keys
-            // 
-            this.groupBoxSM4Keys.Controls.Add(this.label11);
-            this.groupBoxSM4Keys.Controls.Add(this.textSM4IV);
-            this.groupBoxSM4Keys.Controls.Add(this.label10);
-            this.groupBoxSM4Keys.Controls.Add(this.textSM4Key);
-            this.groupBoxSM4Keys.Controls.Add(this.btnGenerateSM4IV);
-            this.groupBoxSM4Keys.Controls.Add(this.btnGenerateSM4Key);
-            this.groupBoxSM4Keys.Location = new System.Drawing.Point(6, 6);
-            this.groupBoxSM4Keys.Name = "groupBoxSM4Keys";
-            this.groupBoxSM4Keys.Size = new System.Drawing.Size(980, 140);
-            this.groupBoxSM4Keys.TabIndex = 0;
-            this.groupBoxSM4Keys.TabStop = false;
-            this.groupBoxSM4Keys.Text = "SM4密钥生成";
-            // 
-            // btnGenerateSM4Key
-            // 
-            this.btnGenerateSM4Key.Location = new System.Drawing.Point(800, 35);
-            this.btnGenerateSM4Key.Name = "btnGenerateSM4Key";
-            this.btnGenerateSM4Key.Size = new System.Drawing.Size(80, 30);
-            this.btnGenerateSM4Key.TabIndex = 0;
-            this.btnGenerateSM4Key.Text = "生成密钥";
-            this.btnGenerateSM4Key.UseVisualStyleBackColor = true;
-            this.btnGenerateSM4Key.Click += new System.EventHandler(this.btnGenerateSM4Key_Click);
-            // 
-            // btnGenerateSM4IV
-            // 
-            this.btnGenerateSM4IV.Location = new System.Drawing.Point(800, 85);
-            this.btnGenerateSM4IV.Name = "btnGenerateSM4IV";
-            this.btnGenerateSM4IV.Size = new System.Drawing.Size(80, 30);
-            this.btnGenerateSM4IV.TabIndex = 1;
-            this.btnGenerateSM4IV.Text = "生成向量";
-            this.btnGenerateSM4IV.UseVisualStyleBackColor = true;
-            this.btnGenerateSM4IV.Click += new System.EventHandler(this.btnGenerateSM4IV_Click);
-            // 
-            // textSM4Key
-            // 
-            this.textSM4Key.Location = new System.Drawing.Point(80, 35);
-            this.textSM4Key.Name = "textSM4Key";
-            this.textSM4Key.Size = new System.Drawing.Size(700, 23);
-            this.textSM4Key.TabIndex = 2;
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(15, 38);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(59, 17);
-            this.label10.TabIndex = 3;
-            this.label10.Text = "SM4密钥:";
-            // 
-            // textSM4IV
-            // 
-            this.textSM4IV.Location = new System.Drawing.Point(80, 85);
-            this.textSM4IV.Name = "textSM4IV";
-            this.textSM4IV.Size = new System.Drawing.Size(700, 23);
-            this.textSM4IV.TabIndex = 4;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(15, 88);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(59, 17);
-            this.label11.TabIndex = 5;
-            this.label11.Text = "初始向量:";
+            tabSM4.Controls.Add(groupBoxSM4Encrypt);
+            tabSM4.Controls.Add(groupBoxSM4Keys);
+            tabSM4.Location = new Point(4, 26);
+            tabSM4.Name = "tabSM4";
+            tabSM4.Padding = new Padding(3);
+            tabSM4.Size = new Size(992, 620);
+            tabSM4.TabIndex = 1;
+            tabSM4.Text = "SM4算法";
+            tabSM4.UseVisualStyleBackColor = true;
             // 
             // groupBoxSM4Encrypt
             // 
-            this.groupBoxSM4Encrypt.Controls.Add(this.label15);
-            this.groupBoxSM4Encrypt.Controls.Add(this.comboSM4Padding);
-            this.groupBoxSM4Encrypt.Controls.Add(this.label14);
-            this.groupBoxSM4Encrypt.Controls.Add(this.comboSM4Mode);
-            this.groupBoxSM4Encrypt.Controls.Add(this.label13);
-            this.groupBoxSM4Encrypt.Controls.Add(this.textSM4CipherText);
-            this.groupBoxSM4Encrypt.Controls.Add(this.label12);
-            this.groupBoxSM4Encrypt.Controls.Add(this.textSM4PlainText);
-            this.groupBoxSM4Encrypt.Controls.Add(this.btnSM4Decrypt);
-            this.groupBoxSM4Encrypt.Controls.Add(this.btnSM4Encrypt);
-            this.groupBoxSM4Encrypt.Location = new System.Drawing.Point(6, 152);
-            this.groupBoxSM4Encrypt.Name = "groupBoxSM4Encrypt";
-            this.groupBoxSM4Encrypt.Size = new System.Drawing.Size(980, 250);
-            this.groupBoxSM4Encrypt.TabIndex = 1;
-            this.groupBoxSM4Encrypt.TabStop = false;
-            this.groupBoxSM4Encrypt.Text = "SM4加密解密";
+            groupBoxSM4Encrypt.Controls.Add(labelSM4DataFormat);
+            groupBoxSM4Encrypt.Controls.Add(comboSM4DataFormat);
+            groupBoxSM4Encrypt.Controls.Add(label15);
+            groupBoxSM4Encrypt.Controls.Add(comboSM4Padding);
+            groupBoxSM4Encrypt.Controls.Add(label14);
+            groupBoxSM4Encrypt.Controls.Add(comboSM4Mode);
+            groupBoxSM4Encrypt.Controls.Add(label13);
+            groupBoxSM4Encrypt.Controls.Add(textSM4CipherText);
+            groupBoxSM4Encrypt.Controls.Add(label12);
+            groupBoxSM4Encrypt.Controls.Add(textSM4PlainText);
+            groupBoxSM4Encrypt.Controls.Add(btnSM4Decrypt);
+            groupBoxSM4Encrypt.Controls.Add(btnSM4Encrypt);
+            groupBoxSM4Encrypt.Location = new Point(6, 192);
+            groupBoxSM4Encrypt.Name = "groupBoxSM4Encrypt";
+            groupBoxSM4Encrypt.Size = new Size(980, 250);
+            groupBoxSM4Encrypt.TabIndex = 1;
+            groupBoxSM4Encrypt.TabStop = false;
+            groupBoxSM4Encrypt.Text = "SM4加密解密";
             // 
-            // btnSM4Encrypt
+            // labelSM4DataFormat
             // 
-            this.btnSM4Encrypt.Location = new System.Drawing.Point(200, 210);
-            this.btnSM4Encrypt.Name = "btnSM4Encrypt";
-            this.btnSM4Encrypt.Size = new System.Drawing.Size(80, 30);
-            this.btnSM4Encrypt.TabIndex = 0;
-            this.btnSM4Encrypt.Text = "加密";
-            this.btnSM4Encrypt.UseVisualStyleBackColor = true;
-            this.btnSM4Encrypt.Click += new System.EventHandler(this.btnSM4Encrypt_Click);
+            labelSM4DataFormat.AutoSize = true;
+            labelSM4DataFormat.Location = new Point(415, 28);
+            labelSM4DataFormat.Name = "labelSM4DataFormat";
+            labelSM4DataFormat.Size = new Size(59, 17);
+            labelSM4DataFormat.TabIndex = 11;
+            labelSM4DataFormat.Text = "数据格式:";
             // 
-            // btnSM4Decrypt
+            // comboSM4DataFormat
             // 
-            this.btnSM4Decrypt.Location = new System.Drawing.Point(300, 210);
-            this.btnSM4Decrypt.Name = "btnSM4Decrypt";
-            this.btnSM4Decrypt.Size = new System.Drawing.Size(80, 30);
-            this.btnSM4Decrypt.TabIndex = 1;
-            this.btnSM4Decrypt.Text = "解密";
-            this.btnSM4Decrypt.UseVisualStyleBackColor = true;
-            this.btnSM4Decrypt.Click += new System.EventHandler(this.btnSM4Decrypt_Click);
-            // 
-            // textSM4PlainText
-            // 
-            this.textSM4PlainText.Location = new System.Drawing.Point(80, 95);
-            this.textSM4PlainText.Multiline = true;
-            this.textSM4PlainText.Name = "textSM4PlainText";
-            this.textSM4PlainText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textSM4PlainText.Size = new System.Drawing.Size(885, 50);
-            this.textSM4PlainText.TabIndex = 2;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(15, 98);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(35, 17);
-            this.label12.TabIndex = 3;
-            this.label12.Text = "明文:";
-            // 
-            // textSM4CipherText
-            // 
-            this.textSM4CipherText.Location = new System.Drawing.Point(80, 155);
-            this.textSM4CipherText.Multiline = true;
-            this.textSM4CipherText.Name = "textSM4CipherText";
-            this.textSM4CipherText.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textSM4CipherText.Size = new System.Drawing.Size(885, 50);
-            this.textSM4CipherText.TabIndex = 4;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(15, 158);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(35, 17);
-            this.label13.TabIndex = 5;
-            this.label13.Text = "密文:";
-            // 
-            // comboSM4Mode
-            // 
-            this.comboSM4Mode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboSM4Mode.FormattingEnabled = true;
-            this.comboSM4Mode.Items.AddRange(new object[] {
-            "ECB",
-            "CBC"});
-            this.comboSM4Mode.Location = new System.Drawing.Point(80, 25);
-            this.comboSM4Mode.Name = "comboSM4Mode";
-            this.comboSM4Mode.Size = new System.Drawing.Size(100, 25);
-            this.comboSM4Mode.TabIndex = 6;
-            this.comboSM4Mode.SelectedIndexChanged += new System.EventHandler(this.comboSM4Mode_SelectedIndexChanged);
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(15, 28);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(59, 17);
-            this.label14.TabIndex = 7;
-            this.label14.Text = "加密模式:";
-            // 
-            // comboSM4Padding
-            // 
-            this.comboSM4Padding.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboSM4Padding.FormattingEnabled = true;
-            this.comboSM4Padding.Items.AddRange(new object[] {
-            "PKCS7",
-            "PKCS5",
-            "NoPadding"});
-            this.comboSM4Padding.Location = new System.Drawing.Point(280, 25);
-            this.comboSM4Padding.Name = "comboSM4Padding";
-            this.comboSM4Padding.Size = new System.Drawing.Size(100, 25);
-            this.comboSM4Padding.TabIndex = 8;
+            comboSM4DataFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM4DataFormat.FormattingEnabled = true;
+            comboSM4DataFormat.Items.AddRange(new object[] { "Base64", "Hex", "Text" });
+            comboSM4DataFormat.Location = new Point(480, 25);
+            comboSM4DataFormat.Name = "comboSM4DataFormat";
+            comboSM4DataFormat.Size = new Size(100, 25);
+            comboSM4DataFormat.TabIndex = 10;
             // 
             // label15
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(215, 28);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(59, 17);
-            this.label15.TabIndex = 9;
-            this.label15.Text = "填充模式:";
+            label15.AutoSize = true;
+            label15.Location = new Point(215, 28);
+            label15.Name = "label15";
+            label15.Size = new Size(59, 17);
+            label15.TabIndex = 9;
+            label15.Text = "填充模式:";
+            // 
+            // comboSM4Padding
+            // 
+            comboSM4Padding.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM4Padding.FormattingEnabled = true;
+            comboSM4Padding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "NoPadding" });
+            comboSM4Padding.Location = new Point(280, 25);
+            comboSM4Padding.Name = "comboSM4Padding";
+            comboSM4Padding.Size = new Size(100, 25);
+            comboSM4Padding.TabIndex = 8;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Location = new Point(15, 28);
+            label14.Name = "label14";
+            label14.Size = new Size(59, 17);
+            label14.TabIndex = 7;
+            label14.Text = "加密模式:";
+            // 
+            // comboSM4Mode
+            // 
+            comboSM4Mode.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM4Mode.FormattingEnabled = true;
+            comboSM4Mode.Items.AddRange(new object[] { "ECB", "CBC" });
+            comboSM4Mode.Location = new Point(80, 25);
+            comboSM4Mode.Name = "comboSM4Mode";
+            comboSM4Mode.Size = new Size(100, 25);
+            comboSM4Mode.TabIndex = 6;
+            comboSM4Mode.SelectedIndexChanged += comboSM4Mode_SelectedIndexChanged;
+            // 
+            // label13
+            // 
+            label13.AutoSize = true;
+            label13.Location = new Point(15, 158);
+            label13.Name = "label13";
+            label13.Size = new Size(35, 17);
+            label13.TabIndex = 5;
+            label13.Text = "密文:";
+            // 
+            // textSM4CipherText
+            // 
+            textSM4CipherText.Location = new Point(80, 155);
+            textSM4CipherText.Multiline = true;
+            textSM4CipherText.Name = "textSM4CipherText";
+            textSM4CipherText.ScrollBars = ScrollBars.Both;
+            textSM4CipherText.Size = new Size(885, 50);
+            textSM4CipherText.TabIndex = 4;
+            // 
+            // label12
+            // 
+            label12.AutoSize = true;
+            label12.Location = new Point(15, 98);
+            label12.Name = "label12";
+            label12.Size = new Size(35, 17);
+            label12.TabIndex = 3;
+            label12.Text = "明文:";
+            // 
+            // textSM4PlainText
+            // 
+            textSM4PlainText.Location = new Point(80, 95);
+            textSM4PlainText.Multiline = true;
+            textSM4PlainText.Name = "textSM4PlainText";
+            textSM4PlainText.ScrollBars = ScrollBars.Both;
+            textSM4PlainText.Size = new Size(885, 50);
+            textSM4PlainText.TabIndex = 2;
+            // 
+            // btnSM4Decrypt
+            // 
+            btnSM4Decrypt.Location = new Point(752, 25);
+            btnSM4Decrypt.Name = "btnSM4Decrypt";
+            btnSM4Decrypt.Size = new Size(80, 30);
+            btnSM4Decrypt.TabIndex = 1;
+            btnSM4Decrypt.Text = "解密";
+            btnSM4Decrypt.UseVisualStyleBackColor = true;
+            btnSM4Decrypt.Click += btnSM4Decrypt_Click;
+            // 
+            // btnSM4Encrypt
+            // 
+            btnSM4Encrypt.Location = new Point(650, 25);
+            btnSM4Encrypt.Name = "btnSM4Encrypt";
+            btnSM4Encrypt.Size = new Size(80, 30);
+            btnSM4Encrypt.TabIndex = 0;
+            btnSM4Encrypt.Text = "加密";
+            btnSM4Encrypt.UseVisualStyleBackColor = true;
+            btnSM4Encrypt.Click += btnSM4Encrypt_Click;
+            // 
+            // groupBoxSM4Keys
+            // 
+            groupBoxSM4Keys.Controls.Add(labelSM4IVFormat);
+            groupBoxSM4Keys.Controls.Add(comboSM4IVFormat);
+            groupBoxSM4Keys.Controls.Add(labelSM4KeyFormat);
+            groupBoxSM4Keys.Controls.Add(comboSM4KeyFormat);
+            groupBoxSM4Keys.Controls.Add(label11);
+            groupBoxSM4Keys.Controls.Add(textSM4IV);
+            groupBoxSM4Keys.Controls.Add(label10);
+            groupBoxSM4Keys.Controls.Add(textSM4Key);
+            groupBoxSM4Keys.Controls.Add(btnGenerateSM4IV);
+            groupBoxSM4Keys.Controls.Add(btnGenerateSM4Key);
+            groupBoxSM4Keys.Location = new Point(6, 6);
+            groupBoxSM4Keys.Name = "groupBoxSM4Keys";
+            groupBoxSM4Keys.Size = new Size(980, 180);
+            groupBoxSM4Keys.TabIndex = 0;
+            groupBoxSM4Keys.TabStop = false;
+            groupBoxSM4Keys.Text = "SM4密钥生成";
+            // 
+            // labelSM4IVFormat
+            // 
+            labelSM4IVFormat.AutoSize = true;
+            labelSM4IVFormat.Location = new Point(585, 88);
+            labelSM4IVFormat.Name = "labelSM4IVFormat";
+            labelSM4IVFormat.Size = new Size(59, 17);
+            labelSM4IVFormat.TabIndex = 11;
+            labelSM4IVFormat.Text = "向量格式:";
+            // 
+            // comboSM4IVFormat
+            // 
+            comboSM4IVFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM4IVFormat.FormattingEnabled = true;
+            comboSM4IVFormat.Items.AddRange(new object[] { "Base64", "Hex", "Text" });
+            comboSM4IVFormat.Location = new Point(650, 85);
+            comboSM4IVFormat.Name = "comboSM4IVFormat";
+            comboSM4IVFormat.Size = new Size(80, 25);
+            comboSM4IVFormat.TabIndex = 10;
+            comboSM4IVFormat.SelectedIndexChanged += comboSM4IVFormat_SelectedIndexChanged;
+            // 
+            // labelSM4KeyFormat
+            // 
+            labelSM4KeyFormat.AutoSize = true;
+            labelSM4KeyFormat.Location = new Point(585, 38);
+            labelSM4KeyFormat.Name = "labelSM4KeyFormat";
+            labelSM4KeyFormat.Size = new Size(59, 17);
+            labelSM4KeyFormat.TabIndex = 9;
+            labelSM4KeyFormat.Text = "密钥格式:";
+            // 
+            // comboSM4KeyFormat
+            // 
+            comboSM4KeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM4KeyFormat.FormattingEnabled = true;
+            comboSM4KeyFormat.Items.AddRange(new object[] { "Base64", "Hex", "Text" });
+            comboSM4KeyFormat.Location = new Point(650, 35);
+            comboSM4KeyFormat.Name = "comboSM4KeyFormat";
+            comboSM4KeyFormat.Size = new Size(80, 25);
+            comboSM4KeyFormat.TabIndex = 8;
+            comboSM4KeyFormat.SelectedIndexChanged += comboSM4KeyFormat_SelectedIndexChanged;
+            // 
+            // label11
+            // 
+            label11.AutoSize = true;
+            label11.Location = new Point(15, 88);
+            label11.Name = "label11";
+            label11.Size = new Size(59, 17);
+            label11.TabIndex = 5;
+            label11.Text = "初始向量:";
+            // 
+            // textSM4IV
+            // 
+            textSM4IV.Location = new Point(80, 85);
+            textSM4IV.Name = "textSM4IV";
+            textSM4IV.Size = new Size(500, 23);
+            textSM4IV.TabIndex = 4;
+            // 
+            // label10
+            // 
+            label10.AutoSize = true;
+            label10.Location = new Point(15, 38);
+            label10.Name = "label10";
+            label10.Size = new Size(61, 17);
+            label10.TabIndex = 3;
+            label10.Text = "SM4密钥:";
+            // 
+            // textSM4Key
+            // 
+            textSM4Key.Location = new Point(80, 35);
+            textSM4Key.Name = "textSM4Key";
+            textSM4Key.Size = new Size(500, 23);
+            textSM4Key.TabIndex = 2;
+            textSM4Key.TextChanged += textSM4Key_TextChanged;
+            // 
+            // btnGenerateSM4IV
+            // 
+            btnGenerateSM4IV.Location = new Point(752, 85);
+            btnGenerateSM4IV.Name = "btnGenerateSM4IV";
+            btnGenerateSM4IV.Size = new Size(80, 30);
+            btnGenerateSM4IV.TabIndex = 1;
+            btnGenerateSM4IV.Text = "生成向量";
+            btnGenerateSM4IV.UseVisualStyleBackColor = true;
+            btnGenerateSM4IV.Click += btnGenerateSM4IV_Click;
+            // 
+            // btnGenerateSM4Key
+            // 
+            btnGenerateSM4Key.Location = new Point(752, 31);
+            btnGenerateSM4Key.Name = "btnGenerateSM4Key";
+            btnGenerateSM4Key.Size = new Size(80, 30);
+            btnGenerateSM4Key.TabIndex = 0;
+            btnGenerateSM4Key.Text = "生成密钥";
+            btnGenerateSM4Key.UseVisualStyleBackColor = true;
+            btnGenerateSM4Key.Click += btnGenerateSM4Key_Click;
+            // 
+            // tabSM2
+            // 
+            tabSM2.Controls.Add(groupBoxSM2Sign);
+            tabSM2.Controls.Add(groupBoxSM2Encrypt);
+            tabSM2.Controls.Add(groupBoxSM2Keys);
+            tabSM2.Location = new Point(4, 26);
+            tabSM2.Name = "tabSM2";
+            tabSM2.Padding = new Padding(3);
+            tabSM2.Size = new Size(992, 620);
+            tabSM2.TabIndex = 2;
+            tabSM2.Text = "SM2算法";
+            tabSM2.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxSM2Sign
+            // 
+            groupBoxSM2Sign.Controls.Add(labelSM2VerifyResult);
+            groupBoxSM2Sign.Controls.Add(label24);
+            groupBoxSM2Sign.Controls.Add(textSM2Signature);
+            groupBoxSM2Sign.Controls.Add(label23);
+            groupBoxSM2Sign.Controls.Add(textSM2SignData);
+            groupBoxSM2Sign.Controls.Add(btnSM2Verify);
+            groupBoxSM2Sign.Controls.Add(btnSM2Sign);
+            groupBoxSM2Sign.Controls.Add(label22);
+            groupBoxSM2Sign.Controls.Add(comboSM2SignFormat);
+            groupBoxSM2Sign.Location = new Point(6, 398);
+            groupBoxSM2Sign.Name = "groupBoxSM2Sign";
+            groupBoxSM2Sign.Size = new Size(980, 218);
+            groupBoxSM2Sign.TabIndex = 2;
+            groupBoxSM2Sign.TabStop = false;
+            groupBoxSM2Sign.Text = "SM2数字签名";
+            // 
+            // labelSM2VerifyResult
+            // 
+            labelSM2VerifyResult.AutoSize = true;
+            labelSM2VerifyResult.Location = new Point(400, 182);
+            labelSM2VerifyResult.Name = "labelSM2VerifyResult";
+            labelSM2VerifyResult.Size = new Size(59, 17);
+            labelSM2VerifyResult.TabIndex = 8;
+            labelSM2VerifyResult.Text = "验签结果:";
+            // 
+            // label24
+            // 
+            label24.AutoSize = true;
+            label24.Location = new Point(15, 123);
+            label24.Name = "label24";
+            label24.Size = new Size(35, 17);
+            label24.TabIndex = 7;
+            label24.Text = "签名:";
+            // 
+            // textSM2Signature
+            // 
+            textSM2Signature.Location = new Point(80, 120);
+            textSM2Signature.Multiline = true;
+            textSM2Signature.Name = "textSM2Signature";
+            textSM2Signature.ScrollBars = ScrollBars.Both;
+            textSM2Signature.Size = new Size(885, 50);
+            textSM2Signature.TabIndex = 6;
+            // 
+            // label23
+            // 
+            label23.AutoSize = true;
+            label23.Location = new Point(15, 63);
+            label23.Name = "label23";
+            label23.Size = new Size(59, 17);
+            label23.TabIndex = 5;
+            label23.Text = "原文数据:";
+            // 
+            // textSM2SignData
+            // 
+            textSM2SignData.Location = new Point(80, 60);
+            textSM2SignData.Multiline = true;
+            textSM2SignData.Name = "textSM2SignData";
+            textSM2SignData.ScrollBars = ScrollBars.Both;
+            textSM2SignData.Size = new Size(885, 50);
+            textSM2SignData.TabIndex = 4;
+            // 
+            // btnSM2Verify
+            // 
+            btnSM2Verify.Location = new Point(400, 25);
+            btnSM2Verify.Name = "btnSM2Verify";
+            btnSM2Verify.Size = new Size(80, 30);
+            btnSM2Verify.TabIndex = 3;
+            btnSM2Verify.Text = "验签";
+            btnSM2Verify.UseVisualStyleBackColor = true;
+            btnSM2Verify.Click += btnSM2Verify_Click;
+            // 
+            // btnSM2Sign
+            // 
+            btnSM2Sign.Location = new Point(280, 25);
+            btnSM2Sign.Name = "btnSM2Sign";
+            btnSM2Sign.Size = new Size(80, 30);
+            btnSM2Sign.TabIndex = 2;
+            btnSM2Sign.Text = "签名";
+            btnSM2Sign.UseVisualStyleBackColor = true;
+            btnSM2Sign.Click += btnSM2Sign_Click;
+            // 
+            // label22
+            // 
+            label22.AutoSize = true;
+            label22.Location = new Point(15, 28);
+            label22.Name = "label22";
+            label22.Size = new Size(59, 17);
+            label22.TabIndex = 1;
+            label22.Text = "签名格式:";
+            // 
+            // comboSM2SignFormat
+            // 
+            comboSM2SignFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM2SignFormat.FormattingEnabled = true;
+            comboSM2SignFormat.Items.AddRange(new object[] { "ASN1", "RS" });
+            comboSM2SignFormat.Location = new Point(80, 25);
+            comboSM2SignFormat.Name = "comboSM2SignFormat";
+            comboSM2SignFormat.Size = new Size(100, 25);
+            comboSM2SignFormat.TabIndex = 0;
+            // 
+            // groupBoxSM2Encrypt
+            // 
+            groupBoxSM2Encrypt.Controls.Add(label21);
+            groupBoxSM2Encrypt.Controls.Add(textSM2CipherText);
+            groupBoxSM2Encrypt.Controls.Add(label20);
+            groupBoxSM2Encrypt.Controls.Add(textSM2PlainText);
+            groupBoxSM2Encrypt.Controls.Add(btnSM2Decrypt);
+            groupBoxSM2Encrypt.Controls.Add(btnSM2Encrypt);
+            groupBoxSM2Encrypt.Controls.Add(label19);
+            groupBoxSM2Encrypt.Controls.Add(comboSM2CipherFormat);
+            groupBoxSM2Encrypt.Location = new Point(6, 212);
+            groupBoxSM2Encrypt.Name = "groupBoxSM2Encrypt";
+            groupBoxSM2Encrypt.Size = new Size(980, 180);
+            groupBoxSM2Encrypt.TabIndex = 1;
+            groupBoxSM2Encrypt.TabStop = false;
+            groupBoxSM2Encrypt.Text = "SM2加密解密";
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Location = new Point(15, 108);
+            label21.Name = "label21";
+            label21.Size = new Size(35, 17);
+            label21.TabIndex = 7;
+            label21.Text = "密文:";
+            // 
+            // textSM2CipherText
+            // 
+            textSM2CipherText.Location = new Point(80, 105);
+            textSM2CipherText.Multiline = true;
+            textSM2CipherText.Name = "textSM2CipherText";
+            textSM2CipherText.ScrollBars = ScrollBars.Both;
+            textSM2CipherText.Size = new Size(885, 35);
+            textSM2CipherText.TabIndex = 6;
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Location = new Point(15, 63);
+            label20.Name = "label20";
+            label20.Size = new Size(35, 17);
+            label20.TabIndex = 5;
+            label20.Text = "明文:";
+            // 
+            // textSM2PlainText
+            // 
+            textSM2PlainText.Location = new Point(80, 60);
+            textSM2PlainText.Multiline = true;
+            textSM2PlainText.Name = "textSM2PlainText";
+            textSM2PlainText.ScrollBars = ScrollBars.Both;
+            textSM2PlainText.Size = new Size(885, 35);
+            textSM2PlainText.TabIndex = 4;
+            // 
+            // btnSM2Decrypt
+            // 
+            btnSM2Decrypt.Location = new Point(400, 24);
+            btnSM2Decrypt.Name = "btnSM2Decrypt";
+            btnSM2Decrypt.Size = new Size(80, 30);
+            btnSM2Decrypt.TabIndex = 3;
+            btnSM2Decrypt.Text = "解密";
+            btnSM2Decrypt.UseVisualStyleBackColor = true;
+            btnSM2Decrypt.Click += btnSM2Decrypt_Click;
+            // 
+            // btnSM2Encrypt
+            // 
+            btnSM2Encrypt.Location = new Point(280, 25);
+            btnSM2Encrypt.Name = "btnSM2Encrypt";
+            btnSM2Encrypt.Size = new Size(80, 30);
+            btnSM2Encrypt.TabIndex = 2;
+            btnSM2Encrypt.Text = "加密";
+            btnSM2Encrypt.UseVisualStyleBackColor = true;
+            btnSM2Encrypt.Click += btnSM2Encrypt_Click;
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Location = new Point(15, 28);
+            label19.Name = "label19";
+            label19.Size = new Size(59, 17);
+            label19.TabIndex = 1;
+            label19.Text = "密文格式:";
+            // 
+            // comboSM2CipherFormat
+            // 
+            comboSM2CipherFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM2CipherFormat.FormattingEnabled = true;
+            comboSM2CipherFormat.Items.AddRange(new object[] { "C1C3C2", "C1C2C3", "ASN1" });
+            comboSM2CipherFormat.Location = new Point(80, 25);
+            comboSM2CipherFormat.Name = "comboSM2CipherFormat";
+            comboSM2CipherFormat.Size = new Size(100, 25);
+            comboSM2CipherFormat.TabIndex = 0;
+            // 
+            // groupBoxSM2Keys
+            // 
+            groupBoxSM2Keys.Controls.Add(btnExportSM2Key);
+            groupBoxSM2Keys.Controls.Add(btnImportSM2Key);
+            groupBoxSM2Keys.Controls.Add(label18);
+            groupBoxSM2Keys.Controls.Add(textSM2PrivateKey);
+            groupBoxSM2Keys.Controls.Add(label17);
+            groupBoxSM2Keys.Controls.Add(textSM2PublicKey);
+            groupBoxSM2Keys.Controls.Add(label16);
+            groupBoxSM2Keys.Controls.Add(comboSM2KeyFormat);
+            groupBoxSM2Keys.Controls.Add(btnGenerateSM2Key);
+            groupBoxSM2Keys.Location = new Point(6, 6);
+            groupBoxSM2Keys.Name = "groupBoxSM2Keys";
+            groupBoxSM2Keys.Size = new Size(980, 200);
+            groupBoxSM2Keys.TabIndex = 0;
+            groupBoxSM2Keys.TabStop = false;
+            groupBoxSM2Keys.Text = "SM2密钥生成";
+            // 
+            // btnExportSM2Key
+            // 
+            btnExportSM2Key.Location = new Point(500, 25);
+            btnExportSM2Key.Name = "btnExportSM2Key";
+            btnExportSM2Key.Size = new Size(80, 30);
+            btnExportSM2Key.TabIndex = 8;
+            btnExportSM2Key.Text = "导出密钥";
+            btnExportSM2Key.UseVisualStyleBackColor = true;
+            btnExportSM2Key.Click += btnExportSM2Key_Click;
+            // 
+            // btnImportSM2Key
+            // 
+            btnImportSM2Key.Location = new Point(400, 25);
+            btnImportSM2Key.Name = "btnImportSM2Key";
+            btnImportSM2Key.Size = new Size(80, 30);
+            btnImportSM2Key.TabIndex = 7;
+            btnImportSM2Key.Text = "导入密钥";
+            btnImportSM2Key.UseVisualStyleBackColor = true;
+            btnImportSM2Key.Click += btnImportSM2Key_Click;
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Location = new Point(15, 138);
+            label18.Name = "label18";
+            label18.Size = new Size(35, 17);
+            label18.TabIndex = 6;
+            label18.Text = "私钥:";
+            // 
+            // textSM2PrivateKey
+            // 
+            textSM2PrivateKey.Location = new Point(80, 135);
+            textSM2PrivateKey.Multiline = true;
+            textSM2PrivateKey.Name = "textSM2PrivateKey";
+            textSM2PrivateKey.ScrollBars = ScrollBars.Both;
+            textSM2PrivateKey.Size = new Size(885, 60);
+            textSM2PrivateKey.TabIndex = 5;
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Location = new Point(15, 68);
+            label17.Name = "label17";
+            label17.Size = new Size(35, 17);
+            label17.TabIndex = 4;
+            label17.Text = "公钥:";
+            // 
+            // textSM2PublicKey
+            // 
+            textSM2PublicKey.Location = new Point(80, 65);
+            textSM2PublicKey.Multiline = true;
+            textSM2PublicKey.Name = "textSM2PublicKey";
+            textSM2PublicKey.ScrollBars = ScrollBars.Both;
+            textSM2PublicKey.Size = new Size(885, 60);
+            textSM2PublicKey.TabIndex = 3;
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Location = new Point(15, 28);
+            label16.Name = "label16";
+            label16.Size = new Size(59, 17);
+            label16.TabIndex = 2;
+            label16.Text = "密钥格式:";
+            // 
+            // comboSM2KeyFormat
+            // 
+            comboSM2KeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboSM2KeyFormat.FormattingEnabled = true;
+            comboSM2KeyFormat.Items.AddRange(new object[] { "Base64", "Hex" });
+            comboSM2KeyFormat.Location = new Point(80, 25);
+            comboSM2KeyFormat.Name = "comboSM2KeyFormat";
+            comboSM2KeyFormat.Size = new Size(100, 25);
+            comboSM2KeyFormat.TabIndex = 1;
+            // 
+            // btnGenerateSM2Key
+            // 
+            btnGenerateSM2Key.Location = new Point(280, 25);
+            btnGenerateSM2Key.Name = "btnGenerateSM2Key";
+            btnGenerateSM2Key.Size = new Size(100, 30);
+            btnGenerateSM2Key.TabIndex = 0;
+            btnGenerateSM2Key.Text = "生成密钥对";
+            btnGenerateSM2Key.UseVisualStyleBackColor = true;
+            btnGenerateSM2Key.Click += btnGenerateSM2Key_Click;
             // 
             // statusStrip1
             // 
-            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 628);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1000, 22);
-            this.statusStrip1.TabIndex = 1;
-            this.statusStrip1.Text = "statusStrip1";
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1 });
+            statusStrip1.Location = new Point(0, 628);
+            statusStrip1.Name = "statusStrip1";
+            statusStrip1.Size = new Size(1000, 22);
+            statusStrip1.TabIndex = 1;
+            statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(32, 17);
-            this.toolStripStatusLabel1.Text = "就绪";
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(32, 17);
+            toolStripStatusLabel1.Text = "就绪";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1000, 650);
-            this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.tabControl1);
-            this.Name = "Form1";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "加密工具 - RSA & SM4";
-            this.Load += new System.EventHandler(this.Form1_Load);
-            this.tabControl1.ResumeLayout(false);
-            this.tabRSA.ResumeLayout(false);
-            this.groupBoxRSAKeys.ResumeLayout(false);
-            this.groupBoxRSAKeys.PerformLayout();
-            this.groupBoxRSAEncrypt.ResumeLayout(false);
-            this.groupBoxRSAEncrypt.PerformLayout();
-            this.groupBoxRSASign.ResumeLayout(false);
-            this.groupBoxRSASign.PerformLayout();
-            this.tabSM4.ResumeLayout(false);
-            this.groupBoxSM4Keys.ResumeLayout(false);
-            this.groupBoxSM4Keys.PerformLayout();
-            this.groupBoxSM4Encrypt.ResumeLayout(false);
-            this.groupBoxSM4Encrypt.PerformLayout();
-            this.statusStrip1.ResumeLayout(false);
-            this.statusStrip1.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1000, 650);
+            Controls.Add(statusStrip1);
+            Controls.Add(tabControl1);
+            Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "加密工具 - RSA & SM4 & SM2";
+            Load += Form1_Load;
+            tabControl1.ResumeLayout(false);
+            tabRSA.ResumeLayout(false);
+            groupBoxRSASign.ResumeLayout(false);
+            groupBoxRSASign.PerformLayout();
+            groupBoxRSAEncrypt.ResumeLayout(false);
+            groupBoxRSAEncrypt.PerformLayout();
+            groupBoxRSAKeys.ResumeLayout(false);
+            groupBoxRSAKeys.PerformLayout();
+            tabSM4.ResumeLayout(false);
+            groupBoxSM4Encrypt.ResumeLayout(false);
+            groupBoxSM4Encrypt.PerformLayout();
+            groupBoxSM4Keys.ResumeLayout(false);
+            groupBoxSM4Keys.PerformLayout();
+            tabSM2.ResumeLayout(false);
+            groupBoxSM2Sign.ResumeLayout(false);
+            groupBoxSM2Sign.PerformLayout();
+            groupBoxSM2Encrypt.ResumeLayout(false);
+            groupBoxSM2Encrypt.PerformLayout();
+            groupBoxSM2Keys.ResumeLayout(false);
+            groupBoxSM2Keys.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -657,6 +1089,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox comboRSAKeySize;
         private System.Windows.Forms.Button btnGenerateRSAKey;
+        private System.Windows.Forms.Button btnImportRSAKey;
+        private System.Windows.Forms.Button btnExportRSAKey;
         private System.Windows.Forms.GroupBox groupBoxRSASign;
         private System.Windows.Forms.Label labelRSAVerifyResult;
         private System.Windows.Forms.Label label9;
@@ -676,6 +1110,8 @@
         private System.Windows.Forms.Button btnRSAEncrypt;
         private System.Windows.Forms.TabPage tabSM4;
         private System.Windows.Forms.GroupBox groupBoxSM4Encrypt;
+        private System.Windows.Forms.Label labelSM4DataFormat;
+        private System.Windows.Forms.ComboBox comboSM4DataFormat;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.ComboBox comboSM4Padding;
         private System.Windows.Forms.Label label14;
@@ -693,6 +1129,40 @@
         private System.Windows.Forms.TextBox textSM4Key;
         private System.Windows.Forms.Button btnGenerateSM4IV;
         private System.Windows.Forms.Button btnGenerateSM4Key;
+        private System.Windows.Forms.ComboBox comboSM4KeyFormat;
+        private System.Windows.Forms.Label labelSM4KeyFormat;
+        private System.Windows.Forms.ComboBox comboSM4IVFormat;
+        private System.Windows.Forms.Label labelSM4IVFormat;
+        private System.Windows.Forms.TabPage tabSM2;
+        private System.Windows.Forms.GroupBox groupBoxSM2Keys;
+        private System.Windows.Forms.Button btnExportSM2Key;
+        private System.Windows.Forms.Button btnImportSM2Key;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox textSM2PrivateKey;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.TextBox textSM2PublicKey;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.ComboBox comboSM2KeyFormat;
+        private System.Windows.Forms.Button btnGenerateSM2Key;
+        private System.Windows.Forms.GroupBox groupBoxSM2Encrypt;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox textSM2CipherText;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox textSM2PlainText;
+        private System.Windows.Forms.Button btnSM2Decrypt;
+        private System.Windows.Forms.Button btnSM2Encrypt;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.ComboBox comboSM2CipherFormat;
+        private System.Windows.Forms.GroupBox groupBoxSM2Sign;
+        private System.Windows.Forms.Label labelSM2VerifyResult;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.TextBox textSM2Signature;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox textSM2SignData;
+        private System.Windows.Forms.Button btnSM2Verify;
+        private System.Windows.Forms.Button btnSM2Sign;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.ComboBox comboSM2SignFormat;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }

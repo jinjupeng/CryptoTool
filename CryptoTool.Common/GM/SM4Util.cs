@@ -40,6 +40,218 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
+        /// 格式类型枚举
+        /// </summary>
+        public enum FormatType
+        {
+            /// <summary>
+            /// Base64编码
+            /// </summary>
+            Base64,
+            
+            /// <summary>
+            /// 十六进制编码
+            /// </summary>
+            Hex,
+            
+            /// <summary>
+            /// 文本格式(UTF-8)
+            /// </summary>
+            Text
+        }
+
+        #region 格式转换工具方法
+
+        /// <summary>
+        /// 根据格式类型将字符串转换为字节数组
+        /// </summary>
+        /// <param name="data">输入字符串</param>
+        /// <param name="format">格式类型</param>
+        /// <returns>字节数组</returns>
+        public static byte[] ConvertToBytes(string data, FormatType format)
+        {
+            switch (format)
+            {
+                case FormatType.Base64:
+                    return Convert.FromBase64String(data);
+                case FormatType.Hex:
+                    return HexToBytes(data);
+                case FormatType.Text:
+                    return Encoding.UTF8.GetBytes(data);
+                default:
+                    return Convert.FromBase64String(data);
+            }
+        }
+
+        /// <summary>
+        /// 根据格式类型将字节数组转换为字符串
+        /// </summary>
+        /// <param name="data">字节数组</param>
+        /// <param name="format">格式类型</param>
+        /// <returns>格式化的字符串</returns>
+        public static string ConvertFromBytes(byte[] data, FormatType format)
+        {
+            switch (format)
+            {
+                case FormatType.Base64:
+                    return Convert.ToBase64String(data);
+                case FormatType.Hex:
+                    return BytesToHex(data);
+                case FormatType.Text:
+                    return Encoding.UTF8.GetString(data);
+                default:
+                    return Convert.ToBase64String(data);
+            }
+        }
+
+        /// <summary>
+        /// 生成指定格式的随机SM4密钥
+        /// </summary>
+        /// <param name="format">输出格式</param>
+        /// <returns>指定格式的随机密钥</returns>
+        public static string GenerateKey(FormatType format = FormatType.Base64)
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] key = new byte[KEY_SIZE];
+                rng.GetBytes(key);
+                return ConvertFromBytes(key, format);
+            }
+        }
+
+        /// <summary>
+        /// 生成指定格式的随机SM4初始向量
+        /// </summary>
+        /// <param name="format">输出格式</param>
+        /// <returns>指定格式的随机初始向量</returns>
+        public static string GenerateIV(FormatType format = FormatType.Base64)
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] iv = new byte[BLOCK_SIZE];
+                rng.GetBytes(iv);
+                return ConvertFromBytes(iv, format);
+            }
+        }
+
+        #endregion
+
+        #region 支持多格式的加密解密方法
+
+        /// <summary>
+        /// SM4-ECB模式加密（支持多种格式）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的密文</returns>
+        public static string EncryptEcbWithFormat(string plainText, string key, FormatType keyFormat, FormatType outputFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            byte[] cipherBytes = EncryptEcb(plainBytes, keyBytes, paddingMode);
+            return ConvertFromBytes(cipherBytes, outputFormat);
+        }
+
+        /// <summary>
+        /// SM4-ECB模式解密（支持多种格式）
+        /// </summary>
+        /// <param name="cipherText">密文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>解密后的明文</returns>
+        public static string DecryptEcbWithFormat(string cipherText, string key, FormatType keyFormat, FormatType inputFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] cipherBytes = ConvertToBytes(cipherText, inputFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
+            return Encoding.UTF8.GetString(plainBytes);
+        }
+
+        /// <summary>
+        /// SM4-CBC模式加密（支持多种格式）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始向量</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="ivFormat">IV格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的密文</returns>
+        public static string EncryptCbcWithFormat(string plainText, string key, string iv, FormatType keyFormat, FormatType ivFormat, FormatType outputFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] ivBytes = ConvertToBytes(iv, ivFormat);
+            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            if (ivBytes.Length != BLOCK_SIZE)
+            {
+                throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
+            }
+
+            byte[] cipherBytes = EncryptCbc(plainBytes, keyBytes, ivBytes, paddingMode);
+            return ConvertFromBytes(cipherBytes, outputFormat);
+        }
+
+        /// <summary>
+        /// SM4-CBC模式解密（支持多种格式）
+        /// </summary>
+        /// <param name="cipherText">密文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始向量</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="ivFormat">IV格式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>解密后的明文</returns>
+        public static string DecryptCbcWithFormat(string cipherText, string key, string iv, FormatType keyFormat, FormatType ivFormat, FormatType inputFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] ivBytes = ConvertToBytes(iv, ivFormat);
+            byte[] cipherBytes = ConvertToBytes(cipherText, inputFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            if (ivBytes.Length != BLOCK_SIZE)
+            {
+                throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
+            }
+
+            byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
+            return Encoding.UTF8.GetString(plainBytes);
+        }
+
+        #endregion
+
+        // 原有的方法保持不变以保证向后兼容
+        #region 原有的加密解密方法（保持向后兼容）
+
+        /// <summary>
         /// SM4-ECB模式加密
         /// </summary>
         /// <param name="plainText">明文</param>
@@ -172,6 +384,8 @@ namespace CryptoTool.Common.GM
                 return Convert.ToBase64String(iv);
             }
         }
+
+        #endregion
 
         /// <summary>
         /// 将16进制字符串转换为字节数组
