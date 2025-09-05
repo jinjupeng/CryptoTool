@@ -22,7 +22,8 @@ namespace CryptoTool.Win
             comboSM4Padding.SelectedIndex = 0; // PKCS7
             comboSM4KeyFormat.SelectedIndex = 0; // Base64
             comboSM4IVFormat.SelectedIndex = 0; // Base64
-            comboSM4DataFormat.SelectedIndex = 0; // Base64
+            comboSM4PlaintextFormat.SelectedIndex = 0; // Text
+            comboSM4CiphertextFormat.SelectedIndex = 0; // Base64
             comboSM2KeyFormat.SelectedIndex = 0; // Base64
             comboSM2CipherFormat.SelectedIndex = 0; // C1C3C2
             comboSM2SignFormat.SelectedIndex = 0; // ASN1
@@ -468,26 +469,28 @@ namespace CryptoTool.Win
 
                 string paddingText = comboSM4Padding.SelectedItem.ToString();
                 string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
-                string dataFormatText = comboSM4DataFormat.SelectedItem.ToString();
+                string plaintextFormatText = comboSM4PlaintextFormat.SelectedItem.ToString();
+                string ciphertextFormatText = comboSM4CiphertextFormat.SelectedItem.ToString();
 
                 SM4Util.PaddingMode padding = (SM4Util.PaddingMode)Enum.Parse(typeof(SM4Util.PaddingMode), paddingText);
                 SM4Util.FormatType keyFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), keyFormatText);
-                SM4Util.FormatType dataFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), dataFormatText);
+                SM4Util.FormatType plaintextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), plaintextFormatText);
+                SM4Util.FormatType ciphertextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ciphertextFormatText);
 
                 string cipherText;
                 if (mode == "ECB")
                 {
-                    cipherText = SM4Util.EncryptEcbWithFormat(textSM4PlainText.Text, textSM4Key.Text, keyFormat, dataFormat, padding);
+                    cipherText = SM4Util.EncryptEcbWithSeparateFormat(textSM4PlainText.Text, textSM4Key.Text, keyFormat, plaintextFormat, ciphertextFormat, padding);
                 }
                 else // CBC
                 {
                     string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
                     SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    cipherText = SM4Util.EncryptCbcWithFormat(textSM4PlainText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, dataFormat, padding);
+                    cipherText = SM4Util.EncryptCbcWithSeparateFormat(textSM4PlainText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, plaintextFormat, ciphertextFormat, padding);
                 }
 
                 textSM4CipherText.Text = cipherText;
-                SetStatus($"SM4加密完成 - 使用{mode}模式，输出{dataFormatText}格式");
+                SetStatus($"SM4加密完成 - 使用{mode}模式，明文{plaintextFormatText}格式，输出{ciphertextFormatText}格式");
             }
             catch (Exception ex)
             {
@@ -523,26 +526,28 @@ namespace CryptoTool.Win
 
                 string paddingText = comboSM4Padding.SelectedItem.ToString();
                 string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
-                string dataFormatText = comboSM4DataFormat.SelectedItem.ToString();
+                string plaintextFormatText = comboSM4PlaintextFormat.SelectedItem.ToString();
+                string ciphertextFormatText = comboSM4CiphertextFormat.SelectedItem.ToString();
 
                 SM4Util.PaddingMode padding = (SM4Util.PaddingMode)Enum.Parse(typeof(SM4Util.PaddingMode), paddingText);
                 SM4Util.FormatType keyFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), keyFormatText);
-                SM4Util.FormatType dataFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), dataFormatText);
+                SM4Util.FormatType plaintextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), plaintextFormatText);
+                SM4Util.FormatType ciphertextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ciphertextFormatText);
 
                 string plainText;
                 if (mode == "ECB")
                 {
-                    plainText = SM4Util.DecryptEcbWithFormat(textSM4CipherText.Text, textSM4Key.Text, keyFormat, dataFormat, padding);
+                    plainText = SM4Util.DecryptEcbWithSeparateFormat(textSM4CipherText.Text, textSM4Key.Text, keyFormat, ciphertextFormat, plaintextFormat, padding);
                 }
                 else // CBC
                 {
                     string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
                     SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    plainText = SM4Util.DecryptCbcWithFormat(textSM4CipherText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, dataFormat, padding);
+                    plainText = SM4Util.DecryptCbcWithSeparateFormat(textSM4CipherText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, ciphertextFormat, plaintextFormat, padding);
                 }
 
                 textSM4PlainText.Text = plainText;
-                SetStatus($"SM4解密完成 - 使用{mode}模式，输入{dataFormatText}格式");
+                SetStatus($"SM4解密完成 - 使用{mode}模式，密文{ciphertextFormatText}格式，输出{plaintextFormatText}格式");
             }
             catch (Exception ex)
             {
@@ -615,8 +620,8 @@ namespace CryptoTool.Win
 
                 if (formatText == "Base64")
                 {
-                    textSM2PublicKey.Text = SM2Util.PublicKeyToBase64(publicKey);
-                    textSM2PrivateKey.Text = SM2Util.PrivateKeyToBase64(privateKey);
+                    textSM2PublicKey.Text = SM2Util.PublicKeyToRawBase64(publicKey);
+                    textSM2PrivateKey.Text = SM2Util.PrivateKeyToRawBase64(privateKey);
                 }
                 else // Hex
                 {

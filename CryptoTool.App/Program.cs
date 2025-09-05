@@ -14,14 +14,14 @@ namespace CryptoTool.App
     {
         static void Main(string[] args)
         {
-            MedicareTest();
+            //MedicareTest();
             //AliyunCSBTest();
             //MD5Test();
             //RSATest();
             //AESTest();
             //DESTest();
 
-            //SM2Test();
+            SM2Test();
             //SM3Test();
             //SM4Test();
         }
@@ -2606,16 +2606,37 @@ namespace CryptoTool.App
 
         public static void SM2Test()
         {
+            #region 证书生成测试
+
+            Console.WriteLine("--------------国密SM2证书生成测试---------------");
+            // 使用新生成的密钥对进行测试，确保结果的通用性
+            var keyPair = SM2Util.GenerateKeyPair();
+            var publicKey = (Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)keyPair.Public;
+            var privateKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)keyPair.Private;
+            // 完整格式（当前的长格式）
+            string fullPublicKey = SM2Util.PublicKeyToBase64(publicKey);
+            string fullPrivateKey = SM2Util.PrivateKeyToBase64(privateKey);
+
+            // 原始格式（较短格式）
+            string rawPublicKey = SM2Util.PublicKeyToRawBase64(publicKey);
+            string rawPrivateKey = SM2Util.PrivateKeyToRawBase64(privateKey);
+            Console.WriteLine($"完整公钥: {fullPublicKey}");
+            Console.WriteLine($"原始公钥: {rawPublicKey}");
+            Console.WriteLine($"完整公钥长度: {fullPublicKey.Length}");
+            Console.WriteLine($"原始公钥长度: {rawPublicKey.Length}");
+
+            Console.WriteLine($"完整私钥: {fullPrivateKey}");
+            Console.WriteLine($"原始私钥: {rawPrivateKey}");
+            Console.WriteLine($"完整私钥长度: {fullPrivateKey.Length}");  
+            Console.WriteLine($"原始私钥长度: {rawPrivateKey.Length}");
+
+            #endregion
+
             #region 国密SM2加解密测试
 
             Console.WriteLine("\n--------------国密SM2非对称加密算法测试---------------");
             string plainText = "国密SM2非对称加密算法测试";
             Console.WriteLine($"原文: \"{plainText}\"");
-
-            // 使用新生成的密钥对进行测试，确保结果的通用性
-            var keyPair = SM2Util.GenerateKeyPair();
-            var publicKey = (Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)keyPair.Public;
-            var privateKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)keyPair.Private;
 
             // 输出密钥信息（便于与Java对比测试）
             Console.WriteLine($"公钥 (Hex): {SM2Util.PublicKeyToHex(publicKey)}");

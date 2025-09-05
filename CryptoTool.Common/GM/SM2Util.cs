@@ -1,5 +1,7 @@
 ﻿using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.GM;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
@@ -117,10 +119,10 @@ namespace CryptoTool.Common.GM
 
         #endregion
 
-        #region 密钥转换（Base64）
+        #region 密钥转换（Base64） - 增加原始格式支持
 
         /// <summary>
-        /// 将SM2公钥转换为Base64字符串
+        /// 将SM2公钥转换为Base64字符串（SubjectPublicKeyInfo格式，包含完整椭圆曲线参数）
         /// </summary>
         /// <param name="publicKey">SM2公钥</param>
         /// <returns>Base64编码的公钥</returns>
@@ -137,7 +139,25 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
-        /// 将SM2私钥转换为Base64字符串
+        /// 将SM2公钥转换为Base64字符串（原始椭圆曲线点格式，仅包含坐标数据）
+        /// </summary>
+        /// <param name="publicKey">SM2公钥</param>
+        /// <param name="compressed">是否使用压缩格式</param>
+        /// <returns>Base64编码的公钥原始点</returns>
+        /// <exception cref="ArgumentNullException">当公钥为null时抛出</exception>
+        public static string PublicKeyToRawBase64(ECPublicKeyParameters publicKey, bool compressed = false)
+        {
+            if (publicKey == null)
+            {
+                throw new ArgumentNullException(nameof(publicKey), "公钥不能为空");
+            }
+
+            byte[] rawKeyBytes = publicKey.Q.GetEncoded(compressed);
+            return Convert.ToBase64String(rawKeyBytes);
+        }
+
+        /// <summary>
+        /// 将SM2私钥转换为Base64字符串（PrivateKeyInfo格式，包含完整信息）
         /// </summary>
         /// <param name="privateKey">SM2私钥</param>
         /// <returns>Base64编码的私钥</returns>
@@ -154,7 +174,31 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
-        /// 从Base64字符串解析SM2公钥
+        /// 将SM2私钥转换为Base64字符串（原始私钥值格式，仅包含私钥数值）
+        /// </summary>
+        /// <param name="privateKey">SM2私钥</param>
+        /// <returns>Base64编码的私钥原始值</returns>
+        /// <exception cref="ArgumentNullException">当私钥为null时抛出</exception>
+        public static string PrivateKeyToRawBase64(ECPrivateKeyParameters privateKey)
+        {
+            if (privateKey == null)
+            {
+                throw new ArgumentNullException(nameof(privateKey), "私钥不能为空");
+            }
+
+            byte[] rawKeyBytes = privateKey.D.ToByteArrayUnsigned();
+            // 确保私钥长度为32字节
+            if (rawKeyBytes.Length < 32)
+            {
+                byte[] paddedKey = new byte[32];
+                Buffer.BlockCopy(rawKeyBytes, 0, paddedKey, 32 - rawKeyBytes.Length, rawKeyBytes.Length);
+                rawKeyBytes = paddedKey;
+            }
+            return Convert.ToBase64String(rawKeyBytes);
+        }
+
+        /// <summary>
+        /// 从Base64字符串解析SM2公钥（支持SubjectPublicKeyInfo格式）
         /// </summary>
         /// <param name="base64PublicKey">Base64编码的公钥</param>
         /// <returns>SM2公钥</returns>
@@ -169,14 +213,20 @@ namespace CryptoTool.Common.GM
 
             try
             {
-                // 将Base64格式的公钥字符串转换为字节数组
                 byte[] publicKeyBytes = Convert.FromBase64String(base64PublicKey);
 
-                // 使用曲线参数解码公钥字节数组，将其转换为ECPoint
-                var q = SM2_ECX9_PARAMS.Curve.DecodePoint(publicKeyBytes);
-
-                // 根据解码后的ECPoint和ECDomainParameters创建ECPublicKeyParameters对象
-                return new ECPublicKeyParameters(q, SM2_DOMAIN_PARAMS);
+                // 尝试作为SubjectPublicKeyInfo格式解析
+                try
+                {
+                    var subjectPublicKeyInfo = SubjectPublicKeyInfo.GetInstance(publicKeyBytes);
+                    return (ECPublicKeyParameters)PublicKeyFactory.CreateKey(subjectPublicKeyInfo);
+                }
+                catch
+                {
+                    // 如果失败，尝试作为原始椭圆曲线点解析
+                    var q = SM2_ECX9_PARAMS.Curve.DecodePoint(publicKeyBytes);
+                    return new ECPublicKeyParameters(q, SM2_DOMAIN_PARAMS);
+                }
             }
             catch (Exception ex) when (ex is FormatException || ex is ArgumentException)
             {
@@ -185,59 +235,7 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
-        /// 从Base64编码的原始椭圆曲线点创建SM2公钥
-        /// </summary>
-        /// <param name="base64Key">Base64编码的原始公钥点</param>
-        /// <returns>SM2公钥参数</returns>
-        /// <exception cref="ArgumentNullException">当公钥字符串为null或空时抛出</exception>
-        /// <exception cref="FormatException">当公钥格式无效时抛出</exception>
-        public static ECPublicKeyParameters ParseRawPublicKeyFromBase64(string base64Key)
-        {
-            if (string.IsNullOrEmpty(base64Key))
-            {
-                throw new ArgumentNullException(nameof(base64Key), "Base64格式公钥点不能为空");
-            }
-
-            try
-            {
-                byte[] keyBytes = Convert.FromBase64String(base64Key);
-                Org.BouncyCastle.Math.EC.ECPoint point = SM2_ECX9_PARAMS.Curve.DecodePoint(keyBytes);
-                return new ECPublicKeyParameters(ALGORITHM_NAME, point, SM2_DOMAIN_PARAMS);
-            }
-            catch (Exception ex) when (ex is FormatException || ex is ArgumentException)
-            {
-                throw new FormatException("无效的公钥格式", ex);
-            }
-        }
-
-        /// <summary>
-        /// 从Base64编码的原始私钥值创建SM2私钥
-        /// </summary>
-        /// <param name="base64Key">Base64编码的原始私钥值</param>
-        /// <returns>SM2私钥参数</returns>
-        /// <exception cref="ArgumentNullException">当私钥字符串为null或空时抛出</exception>
-        /// <exception cref="FormatException">当私钥格式无效时抛出</exception>
-        public static ECPrivateKeyParameters ParseRawPrivateKeyFromBase64(string base64Key)
-        {
-            if (string.IsNullOrEmpty(base64Key))
-            {
-                throw new ArgumentNullException(nameof(base64Key), "Base64格式私钥值不能为空");
-            }
-
-            try
-            {
-                byte[] keyBytes = Convert.FromBase64String(base64Key);
-                BigInteger d = new BigInteger(1, keyBytes);
-                return new ECPrivateKeyParameters(ALGORITHM_NAME, d, SM2_DOMAIN_PARAMS);
-            }
-            catch (Exception ex) when (ex is FormatException || ex is ArgumentException)
-            {
-                throw new FormatException("无效的私钥格式", ex);
-            }
-        }
-
-        /// <summary>
-        /// 从Base64字符串解析SM2私钥
+        /// 从Base64字符串解析SM2私钥（支持PrivateKeyInfo格式和原始私钥值格式）
         /// </summary>
         /// <param name="base64PrivateKey">Base64编码的私钥</param>
         /// <returns>SM2私钥</returns>
@@ -252,14 +250,20 @@ namespace CryptoTool.Common.GM
 
             try
             {
-                // 将Base64格式的私钥字符串转换为字节数组
                 byte[] privateKeyBytes = Convert.FromBase64String(base64PrivateKey);
 
-                // 使用BigInteger构造函数将字节数组转换为无符号大整数，这将表示我们的私钥
-                BigInteger d = new BigInteger(1, privateKeyBytes);
-
-                // 根据无符号大整数和ECDomainParameters创建ECPrivateKeyParameters对象，表示私钥
-                return new ECPrivateKeyParameters(d, SM2_DOMAIN_PARAMS);
+                // 尝试作为PrivateKeyInfo格式解析
+                try
+                {
+                    var privateKeyInfo = PrivateKeyInfo.GetInstance(privateKeyBytes);
+                    return (ECPrivateKeyParameters)PrivateKeyFactory.CreateKey(privateKeyInfo);
+                }
+                catch
+                {
+                    // 如果失败，尝试作为原始私钥值解析
+                    BigInteger d = new BigInteger(1, privateKeyBytes);
+                    return new ECPrivateKeyParameters(d, SM2_DOMAIN_PARAMS);
+                }
             }
             catch (Exception ex) when (ex is FormatException || ex is ArgumentException)
             {
@@ -1061,7 +1065,7 @@ namespace CryptoTool.Common.GM
             {
                 throw new ArgumentException("无效的RS格式签名", nameof(rs));
             }
-            
+
             BigInteger r = new BigInteger(1, Arrays.CopyOfRange(rs, 0, SM2_RS_LENGTH));
             BigInteger s = new BigInteger(1, Arrays.CopyOfRange(rs, SM2_RS_LENGTH, SM2_RS_LENGTH * 2));
 
@@ -1219,7 +1223,7 @@ namespace CryptoTool.Common.GM
                 // 验证R和S都不为0
                 BigInteger r = new BigInteger(1, Arrays.CopyOfRange(rsBytes, 0, SM2_RS_LENGTH));
                 BigInteger s = new BigInteger(1, Arrays.CopyOfRange(rsBytes, SM2_RS_LENGTH, SM2_RS_LENGTH * 2));
-                
+
                 return !r.Equals(BigInteger.Zero) && !s.Equals(BigInteger.Zero);
             }
             catch
@@ -1250,7 +1254,7 @@ namespace CryptoTool.Common.GM
 
                 BigInteger r = ((DerInteger)sequence[0]).Value;
                 BigInteger s = ((DerInteger)sequence[1]).Value;
-                
+
                 return !r.Equals(BigInteger.Zero) && !s.Equals(BigInteger.Zero);
             }
             catch

@@ -200,6 +200,30 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
+        /// SM4-ECB模式加密（支持明文和密文分别设置格式）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="plaintextFormat">明文格式</param>
+        /// <param name="ciphertextFormat">密文格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的密文</returns>
+        public static string EncryptEcbWithSeparateFormat(string plainText, string key, FormatType keyFormat, FormatType plaintextFormat, FormatType ciphertextFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] plainBytes = ConvertToBytes(plainText, plaintextFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            byte[] cipherBytes = EncryptEcb(plainBytes, keyBytes, paddingMode);
+            return ConvertFromBytes(cipherBytes, ciphertextFormat);
+        }
+
+        /// <summary>
         /// SM4-ECB模式解密（支持多种格式）
         /// </summary>
         /// <param name="cipherText">密文</param>
@@ -220,6 +244,30 @@ namespace CryptoTool.Common.GM
 
             byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
             return Encoding.UTF8.GetString(plainBytes);
+        }
+
+        /// <summary>
+        /// SM4-ECB模式解密（支持明文和密文分别设置格式）
+        /// </summary>
+        /// <param name="cipherText">密文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="ciphertextFormat">密文格式</param>
+        /// <param name="plaintextFormat">明文格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的解密明文</returns>
+        public static string DecryptEcbWithSeparateFormat(string cipherText, string key, FormatType keyFormat, FormatType ciphertextFormat, FormatType plaintextFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] cipherBytes = ConvertToBytes(cipherText, ciphertextFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
+            return ConvertFromBytes(plainBytes, plaintextFormat);
         }
 
         /// <summary>
@@ -254,6 +302,38 @@ namespace CryptoTool.Common.GM
         }
 
         /// <summary>
+        /// SM4-CBC模式加密（支持明文和密文分别设置格式）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始向量</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="ivFormat">IV格式</param>
+        /// <param name="plaintextFormat">明文格式</param>
+        /// <param name="ciphertextFormat">密文格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的密文</returns>
+        public static string EncryptCbcWithSeparateFormat(string plainText, string key, string iv, FormatType keyFormat, FormatType ivFormat, FormatType plaintextFormat, FormatType ciphertextFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] ivBytes = ConvertToBytes(iv, ivFormat);
+            byte[] plainBytes = ConvertToBytes(plainText, plaintextFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            if (ivBytes.Length != BLOCK_SIZE)
+            {
+                throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
+            }
+
+            byte[] cipherBytes = EncryptCbc(plainBytes, keyBytes, ivBytes, paddingMode);
+            return ConvertFromBytes(cipherBytes, ciphertextFormat);
+        }
+
+        /// <summary>
         /// SM4-CBC模式解密（支持多种格式）
         /// </summary>
         /// <param name="cipherText">密文</param>
@@ -282,6 +362,38 @@ namespace CryptoTool.Common.GM
 
             byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
             return Encoding.UTF8.GetString(plainBytes);
+        }
+
+        /// <summary>
+        /// SM4-CBC模式解密（支持明文和密文分别设置格式）
+        /// </summary>
+        /// <param name="cipherText">密文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始向量</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="ivFormat">IV格式</param>
+        /// <param name="ciphertextFormat">密文格式</param>
+        /// <param name="plaintextFormat">明文格式</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>指定格式的解密明文</returns>
+        public static string DecryptCbcWithSeparateFormat(string cipherText, string key, string iv, FormatType keyFormat, FormatType ivFormat, FormatType ciphertextFormat, FormatType plaintextFormat, PaddingMode paddingMode = PaddingMode.PKCS7)
+        {
+            byte[] keyBytes = ConvertToBytes(key, keyFormat);
+            byte[] ivBytes = ConvertToBytes(iv, ivFormat);
+            byte[] cipherBytes = ConvertToBytes(cipherText, ciphertextFormat);
+
+            if (keyBytes.Length != KEY_SIZE)
+            {
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
+            }
+
+            if (ivBytes.Length != BLOCK_SIZE)
+            {
+                throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
+            }
+
+            byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
+            return ConvertFromBytes(plainBytes, plaintextFormat);
         }
 
         #endregion
