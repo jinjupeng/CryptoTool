@@ -480,13 +480,13 @@ namespace CryptoTool.Win
                 string cipherText;
                 if (mode == "ECB")
                 {
-                    cipherText = SM4Util.EncryptEcbWithSeparateFormat(textSM4PlainText.Text, textSM4Key.Text, keyFormat, plaintextFormat, ciphertextFormat, padding);
+                    cipherText = SM4Util.EncryptEcbWithFormat(textSM4PlainText.Text, textSM4Key.Text, keyFormat, plaintextFormat, ciphertextFormat, padding);
                 }
                 else // CBC
                 {
                     string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
                     SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    cipherText = SM4Util.EncryptCbcWithSeparateFormat(textSM4PlainText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, plaintextFormat, ciphertextFormat, padding);
+                    cipherText = SM4Util.EncryptCbcWithFormat(textSM4PlainText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, plaintextFormat, ciphertextFormat, padding);
                 }
 
                 textSM4CipherText.Text = cipherText;
@@ -537,13 +537,13 @@ namespace CryptoTool.Win
                 string plainText;
                 if (mode == "ECB")
                 {
-                    plainText = SM4Util.DecryptEcbWithSeparateFormat(textSM4CipherText.Text, textSM4Key.Text, keyFormat, ciphertextFormat, plaintextFormat, padding);
+                    plainText = SM4Util.DecryptEcbWithFormat(textSM4CipherText.Text, textSM4Key.Text, keyFormat, ciphertextFormat, plaintextFormat, padding);
                 }
                 else // CBC
                 {
                     string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
                     SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    plainText = SM4Util.DecryptCbcWithSeparateFormat(textSM4CipherText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, ciphertextFormat, plaintextFormat, padding);
+                    plainText = SM4Util.DecryptCbcWithFormat(textSM4CipherText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, ciphertextFormat, plaintextFormat, padding);
                 }
 
                 textSM4PlainText.Text = plainText;
