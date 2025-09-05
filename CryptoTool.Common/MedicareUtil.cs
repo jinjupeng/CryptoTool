@@ -15,13 +15,18 @@ namespace CryptoTool.Common
     /// </summary>
     public class MedicareUtil
     {
+        // 排除参与签名的参数名（不区分大小写）
         private static readonly string[] ExcludeKeys = new[] { "signData", "encData", "extra" };
 
         #region 对外主功能
 
         /// <summary>
-        /// 构造待签名原文（筛选->排序->拼接后追加 &key=appSecret）
+        ///  构造待签名原文（筛选->排序->拼接后追加 &key=appSecret）
         /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="appSecret"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static string BuildSignatureBaseString(IDictionary<string, object> parameters, string appSecret)
         {
             if (parameters == null) throw new ArgumentNullException(nameof(parameters));
@@ -50,6 +55,11 @@ namespace CryptoTool.Common
         /// <summary>
         /// 使用SM2签名请求参数，返回Base64签名串（signData）
         /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="privateKey"></param>
+        /// <param name="appSecret"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static string SignParameters(IDictionary<string, object> parameters, ECPrivateKeyParameters privateKey, string appSecret)
         {
             if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
@@ -64,6 +74,12 @@ namespace CryptoTool.Common
         /// <summary>
         /// 验证返回参数SM2签名（signData为Base64）
         /// </summary>
+        /// <param name="parameters"></param>
+        /// <param name="signDataBase64"></param>
+        /// <param name="publicKey"></param>
+        /// <param name="appSecret"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static bool VerifyParametersSignature(IDictionary<string, object> parameters, string signDataBase64, ECPublicKeyParameters publicKey, string appSecret)
         {
             if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
@@ -71,14 +87,18 @@ namespace CryptoTool.Common
 
             string baseString = BuildSignatureBaseString(parameters, appSecret);
             byte[] sigBytes = Convert.FromBase64String(signDataBase64.Trim());
-            string hexAsn1 = Org.BouncyCastle.Utilities.Encoders.Hex.ToHexString(sigBytes).ToUpperInvariant();
+            string hexAsn1 = Hex.ToHexString(sigBytes).ToUpperInvariant();
             return SM2Util.VerifySm3WithSm2(Encoding.UTF8.GetBytes(baseString), hexAsn1, publicKey);
         }
 
         /// <summary>
-        /// 根据规范派生SM4密钥，并对data(JSON)进行加密，输出Hex大写的encData。
-        /// 规则：newKeyStr = SM4_ECB_Enc(appSecret, key=appId)，取newKeyStr去掉'='后的前32位，再取前16位作为SM4最终密钥，对jStr进行加密；输出Hex大写。
+        /// 根据规范派生SM4密钥，并对data(JSON)进行加密，输出Hex大写的encData
         /// </summary>
+        /// <param name="dataObject"></param>
+        /// <param name="appId"></param>
+        /// <param name="appSecret"></param>
+        /// <returns>返回大写Hex格式</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static string EncryptData(object dataObject, string appId, string appSecret)
         {
             if (dataObject == null) throw new ArgumentNullException(nameof(dataObject));
@@ -89,7 +109,7 @@ namespace CryptoTool.Common
             string jStr = SerializeObjectCanonicalJson(dataObject);
 
             // 2) 派生SM4密钥
-            string derived16 = DeriveSm4Key16(appId, appSecret);
+            string derived16 = GetSm4Key16(appId, appSecret);
 
             // 3) 使用派生密钥加密jStr，得到Base64，再转Hex大写
             string base64 = SM4Util.EncryptEcb(jStr, derived16);
@@ -101,47 +121,22 @@ namespace CryptoTool.Common
         /// <summary>
         /// 解密响应中的encData(Hex)，返回明文JSON字符串jStr。
         /// </summary>
+        /// <param name="encDataHex"></param>
+        /// <param name="appId"></param>
+        /// <param name="appSecret"></param>
+        /// <returns>返回解密后的明文</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public static string DecryptEncData(string encDataHex, string appId, string appSecret)
         {
             if (string.IsNullOrEmpty(encDataHex)) throw new ArgumentNullException(nameof(encDataHex));
             if (string.IsNullOrEmpty(appId)) throw new ArgumentNullException(nameof(appId));
             if (string.IsNullOrEmpty(appSecret)) throw new ArgumentNullException(nameof(appSecret));
 
-            string derived16 = DeriveSm4Key16(appId, appSecret);
+            string derived16 = GetSm4Key16(appId, appSecret);
             byte[] cipherBytes = SM4Util.HexToBytes(encDataHex);
             string base64 = Convert.ToBase64String(cipherBytes);
             string jStr = SM4Util.DecryptEcb(base64, derived16);
             return jStr;
-        }
-
-        /// <summary>
-        /// 将请求中的data对象加密为encData(Hex大写)，并清空/移除data字段。
-        /// </summary>
-        public static void ApplyRequestEncryption(IDictionary<string, object> request, string appId, string appSecret)
-        {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-
-            if (request.TryGetValue("data", out var dataObj) && dataObj != null)
-            {
-                string encHex = EncryptData(dataObj, appId, appSecret);
-                request["encData"] = encHex;
-                // 清空data
-                request.Remove("data");
-            }
-        }
-
-        /// <summary>
-        /// 解密响应中的encData，并把解析结果设置到data字段；保留原encData。
-        /// </summary>
-        public static void DecryptResponseToData(IDictionary<string, object> response, string appId, string appSecret)
-        {
-            if (response == null) throw new ArgumentNullException(nameof(response));
-            if (!response.TryGetValue("encData", out var encObj) || encObj == null) return;
-
-            string encHex = encObj.ToString();
-            string jStr = DecryptEncData(encHex, appId, appSecret);
-            var dataToken = JToken.Parse(jStr);
-            response["data"] = dataToken;
         }
 
         #endregion
@@ -229,37 +224,24 @@ namespace CryptoTool.Common
 
         #endregion
 
-        #region 辅助 - SM4密钥派生
-
-        private static string DeriveSm4Key16(string appId, string appSecret)
+        /// <summary>
+        /// 获取新的SM4密钥（16字节），规则：以appId(渠道id)作为Key，对appSecret加密，得到新秘钥串，取前16字节作为SM4密钥
+        /// </summary>
+        /// <param name="appId"></param>
+        /// <param name="appSecret"></param>
+        /// <returns>返回Hex</returns>
+        private static string GetSm4Key16(string appId, string appSecret)
         {
             // 以appId(渠道id)作为Key，对appSecret加密，得到新秘钥串
-            string appIdKey16 = NormalizeSm4Key(appId);
-            string newKeyStrBase64 = SM4Util.EncryptEcb(appSecret, appIdKey16);
-
-            // 去除=号，取前32位，不足补0
-            string cleaned = newKeyStrBase64.Replace("=", string.Empty);
-            if (cleaned.Length < 32) cleaned = cleaned.PadRight(32, '0');
-            string first32 = cleaned.Substring(0, 32);
-
-            // 实际底层取前16位作为真正的SM4密钥
-            string final16 = first32.Substring(0, 16);
-            return final16;
+            if (appId.Length < 16)
+            {
+                throw new ArgumentException("appId长度不足16字节，无法派生SM4密钥", nameof(appId));
+            }
+            byte[] appIdBytes16 = Encoding.UTF8.GetBytes(appId.Substring(0, 16));
+            byte[] appSecretBytes = Encoding.UTF8.GetBytes(appSecret);
+            byte[] newEncryptedData = SM4Util.EncryptEcb(appSecretBytes, appIdBytes16);
+            string derived16 = Hex.ToHexString(newEncryptedData).ToUpper().Substring(0, 16);
+            return derived16;
         }
-
-        private static string NormalizeSm4Key(string src)
-        {
-            if (string.IsNullOrEmpty(src)) src = string.Empty;
-            // 取前16字节，不足补0
-            var bytes = Encoding.UTF8.GetBytes(src);
-            if (bytes.Length == 16) return Encoding.UTF8.GetString(bytes);
-            if (bytes.Length > 16) return Encoding.UTF8.GetString(bytes, 0, 16);
-
-            var padded = new byte[16];
-            Array.Copy(bytes, padded, bytes.Length);
-            return Encoding.UTF8.GetString(padded);
-        }
-
-        #endregion
     }
 }

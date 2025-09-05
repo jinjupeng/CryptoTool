@@ -30,9 +30,9 @@ namespace CryptoTool.App
         {
             Console.WriteLine("\n--------------医保MedicareUtil测试---------------");
 
-            // 示例参数
             string appId = "43AF047BBA47FC8A1AE8EFB2XXXXXXXX";
-            string appSecret = "4117E877F5FA0A0188891283E4B617D5"; // 示例密钥
+            string appSecret = "4117E877F5FA0A0188891283E4B617D5";
+            long timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
             // 生成一对SM2密钥用于签名/验签
             var keyPair = SM2Util.GenerateKeyPair();
@@ -43,10 +43,10 @@ namespace CryptoTool.App
             var data = new Dictionary<string, object>
             {
                 { "appId", appId },
-                { "appUserId", "o8z4C5avQXqC0aWFPf1Mzu6D7WCQ_bd" },
-                { "idNo", "350181199011193519" },
+                { "appUserId", "o8z4C5avQXqC0aWFPf1Mzu6D7xxxx" },
+                { "idNo", "350582xxxxxxxx3519" },
                 { "idType", "01" },
-                { "phoneNumber", "13763873033" },
+                { "phoneNumber", "137xxxxx033" },
                 { "userName", "测试" }
             };
 
@@ -57,7 +57,7 @@ namespace CryptoTool.App
                 { "data", data },
                 { "encType", "SM4" },
                 { "signType", "SM2" },
-                { "timestamp", "20200207175759" },
+                { "timestamp", timeStamp.ToString() },
                 { "version", "2.0.1" }
             };
 
@@ -65,38 +65,40 @@ namespace CryptoTool.App
             string signData = MedicareUtil.SignParameters(request, privateKey, appSecret);
             request["signData"] = signData;
 
-            Console.WriteLine($"签名signData(Base64): {signData}");
+            Console.WriteLine($"入参签名结果signData(Base64): {signData}");
 
             // 加密data到encData，并清空data
-            MedicareUtil.ApplyRequestEncryption(request, appId, appSecret);
-            Console.WriteLine($"入参encData字段加密结果: {(string)request["encData"]}");
+            string encData = MedicareUtil.EncryptData(request, appId, appSecret);
+            Console.WriteLine($"入参encData字段加密结果: {encData}");
 
             // 模拟返回报文（服务端返回相同encData，并附带签名）
             var response = new Dictionary<string, object>
             {
                 { "appId", appId },
-                { "encData", request["encData"] },
+                { "encData", encData },
                 { "encType", "SM4" },
                 { "code", "0" },
                 { "message", "成功" },
                 { "signType", "SM2" },
-                { "timestamp", "20161226093147927" },
+                { "signData", signData },
+                { "timestamp", timeStamp.ToString() },
                 { "success", true },
                 { "version", "2.0.1" }
             };
 
             // 服务端对响应参数签名（不含signData/encData/extra）
             string respSign = MedicareUtil.SignParameters(response, privateKey, appSecret);
+            Console.WriteLine($"返参签名结果signData(Base64): {respSign}");
             response["signData"] = respSign;
 
             // 客户端验签
             bool verifyOk = MedicareUtil.VerifyParametersSignature(response, respSign, publicKey, appSecret);
-            Console.WriteLine($"返回报文验签: {(verifyOk ? "通过" : "不通过")}");
+            Console.WriteLine($"返参验签: {(verifyOk ? "通过" : "不通过")}");
 
             // 解密encData到data
-            MedicareUtil.DecryptResponseToData(response, appId, appSecret);
-            Console.WriteLine($"出参encData字段加密结果: {(string)response["encData"]}");
-            Console.WriteLine($"出参encData字段解密结果: {response["data"]}");
+            string decData = MedicareUtil.DecryptEncData(response["encData"].ToString(), appId, appSecret);
+            Console.WriteLine($"返参encData字段加密结果: {response["encData"]}");
+            Console.WriteLine($"返参encData字段解密结果: {decData}");
 
             Console.WriteLine("--------------医保MedicareUtil测试完成---------------\n");
         }

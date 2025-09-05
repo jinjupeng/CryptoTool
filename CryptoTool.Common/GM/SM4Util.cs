@@ -72,24 +72,17 @@ namespace CryptoTool.Common.GM
         /// <returns>解密后的明文</returns>
         public static string DecryptEcb(string cipherText, string key, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
-            try
-            {
-                encoding = encoding ?? Encoding.UTF8;
-                byte[] keyBytes = encoding.GetBytes(key);
-                byte[] cipherBytes = Convert.FromBase64String(cipherText);
+            encoding = encoding ?? Encoding.UTF8;
+            byte[] keyBytes = encoding.GetBytes(key);
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
 
-                if (keyBytes.Length != KEY_SIZE)
-                {
-                    throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
-                }
-
-                byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
-                return encoding.GetString(plainBytes);
-            }
-            catch (Exception ex)
+            if (keyBytes.Length != KEY_SIZE)
             {
-                throw new CryptographicException("SM4解密失败", ex);
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
             }
+
+            byte[] plainBytes = DecryptEcb(cipherBytes, keyBytes, paddingMode);
+            return encoding.GetString(plainBytes);
         }
 
         /// <summary>
@@ -133,30 +126,23 @@ namespace CryptoTool.Common.GM
         /// <returns>解密后的明文</returns>
         public static string DecryptCbc(string cipherText, string key, string iv, Encoding encoding = null, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
-            try
+            encoding = encoding ?? Encoding.UTF8;
+            byte[] keyBytes = encoding.GetBytes(key);
+            byte[] ivBytes = encoding.GetBytes(iv);
+            byte[] cipherBytes = Convert.FromBase64String(cipherText);
+
+            if (keyBytes.Length != KEY_SIZE)
             {
-                encoding = encoding ?? Encoding.UTF8;
-                byte[] keyBytes = encoding.GetBytes(key);
-                byte[] ivBytes = encoding.GetBytes(iv);
-                byte[] cipherBytes = Convert.FromBase64String(cipherText);
-
-                if (keyBytes.Length != KEY_SIZE)
-                {
-                    throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
-                }
-
-                if (ivBytes.Length != BLOCK_SIZE)
-                {
-                    throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
-                }
-
-                byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
-                return encoding.GetString(plainBytes);
+                throw new ArgumentException($"SM4密钥必须为{KEY_SIZE}字节(128位)", nameof(key));
             }
-            catch (Exception ex)
+
+            if (ivBytes.Length != BLOCK_SIZE)
             {
-                throw new CryptographicException("SM4 CBC模式解密失败", ex);
+                throw new ArgumentException($"初始向量必须为{BLOCK_SIZE}字节(128位)", nameof(iv));
             }
+
+            byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
+            return encoding.GetString(plainBytes);
         }
 
         /// <summary>
@@ -202,9 +188,10 @@ namespace CryptoTool.Common.GM
         /// </summary>
         /// <param name="bytes">字节数组</param>
         /// <returns>16进制字符串</returns>
-        public static string BytesToHex(byte[] bytes)
+        public static string BytesToHex(byte[] bytes, bool isUpper = true)
         {
-            return Hex.ToHexString(bytes).ToUpper();
+            string hex = Hex.ToHexString(bytes);
+            return isUpper ? hex.ToUpper() : hex;
         }
 
         #region 内部实现方法
@@ -305,7 +292,7 @@ namespace CryptoTool.Common.GM
         /// <param name="key">密钥字节数组</param>
         /// <param name="paddingMode">填充模式</param>
         /// <returns>密文字节数组</returns>
-        private static byte[] EncryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
+        public static byte[] EncryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
@@ -327,7 +314,7 @@ namespace CryptoTool.Common.GM
         /// <param name="key">密钥字节数组</param>
         /// <param name="paddingMode">填充模式</param>
         /// <returns>明文字节数组</returns>
-        private static byte[] DecryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
+        public static byte[] DecryptEcb(byte[] data, byte[] key, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
@@ -350,7 +337,7 @@ namespace CryptoTool.Common.GM
         /// <param name="iv">初始向量字节数组</param>
         /// <param name="paddingMode">填充模式</param>
         /// <returns>密文字节数组</returns>
-        private static byte[] EncryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
+        public static byte[] EncryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
@@ -385,7 +372,7 @@ namespace CryptoTool.Common.GM
         /// <param name="iv">初始向量字节数组</param>
         /// <param name="paddingMode">填充模式</param>
         /// <returns>明文字节数组</returns>
-        private static byte[] DecryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
+        public static byte[] DecryptCbc(byte[] data, byte[] key, byte[] iv, PaddingMode paddingMode = PaddingMode.PKCS7)
         {
             // 创建SM4引擎
             SM4Engine engine = new SM4Engine();
