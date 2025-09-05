@@ -2829,9 +2829,9 @@ namespace CryptoTool.App
             Console.WriteLine("CBC解密结果：" + decryptedCbc);
 
             // 生成随机密钥
-            string randomKey = SM4Util.GenerateKey();
+            string randomKey = SM4Util.GenerateKey(SM4Util.FormatType.Base64);
             Console.WriteLine("随机密钥：" + randomKey);
-            string randomIV = SM4Util.GenerateIV();
+            string randomIV = SM4Util.GenerateIV(SM4Util.FormatType.Base64);
             Console.WriteLine("随机IV：" + randomIV);
 
             #endregion

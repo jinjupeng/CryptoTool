@@ -15,6 +15,8 @@ namespace CryptoTool.Common.GM
     /// </summary>
     public class SM4Util
     {
+        // 定义可读字符集：大小写字母、数字以及特殊符号
+        private const string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
         private const int KEY_SIZE = 16; // SM4密钥长度为128位(16字节)
         private const int BLOCK_SIZE = 16; // SM4分组长度为128位(16字节)
 
@@ -111,6 +113,12 @@ namespace CryptoTool.Common.GM
         /// <returns>指定格式的随机密钥</returns>
         public static string GenerateKey(FormatType format = FormatType.Base64)
         {
+            if (format == FormatType.Text)
+            {
+                // 对于Text格式，生成可读的16字符字符串
+                return GenerateReadableString(KEY_SIZE);
+            }
+            
             using (var rng = RandomNumberGenerator.Create())
             {
                 byte[] key = new byte[KEY_SIZE];
@@ -126,11 +134,41 @@ namespace CryptoTool.Common.GM
         /// <returns>指定格式的随机初始向量</returns>
         public static string GenerateIV(FormatType format = FormatType.Base64)
         {
+            if (format == FormatType.Text)
+            {
+                // 对于Text格式，生成可读的16字符字符串
+                return GenerateReadableString(BLOCK_SIZE);
+            }
+            
             using (var rng = RandomNumberGenerator.Create())
             {
                 byte[] iv = new byte[BLOCK_SIZE];
                 rng.GetBytes(iv);
                 return ConvertFromBytes(iv, format);
+            }
+        }
+
+        /// <summary>
+        /// 生成指定长度的可读字符串（包含字母、数字和特殊符号）
+        /// </summary>
+        /// <param name="length">字符串长度</param>
+        /// <returns>可读字符串</returns>
+        private static string GenerateReadableString(int length)
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                var result = new StringBuilder(length);
+                var buffer = new byte[4]; // 用于生成随机数
+                
+                for (int i = 0; i < length; i++)
+                {
+                    rng.GetBytes(buffer);
+                    var randomValue = BitConverter.ToUInt32(buffer, 0);
+                    var charIndex = randomValue % charset.Length;
+                    result.Append(charset[(int)charIndex]);
+                }
+                
+                return result.ToString();
             }
         }
 
@@ -355,34 +393,6 @@ namespace CryptoTool.Common.GM
 
             byte[] plainBytes = DecryptCbc(cipherBytes, keyBytes, ivBytes, paddingMode);
             return encoding.GetString(plainBytes);
-        }
-
-        /// <summary>
-        /// 生成随机SM4密钥
-        /// </summary>
-        /// <returns>Base64编码的随机密钥</returns>
-        public static string GenerateKey()
-        {
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                byte[] key = new byte[KEY_SIZE];
-                rng.GetBytes(key);
-                return Convert.ToBase64String(key);
-            }
-        }
-
-        /// <summary>
-        /// 生成随机SM4初始向量
-        /// </summary>
-        /// <returns>Base64编码的随机初始向量</returns>
-        public static string GenerateIV()
-        {
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                byte[] iv = new byte[BLOCK_SIZE];
-                rng.GetBytes(iv);
-                return Convert.ToBase64String(iv);
-            }
         }
 
         #endregion
