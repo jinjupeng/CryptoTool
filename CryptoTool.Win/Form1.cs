@@ -71,7 +71,7 @@ namespace CryptoTool.Win
                 SetStatus("正在生成RSA密钥对...");
 
                 int keySize = int.Parse(comboRSAKeySize.SelectedItem.ToString());
-                string formatText = comboRSAKeyFormat.SelectedItem.ToString();
+                string formatText = comboRSAKeyFormat.SelectedIndex.ToString();
                 RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
 
                 var keyPair = RSAUtil.CreateRSAKey(keySize, format);
