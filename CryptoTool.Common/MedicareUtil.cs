@@ -230,7 +230,7 @@ namespace CryptoTool.Common
         /// <param name="appId"></param>
         /// <param name="appSecret"></param>
         /// <returns>返回Hex</returns>
-        private static string GetSm4Key16(string appId, string appSecret)
+        public static string GetSm4Key16(string appId, string appSecret)
         {
             // 以appId(渠道id)作为Key，对appSecret加密，得到新秘钥串
             if (appId.Length < 16)
