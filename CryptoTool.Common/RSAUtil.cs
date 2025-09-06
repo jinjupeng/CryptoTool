@@ -23,7 +23,7 @@ using System.Text;
 namespace CryptoTool.Common
 {
     /// <summary>
-    /// RSA工具类，支持RSA、RSA2算法，支持Java和C#互操作，支持PKCS1和PKCS8格式转换
+    /// RSA工具类，支持RSA、RSA2算法，支持PKCS1和PKCS8格式转换
     /// </summary>
     public class RSAUtil
     {
@@ -54,17 +54,13 @@ namespace CryptoTool.Common
             /// </summary>
             XML,
             /// <summary>
-            /// PKCS1格式（PEM编码）
+            /// PKCS1格式（非JAVA适用）
             /// </summary>
             PKCS1,
             /// <summary>
-            /// PKCS8格式（PEM编码）
+            /// PKCS8格式（JAVA适用）
             /// </summary>
-            PKCS8,
-            /// <summary>
-            /// Java格式（Base64编码的字节数组）
-            /// </summary>
-            Java
+            PKCS8
         }
 
         /// <summary>
@@ -79,7 +75,248 @@ namespace CryptoTool.Common
             /// <summary>
             /// OAEP填充
             /// </summary>
-            OAEP
+            OAEP,
+            /// <summary>
+            /// 无填充（仅用于特殊场景）
+            /// </summary>
+            NoPadding
+        }
+
+        /// <summary>
+        /// 输出格式
+        /// </summary>
+        public enum RSAOutputFormat
+        {
+            /// <summary>
+            /// 字符串格式
+            /// </summary>
+            String,
+            /// <summary>
+            /// Base64格式
+            /// </summary>
+            Base64,
+            /// <summary>
+            /// 十六进制格式
+            /// </summary>
+            Hex,
+            /// <summary>
+            /// PEM格式
+            /// </summary>
+            Pem
+        }
+
+        /// <summary>
+        /// 字符集编码
+        /// </summary>
+        public enum RSAEncoding
+        {
+            /// <summary>
+            /// UTF-8编码
+            /// </summary>
+            UTF8,
+            /// <summary>
+            /// GBK编码
+            /// </summary>
+            GBK
+        }
+
+        /// <summary>
+        /// 输入格式
+        /// </summary>
+        public enum RSAInputFormat
+        {
+            /// <summary>
+            /// 字符串格式
+            /// </summary>
+            String,
+            /// <summary>
+            /// 十六进制格式
+            /// </summary>
+            Hex,
+            /// <summary>
+            /// Base64格式
+            /// </summary>
+            Base64
+        }
+
+        /// <summary>
+        /// 签名算法
+        /// </summary>
+        public enum RSASignatureAlgorithm
+        {
+            /// <summary>
+            /// SHA1
+            /// </summary>
+            SHA1,
+            /// <summary>
+            /// SHA256
+            /// </summary>
+            SHA256,
+            /// <summary>
+            /// SHA384
+            /// </summary>
+            SHA384,
+            /// <summary>
+            /// SHA512
+            /// </summary>
+            SHA512,
+            /// <summary>
+            /// MD5
+            /// </summary>
+            MD5
+        }
+
+        #endregion
+
+        #region 辅助方法
+
+        /// <summary>
+        /// 获取编码器
+        /// </summary>
+        private static Encoding GetEncoding(RSAEncoding encoding)
+        {
+            return encoding switch
+            {
+                RSAEncoding.UTF8 => Encoding.UTF8,
+                RSAEncoding.GBK => Encoding.GetEncoding("GBK"),
+                _ => Encoding.UTF8
+            };
+        }
+
+        /// <summary>
+        /// 获取哈希算法名称
+        /// </summary>
+        private static HashAlgorithmName GetHashAlgorithmName(RSASignatureAlgorithm algorithm)
+        {
+            return algorithm switch
+            {
+                RSASignatureAlgorithm.SHA1 => HashAlgorithmName.SHA1,
+                RSASignatureAlgorithm.SHA256 => HashAlgorithmName.SHA256,
+                RSASignatureAlgorithm.SHA384 => HashAlgorithmName.SHA384,
+                RSASignatureAlgorithm.SHA512 => HashAlgorithmName.SHA512,
+                RSASignatureAlgorithm.MD5 => HashAlgorithmName.MD5,
+                _ => HashAlgorithmName.SHA256
+            };
+        }
+
+        /// <summary>
+        /// 获取RSA填充模式
+        /// </summary>
+        private static RSAEncryptionPadding GetRSAEncryptionPadding(RSAPaddingMode padding)
+        {
+            return padding switch
+            {
+                RSAPaddingMode.PKCS1 => RSAEncryptionPadding.Pkcs1,
+                RSAPaddingMode.OAEP => RSAEncryptionPadding.OaepSHA256,
+                RSAPaddingMode.NoPadding => throw new NotSupportedException("NoPadding模式需要特殊处理，请使用专门的方法"),
+                _ => RSAEncryptionPadding.Pkcs1
+            };
+        }
+
+        /// <summary>
+        /// 将输入数据转换为字节数组
+        /// </summary>
+        private static byte[] ConvertInputToBytes(string input, RSAInputFormat inputFormat, RSAEncoding encoding)
+        {
+            var textEncoding = GetEncoding(encoding);
+            
+            return inputFormat switch
+            {
+                RSAInputFormat.String => textEncoding.GetBytes(input),
+                RSAInputFormat.Hex => ConvertHexStringToBytes(input),
+                RSAInputFormat.Base64 => Convert.FromBase64String(input),
+                _ => textEncoding.GetBytes(input)
+            };
+        }
+
+        /// <summary>
+        /// 将字节数组转换为输出格式
+        /// </summary>
+        private static string ConvertBytesToOutput(byte[] data, RSAOutputFormat outputFormat)
+        {
+            return outputFormat switch
+            {
+                RSAOutputFormat.String => Encoding.UTF8.GetString(data),
+                RSAOutputFormat.Base64 => Convert.ToBase64String(data),
+                RSAOutputFormat.Hex => ConvertBytesToHexString(data),
+                RSAOutputFormat.Pem => throw new NotSupportedException("PEM格式需要特殊处理，请使用专门的方法"),
+                _ => Convert.ToBase64String(data)
+            };
+        }
+
+        /// <summary>
+        /// 将十六进制字符串转换为字节数组
+        /// </summary>
+        private static byte[] ConvertHexStringToBytes(string hex)
+        {
+            if (string.IsNullOrEmpty(hex))
+                return new byte[0];
+
+            // 移除可能的空格和连字符
+            hex = hex.Replace(" ", "").Replace("-", "");
+
+            if (hex.Length % 2 != 0)
+                throw new ArgumentException("十六进制字符串长度必须是偶数", nameof(hex));
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                bytes[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            }
+            return bytes;
+        }
+
+        /// <summary>
+        /// 将字节数组转换为十六进制字符串
+        /// </summary>
+        private static string ConvertBytesToHexString(byte[] bytes)
+        {
+            return BitConverter.ToString(bytes).Replace("-", "").ToUpperInvariant();
+        }
+
+        /// <summary>
+        /// 检测密钥格式
+        /// </summary>
+        private static RSAKeyFormat DetectKeyFormat(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("密钥不能为空", nameof(key));
+
+            key = key.Trim();
+
+            if (key.StartsWith("<RSAKeyValue>"))
+                return RSAKeyFormat.XML;
+            if (key.StartsWith("-----BEGIN") && key.Contains("PRIVATE KEY"))
+                return RSAKeyFormat.PKCS8;
+            if (key.StartsWith("-----BEGIN") && key.Contains("PUBLIC KEY"))
+                return RSAKeyFormat.PKCS8;
+            if (key.StartsWith("-----BEGIN") && key.Contains("RSA PRIVATE KEY"))
+                return RSAKeyFormat.PKCS1;
+            if (key.StartsWith("-----BEGIN") && key.Contains("RSA PUBLIC KEY"))
+                return RSAKeyFormat.PKCS1;
+            if (IsBase64String(key))
+                return RSAKeyFormat.PKCS8; // 将Base64字符串识别为PKCS8格式
+            
+            throw new ArgumentException("无法识别的密钥格式", nameof(key));
+        }
+
+        /// <summary>
+        /// 检测是否为Base64字符串
+        /// </summary>
+        private static bool IsBase64String(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return false;
+
+            try
+            {
+                Convert.FromBase64String(s);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion
@@ -107,6 +344,30 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
+        /// RSA加密（增强版）
+        /// </summary>
+        /// <param name="input">输入数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>加密结果</returns>
+        public static string EncryptByRSA(string input, string publicKey, RSAKeyFormat keyFormat, RSAPaddingMode padding, 
+            RSAInputFormat inputFormat, RSAOutputFormat outputFormat, RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("输入数据不能为空", nameof(input));
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            byte[] dataToEncrypt = ConvertInputToBytes(input, inputFormat, encoding);
+            byte[] encryptedData = EncryptByRSA(dataToEncrypt, publicKey, keyFormat, padding);
+            return ConvertBytesToOutput(encryptedData, outputFormat);
+        }
+
+        /// <summary>
         /// RSA加密（字节数组）
         /// </summary>
         /// <param name="data">待加密数据</param>
@@ -118,9 +379,8 @@ namespace CryptoTool.Common
         {
             using var rsa = RSA.Create();
             ImportPublicKey(rsa, publicKey, keyFormat);
-            
-            var rsaPadding = padding == RSAPaddingMode.OAEP ? 
-                RSAEncryptionPadding.OaepSHA256 : RSAEncryptionPadding.Pkcs1;
+
+            var rsaPadding = GetRSAEncryptionPadding(padding);
             
             return rsa.Encrypt(data, rsaPadding);
         }
@@ -146,6 +406,30 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
+        /// RSA解密（增强版）
+        /// </summary>
+        /// <param name="input">输入密文</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>解密结果</returns>
+        public static string DecryptByRSA(string input, string privateKey, RSAKeyFormat keyFormat, RSAPaddingMode padding,
+            RSAInputFormat inputFormat, RSAOutputFormat outputFormat, RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("输入数据不能为空", nameof(input));
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            byte[] encryptedData = ConvertInputToBytes(input, inputFormat, encoding);
+            byte[] decryptedData = DecryptByRSA(encryptedData, privateKey, keyFormat, padding);
+            return ConvertBytesToOutput(decryptedData, outputFormat);
+        }
+
+        /// <summary>
         /// RSA解密（字节数组）
         /// </summary>
         /// <param name="encryptedData">加密数据</param>
@@ -157,9 +441,8 @@ namespace CryptoTool.Common
         {
             using var rsa = RSA.Create();
             ImportPrivateKey(rsa, privateKey, keyFormat);
-            
-            var rsaPadding = padding == RSAPaddingMode.OAEP ? 
-                RSAEncryptionPadding.OaepSHA256 : RSAEncryptionPadding.Pkcs1;
+
+            var rsaPadding = GetRSAEncryptionPadding(padding);
             
             return rsa.Decrypt(encryptedData, rsaPadding);
         }
@@ -189,6 +472,30 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
+        /// RSA数字签名（增强版）
+        /// </summary>
+        /// <param name="input">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>签名结果</returns>
+        public static string HashAndSignString(string input, string privateKey, RSASignatureAlgorithm algorithm, RSAKeyFormat keyFormat,
+            RSAInputFormat inputFormat, RSAOutputFormat outputFormat, RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("待签名数据不能为空", nameof(input));
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            byte[] dataToSign = ConvertInputToBytes(input, inputFormat, encoding);
+            byte[] signature = HashAndSignData(dataToSign, privateKey, algorithm, keyFormat);
+            return ConvertBytesToOutput(signature, outputFormat);
+        }
+
+        /// <summary>
         /// RSA/RSA2数字签名（字节数组）
         /// </summary>
         /// <param name="data">待签名数据</param>
@@ -200,10 +507,27 @@ namespace CryptoTool.Common
         {
             using var rsa = RSA.Create();
             ImportPrivateKey(rsa, privateKey, keyFormat);
-            
+
             var hashAlgorithm = rsaType == RSAType.RSA2 ? 
                 HashAlgorithmName.SHA256 : HashAlgorithmName.SHA1;
             
+            return rsa.SignData(data, hashAlgorithm, RSASignaturePadding.Pkcs1);
+        }
+
+        /// <summary>
+        /// RSA数字签名（字节数组，增强版）
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <returns>签名字节数组</returns>
+        public static byte[] HashAndSignData(byte[] data, string privateKey, RSASignatureAlgorithm algorithm, RSAKeyFormat keyFormat = RSAKeyFormat.XML)
+        {
+            using var rsa = RSA.Create();
+            ImportPrivateKey(rsa, privateKey, keyFormat);
+            
+            var hashAlgorithm = GetHashAlgorithmName(algorithm);
             return rsa.SignData(data, hashAlgorithm, RSASignaturePadding.Pkcs1);
         }
 
@@ -231,6 +555,33 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
+        /// 验证RSA签名（增强版）
+        /// </summary>
+        /// <param name="input">原始数据</param>
+        /// <param name="signature">签名</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="signatureFormat">签名格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>验证结果</returns>
+        public static bool VerifySigned(string input, string signature, string publicKey, RSASignatureAlgorithm algorithm, RSAKeyFormat keyFormat,
+            RSAInputFormat inputFormat, RSAInputFormat signatureFormat, RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            if (string.IsNullOrEmpty(input))
+                throw new ArgumentException("原始数据不能为空", nameof(input));
+            if (string.IsNullOrEmpty(signature))
+                throw new ArgumentException("签名不能为空", nameof(signature));
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            byte[] dataToVerify = ConvertInputToBytes(input, inputFormat, encoding);
+            byte[] signatureBytes = ConvertInputToBytes(signature, signatureFormat, encoding);
+            return VerifySignedData(dataToVerify, signatureBytes, publicKey, algorithm, keyFormat);
+        }
+
+        /// <summary>
         /// 验证RSA/RSA2签名（字节数组）
         /// </summary>
         /// <param name="data">原始数据</param>
@@ -247,6 +598,24 @@ namespace CryptoTool.Common
             var hashAlgorithm = rsaType == RSAType.RSA2 ? 
                 HashAlgorithmName.SHA256 : HashAlgorithmName.SHA1;
             
+            return rsa.VerifyData(data, signature, hashAlgorithm, RSASignaturePadding.Pkcs1);
+        }
+
+        /// <summary>
+        /// 验证RSA签名（字节数组，增强版）
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名字节数组</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <returns>验证结果</returns>
+        public static bool VerifySignedData(byte[] data, byte[] signature, string publicKey, RSASignatureAlgorithm algorithm, RSAKeyFormat keyFormat = RSAKeyFormat.XML)
+        {
+            using var rsa = RSA.Create();
+            ImportPublicKey(rsa, publicKey, keyFormat);
+            
+            var hashAlgorithm = GetHashAlgorithmName(algorithm);
             return rsa.VerifyData(data, signature, hashAlgorithm, RSASignaturePadding.Pkcs1);
         }
 
@@ -269,6 +638,37 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
+        /// 创建RSA密钥对（增强版）
+        /// </summary>
+        /// <param name="keySize">密钥长度</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <returns>密钥对（Key为公钥，Value为私钥）</returns>
+        public static KeyValuePair<string, string> CreateRSAKey(int keySize, RSAKeyFormat keyFormat, RSAOutputFormat outputFormat)
+        {
+            using var rsa = RSA.Create(keySize);
+            string publicKey = ExportPublicKey(rsa, keyFormat, outputFormat);
+            string privateKey = ExportPrivateKey(rsa, keyFormat, outputFormat);
+            return new KeyValuePair<string, string>(publicKey, privateKey);
+        }
+
+        /// <summary>
+        /// 生成RSA密钥（支持多种输出格式）
+        /// </summary>
+        /// <param name="keySize">密钥长度</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="isPrivateKey">是否为私钥</param>
+        /// <returns>密钥字符串</returns>
+        public static string GenerateRSAKey(int keySize, RSAKeyFormat keyFormat, RSAOutputFormat outputFormat, bool isPrivateKey)
+        {
+            using var rsa = RSA.Create(keySize);
+            return isPrivateKey ? 
+                ExportPrivateKey(rsa, keyFormat, outputFormat) : 
+                ExportPublicKey(rsa, keyFormat, outputFormat);
+        }
+
+        /// <summary>
         /// 导出公钥
         /// </summary>
         private static string ExportPublicKey(RSA rsa, RSAKeyFormat format) => format switch
@@ -276,9 +676,30 @@ namespace CryptoTool.Common
             RSAKeyFormat.XML => rsa.ToXmlString(false),
             RSAKeyFormat.PKCS1 => RSAKeyToPem(rsa.ToXmlString(false), isPrivateKey: false),
             RSAKeyFormat.PKCS8 => FormatPem(Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo()), "PUBLIC KEY"),
-            RSAKeyFormat.Java => Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo()),
             _ => throw new ArgumentException("不支持的密钥格式", nameof(format)),
         };
+
+        /// <summary>
+        /// 导出公钥（增强版）
+        /// </summary>
+        private static string ExportPublicKey(RSA rsa, RSAKeyFormat keyFormat, RSAOutputFormat outputFormat)
+        {
+            byte[] keyBytes = keyFormat switch
+            {
+                RSAKeyFormat.XML => throw new NotSupportedException("XML格式不支持输出格式转换"),
+                RSAKeyFormat.PKCS1 => GetPkcs1PublicKeyBytes(rsa),
+                RSAKeyFormat.PKCS8 => rsa.ExportSubjectPublicKeyInfo(),
+                _ => throw new ArgumentException("不支持的密钥格式", nameof(keyFormat)),
+            };
+
+            return outputFormat switch
+            {
+                RSAOutputFormat.Base64 => Convert.ToBase64String(keyBytes),
+                RSAOutputFormat.Hex => ConvertBytesToHexString(keyBytes),
+                RSAOutputFormat.Pem => FormatPem(Convert.ToBase64String(keyBytes), "PUBLIC KEY"),
+                _ => Convert.ToBase64String(keyBytes)
+            };
+        }
 
         /// <summary>
         /// 导出私钥
@@ -295,12 +716,31 @@ namespace CryptoTool.Common
                     // .NET Standard 2.1兼容的PKCS8导出
                     byte[] pkcs8Bytes = ExportPkcs8PrivateKeyBytes(rsa);
                     return FormatPem(Convert.ToBase64String(pkcs8Bytes), "PRIVATE KEY");
-                case RSAKeyFormat.Java:
-                    // .NET Standard 2.1兼容的PKCS8字节数组导出
-                    return Convert.ToBase64String(ExportPkcs8PrivateKeyBytes(rsa));
                 default:
                     throw new ArgumentException("不支持的密钥格式", nameof(format));
             }
+        }
+
+        /// <summary>
+        /// 导出私钥（增强版）
+        /// </summary>
+        private static string ExportPrivateKey(RSA rsa, RSAKeyFormat keyFormat, RSAOutputFormat outputFormat)
+        {
+            byte[] keyBytes = keyFormat switch
+            {
+                RSAKeyFormat.XML => throw new NotSupportedException("XML格式不支持输出格式转换"),
+                RSAKeyFormat.PKCS1 => GetPkcs1PrivateKeyBytes(rsa),
+                RSAKeyFormat.PKCS8 => ExportPkcs8PrivateKeyBytes(rsa),
+                _ => throw new ArgumentException("不支持的密钥格式", nameof(keyFormat)),
+            };
+
+            return outputFormat switch
+            {
+                RSAOutputFormat.Base64 => Convert.ToBase64String(keyBytes),
+                RSAOutputFormat.Hex => ConvertBytesToHexString(keyBytes),
+                RSAOutputFormat.Pem => FormatPem(Convert.ToBase64String(keyBytes), "PRIVATE KEY"),
+                _ => Convert.ToBase64String(keyBytes)
+            };
         }
 
         /// <summary>
@@ -348,7 +788,54 @@ namespace CryptoTool.Common
         }
 
         /// <summary>
-        /// 导出公钥
+        /// 获取PKCS1公钥字节数组
+        /// </summary>
+        private static byte[] GetPkcs1PublicKeyBytes(RSA rsa)
+        {
+            try
+            {
+                RSAParameters rsaPara = rsa.ExportParameters(false);
+                var key = new RsaKeyParameters(false, new BigInteger(1, rsaPara.Modulus), new BigInteger(1, rsaPara.Exponent));
+                using var stream = new MemoryStream();
+                using var writer = new StreamWriter(stream);
+                var pemWriter = new PemWriter(writer);
+                pemWriter.WriteObject(key);
+                writer.Flush();
+                return stream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new CryptographicException("导出PKCS1公钥失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 获取PKCS1私钥字节数组
+        /// </summary>
+        private static byte[] GetPkcs1PrivateKeyBytes(RSA rsa)
+        {
+            try
+            {
+                RSAParameters rsaPara = rsa.ExportParameters(true);
+                var key = new RsaPrivateCrtKeyParameters(
+                    new BigInteger(1, rsaPara.Modulus), new BigInteger(1, rsaPara.Exponent), new BigInteger(1, rsaPara.D),
+                    new BigInteger(1, rsaPara.P), new BigInteger(1, rsaPara.Q), new BigInteger(1, rsaPara.DP), new BigInteger(1, rsaPara.DQ),
+                    new BigInteger(1, rsaPara.InverseQ));
+                using var stream = new MemoryStream();
+                using var writer = new StreamWriter(stream);
+                var pemWriter = new PemWriter(writer);
+                pemWriter.WriteObject(key);
+                writer.Flush();
+                return stream.ToArray();
+            }
+            catch (Exception ex)
+            {
+                throw new CryptographicException("导出PKCS1私钥失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 导入公钥
         /// </summary>
         private static void ImportPublicKey(RSA rsa, string publicKey, RSAKeyFormat format)
         {
@@ -362,9 +849,6 @@ namespace CryptoTool.Common
                     break;
                 case RSAKeyFormat.PKCS8:
                     ImportSubjectPublicKeyInfo(rsa, publicKey);
-                    break;
-                case RSAKeyFormat.Java:
-                    ImportSubjectPublicKeyInfoFromBytes(rsa, Convert.FromBase64String(publicKey));
                     break;
                 default:
                     throw new ArgumentException("不支持的密钥格式", nameof(format));
@@ -386,9 +870,6 @@ namespace CryptoTool.Common
                     break;
                 case RSAKeyFormat.PKCS8:
                     ImportPkcs8PrivateKey(rsa, privateKey);
-                    break;
-                case RSAKeyFormat.Java:
-                    ImportPkcs8PrivateKeyFromBytes(rsa, Convert.FromBase64String(privateKey));
                     break;
                 default:
                     throw new ArgumentException("不支持的密钥格式", nameof(format));
@@ -526,33 +1007,113 @@ namespace CryptoTool.Common
             return RSAKeyToPem(rsa.ToXmlString(isPrivateKey), isPrivateKey);
         }
 
-        /// <summary>
-        /// 将C#密钥转换为Java格式 (PKCS8 Base64)
-        /// </summary>
-        public static string ConvertToJavaFormat(string xmlKey, bool isPrivateKey)
-        {
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(xmlKey);
-            return isPrivateKey
-                ? Convert.ToBase64String(rsa.ExportPkcs8PrivateKey())
-                : Convert.ToBase64String(rsa.ExportSubjectPublicKeyInfo());
-        }
 
         /// <summary>
-        /// 将Java格式密钥转换为C# XML格式
+        /// 智能密钥格式转换
         /// </summary>
-        public static string ConvertFromJavaFormat(string javaKey, bool isPrivateKey)
+        /// <param name="key">密钥</param>
+        /// <param name="targetFormat">目标格式</param>
+        /// <param name="targetOutputFormat">目标输出格式</param>
+        /// <param name="isPrivateKey">是否为私钥</param>
+        /// <returns>转换后的密钥</returns>
+        public static string ConvertKeyFormat(string key, RSAKeyFormat targetFormat, RSAOutputFormat targetOutputFormat, bool isPrivateKey)
         {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentException("密钥不能为空", nameof(key));
+
+            var sourceFormat = DetectKeyFormat(key);
+            if (sourceFormat == targetFormat && targetOutputFormat == RSAOutputFormat.Base64)
+                return key; // 无需转换
+
             using var rsa = RSA.Create();
+            
+            // 导入密钥
             if (isPrivateKey)
             {
-                rsa.ImportPkcs8PrivateKey(Convert.FromBase64String(javaKey), out _);
+                ImportPrivateKey(rsa, key, sourceFormat);
             }
             else
             {
-                rsa.ImportSubjectPublicKeyInfo(Convert.FromBase64String(javaKey), out _);
+                ImportPublicKey(rsa, key, sourceFormat);
             }
-            return rsa.ToXmlString(isPrivateKey);
+
+            // 导出到目标格式
+            return isPrivateKey ? 
+                ExportPrivateKey(rsa, targetFormat, targetOutputFormat) : 
+                ExportPublicKey(rsa, targetFormat, targetOutputFormat);
+        }
+
+        /// <summary>
+        /// 智能加密（自动检测密钥格式）
+        /// </summary>
+        /// <param name="input">输入数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>加密结果</returns>
+        public static string SmartEncrypt(string input, string publicKey, RSAPaddingMode padding = RSAPaddingMode.PKCS1,
+            RSAInputFormat inputFormat = RSAInputFormat.String, RSAOutputFormat outputFormat = RSAOutputFormat.Base64, 
+            RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            var keyFormat = DetectKeyFormat(publicKey);
+            return EncryptByRSA(input, publicKey, keyFormat, padding, inputFormat, outputFormat, encoding);
+        }
+
+        /// <summary>
+        /// 智能解密（自动检测密钥格式）
+        /// </summary>
+        /// <param name="input">输入密文</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>解密结果</returns>
+        public static string SmartDecrypt(string input, string privateKey, RSAPaddingMode padding = RSAPaddingMode.PKCS1,
+            RSAInputFormat inputFormat = RSAInputFormat.Base64, RSAOutputFormat outputFormat = RSAOutputFormat.String,
+            RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            var keyFormat = DetectKeyFormat(privateKey);
+            return DecryptByRSA(input, privateKey, keyFormat, padding, inputFormat, outputFormat, encoding);
+        }
+
+        /// <summary>
+        /// 智能签名（自动检测密钥格式）
+        /// </summary>
+        /// <param name="input">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>签名结果</returns>
+        public static string SmartSign(string input, string privateKey, RSASignatureAlgorithm algorithm = RSASignatureAlgorithm.SHA256,
+            RSAInputFormat inputFormat = RSAInputFormat.String, RSAOutputFormat outputFormat = RSAOutputFormat.Base64,
+            RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            var keyFormat = DetectKeyFormat(privateKey);
+            return HashAndSignString(input, privateKey, algorithm, keyFormat, inputFormat, outputFormat, encoding);
+        }
+
+        /// <summary>
+        /// 智能验签（自动检测密钥格式）
+        /// </summary>
+        /// <param name="input">原始数据</param>
+        /// <param name="signature">签名</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="inputFormat">输入格式</param>
+        /// <param name="signatureFormat">签名格式</param>
+        /// <param name="encoding">字符集编码</param>
+        /// <returns>验证结果</returns>
+        public static bool SmartVerify(string input, string signature, string publicKey, RSASignatureAlgorithm algorithm = RSASignatureAlgorithm.SHA256,
+            RSAInputFormat inputFormat = RSAInputFormat.String, RSAInputFormat signatureFormat = RSAInputFormat.Base64,
+            RSAEncoding encoding = RSAEncoding.UTF8)
+        {
+            var keyFormat = DetectKeyFormat(publicKey);
+            return VerifySigned(input, signature, publicKey, algorithm, keyFormat, inputFormat, signatureFormat, encoding);
         }
 
         /// <summary>
@@ -584,108 +1145,6 @@ namespace CryptoTool.Common
 
         #endregion
 
-        #region Java互操作性方法
-
-        /// <summary>
-        /// 使用Java兼容的方式进行RSA加密
-        /// </summary>
-        public static string EncryptForJava(string plaintext, string javaPublicKey)
-        {
-            return EncryptByRSA(plaintext, javaPublicKey, RSAKeyFormat.Java, RSAPaddingMode.PKCS1);
-        }
-
-        /// <summary>
-        /// 使用Java兼容的方式进行RSA解密
-        /// </summary>
-        public static string DecryptFromJava(string ciphertext, string javaPrivateKey)
-        {
-            return DecryptByRSA(ciphertext, javaPrivateKey, RSAKeyFormat.Java, RSAPaddingMode.PKCS1);
-        }
-
-        /// <summary>
-        /// 使用Java兼容的方式进行RSA签名
-        /// </summary>
-        public static string SignForJava(string plaintext, string javaPrivateKey, RSAType rsaType = RSAType.RSA2)
-        {
-            return HashAndSignString(plaintext, javaPrivateKey, rsaType, RSAKeyFormat.Java);
-        }
-
-        /// <summary>
-        /// 使用Java兼容的方式进行RSA验签
-        /// </summary>
-        public static bool VerifyFromJava(string plaintext, string signature, string javaPublicKey, RSAType rsaType = RSAType.RSA2)
-        {
-            return VerifySigned(plaintext, signature, javaPublicKey, rsaType, RSAKeyFormat.Java);
-        }
-
-        #endregion
-
-        #region 兼容性方法（保持向后兼容）
-
-        /// <summary>
-        /// RSA加密（保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用EncryptByRSA(string, string, RSAKeyFormat, RSAPaddingMode)替代。")]
-        public static string EncryptByRSA(string plaintext, string publicKey)
-        {
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(publicKey);
-            byte[] dataToEncrypt = Encoding.UTF8.GetBytes(plaintext);
-            // The 'false' parameter corresponds to PKCS#1 v1.5 padding.
-            byte[] encryptedData = rsa.Encrypt(dataToEncrypt, RSAEncryptionPadding.Pkcs1);
-            return Convert.ToBase64String(encryptedData);
-        }
-
-        /// <summary>
-        /// RSA解密（保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用DecryptByRSA(string, string, RSAKeyFormat, RSAPaddingMode)替代。")]
-        public static string DecryptByRSA(string ciphertext, string privateKey)
-        {
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(privateKey);
-            byte[] encryptedData = Convert.FromBase64String(ciphertext);
-            byte[] decryptedData = rsa.Decrypt(encryptedData, RSAEncryptionPadding.Pkcs1);
-            return Encoding.UTF8.GetString(decryptedData);
-        }
-
-        /// <summary>
-        /// 数字签名加签（保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用HashAndSignString(string, string, RSAType, RSAKeyFormat)替代。")]
-        public static string HashAndSignString(string plaintext, string privateKey)
-        {
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(privateKey);
-            byte[] dataToSign = Encoding.UTF8.GetBytes(plaintext);
-            byte[] signature = rsa.SignData(dataToSign, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
-            return Convert.ToBase64String(signature);
-        }
-
-        /// <summary>
-        /// 验证签名（保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用VerifySigned(string, string, string, RSAType, RSAKeyFormat)替代。")]
-        public static bool VerifySigned(string plaintext, string SignedData, string publicKey)
-        {
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(publicKey);
-            byte[] dataToVerify = Encoding.UTF8.GetBytes(plaintext);
-            byte[] signature = Convert.FromBase64String(SignedData);
-            return rsa.VerifyData(dataToVerify, signature, HashAlgorithmName.SHA1, RSASignaturePadding.Pkcs1);
-        }
-
-        /// <summary>
-        /// 获取Key（保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用CreateRSAKey(int, RSAKeyFormat)替代。")]
-        public static KeyValuePair<string, string> CreateRSAKey()
-        {
-            using var rsa = RSA.Create();
-            return new KeyValuePair<string, string>(rsa.ToXmlString(false), rsa.ToXmlString(true));
-        }
-
-        #endregion
 
         #region pfx和pem证书相关
 
@@ -1002,17 +1461,6 @@ namespace CryptoTool.Common
             return rsa.ToXmlString(isPrivateKey);
         }
 
-        /// <summary>
-        /// 把pem私钥转xml格式
-        /// </summary>
-        [Obsolete("请使用PemToRSAKey替代")]
-        public static string ConvertPemToXmlPrivateKey(string privateKey) => PemToRSAKey(privateKey, true);
-
-        /// <summary>
-        /// 把pem公钥转换成xml格式
-        /// </summary>
-        [Obsolete("请使用PemToRSAKey替代")]
-        public static string ConvertPemToXmlPublicKey(string publicKey) => PemToRSAKey(publicKey, false);
 
         #endregion
 
@@ -1301,87 +1749,5 @@ namespace CryptoTool.Common
 
         #endregion
 
-
-        #region 从证书中获取信息   
-
-        /// <summary>
-        /// 修改pfx证书密码
-        /// </summary>
-        /// <param name="originPfxPath">pfx证书路径</param>
-        /// <param name="originPassword">原证书密码</param>
-        /// <param name="newPassword">新证书密码</param>
-        public static void ChangePfxCertPassword(string originPfxPath, string originPassword, string newPassword)
-        {
-            var x509 = GetCertificateFromPfxFile(originPfxPath, originPassword);
-            if (x509 != null)
-            {
-                var pfxArr = x509.Export(X509ContentType.Pfx, newPassword);
-                using (FileStream fs = File.Create(originPfxPath))
-                {
-                    fs.Write(pfxArr);
-                }
-            }
-        }
-
-        /// <summary>   
-        /// 根据私钥证书得到证书实体，得到实体后可以根据其公钥和私钥进行加解密   
-        /// 加解密函数使用DEncrypt的RSACryption类   
-        /// </summary>   
-        /// <param name="pfxFileName"></param>   
-        /// <param name="password"></param>   
-        /// <returns></returns>   
-        public static X509Certificate2 GetCertificateFromPfxFile(string pfxFileName, string password)
-        {
-            try
-            {
-                return new X509Certificate2(pfxFileName, password, X509KeyStorageFlags.Exportable);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("get certificate from pfx" + pfxFileName + " error:" + e.ToString(), "GetCertificateFromPfxFile");
-                return null;
-            }
-        }
-
-        /// <summary>   
-        /// 到存储区获取证书   
-        /// </summary>   
-        /// <param name="subjectName"></param>   
-        /// <returns></returns>   
-        public static X509Certificate2 GetCertificateFromStore(string subjectName)
-        {
-            subjectName = "CN=" + subjectName;
-            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadWrite);
-            X509Certificate2Collection storecollection = store.Certificates;
-            foreach (X509Certificate2 x509 in storecollection)
-            {
-                if (x509.Subject == subjectName)
-                {
-                    return x509;
-                }
-            }
-            store.Close();
-            return null;
-        }
-
-        /// <summary>   
-        /// 根据公钥证书，返回证书实体   
-        /// </summary>   
-        /// <param name="cerPath"></param>   
-        public static X509Certificate2 GetCertFromCerFile(string cerPath)
-        {
-            try
-            {
-                return new X509Certificate2(cerPath);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString(), "DataCertificate.LoadStudentPublicKey");
-                return null;
-            }
-        }
-
-        #endregion
     }
 }

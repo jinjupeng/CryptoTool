@@ -17,11 +17,11 @@ namespace CryptoTool.App
             //MedicareTest();
             //AliyunCSBTest();
             //MD5Test();
-            //RSATest();
+            RSATest();
             //AESTest();
             //DESTest();
 
-            SM2Test();
+            //SM2Test();
             //SM3Test();
             //SM4Test();
         }
@@ -2270,13 +2270,11 @@ namespace CryptoTool.App
         /// </summary>
         public static void RSATest()
         {
-            Console.WriteLine("--------------RSA功能测试---------------");
+            Console.WriteLine("--------------RSA功能全面测试---------------");
 
             // 1. 测试RSA和RSA2签名验签
             TestRSASignature();
 
-            // 2. 测试Java互操作性
-            TestJavaCompatibility();
 
             // 3. 测试PKCS格式转换
             TestPKCSConversion();
@@ -2289,6 +2287,24 @@ namespace CryptoTool.App
 
             // 6. 测试.NET Standard 2.1兼容性
             TestNetStandard21Compatibility();
+
+            // 7. 测试增强的密钥生成功能
+            TestEnhancedKeyGeneration();
+
+            // 8. 测试增强的加解密功能
+            TestEnhancedEncryption();
+
+            // 9. 测试增强的签名验签功能
+            TestEnhancedSignature();
+
+            // 10. 测试智能功能
+            TestSmartFunctions();
+
+            // 11. 测试字符集支持
+            TestEncodingSupport();
+
+            // 12. 测试输入输出格式
+            TestInputOutputFormats();
         }
 
         /// <summary>
@@ -2314,40 +2330,6 @@ namespace CryptoTool.App
             Console.WriteLine($"RSA2 (SHA256) 签名验证: {(rsa2VerifyResult ? "成功" : "失败")}");
         }
 
-        /// <summary>
-        /// 测试Java互操作性
-        /// </summary>
-        public static void TestJavaCompatibility()
-        {
-            Console.WriteLine("\n--- Java互操作性测试 ---");
-
-            string plaintext = "Java互操作性测试内容";
-
-            // 创建Java格式密钥对
-            var javaKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.Java);
-            string javaPublicKey = javaKeyPair.Key;
-            string javaPrivateKey = javaKeyPair.Value;
-
-            // Java格式加密解密
-            string encryptedText = RSAUtil.EncryptForJava(plaintext, javaPublicKey);
-            string decryptedText = RSAUtil.DecryptFromJava(encryptedText, javaPrivateKey);
-            Console.WriteLine($"Java格式加密解密: {(plaintext == decryptedText ? "成功" : "失败")}");
-
-            // Java格式签名验签
-            string javaSignature = RSAUtil.SignForJava(plaintext, javaPrivateKey, RSAUtil.RSAType.RSA2);
-            bool javaVerifyResult = RSAUtil.VerifyFromJava(plaintext, javaSignature, javaPublicKey, RSAUtil.RSAType.RSA2);
-            Console.WriteLine($"Java格式签名验证: {(javaVerifyResult ? "成功" : "失败")}");
-
-            // 格式转换测试
-            var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
-            string xmlToJavaPublic = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Key, false);
-            string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
-            string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
-            string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
-
-            Console.WriteLine($"XML到Java格式转换: 成功");
-            Console.WriteLine($"Java到XML格式转换: 成功");
-        }
 
         /// <summary>
         /// 测试PKCS格式转换
@@ -2392,8 +2374,7 @@ namespace CryptoTool.App
             {
                 RSAUtil.RSAKeyFormat.XML,
                 RSAUtil.RSAKeyFormat.PKCS1,
-                RSAUtil.RSAKeyFormat.PKCS8,
-                RSAUtil.RSAKeyFormat.Java
+                RSAUtil.RSAKeyFormat.PKCS8
             };
 
             foreach (var format in formats)
@@ -2516,8 +2497,7 @@ namespace CryptoTool.App
                 {
                     RSAUtil.RSAKeyFormat.XML,
                     RSAUtil.RSAKeyFormat.PKCS1,
-                    RSAUtil.RSAKeyFormat.PKCS8,
-                    RSAUtil.RSAKeyFormat.Java
+                    RSAUtil.RSAKeyFormat.PKCS8
                 };
 
                 string testText = ".NET Standard 2.1兼容性测试内容";
@@ -2561,15 +2541,6 @@ namespace CryptoTool.App
                     var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
                     var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
 
-                    // XML转Java格式
-                    string xmlToJavaPublic = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Key, false);
-                    string xmlToJavaPrivate = RSAUtil.ConvertToJavaFormat(xmlKeyPair.Value, true);
-                    Console.WriteLine("  XML -> Java: 成功");
-
-                    // Java转XML格式
-                    string javaToXmlPublic = RSAUtil.ConvertFromJavaFormat(xmlToJavaPublic, false);
-                    string javaToXmlPrivate = RSAUtil.ConvertFromJavaFormat(xmlToJavaPrivate, true);
-                    Console.WriteLine("  Java -> XML: 成功");
 
                     // PKCS1转PKCS8
                     string pkcs1ToPkcs8Public = RSAUtil.ConvertPkcs1ToPkcs8(pkcs1KeyPair.Key, false);
@@ -2597,6 +2568,313 @@ namespace CryptoTool.App
             {
                 Console.WriteLine($".NET Standard 2.1兼容性测试失败: {ex.Message}");
                 Console.WriteLine($"错误详情: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 测试增强的密钥生成功能
+        /// </summary>
+        public static void TestEnhancedKeyGeneration()
+        {
+            Console.WriteLine("\n--- 增强密钥生成功能测试 ---");
+
+            try
+            {
+                // 测试不同输出格式的密钥生成
+                var keyFormats = new[] { RSAUtil.RSAKeyFormat.PKCS1, RSAUtil.RSAKeyFormat.PKCS8 };
+                var outputFormats = new[] { RSAUtil.RSAOutputFormat.Base64, RSAUtil.RSAOutputFormat.Hex, RSAUtil.RSAOutputFormat.Pem };
+
+                foreach (var keyFormat in keyFormats)
+                {
+                    foreach (var outputFormat in outputFormats)
+                    {
+                        try
+                        {
+                            var keyPair = RSAUtil.CreateRSAKey(2048, keyFormat, outputFormat);
+                            Console.WriteLine($"{keyFormat} + {outputFormat} 密钥生成: 成功");
+                            Console.WriteLine($"  公钥长度: {keyPair.Key.Length}");
+                            Console.WriteLine($"  私钥长度: {keyPair.Value.Length}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"{keyFormat} + {outputFormat} 密钥生成: 失败 - {ex.Message}");
+                        }
+                    }
+                }
+
+                // 测试单独生成公钥和私钥
+                Console.WriteLine("\n单独密钥生成测试:");
+                string publicKey = RSAUtil.GenerateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAOutputFormat.Hex, false);
+                string privateKey = RSAUtil.GenerateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAOutputFormat.Hex, true);
+                Console.WriteLine($"单独生成公钥: 成功 (长度: {publicKey.Length})");
+                Console.WriteLine($"单独生成私钥: 成功 (长度: {privateKey.Length})");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"增强密钥生成测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试增强的加解密功能
+        /// </summary>
+        public static void TestEnhancedEncryption()
+        {
+            Console.WriteLine("\n--- 增强加解密功能测试 ---");
+
+            try
+            {
+                string plaintext = "增强加解密功能测试内容";
+                var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+
+                // 测试不同填充模式
+                var paddingModes = new[] { RSAUtil.RSAPaddingMode.PKCS1, RSAUtil.RSAPaddingMode.OAEP };
+                var inputFormats = new[] { RSAUtil.RSAInputFormat.String, RSAUtil.RSAInputFormat.Hex, RSAUtil.RSAInputFormat.Base64 };
+                var outputFormats = new[] { RSAUtil.RSAOutputFormat.Base64, RSAUtil.RSAOutputFormat.Hex };
+
+                foreach (var padding in paddingModes)
+                {
+                    foreach (var inputFormat in inputFormats)
+                    {
+                        foreach (var outputFormat in outputFormats)
+                        {
+                            try
+                            {
+                                // 加密
+                                string encrypted = RSAUtil.EncryptByRSA(plaintext, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, padding, inputFormat, outputFormat);
+                                Console.WriteLine($"{padding} + {inputFormat} -> {outputFormat} 加密: 成功");
+
+                                // 解密
+                                string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8, padding, inputFormat, outputFormat);
+                                bool success = plaintext == decrypted;
+                                Console.WriteLine($"{padding} + {inputFormat} -> {outputFormat} 解密验证: {(success ? "成功" : "失败")}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"{padding} + {inputFormat} -> {outputFormat} 测试失败: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"增强加解密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试增强的签名验签功能
+        /// </summary>
+        public static void TestEnhancedSignature()
+        {
+            Console.WriteLine("\n--- 增强签名验签功能测试 ---");
+
+            try
+            {
+                string plaintext = "增强签名验签功能测试内容";
+                var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+
+                // 测试不同签名算法
+                var algorithms = new[] { 
+                    RSAUtil.RSASignatureAlgorithm.SHA1, 
+                    RSAUtil.RSASignatureAlgorithm.SHA256, 
+                    RSAUtil.RSASignatureAlgorithm.SHA384, 
+                    RSAUtil.RSASignatureAlgorithm.SHA512 
+                };
+
+                var inputFormats = new[] { RSAUtil.RSAInputFormat.String, RSAUtil.RSAInputFormat.Hex, RSAUtil.RSAInputFormat.Base64 };
+                var outputFormats = new[] { RSAUtil.RSAOutputFormat.Base64, RSAUtil.RSAOutputFormat.Hex };
+
+                foreach (var algorithm in algorithms)
+                {
+                    foreach (var inputFormat in inputFormats)
+                    {
+                        foreach (var outputFormat in outputFormats)
+                        {
+                            try
+                            {
+                                // 签名
+                                string signature = RSAUtil.HashAndSignString(plaintext, keyPair.Value, algorithm, RSAUtil.RSAKeyFormat.PKCS8, inputFormat, outputFormat);
+                                Console.WriteLine($"{algorithm} + {inputFormat} -> {outputFormat} 签名: 成功");
+
+                                // 验签
+                                bool verifyResult = RSAUtil.VerifySigned(plaintext, signature, keyPair.Key, algorithm, RSAUtil.RSAKeyFormat.PKCS8, inputFormat, inputFormat);
+                                Console.WriteLine($"{algorithm} + {inputFormat} -> {outputFormat} 验签: {(verifyResult ? "成功" : "失败")}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"{algorithm} + {inputFormat} -> {outputFormat} 测试失败: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"增强签名验签测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试智能功能
+        /// </summary>
+        public static void TestSmartFunctions()
+        {
+            Console.WriteLine("\n--- 智能功能测试 ---");
+
+            try
+            {
+                string plaintext = "智能功能测试内容";
+                
+                // 生成不同格式的密钥对
+                var xmlKeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.XML);
+                var pkcs1KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS1);
+                var pkcs8KeyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+
+                var keyPairs = new[]
+                {
+                    ("XML", xmlKeyPair),
+                    ("PKCS1", pkcs1KeyPair),
+                    ("PKCS8", pkcs8KeyPair)
+                };
+
+                foreach (var (formatName, keyPair) in keyPairs)
+                {
+                    try
+                    {
+                        // 智能加密解密
+                        string encrypted = RSAUtil.SmartEncrypt(plaintext, keyPair.Key);
+                        string decrypted = RSAUtil.SmartDecrypt(encrypted, keyPair.Value);
+                        bool encryptSuccess = plaintext == decrypted;
+                        Console.WriteLine($"{formatName} 智能加密解密: {(encryptSuccess ? "成功" : "失败")}");
+
+                        // 智能签名验签
+                        string signature = RSAUtil.SmartSign(plaintext, keyPair.Value);
+                        bool verifySuccess = RSAUtil.SmartVerify(plaintext, signature, keyPair.Key);
+                        Console.WriteLine($"{formatName} 智能签名验签: {(verifySuccess ? "成功" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{formatName} 智能功能测试失败: {ex.Message}");
+                    }
+                }
+
+                // 测试密钥格式转换
+                Console.WriteLine("\n密钥格式转换测试:");
+                string convertedKey = RSAUtil.ConvertKeyFormat(xmlKeyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAOutputFormat.Hex, false);
+                Console.WriteLine($"XML -> PKCS8(Hex) 转换: 成功 (长度: {convertedKey.Length})");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"智能功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试字符集支持
+        /// </summary>
+        public static void TestEncodingSupport()
+        {
+            Console.WriteLine("\n--- 字符集支持测试 ---");
+
+            try
+            {
+                string utf8Text = "UTF-8编码测试内容：Hello World! 你好世界！";
+                string gbkText = "GBK编码测试内容：Hello World! 你好世界！";
+                
+                var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+
+                // 测试UTF-8编码
+                try
+                {
+                    string encrypted = RSAUtil.EncryptByRSA(utf8Text, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1, 
+                        RSAUtil.RSAInputFormat.String, RSAUtil.RSAOutputFormat.Base64, RSAUtil.RSAEncoding.UTF8);
+                    string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Base64, RSAUtil.RSAOutputFormat.String, RSAUtil.RSAEncoding.UTF8);
+                    bool utf8Success = utf8Text == decrypted;
+                    Console.WriteLine($"UTF-8编码测试: {(utf8Success ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"UTF-8编码测试失败: {ex.Message}");
+                }
+
+                // 测试GBK编码
+                try
+                {
+                    string encrypted = RSAUtil.EncryptByRSA(gbkText, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.String, RSAUtil.RSAOutputFormat.Base64, RSAUtil.RSAEncoding.GBK);
+                    string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Base64, RSAUtil.RSAOutputFormat.String, RSAUtil.RSAEncoding.GBK);
+                    bool gbkSuccess = gbkText == decrypted;
+                    Console.WriteLine($"GBK编码测试: {(gbkSuccess ? "成功" : "失败")}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"GBK编码测试失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"字符集支持测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试输入输出格式
+        /// </summary>
+        public static void TestInputOutputFormats()
+        {
+            Console.WriteLine("\n--- 输入输出格式测试 ---");
+
+            try
+            {
+                string plaintext = "输入输出格式测试内容";
+                var keyPair = RSAUtil.CreateRSAKey(2048, RSAUtil.RSAKeyFormat.PKCS8);
+
+                // 测试十六进制输入输出
+                try
+                {
+                    // 将字符串转换为十六进制
+                    byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(plaintext);
+                    string hexInput = BitConverter.ToString(textBytes).Replace("-", "");
+
+                    // 十六进制输入加密
+                    string encrypted = RSAUtil.EncryptByRSA(hexInput, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Hex, RSAUtil.RSAOutputFormat.Hex);
+                    Console.WriteLine($"十六进制输入加密: 成功");
+
+                    // 十六进制输出解密
+                    string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Hex, RSAUtil.RSAOutputFormat.Hex);
+                    Console.WriteLine($"十六进制输出解密: 成功");
+                    Console.WriteLine($"解密结果: {decrypted}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"十六进制格式测试失败: {ex.Message}");
+                }
+
+                // 测试Base64输入输出
+                try
+                {
+                    string base64Input = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(plaintext));
+                    string encrypted = RSAUtil.EncryptByRSA(base64Input, keyPair.Key, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Base64, RSAUtil.RSAOutputFormat.Base64);
+                    string decrypted = RSAUtil.DecryptByRSA(encrypted, keyPair.Value, RSAUtil.RSAKeyFormat.PKCS8, RSAUtil.RSAPaddingMode.PKCS1,
+                        RSAUtil.RSAInputFormat.Base64, RSAUtil.RSAOutputFormat.Base64);
+                    Console.WriteLine($"Base64格式测试: 成功");
+                    Console.WriteLine($"解密结果: {decrypted}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Base64格式测试失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"输入输出格式测试失败: {ex.Message}");
             }
         }
 
