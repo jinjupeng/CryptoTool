@@ -205,6 +205,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxRSASign
             // 
+            groupBoxRSASign.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxRSASign.Controls.Add(labelRSAVerifyResult);
             groupBoxRSASign.Controls.Add(label9);
             groupBoxRSASign.Controls.Add(comboRSAType);
@@ -260,6 +261,7 @@ namespace CryptoTool.Win
             // 
             // textRSASignature
             // 
+            textRSASignature.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSASignature.Location = new Point(80, 120);
             textRSASignature.Multiline = true;
             textRSASignature.Name = "textRSASignature";
@@ -278,6 +280,7 @@ namespace CryptoTool.Win
             // 
             // textRSASignData
             // 
+            textRSASignData.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSASignData.Location = new Point(80, 60);
             textRSASignData.Multiline = true;
             textRSASignData.Name = "textRSASignData";
@@ -307,6 +310,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxRSAEncrypt
             // 
+            groupBoxRSAEncrypt.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxRSAEncrypt.Controls.Add(label6);
             groupBoxRSAEncrypt.Controls.Add(textRSACipherText);
             groupBoxRSAEncrypt.Controls.Add(label5);
@@ -331,6 +335,7 @@ namespace CryptoTool.Win
             // 
             // textRSACipherText
             // 
+            textRSACipherText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSACipherText.Location = new Point(80, 85);
             textRSACipherText.Multiline = true;
             textRSACipherText.Name = "textRSACipherText";
@@ -349,6 +354,7 @@ namespace CryptoTool.Win
             // 
             // textRSAPlainText
             // 
+            textRSAPlainText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSAPlainText.Location = new Point(80, 25);
             textRSAPlainText.Multiline = true;
             textRSAPlainText.Name = "textRSAPlainText";
@@ -378,6 +384,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxRSAKeys
             // 
+            groupBoxRSAKeys.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxRSAKeys.Controls.Add(btnExportRSAKey);
             groupBoxRSAKeys.Controls.Add(btnImportRSAKey);
             groupBoxRSAKeys.Controls.Add(label4);
@@ -427,6 +434,7 @@ namespace CryptoTool.Win
             // 
             // textRSAPrivateKey
             // 
+            textRSAPrivateKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSAPrivateKey.Location = new Point(80, 135);
             textRSAPrivateKey.Multiline = true;
             textRSAPrivateKey.Name = "textRSAPrivateKey";
@@ -445,6 +453,7 @@ namespace CryptoTool.Win
             // 
             // textRSAPublicKey
             // 
+            textRSAPublicKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textRSAPublicKey.Location = new Point(80, 65);
             textRSAPublicKey.Multiline = true;
             textRSAPublicKey.Name = "textRSAPublicKey";
@@ -514,6 +523,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxSM4Encrypt
             // 
+            groupBoxSM4Encrypt.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxSM4Encrypt.Controls.Add(labelSM4CiphertextFormat);
             groupBoxSM4Encrypt.Controls.Add(comboSM4CiphertextFormat);
             groupBoxSM4Encrypt.Controls.Add(labelSM4PlaintextFormat);
@@ -623,6 +633,7 @@ namespace CryptoTool.Win
             // 
             // textSM4CipherText
             // 
+            textSM4CipherText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM4CipherText.Location = new Point(80, 155);
             textSM4CipherText.Multiline = true;
             textSM4CipherText.Name = "textSM4CipherText";
@@ -641,6 +652,7 @@ namespace CryptoTool.Win
             // 
             // textSM4PlainText
             // 
+            textSM4PlainText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM4PlainText.Location = new Point(80, 95);
             textSM4PlainText.Multiline = true;
             textSM4PlainText.Name = "textSM4PlainText";
@@ -670,6 +682,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxSM4Keys
             // 
+            groupBoxSM4Keys.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxSM4Keys.Controls.Add(labelSM4IVFormat);
             groupBoxSM4Keys.Controls.Add(comboSM4IVFormat);
             groupBoxSM4Keys.Controls.Add(labelSM4KeyFormat);
@@ -782,6 +795,7 @@ namespace CryptoTool.Win
             // 
             // tabSM2
             // 
+            tabSM2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             tabSM2.Controls.Add(groupBoxSM2Sign);
             tabSM2.Controls.Add(groupBoxSM2Encrypt);
             tabSM2.Controls.Add(groupBoxSM2Keys);
@@ -795,6 +809,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxSM2Sign
             // 
+            groupBoxSM2Sign.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxSM2Sign.Controls.Add(labelSM2VerifyResult);
             groupBoxSM2Sign.Controls.Add(label24);
             groupBoxSM2Sign.Controls.Add(textSM2Signature);
@@ -831,6 +846,7 @@ namespace CryptoTool.Win
             // 
             // textSM2Signature
             // 
+            textSM2Signature.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2Signature.Location = new Point(80, 187);
             textSM2Signature.Multiline = true;
             textSM2Signature.Name = "textSM2Signature";
@@ -849,6 +865,7 @@ namespace CryptoTool.Win
             // 
             // textSM2SignData
             // 
+            textSM2SignData.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2SignData.Location = new Point(80, 60);
             textSM2SignData.Multiline = true;
             textSM2SignData.Name = "textSM2SignData";
@@ -897,6 +914,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxSM2Encrypt
             // 
+            groupBoxSM2Encrypt.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxSM2Encrypt.Controls.Add(label21);
             groupBoxSM2Encrypt.Controls.Add(textSM2CipherText);
             groupBoxSM2Encrypt.Controls.Add(label20);
@@ -923,6 +941,7 @@ namespace CryptoTool.Win
             // 
             // textSM2CipherText
             // 
+            textSM2CipherText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2CipherText.Location = new Point(80, 105);
             textSM2CipherText.Multiline = true;
             textSM2CipherText.Name = "textSM2CipherText";
@@ -941,6 +960,7 @@ namespace CryptoTool.Win
             // 
             // textSM2PlainText
             // 
+            textSM2PlainText.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2PlainText.Location = new Point(80, 60);
             textSM2PlainText.Multiline = true;
             textSM2PlainText.Name = "textSM2PlainText";
@@ -989,6 +1009,7 @@ namespace CryptoTool.Win
             // 
             // groupBoxSM2Keys
             // 
+            groupBoxSM2Keys.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxSM2Keys.Controls.Add(btnExportSM2Key);
             groupBoxSM2Keys.Controls.Add(btnImportSM2Key);
             groupBoxSM2Keys.Controls.Add(label18);
@@ -1036,6 +1057,7 @@ namespace CryptoTool.Win
             // 
             // textSM2PrivateKey
             // 
+            textSM2PrivateKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2PrivateKey.Location = new Point(80, 135);
             textSM2PrivateKey.Multiline = true;
             textSM2PrivateKey.Name = "textSM2PrivateKey";
@@ -1054,6 +1076,7 @@ namespace CryptoTool.Win
             // 
             // textSM2PublicKey
             // 
+            textSM2PublicKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textSM2PublicKey.Location = new Point(80, 65);
             textSM2PublicKey.Multiline = true;
             textSM2PublicKey.Name = "textSM2PublicKey";
@@ -1507,7 +1530,7 @@ namespace CryptoTool.Win
             textMedicareDecData.Multiline = true;
             textMedicareDecData.Name = "textMedicareDecData";
             textMedicareDecData.ScrollBars = ScrollBars.Both;
-            textMedicareDecData.Size = new Size(961, 191);
+            textMedicareDecData.Size = new Size(961, 80);
             textMedicareDecData.TabIndex = 14;
             // 
             // statusStrip1
