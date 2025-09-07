@@ -31,9 +31,11 @@ namespace CryptoTool.Win
             tabControl1 = new TabControl();
             tabRSA = new TabPage();
             groupBoxRSASign = new GroupBox();
+            comboRSASignAlgmFormat = new ComboBox();
+            label29 = new Label();
+            comboRSASignOutputFormat = new ComboBox();
+            label28 = new Label();
             labelRSAVerifyResult = new Label();
-            label9 = new Label();
-            comboRSAType = new ComboBox();
             label8 = new Label();
             textRSASignature = new TextBox();
             label7 = new Label();
@@ -41,13 +43,19 @@ namespace CryptoTool.Win
             btnRSAVerify = new Button();
             btnRSASign = new Button();
             groupBoxRSAEncrypt = new GroupBox();
+            comboRSAEncryptOutputFormat = new ComboBox();
+            label27 = new Label();
             label6 = new Label();
             textRSACipherText = new TextBox();
+            comboRSAKeyPadding = new ComboBox();
             label5 = new Label();
+            label25 = new Label();
             textRSAPlainText = new TextBox();
             btnRSADecrypt = new Button();
             btnRSAEncrypt = new Button();
             groupBoxRSAKeys = new GroupBox();
+            comboRSAKeyOutputFormat = new ComboBox();
+            label26 = new Label();
             btnExportRSAKey = new Button();
             btnImportRSAKey = new Button();
             label4 = new Label();
@@ -185,7 +193,7 @@ namespace CryptoTool.Win
             tabControl1.Controls.Add(tabMedicare);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
-            tabControl1.Margin = new Padding(4, 4, 4, 4);
+            tabControl1.Margin = new Padding(4);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
             tabControl1.Size = new Size(1286, 1055);
@@ -197,33 +205,78 @@ namespace CryptoTool.Win
             tabRSA.Controls.Add(groupBoxRSAEncrypt);
             tabRSA.Controls.Add(groupBoxRSAKeys);
             tabRSA.Location = new Point(4, 29);
-            tabRSA.Margin = new Padding(4, 4, 4, 4);
+            tabRSA.Margin = new Padding(4);
             tabRSA.Name = "tabRSA";
-            tabRSA.Padding = new Padding(4, 4, 4, 4);
+            tabRSA.Padding = new Padding(4);
             tabRSA.Size = new Size(1278, 1022);
             tabRSA.TabIndex = 0;
-            tabRSA.Text = "RSAÀ„∑®";
+            tabRSA.Text = "RSAÁÆóÊ≥ï";
             tabRSA.UseVisualStyleBackColor = true;
             // 
             // groupBoxRSASign
             // 
+            groupBoxRSASign.Controls.Add(comboRSASignAlgmFormat);
+            groupBoxRSASign.Controls.Add(label29);
+            groupBoxRSASign.Controls.Add(comboRSASignOutputFormat);
+            groupBoxRSASign.Controls.Add(label28);
             groupBoxRSASign.Controls.Add(labelRSAVerifyResult);
-            groupBoxRSASign.Controls.Add(label9);
-            groupBoxRSASign.Controls.Add(comboRSAType);
             groupBoxRSASign.Controls.Add(label8);
             groupBoxRSASign.Controls.Add(textRSASignature);
             groupBoxRSASign.Controls.Add(label7);
             groupBoxRSASign.Controls.Add(textRSASignData);
             groupBoxRSASign.Controls.Add(btnRSAVerify);
             groupBoxRSASign.Controls.Add(btnRSASign);
-            groupBoxRSASign.Location = new Point(8, 468);
-            groupBoxRSASign.Margin = new Padding(4, 4, 4, 4);
+            groupBoxRSASign.Location = new Point(4, 564);
+            groupBoxRSASign.Margin = new Padding(4);
             groupBoxRSASign.Name = "groupBoxRSASign";
-            groupBoxRSASign.Padding = new Padding(4, 4, 4, 4);
+            groupBoxRSASign.Padding = new Padding(4);
             groupBoxRSASign.Size = new Size(1260, 256);
             groupBoxRSASign.TabIndex = 2;
             groupBoxRSASign.TabStop = false;
-            groupBoxRSASign.Text = "RSA ˝◊÷«©√˚";
+            groupBoxRSASign.Text = "RSAÊï∞Â≠óÁ≠æÂêç";
+            // 
+            // comboRSASignAlgmFormat
+            // 
+            comboRSASignAlgmFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSASignAlgmFormat.FormattingEnabled = true;
+            comboRSASignAlgmFormat.Items.AddRange(new object[] { "SHA1withRSA(RSA1)", "SHA256withRSA(RSA2)", "SHA384withRSA", "SHA512withRSA", "MD5withRSA" });
+            comboRSASignAlgmFormat.Location = new Point(235, 31);
+            comboRSASignAlgmFormat.Margin = new Padding(4);
+            comboRSASignAlgmFormat.Name = "comboRSASignAlgmFormat";
+            comboRSASignAlgmFormat.Size = new Size(203, 28);
+            comboRSASignAlgmFormat.TabIndex = 18;
+            // 
+            // label29
+            // 
+            label29.AutoSize = true;
+            label29.Location = new Point(151, 34);
+            label29.Margin = new Padding(4, 0, 4, 0);
+            label29.Name = "label29";
+            label29.Size = new Size(73, 20);
+            label29.TabIndex = 17;
+            label29.Text = "Á≠æÂêçÁÆóÊ≥ï:";
+            // 
+            // comboRSASignOutputFormat
+            // 
+            comboRSASignOutputFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSASignOutputFormat.FormattingEnabled = true;
+            comboRSASignOutputFormat.Items.AddRange(new object[] { "Base64", "Hex" });
+            comboRSASignOutputFormat.Location = new Point(606, 30);
+            comboRSASignOutputFormat.Margin = new Padding(4);
+            comboRSASignOutputFormat.Name = "comboRSASignOutputFormat";
+            comboRSASignOutputFormat.Size = new Size(173, 28);
+            comboRSASignOutputFormat.TabIndex = 16;
+            comboRSASignOutputFormat.SelectedIndexChanged += ComboRSASignOutputFormat_SelectedIndexChanged;
+            // 
+            // label28
+            // 
+            label28.AutoSize = true;
+            label28.Location = new Point(466, 34);
+            label28.Margin = new Padding(4, 0, 4, 0);
+            label28.Name = "label28";
+            label28.Size = new Size(73, 20);
+            label28.TabIndex = 15;
+            label28.Text = "Á≠æÂêçÊ†ºÂºè:";
             // 
             // labelRSAVerifyResult
             // 
@@ -233,28 +286,7 @@ namespace CryptoTool.Win
             labelRSAVerifyResult.Name = "labelRSAVerifyResult";
             labelRSAVerifyResult.Size = new Size(73, 20);
             labelRSAVerifyResult.TabIndex = 8;
-            labelRSAVerifyResult.Text = "—È«©Ω·π˚:";
-            // 
-            // label9
-            // 
-            label9.AutoSize = true;
-            label9.Location = new Point(19, 33);
-            label9.Margin = new Padding(4, 0, 4, 0);
-            label9.Name = "label9";
-            label9.Size = new Size(73, 20);
-            label9.TabIndex = 7;
-            label9.Text = "«©√˚¿‡–Õ:";
-            // 
-            // comboRSAType
-            // 
-            comboRSAType.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboRSAType.FormattingEnabled = true;
-            comboRSAType.Items.AddRange(new object[] { "RSA", "RSA2" });
-            comboRSAType.Location = new Point(103, 29);
-            comboRSAType.Margin = new Padding(4, 4, 4, 4);
-            comboRSAType.Name = "comboRSAType";
-            comboRSAType.Size = new Size(127, 28);
-            comboRSAType.TabIndex = 6;
+            labelRSAVerifyResult.Text = "È™åÁ≠æÁªìÊûú:";
             // 
             // label8
             // 
@@ -264,16 +296,16 @@ namespace CryptoTool.Win
             label8.Name = "label8";
             label8.Size = new Size(43, 20);
             label8.TabIndex = 5;
-            label8.Text = "«©√˚:";
+            label8.Text = "Á≠æÂêç:";
             // 
             // textRSASignature
             // 
-            textRSASignature.Location = new Point(103, 141);
-            textRSASignature.Margin = new Padding(4, 4, 4, 4);
+            textRSASignature.Location = new Point(151, 141);
+            textRSASignature.Margin = new Padding(4);
             textRSASignature.Multiline = true;
             textRSASignature.Name = "textRSASignature";
             textRSASignature.ScrollBars = ScrollBars.Both;
-            textRSASignature.Size = new Size(1137, 58);
+            textRSASignature.Size = new Size(1089, 58);
             textRSASignature.TabIndex = 4;
             // 
             // label7
@@ -284,121 +316,170 @@ namespace CryptoTool.Win
             label7.Name = "label7";
             label7.Size = new Size(73, 20);
             label7.TabIndex = 3;
-            label7.Text = "‘≠Œƒ ˝æ›:";
+            label7.Text = "ÂéüÊñáÊï∞ÊçÆ:";
             // 
             // textRSASignData
             // 
-            textRSASignData.Location = new Point(103, 71);
-            textRSASignData.Margin = new Padding(4, 4, 4, 4);
+            textRSASignData.Location = new Point(151, 71);
+            textRSASignData.Margin = new Padding(4);
             textRSASignData.Multiline = true;
             textRSASignData.Name = "textRSASignData";
             textRSASignData.ScrollBars = ScrollBars.Both;
-            textRSASignData.Size = new Size(1137, 58);
+            textRSASignData.Size = new Size(1089, 58);
             textRSASignData.TabIndex = 2;
             // 
             // btnRSAVerify
             // 
-            btnRSAVerify.Location = new Point(386, 29);
-            btnRSAVerify.Margin = new Padding(4, 4, 4, 4);
+            btnRSAVerify.Location = new Point(1054, 28);
+            btnRSAVerify.Margin = new Padding(4);
             btnRSAVerify.Name = "btnRSAVerify";
-            btnRSAVerify.Size = new Size(103, 28);
+            btnRSAVerify.Size = new Size(103, 31);
             btnRSAVerify.TabIndex = 1;
-            btnRSAVerify.Text = "—È«©";
+            btnRSAVerify.Text = "È™åÁ≠æ";
             btnRSAVerify.UseVisualStyleBackColor = true;
             btnRSAVerify.Click += btnRSAVerify_Click;
             // 
             // btnRSASign
             // 
-            btnRSASign.Location = new Point(257, 29);
-            btnRSASign.Margin = new Padding(4, 4, 4, 4);
+            btnRSASign.Location = new Point(865, 29);
+            btnRSASign.Margin = new Padding(4);
             btnRSASign.Name = "btnRSASign";
-            btnRSASign.Size = new Size(103, 28);
+            btnRSASign.Size = new Size(103, 30);
             btnRSASign.TabIndex = 0;
-            btnRSASign.Text = "«©√˚";
+            btnRSASign.Text = "Á≠æÂêç";
             btnRSASign.UseVisualStyleBackColor = true;
             btnRSASign.Click += btnRSASign_Click;
             // 
             // groupBoxRSAEncrypt
             // 
+            groupBoxRSAEncrypt.Controls.Add(comboRSAEncryptOutputFormat);
+            groupBoxRSAEncrypt.Controls.Add(label27);
             groupBoxRSAEncrypt.Controls.Add(label6);
             groupBoxRSAEncrypt.Controls.Add(textRSACipherText);
+            groupBoxRSAEncrypt.Controls.Add(comboRSAKeyPadding);
             groupBoxRSAEncrypt.Controls.Add(label5);
+            groupBoxRSAEncrypt.Controls.Add(label25);
             groupBoxRSAEncrypt.Controls.Add(textRSAPlainText);
             groupBoxRSAEncrypt.Controls.Add(btnRSADecrypt);
             groupBoxRSAEncrypt.Controls.Add(btnRSAEncrypt);
-            groupBoxRSAEncrypt.Location = new Point(8, 249);
-            groupBoxRSAEncrypt.Margin = new Padding(4, 4, 4, 4);
+            groupBoxRSAEncrypt.Location = new Point(4, 324);
+            groupBoxRSAEncrypt.Margin = new Padding(4);
             groupBoxRSAEncrypt.Name = "groupBoxRSAEncrypt";
-            groupBoxRSAEncrypt.Padding = new Padding(4, 4, 4, 4);
+            groupBoxRSAEncrypt.Padding = new Padding(4);
             groupBoxRSAEncrypt.Size = new Size(1260, 212);
             groupBoxRSAEncrypt.TabIndex = 1;
             groupBoxRSAEncrypt.TabStop = false;
-            groupBoxRSAEncrypt.Text = "RSAº”√‹Ω‚√‹";
+            groupBoxRSAEncrypt.Text = "RSAÂä†ÂØÜËß£ÂØÜ";
+            // 
+            // comboRSAEncryptOutputFormat
+            // 
+            comboRSAEncryptOutputFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAEncryptOutputFormat.FormattingEnabled = true;
+            comboRSAEncryptOutputFormat.Items.AddRange(new object[] { "Base64", "Hex" });
+            comboRSAEncryptOutputFormat.Location = new Point(596, 32);
+            comboRSAEncryptOutputFormat.Margin = new Padding(4);
+            comboRSAEncryptOutputFormat.Name = "comboRSAEncryptOutputFormat";
+            comboRSAEncryptOutputFormat.Size = new Size(173, 28);
+            comboRSAEncryptOutputFormat.TabIndex = 15;
+            comboRSAEncryptOutputFormat.SelectedIndexChanged += ComboRSAEncryptOutputFormat_SelectedIndexChanged;
+            // 
+            // label27
+            // 
+            label27.AutoSize = true;
+            label27.Location = new Point(466, 35);
+            label27.Margin = new Padding(4, 0, 4, 0);
+            label27.Name = "label27";
+            label27.Size = new Size(73, 20);
+            label27.TabIndex = 14;
+            label27.Text = "ÂØÜÊñáÊ†ºÂºè:";
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(19, 104);
+            label6.Location = new Point(19, 149);
             label6.Margin = new Padding(4, 0, 4, 0);
             label6.Name = "label6";
             label6.Size = new Size(43, 20);
             label6.TabIndex = 5;
-            label6.Text = "√‹Œƒ:";
+            label6.Text = "ÂØÜÊñá:";
             // 
             // textRSACipherText
             // 
-            textRSACipherText.Location = new Point(103, 100);
-            textRSACipherText.Margin = new Padding(4, 4, 4, 4);
+            textRSACipherText.Location = new Point(151, 146);
+            textRSACipherText.Margin = new Padding(4);
             textRSACipherText.Multiline = true;
             textRSACipherText.Name = "textRSACipherText";
             textRSACipherText.ScrollBars = ScrollBars.Both;
-            textRSACipherText.Size = new Size(1137, 58);
+            textRSACipherText.Size = new Size(1089, 58);
             textRSACipherText.TabIndex = 4;
+            // 
+            // comboRSAKeyPadding
+            // 
+            comboRSAKeyPadding.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAKeyPadding.FormattingEnabled = true;
+            comboRSAKeyPadding.Items.AddRange(new object[] { "PKCS1", "OAEP", "NoPadding" });
+            comboRSAKeyPadding.Location = new Point(235, 32);
+            comboRSAKeyPadding.Margin = new Padding(4);
+            comboRSAKeyPadding.Name = "comboRSAKeyPadding";
+            comboRSAKeyPadding.Size = new Size(173, 28);
+            comboRSAKeyPadding.TabIndex = 12;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(19, 33);
+            label5.Location = new Point(19, 80);
             label5.Margin = new Padding(4, 0, 4, 0);
             label5.Name = "label5";
             label5.Size = new Size(43, 20);
             label5.TabIndex = 3;
-            label5.Text = "√˜Œƒ:";
+            label5.Text = "ÊòéÊñá:";
+            // 
+            // label25
+            // 
+            label25.AutoSize = true;
+            label25.Location = new Point(151, 35);
+            label25.Margin = new Padding(4, 0, 4, 0);
+            label25.Name = "label25";
+            label25.Size = new Size(73, 20);
+            label25.TabIndex = 11;
+            label25.Text = "Â°´ÂÖÖÊñπÂºè:";
             // 
             // textRSAPlainText
             // 
-            textRSAPlainText.Location = new Point(103, 29);
-            textRSAPlainText.Margin = new Padding(4, 4, 4, 4);
+            textRSAPlainText.Location = new Point(151, 80);
+            textRSAPlainText.Margin = new Padding(4);
             textRSAPlainText.Multiline = true;
             textRSAPlainText.Name = "textRSAPlainText";
             textRSAPlainText.ScrollBars = ScrollBars.Both;
-            textRSAPlainText.Size = new Size(1137, 58);
+            textRSAPlainText.Size = new Size(1089, 58);
             textRSAPlainText.TabIndex = 2;
             // 
             // btnRSADecrypt
             // 
-            btnRSADecrypt.Location = new Point(386, 165);
-            btnRSADecrypt.Margin = new Padding(4, 4, 4, 4);
+            btnRSADecrypt.Location = new Point(1036, 28);
+            btnRSADecrypt.Margin = new Padding(4);
             btnRSADecrypt.Name = "btnRSADecrypt";
             btnRSADecrypt.Size = new Size(103, 35);
             btnRSADecrypt.TabIndex = 1;
-            btnRSADecrypt.Text = "Ω‚√‹";
+            btnRSADecrypt.Text = "Ëß£ÂØÜ";
             btnRSADecrypt.UseVisualStyleBackColor = true;
             btnRSADecrypt.Click += btnRSADecrypt_Click;
             // 
             // btnRSAEncrypt
             // 
-            btnRSAEncrypt.Location = new Point(257, 165);
-            btnRSAEncrypt.Margin = new Padding(4, 4, 4, 4);
+            btnRSAEncrypt.Location = new Point(856, 28);
+            btnRSAEncrypt.Margin = new Padding(4);
             btnRSAEncrypt.Name = "btnRSAEncrypt";
             btnRSAEncrypt.Size = new Size(103, 35);
             btnRSAEncrypt.TabIndex = 0;
-            btnRSAEncrypt.Text = "º”√‹";
+            btnRSAEncrypt.Text = "Âä†ÂØÜ";
             btnRSAEncrypt.UseVisualStyleBackColor = true;
             btnRSAEncrypt.Click += btnRSAEncrypt_Click;
             // 
             // groupBoxRSAKeys
             // 
+            groupBoxRSAKeys.Controls.Add(comboRSAKeyOutputFormat);
+            groupBoxRSAKeys.Controls.Add(label26);
             groupBoxRSAKeys.Controls.Add(btnExportRSAKey);
             groupBoxRSAKeys.Controls.Add(btnImportRSAKey);
             groupBoxRSAKeys.Controls.Add(label4);
@@ -411,93 +492,115 @@ namespace CryptoTool.Win
             groupBoxRSAKeys.Controls.Add(comboRSAKeySize);
             groupBoxRSAKeys.Controls.Add(btnGenerateRSAKey);
             groupBoxRSAKeys.Location = new Point(8, 7);
-            groupBoxRSAKeys.Margin = new Padding(4, 4, 4, 4);
+            groupBoxRSAKeys.Margin = new Padding(4);
             groupBoxRSAKeys.Name = "groupBoxRSAKeys";
-            groupBoxRSAKeys.Padding = new Padding(4, 4, 4, 4);
-            groupBoxRSAKeys.Size = new Size(1260, 235);
+            groupBoxRSAKeys.Padding = new Padding(4);
+            groupBoxRSAKeys.Size = new Size(1260, 301);
             groupBoxRSAKeys.TabIndex = 0;
             groupBoxRSAKeys.TabStop = false;
-            groupBoxRSAKeys.Text = "RSA√‹‘ø…˙≥…";
+            groupBoxRSAKeys.Text = "RSAÂØÜÈí•ÁîüÊàê";
+            // 
+            // comboRSAKeyOutputFormat
+            // 
+            comboRSAKeyOutputFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboRSAKeyOutputFormat.FormattingEnabled = true;
+            comboRSAKeyOutputFormat.Items.AddRange(new object[] { "PEM", "Base64", "Hex" });
+            comboRSAKeyOutputFormat.Location = new Point(793, 30);
+            comboRSAKeyOutputFormat.Margin = new Padding(4);
+            comboRSAKeyOutputFormat.Name = "comboRSAKeyOutputFormat";
+            comboRSAKeyOutputFormat.Size = new Size(173, 28);
+            comboRSAKeyOutputFormat.TabIndex = 14;
+            comboRSAKeyOutputFormat.SelectedIndexChanged += ComboRSAKeyOutputFormat_SelectedIndexChanged;
+            // 
+            // label26
+            // 
+            label26.AutoSize = true;
+            label26.Location = new Point(682, 33);
+            label26.Margin = new Padding(4, 0, 4, 0);
+            label26.Name = "label26";
+            label26.Size = new Size(73, 20);
+            label26.TabIndex = 13;
+            label26.Text = "ÂØÜÈí•Ê†ºÂºè:";
             // 
             // btnExportRSAKey
             // 
-            btnExportRSAKey.Location = new Point(835, 29);
-            btnExportRSAKey.Margin = new Padding(4, 4, 4, 4);
+            btnExportRSAKey.Location = new Point(458, 80);
+            btnExportRSAKey.Margin = new Padding(4);
             btnExportRSAKey.Name = "btnExportRSAKey";
             btnExportRSAKey.Size = new Size(103, 28);
             btnExportRSAKey.TabIndex = 10;
-            btnExportRSAKey.Text = "µº≥ˆ√‹‘ø";
+            btnExportRSAKey.Text = "ÂØºÂá∫ÂØÜÈí•";
             btnExportRSAKey.UseVisualStyleBackColor = true;
             btnExportRSAKey.Click += btnExportRSAKey_Click;
             // 
             // btnImportRSAKey
             // 
-            btnImportRSAKey.Location = new Point(695, 29);
-            btnImportRSAKey.Margin = new Padding(4, 4, 4, 4);
+            btnImportRSAKey.Location = new Point(311, 80);
+            btnImportRSAKey.Margin = new Padding(4);
             btnImportRSAKey.Name = "btnImportRSAKey";
             btnImportRSAKey.Size = new Size(103, 28);
             btnImportRSAKey.TabIndex = 9;
-            btnImportRSAKey.Text = "µº»Î√‹‘ø";
+            btnImportRSAKey.Text = "ÂØºÂÖ•ÂØÜÈí•";
             btnImportRSAKey.UseVisualStyleBackColor = true;
             btnImportRSAKey.Click += btnImportRSAKey_Click;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(19, 162);
+            label4.Location = new Point(15, 223);
             label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
             label4.Size = new Size(43, 20);
             label4.TabIndex = 8;
-            label4.Text = "ÀΩ‘ø:";
+            label4.Text = "ÁßÅÈí•:";
             // 
             // textRSAPrivateKey
             // 
-            textRSAPrivateKey.Location = new Point(103, 159);
-            textRSAPrivateKey.Margin = new Padding(4, 4, 4, 4);
+            textRSAPrivateKey.Location = new Point(147, 223);
+            textRSAPrivateKey.Margin = new Padding(4);
             textRSAPrivateKey.Multiline = true;
             textRSAPrivateKey.Name = "textRSAPrivateKey";
             textRSAPrivateKey.ScrollBars = ScrollBars.Both;
-            textRSAPrivateKey.Size = new Size(1137, 70);
+            textRSAPrivateKey.Size = new Size(1093, 70);
             textRSAPrivateKey.TabIndex = 7;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(19, 80);
+            label3.Location = new Point(19, 125);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
             label3.Size = new Size(43, 20);
             label3.TabIndex = 6;
-            label3.Text = "π´‘ø:";
+            label3.Text = "ÂÖ¨Èí•:";
             // 
             // textRSAPublicKey
             // 
-            textRSAPublicKey.Location = new Point(103, 76);
-            textRSAPublicKey.Margin = new Padding(4, 4, 4, 4);
+            textRSAPublicKey.Location = new Point(147, 125);
+            textRSAPublicKey.Margin = new Padding(4);
             textRSAPublicKey.Multiline = true;
             textRSAPublicKey.Name = "textRSAPublicKey";
             textRSAPublicKey.ScrollBars = ScrollBars.Both;
-            textRSAPublicKey.Size = new Size(1137, 70);
+            textRSAPublicKey.Size = new Size(1093, 70);
             textRSAPublicKey.TabIndex = 5;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(251, 33);
+            label2.Location = new Point(379, 33);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
             label2.Size = new Size(73, 20);
             label2.TabIndex = 4;
-            label2.Text = "√‹‘ø∏Ò Ω:";
+            label2.Text = "ÂØÜÈí•Ê†ºÂºè:";
             // 
             // comboRSAKeyFormat
             // 
             comboRSAKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboRSAKeyFormat.FormattingEnabled = true;
-            comboRSAKeyFormat.Items.AddRange(new object[] { "XML(C#ƒ¨»œ∏Ò Ω)", "PKCS1(∑«JAVA  ”√)", "PKCS8(JAVA  ”√)" });
-            comboRSAKeyFormat.Location = new Point(334, 29);
-            comboRSAKeyFormat.Margin = new Padding(4, 4, 4, 4);
+            comboRSAKeyFormat.Items.AddRange(new object[] { "PKCS1(ÈùûJAVAÈÄÇÁî®)", "PKCS8(JAVAÈÄÇÁî®)" });
+            comboRSAKeyFormat.Location = new Point(462, 29);
+            comboRSAKeyFormat.Margin = new Padding(4);
             comboRSAKeyFormat.Name = "comboRSAKeyFormat";
             comboRSAKeyFormat.Size = new Size(173, 28);
             comboRSAKeyFormat.TabIndex = 3;
@@ -505,32 +608,34 @@ namespace CryptoTool.Win
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(19, 33);
+            label1.Location = new Point(147, 33);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
             label1.Size = new Size(73, 20);
             label1.TabIndex = 2;
-            label1.Text = "√‹‘ø≥§∂»:";
+            label1.Text = "ÂØÜÈí•ÈïøÂ∫¶:";
             // 
             // comboRSAKeySize
             // 
+            comboRSAKeySize.DisplayMember = "Text";
             comboRSAKeySize.DropDownStyle = ComboBoxStyle.DropDownList;
             comboRSAKeySize.FormattingEnabled = true;
-            comboRSAKeySize.Items.AddRange(new object[] { "1024(≤ªÕ∆ºˆ)", "2048(Õ∆ºˆ)", "4096(∏ﬂ∞≤»´)" });
-            comboRSAKeySize.Location = new Point(103, 29);
-            comboRSAKeySize.Margin = new Padding(4, 4, 4, 4);
+            comboRSAKeySize.Items.AddRange(new object[] { "1024", "2048", "4096" });
+            comboRSAKeySize.Location = new Point(231, 29);
+            comboRSAKeySize.Margin = new Padding(4);
             comboRSAKeySize.Name = "comboRSAKeySize";
             comboRSAKeySize.Size = new Size(127, 28);
             comboRSAKeySize.TabIndex = 1;
+            comboRSAKeySize.ValueMember = "Value";
             // 
             // btnGenerateRSAKey
             // 
-            btnGenerateRSAKey.Location = new Point(534, 29);
-            btnGenerateRSAKey.Margin = new Padding(4, 4, 4, 4);
+            btnGenerateRSAKey.Location = new Point(147, 80);
+            btnGenerateRSAKey.Margin = new Padding(4);
             btnGenerateRSAKey.Name = "btnGenerateRSAKey";
             btnGenerateRSAKey.Size = new Size(129, 28);
             btnGenerateRSAKey.TabIndex = 0;
-            btnGenerateRSAKey.Text = "…˙≥…√‹‘ø∂‘";
+            btnGenerateRSAKey.Text = "ÁîüÊàêÂØÜÈí•ÂØπ";
             btnGenerateRSAKey.UseVisualStyleBackColor = true;
             btnGenerateRSAKey.Click += btnGenerateRSAKey_Click;
             // 
@@ -539,12 +644,12 @@ namespace CryptoTool.Win
             tabSM4.Controls.Add(groupBoxSM4Encrypt);
             tabSM4.Controls.Add(groupBoxSM4Keys);
             tabSM4.Location = new Point(4, 29);
-            tabSM4.Margin = new Padding(4, 4, 4, 4);
+            tabSM4.Margin = new Padding(4);
             tabSM4.Name = "tabSM4";
-            tabSM4.Padding = new Padding(4, 4, 4, 4);
-            tabSM4.Size = new Size(1278, 1098);
+            tabSM4.Padding = new Padding(4);
+            tabSM4.Size = new Size(1278, 1022);
             tabSM4.TabIndex = 1;
-            tabSM4.Text = "SM4À„∑®";
+            tabSM4.Text = "SM4ÁÆóÊ≥ï";
             tabSM4.UseVisualStyleBackColor = true;
             // 
             // groupBoxSM4Encrypt
@@ -564,13 +669,13 @@ namespace CryptoTool.Win
             groupBoxSM4Encrypt.Controls.Add(btnSM4Decrypt);
             groupBoxSM4Encrypt.Controls.Add(btnSM4Encrypt);
             groupBoxSM4Encrypt.Location = new Point(8, 188);
-            groupBoxSM4Encrypt.Margin = new Padding(4, 4, 4, 4);
+            groupBoxSM4Encrypt.Margin = new Padding(4);
             groupBoxSM4Encrypt.Name = "groupBoxSM4Encrypt";
-            groupBoxSM4Encrypt.Padding = new Padding(4, 4, 4, 4);
+            groupBoxSM4Encrypt.Padding = new Padding(4);
             groupBoxSM4Encrypt.Size = new Size(1260, 294);
             groupBoxSM4Encrypt.TabIndex = 1;
             groupBoxSM4Encrypt.TabStop = false;
-            groupBoxSM4Encrypt.Text = "SM4º”√‹Ω‚√‹";
+            groupBoxSM4Encrypt.Text = "SM4Âä†ÂØÜËß£ÂØÜ";
             // 
             // labelSM4CiphertextFormat
             // 
@@ -580,7 +685,7 @@ namespace CryptoTool.Win
             labelSM4CiphertextFormat.Name = "labelSM4CiphertextFormat";
             labelSM4CiphertextFormat.Size = new Size(73, 20);
             labelSM4CiphertextFormat.TabIndex = 9;
-            labelSM4CiphertextFormat.Text = "√‹Œƒ∏Ò Ω:";
+            labelSM4CiphertextFormat.Text = "ÂØÜÊñáÊ†ºÂºè:";
             // 
             // comboSM4CiphertextFormat
             // 
@@ -588,7 +693,7 @@ namespace CryptoTool.Win
             comboSM4CiphertextFormat.FormattingEnabled = true;
             comboSM4CiphertextFormat.Items.AddRange(new object[] { "Base64", "Hex" });
             comboSM4CiphertextFormat.Location = new Point(617, 67);
-            comboSM4CiphertextFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM4CiphertextFormat.Margin = new Padding(4);
             comboSM4CiphertextFormat.Name = "comboSM4CiphertextFormat";
             comboSM4CiphertextFormat.Size = new Size(127, 28);
             comboSM4CiphertextFormat.TabIndex = 8;
@@ -601,7 +706,7 @@ namespace CryptoTool.Win
             labelSM4PlaintextFormat.Name = "labelSM4PlaintextFormat";
             labelSM4PlaintextFormat.Size = new Size(73, 20);
             labelSM4PlaintextFormat.TabIndex = 11;
-            labelSM4PlaintextFormat.Text = "√˜Œƒ∏Ò Ω:";
+            labelSM4PlaintextFormat.Text = "ÊòéÊñáÊ†ºÂºè:";
             // 
             // comboSM4PlaintextFormat
             // 
@@ -609,7 +714,7 @@ namespace CryptoTool.Win
             comboSM4PlaintextFormat.FormattingEnabled = true;
             comboSM4PlaintextFormat.Items.AddRange(new object[] { "Text", "Base64", "Hex" });
             comboSM4PlaintextFormat.Location = new Point(617, 29);
-            comboSM4PlaintextFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM4PlaintextFormat.Margin = new Padding(4);
             comboSM4PlaintextFormat.Name = "comboSM4PlaintextFormat";
             comboSM4PlaintextFormat.Size = new Size(127, 28);
             comboSM4PlaintextFormat.TabIndex = 10;
@@ -622,7 +727,7 @@ namespace CryptoTool.Win
             label15.Name = "label15";
             label15.Size = new Size(73, 20);
             label15.TabIndex = 7;
-            label15.Text = "ÃÓ≥‰ƒ£ Ω:";
+            label15.Text = "Â°´ÂÖÖÊ®°Âºè:";
             // 
             // comboSM4Padding
             // 
@@ -630,7 +735,7 @@ namespace CryptoTool.Win
             comboSM4Padding.FormattingEnabled = true;
             comboSM4Padding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "NoPadding" });
             comboSM4Padding.Location = new Point(360, 29);
-            comboSM4Padding.Margin = new Padding(4, 4, 4, 4);
+            comboSM4Padding.Margin = new Padding(4);
             comboSM4Padding.Name = "comboSM4Padding";
             comboSM4Padding.Size = new Size(127, 28);
             comboSM4Padding.TabIndex = 6;
@@ -643,7 +748,7 @@ namespace CryptoTool.Win
             label14.Name = "label14";
             label14.Size = new Size(73, 20);
             label14.TabIndex = 5;
-            label14.Text = "º”√‹ƒ£ Ω:";
+            label14.Text = "Âä†ÂØÜÊ®°Âºè:";
             // 
             // comboSM4Mode
             // 
@@ -651,7 +756,7 @@ namespace CryptoTool.Win
             comboSM4Mode.FormattingEnabled = true;
             comboSM4Mode.Items.AddRange(new object[] { "ECB", "CBC" });
             comboSM4Mode.Location = new Point(103, 29);
-            comboSM4Mode.Margin = new Padding(4, 4, 4, 4);
+            comboSM4Mode.Margin = new Padding(4);
             comboSM4Mode.Name = "comboSM4Mode";
             comboSM4Mode.Size = new Size(127, 28);
             comboSM4Mode.TabIndex = 4;
@@ -665,12 +770,12 @@ namespace CryptoTool.Win
             label13.Name = "label13";
             label13.Size = new Size(43, 20);
             label13.TabIndex = 5;
-            label13.Text = "√‹Œƒ:";
+            label13.Text = "ÂØÜÊñá:";
             // 
             // textSM4CipherText
             // 
             textSM4CipherText.Location = new Point(103, 182);
-            textSM4CipherText.Margin = new Padding(4, 4, 4, 4);
+            textSM4CipherText.Margin = new Padding(4);
             textSM4CipherText.Multiline = true;
             textSM4CipherText.Name = "textSM4CipherText";
             textSM4CipherText.ScrollBars = ScrollBars.Both;
@@ -685,12 +790,12 @@ namespace CryptoTool.Win
             label12.Name = "label12";
             label12.Size = new Size(43, 20);
             label12.TabIndex = 3;
-            label12.Text = "√˜Œƒ:";
+            label12.Text = "ÊòéÊñá:";
             // 
             // textSM4PlainText
             // 
             textSM4PlainText.Location = new Point(103, 112);
-            textSM4PlainText.Margin = new Padding(4, 4, 4, 4);
+            textSM4PlainText.Margin = new Padding(4);
             textSM4PlainText.Multiline = true;
             textSM4PlainText.Name = "textSM4PlainText";
             textSM4PlainText.ScrollBars = ScrollBars.Both;
@@ -700,22 +805,22 @@ namespace CryptoTool.Win
             // btnSM4Decrypt
             // 
             btnSM4Decrypt.Location = new Point(885, 29);
-            btnSM4Decrypt.Margin = new Padding(4, 4, 4, 4);
+            btnSM4Decrypt.Margin = new Padding(4);
             btnSM4Decrypt.Name = "btnSM4Decrypt";
             btnSM4Decrypt.Size = new Size(103, 28);
             btnSM4Decrypt.TabIndex = 1;
-            btnSM4Decrypt.Text = "Ω‚√‹";
+            btnSM4Decrypt.Text = "Ëß£ÂØÜ";
             btnSM4Decrypt.UseVisualStyleBackColor = true;
             btnSM4Decrypt.Click += btnSM4Decrypt_Click;
             // 
             // btnSM4Encrypt
             // 
             btnSM4Encrypt.Location = new Point(757, 29);
-            btnSM4Encrypt.Margin = new Padding(4, 4, 4, 4);
+            btnSM4Encrypt.Margin = new Padding(4);
             btnSM4Encrypt.Name = "btnSM4Encrypt";
             btnSM4Encrypt.Size = new Size(103, 28);
             btnSM4Encrypt.TabIndex = 0;
-            btnSM4Encrypt.Text = "º”√‹";
+            btnSM4Encrypt.Text = "Âä†ÂØÜ";
             btnSM4Encrypt.UseVisualStyleBackColor = true;
             btnSM4Encrypt.Click += btnSM4Encrypt_Click;
             // 
@@ -732,13 +837,13 @@ namespace CryptoTool.Win
             groupBoxSM4Keys.Controls.Add(btnGenerateSM4IV);
             groupBoxSM4Keys.Controls.Add(btnGenerateSM4Key);
             groupBoxSM4Keys.Location = new Point(8, 7);
-            groupBoxSM4Keys.Margin = new Padding(4, 4, 4, 4);
+            groupBoxSM4Keys.Margin = new Padding(4);
             groupBoxSM4Keys.Name = "groupBoxSM4Keys";
-            groupBoxSM4Keys.Padding = new Padding(4, 4, 4, 4);
+            groupBoxSM4Keys.Padding = new Padding(4);
             groupBoxSM4Keys.Size = new Size(1260, 159);
             groupBoxSM4Keys.TabIndex = 0;
             groupBoxSM4Keys.TabStop = false;
-            groupBoxSM4Keys.Text = "SM4√‹‘ø…˙≥…";
+            groupBoxSM4Keys.Text = "SM4ÂØÜÈí•ÁîüÊàê";
             // 
             // labelSM4IVFormat
             // 
@@ -748,7 +853,7 @@ namespace CryptoTool.Win
             labelSM4IVFormat.Name = "labelSM4IVFormat";
             labelSM4IVFormat.Size = new Size(73, 20);
             labelSM4IVFormat.TabIndex = 11;
-            labelSM4IVFormat.Text = "œÚ¡ø∏Ò Ω:";
+            labelSM4IVFormat.Text = "ÂêëÈáèÊ†ºÂºè:";
             // 
             // comboSM4IVFormat
             // 
@@ -756,7 +861,7 @@ namespace CryptoTool.Win
             comboSM4IVFormat.FormattingEnabled = true;
             comboSM4IVFormat.Items.AddRange(new object[] { "Base64", "Hex", "Text" });
             comboSM4IVFormat.Location = new Point(836, 100);
-            comboSM4IVFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM4IVFormat.Margin = new Padding(4);
             comboSM4IVFormat.Name = "comboSM4IVFormat";
             comboSM4IVFormat.Size = new Size(102, 28);
             comboSM4IVFormat.TabIndex = 10;
@@ -770,7 +875,7 @@ namespace CryptoTool.Win
             labelSM4KeyFormat.Name = "labelSM4KeyFormat";
             labelSM4KeyFormat.Size = new Size(73, 20);
             labelSM4KeyFormat.TabIndex = 9;
-            labelSM4KeyFormat.Text = "√‹‘ø∏Ò Ω:";
+            labelSM4KeyFormat.Text = "ÂØÜÈí•Ê†ºÂºè:";
             // 
             // comboSM4KeyFormat
             // 
@@ -778,11 +883,10 @@ namespace CryptoTool.Win
             comboSM4KeyFormat.FormattingEnabled = true;
             comboSM4KeyFormat.Items.AddRange(new object[] { "Base64", "Hex", "Text" });
             comboSM4KeyFormat.Location = new Point(836, 41);
-            comboSM4KeyFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM4KeyFormat.Margin = new Padding(4);
             comboSM4KeyFormat.Name = "comboSM4KeyFormat";
             comboSM4KeyFormat.Size = new Size(102, 28);
             comboSM4KeyFormat.TabIndex = 8;
-            comboSM4KeyFormat.SelectedIndexChanged += comboSM4KeyFormat_SelectedIndexChanged;
             // 
             // label11
             // 
@@ -792,12 +896,12 @@ namespace CryptoTool.Win
             label11.Name = "label11";
             label11.Size = new Size(73, 20);
             label11.TabIndex = 5;
-            label11.Text = "≥ı ºœÚ¡ø:";
+            label11.Text = "ÂàùÂßãÂêëÈáè:";
             // 
             // textSM4IV
             // 
             textSM4IV.Location = new Point(103, 100);
-            textSM4IV.Margin = new Padding(4, 4, 4, 4);
+            textSM4IV.Margin = new Padding(4);
             textSM4IV.Name = "textSM4IV";
             textSM4IV.Size = new Size(642, 27);
             textSM4IV.TabIndex = 4;
@@ -810,12 +914,12 @@ namespace CryptoTool.Win
             label10.Name = "label10";
             label10.Size = new Size(76, 20);
             label10.TabIndex = 3;
-            label10.Text = "SM4√‹‘ø:";
+            label10.Text = "SM4ÂØÜÈí•:";
             // 
             // textSM4Key
             // 
             textSM4Key.Location = new Point(103, 41);
-            textSM4Key.Margin = new Padding(4, 4, 4, 4);
+            textSM4Key.Margin = new Padding(4);
             textSM4Key.Name = "textSM4Key";
             textSM4Key.Size = new Size(642, 27);
             textSM4Key.TabIndex = 2;
@@ -824,22 +928,22 @@ namespace CryptoTool.Win
             // btnGenerateSM4IV
             // 
             btnGenerateSM4IV.Location = new Point(967, 100);
-            btnGenerateSM4IV.Margin = new Padding(4, 4, 4, 4);
+            btnGenerateSM4IV.Margin = new Padding(4);
             btnGenerateSM4IV.Name = "btnGenerateSM4IV";
             btnGenerateSM4IV.Size = new Size(103, 28);
             btnGenerateSM4IV.TabIndex = 1;
-            btnGenerateSM4IV.Text = "…˙≥…œÚ¡ø";
+            btnGenerateSM4IV.Text = "ÁîüÊàêÂêëÈáè";
             btnGenerateSM4IV.UseVisualStyleBackColor = true;
             btnGenerateSM4IV.Click += btnGenerateSM4IV_Click;
             // 
             // btnGenerateSM4Key
             // 
             btnGenerateSM4Key.Location = new Point(967, 41);
-            btnGenerateSM4Key.Margin = new Padding(4, 4, 4, 4);
+            btnGenerateSM4Key.Margin = new Padding(4);
             btnGenerateSM4Key.Name = "btnGenerateSM4Key";
             btnGenerateSM4Key.Size = new Size(103, 28);
             btnGenerateSM4Key.TabIndex = 0;
-            btnGenerateSM4Key.Text = "…˙≥…√‹‘ø";
+            btnGenerateSM4Key.Text = "ÁîüÊàêÂØÜÈí•";
             btnGenerateSM4Key.UseVisualStyleBackColor = true;
             btnGenerateSM4Key.Click += btnGenerateSM4Key_Click;
             // 
@@ -849,12 +953,12 @@ namespace CryptoTool.Win
             tabSM2.Controls.Add(groupBoxSM2Encrypt);
             tabSM2.Controls.Add(groupBoxSM2Keys);
             tabSM2.Location = new Point(4, 29);
-            tabSM2.Margin = new Padding(4, 4, 4, 4);
+            tabSM2.Margin = new Padding(4);
             tabSM2.Name = "tabSM2";
-            tabSM2.Padding = new Padding(4, 4, 4, 4);
-            tabSM2.Size = new Size(1278, 1098);
+            tabSM2.Padding = new Padding(4);
+            tabSM2.Size = new Size(1278, 1022);
             tabSM2.TabIndex = 2;
-            tabSM2.Text = "SM2À„∑®";
+            tabSM2.Text = "SM2ÁÆóÊ≥ï";
             tabSM2.UseVisualStyleBackColor = true;
             // 
             // groupBoxSM2Sign
@@ -869,13 +973,13 @@ namespace CryptoTool.Win
             groupBoxSM2Sign.Controls.Add(label22);
             groupBoxSM2Sign.Controls.Add(comboSM2SignFormat);
             groupBoxSM2Sign.Location = new Point(8, 468);
-            groupBoxSM2Sign.Margin = new Padding(4, 4, 4, 4);
+            groupBoxSM2Sign.Margin = new Padding(4);
             groupBoxSM2Sign.Name = "groupBoxSM2Sign";
-            groupBoxSM2Sign.Padding = new Padding(4, 4, 4, 4);
+            groupBoxSM2Sign.Padding = new Padding(4);
             groupBoxSM2Sign.Size = new Size(1260, 375);
             groupBoxSM2Sign.TabIndex = 2;
             groupBoxSM2Sign.TabStop = false;
-            groupBoxSM2Sign.Text = "SM2 ˝◊÷«©√˚";
+            groupBoxSM2Sign.Text = "SM2Êï∞Â≠óÁ≠æÂêç";
             // 
             // labelSM2VerifyResult
             // 
@@ -885,7 +989,7 @@ namespace CryptoTool.Win
             labelSM2VerifyResult.Name = "labelSM2VerifyResult";
             labelSM2VerifyResult.Size = new Size(73, 20);
             labelSM2VerifyResult.TabIndex = 8;
-            labelSM2VerifyResult.Text = "—È«©Ω·π˚:";
+            labelSM2VerifyResult.Text = "È™åÁ≠æÁªìÊûú:";
             // 
             // label24
             // 
@@ -895,12 +999,12 @@ namespace CryptoTool.Win
             label24.Name = "label24";
             label24.Size = new Size(43, 20);
             label24.TabIndex = 7;
-            label24.Text = "«©√˚:";
+            label24.Text = "Á≠æÂêç:";
             // 
             // textSM2Signature
             // 
             textSM2Signature.Location = new Point(103, 220);
-            textSM2Signature.Margin = new Padding(4, 4, 4, 4);
+            textSM2Signature.Margin = new Padding(4);
             textSM2Signature.Multiline = true;
             textSM2Signature.Name = "textSM2Signature";
             textSM2Signature.ScrollBars = ScrollBars.Both;
@@ -915,12 +1019,12 @@ namespace CryptoTool.Win
             label23.Name = "label23";
             label23.Size = new Size(73, 20);
             label23.TabIndex = 5;
-            label23.Text = "‘≠Œƒ ˝æ›:";
+            label23.Text = "ÂéüÊñáÊï∞ÊçÆ:";
             // 
             // textSM2SignData
             // 
             textSM2SignData.Location = new Point(103, 71);
-            textSM2SignData.Margin = new Padding(4, 4, 4, 4);
+            textSM2SignData.Margin = new Padding(4);
             textSM2SignData.Multiline = true;
             textSM2SignData.Name = "textSM2SignData";
             textSM2SignData.ScrollBars = ScrollBars.Both;
@@ -930,22 +1034,22 @@ namespace CryptoTool.Win
             // btnSM2Verify
             // 
             btnSM2Verify.Location = new Point(514, 29);
-            btnSM2Verify.Margin = new Padding(4, 4, 4, 4);
+            btnSM2Verify.Margin = new Padding(4);
             btnSM2Verify.Name = "btnSM2Verify";
             btnSM2Verify.Size = new Size(103, 28);
             btnSM2Verify.TabIndex = 3;
-            btnSM2Verify.Text = "—È«©";
+            btnSM2Verify.Text = "È™åÁ≠æ";
             btnSM2Verify.UseVisualStyleBackColor = true;
             btnSM2Verify.Click += btnSM2Verify_Click;
             // 
             // btnSM2Sign
             // 
             btnSM2Sign.Location = new Point(360, 29);
-            btnSM2Sign.Margin = new Padding(4, 4, 4, 4);
+            btnSM2Sign.Margin = new Padding(4);
             btnSM2Sign.Name = "btnSM2Sign";
             btnSM2Sign.Size = new Size(103, 28);
             btnSM2Sign.TabIndex = 2;
-            btnSM2Sign.Text = "«©√˚";
+            btnSM2Sign.Text = "Á≠æÂêç";
             btnSM2Sign.UseVisualStyleBackColor = true;
             btnSM2Sign.Click += btnSM2Sign_Click;
             // 
@@ -957,7 +1061,7 @@ namespace CryptoTool.Win
             label22.Name = "label22";
             label22.Size = new Size(73, 20);
             label22.TabIndex = 1;
-            label22.Text = "«©√˚∏Ò Ω:";
+            label22.Text = "Á≠æÂêçÊ†ºÂºè:";
             // 
             // comboSM2SignFormat
             // 
@@ -965,7 +1069,7 @@ namespace CryptoTool.Win
             comboSM2SignFormat.FormattingEnabled = true;
             comboSM2SignFormat.Items.AddRange(new object[] { "ASN1", "RS" });
             comboSM2SignFormat.Location = new Point(103, 29);
-            comboSM2SignFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM2SignFormat.Margin = new Padding(4);
             comboSM2SignFormat.Name = "comboSM2SignFormat";
             comboSM2SignFormat.Size = new Size(127, 28);
             comboSM2SignFormat.TabIndex = 0;
@@ -981,13 +1085,13 @@ namespace CryptoTool.Win
             groupBoxSM2Encrypt.Controls.Add(label19);
             groupBoxSM2Encrypt.Controls.Add(comboSM2CipherFormat);
             groupBoxSM2Encrypt.Location = new Point(8, 249);
-            groupBoxSM2Encrypt.Margin = new Padding(4, 4, 4, 4);
+            groupBoxSM2Encrypt.Margin = new Padding(4);
             groupBoxSM2Encrypt.Name = "groupBoxSM2Encrypt";
-            groupBoxSM2Encrypt.Padding = new Padding(4, 4, 4, 4);
+            groupBoxSM2Encrypt.Padding = new Padding(4);
             groupBoxSM2Encrypt.Size = new Size(1260, 212);
             groupBoxSM2Encrypt.TabIndex = 1;
             groupBoxSM2Encrypt.TabStop = false;
-            groupBoxSM2Encrypt.Text = "SM2º”√‹Ω‚√‹";
+            groupBoxSM2Encrypt.Text = "SM2Âä†ÂØÜËß£ÂØÜ";
             // 
             // label21
             // 
@@ -997,12 +1101,12 @@ namespace CryptoTool.Win
             label21.Name = "label21";
             label21.Size = new Size(43, 20);
             label21.TabIndex = 7;
-            label21.Text = "√‹Œƒ:";
+            label21.Text = "ÂØÜÊñá:";
             // 
             // textSM2CipherText
             // 
             textSM2CipherText.Location = new Point(103, 124);
-            textSM2CipherText.Margin = new Padding(4, 4, 4, 4);
+            textSM2CipherText.Margin = new Padding(4);
             textSM2CipherText.Multiline = true;
             textSM2CipherText.Name = "textSM2CipherText";
             textSM2CipherText.ScrollBars = ScrollBars.Both;
@@ -1017,12 +1121,12 @@ namespace CryptoTool.Win
             label20.Name = "label20";
             label20.Size = new Size(43, 20);
             label20.TabIndex = 5;
-            label20.Text = "√˜Œƒ:";
+            label20.Text = "ÊòéÊñá:";
             // 
             // textSM2PlainText
             // 
             textSM2PlainText.Location = new Point(103, 71);
-            textSM2PlainText.Margin = new Padding(4, 4, 4, 4);
+            textSM2PlainText.Margin = new Padding(4);
             textSM2PlainText.Multiline = true;
             textSM2PlainText.Name = "textSM2PlainText";
             textSM2PlainText.ScrollBars = ScrollBars.Both;
@@ -1032,22 +1136,22 @@ namespace CryptoTool.Win
             // btnSM2Decrypt
             // 
             btnSM2Decrypt.Location = new Point(514, 29);
-            btnSM2Decrypt.Margin = new Padding(4, 4, 4, 4);
+            btnSM2Decrypt.Margin = new Padding(4);
             btnSM2Decrypt.Name = "btnSM2Decrypt";
             btnSM2Decrypt.Size = new Size(103, 28);
             btnSM2Decrypt.TabIndex = 3;
-            btnSM2Decrypt.Text = "Ω‚√‹";
+            btnSM2Decrypt.Text = "Ëß£ÂØÜ";
             btnSM2Decrypt.UseVisualStyleBackColor = true;
             btnSM2Decrypt.Click += btnSM2Decrypt_Click;
             // 
             // btnSM2Encrypt
             // 
             btnSM2Encrypt.Location = new Point(360, 29);
-            btnSM2Encrypt.Margin = new Padding(4, 4, 4, 4);
+            btnSM2Encrypt.Margin = new Padding(4);
             btnSM2Encrypt.Name = "btnSM2Encrypt";
             btnSM2Encrypt.Size = new Size(103, 28);
             btnSM2Encrypt.TabIndex = 2;
-            btnSM2Encrypt.Text = "º”√‹";
+            btnSM2Encrypt.Text = "Âä†ÂØÜ";
             btnSM2Encrypt.UseVisualStyleBackColor = true;
             btnSM2Encrypt.Click += btnSM2Encrypt_Click;
             // 
@@ -1059,7 +1163,7 @@ namespace CryptoTool.Win
             label19.Name = "label19";
             label19.Size = new Size(73, 20);
             label19.TabIndex = 1;
-            label19.Text = "√‹Œƒ∏Ò Ω:";
+            label19.Text = "ÂØÜÊñáÊ†ºÂºè:";
             // 
             // comboSM2CipherFormat
             // 
@@ -1067,7 +1171,7 @@ namespace CryptoTool.Win
             comboSM2CipherFormat.FormattingEnabled = true;
             comboSM2CipherFormat.Items.AddRange(new object[] { "C1C3C2", "C1C2C3", "ASN1" });
             comboSM2CipherFormat.Location = new Point(103, 29);
-            comboSM2CipherFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM2CipherFormat.Margin = new Padding(4);
             comboSM2CipherFormat.Name = "comboSM2CipherFormat";
             comboSM2CipherFormat.Size = new Size(127, 28);
             comboSM2CipherFormat.TabIndex = 0;
@@ -1084,33 +1188,33 @@ namespace CryptoTool.Win
             groupBoxSM2Keys.Controls.Add(comboSM2KeyFormat);
             groupBoxSM2Keys.Controls.Add(btnGenerateSM2Key);
             groupBoxSM2Keys.Location = new Point(8, 7);
-            groupBoxSM2Keys.Margin = new Padding(4, 4, 4, 4);
+            groupBoxSM2Keys.Margin = new Padding(4);
             groupBoxSM2Keys.Name = "groupBoxSM2Keys";
-            groupBoxSM2Keys.Padding = new Padding(4, 4, 4, 4);
+            groupBoxSM2Keys.Padding = new Padding(4);
             groupBoxSM2Keys.Size = new Size(1260, 235);
             groupBoxSM2Keys.TabIndex = 0;
             groupBoxSM2Keys.TabStop = false;
-            groupBoxSM2Keys.Text = "SM2√‹‘ø…˙≥…";
+            groupBoxSM2Keys.Text = "SM2ÂØÜÈí•ÁîüÊàê";
             // 
             // btnExportSM2Key
             // 
             btnExportSM2Key.Location = new Point(643, 29);
-            btnExportSM2Key.Margin = new Padding(4, 4, 4, 4);
+            btnExportSM2Key.Margin = new Padding(4);
             btnExportSM2Key.Name = "btnExportSM2Key";
             btnExportSM2Key.Size = new Size(103, 28);
             btnExportSM2Key.TabIndex = 8;
-            btnExportSM2Key.Text = "µº≥ˆ√‹‘ø";
+            btnExportSM2Key.Text = "ÂØºÂá∫ÂØÜÈí•";
             btnExportSM2Key.UseVisualStyleBackColor = true;
             btnExportSM2Key.Click += btnExportSM2Key_Click;
             // 
             // btnImportSM2Key
             // 
             btnImportSM2Key.Location = new Point(514, 29);
-            btnImportSM2Key.Margin = new Padding(4, 4, 4, 4);
+            btnImportSM2Key.Margin = new Padding(4);
             btnImportSM2Key.Name = "btnImportSM2Key";
             btnImportSM2Key.Size = new Size(103, 28);
             btnImportSM2Key.TabIndex = 7;
-            btnImportSM2Key.Text = "µº»Î√‹‘ø";
+            btnImportSM2Key.Text = "ÂØºÂÖ•ÂØÜÈí•";
             btnImportSM2Key.UseVisualStyleBackColor = true;
             btnImportSM2Key.Click += btnImportSM2Key_Click;
             // 
@@ -1122,12 +1226,12 @@ namespace CryptoTool.Win
             label18.Name = "label18";
             label18.Size = new Size(43, 20);
             label18.TabIndex = 6;
-            label18.Text = "ÀΩ‘ø:";
+            label18.Text = "ÁßÅÈí•:";
             // 
             // textSM2PrivateKey
             // 
             textSM2PrivateKey.Location = new Point(103, 159);
-            textSM2PrivateKey.Margin = new Padding(4, 4, 4, 4);
+            textSM2PrivateKey.Margin = new Padding(4);
             textSM2PrivateKey.Multiline = true;
             textSM2PrivateKey.Name = "textSM2PrivateKey";
             textSM2PrivateKey.ScrollBars = ScrollBars.Both;
@@ -1142,12 +1246,12 @@ namespace CryptoTool.Win
             label17.Name = "label17";
             label17.Size = new Size(43, 20);
             label17.TabIndex = 4;
-            label17.Text = "π´‘ø:";
+            label17.Text = "ÂÖ¨Èí•:";
             // 
             // textSM2PublicKey
             // 
             textSM2PublicKey.Location = new Point(103, 76);
-            textSM2PublicKey.Margin = new Padding(4, 4, 4, 4);
+            textSM2PublicKey.Margin = new Padding(4);
             textSM2PublicKey.Multiline = true;
             textSM2PublicKey.Name = "textSM2PublicKey";
             textSM2PublicKey.ScrollBars = ScrollBars.Both;
@@ -1162,7 +1266,7 @@ namespace CryptoTool.Win
             label16.Name = "label16";
             label16.Size = new Size(73, 20);
             label16.TabIndex = 2;
-            label16.Text = "√‹‘ø∏Ò Ω:";
+            label16.Text = "ÂØÜÈí•Ê†ºÂºè:";
             // 
             // comboSM2KeyFormat
             // 
@@ -1170,7 +1274,7 @@ namespace CryptoTool.Win
             comboSM2KeyFormat.FormattingEnabled = true;
             comboSM2KeyFormat.Items.AddRange(new object[] { "Base64", "Hex" });
             comboSM2KeyFormat.Location = new Point(103, 29);
-            comboSM2KeyFormat.Margin = new Padding(4, 4, 4, 4);
+            comboSM2KeyFormat.Margin = new Padding(4);
             comboSM2KeyFormat.Name = "comboSM2KeyFormat";
             comboSM2KeyFormat.Size = new Size(127, 28);
             comboSM2KeyFormat.TabIndex = 1;
@@ -1178,11 +1282,11 @@ namespace CryptoTool.Win
             // btnGenerateSM2Key
             // 
             btnGenerateSM2Key.Location = new Point(360, 29);
-            btnGenerateSM2Key.Margin = new Padding(4, 4, 4, 4);
+            btnGenerateSM2Key.Margin = new Padding(4);
             btnGenerateSM2Key.Name = "btnGenerateSM2Key";
             btnGenerateSM2Key.Size = new Size(129, 28);
             btnGenerateSM2Key.TabIndex = 0;
-            btnGenerateSM2Key.Text = "…˙≥…√‹‘ø∂‘";
+            btnGenerateSM2Key.Text = "ÁîüÊàêÂØÜÈí•ÂØπ";
             btnGenerateSM2Key.UseVisualStyleBackColor = true;
             btnGenerateSM2Key.Click += btnGenerateSM2Key_Click;
             // 
@@ -1192,12 +1296,12 @@ namespace CryptoTool.Win
             tabMedicare.Controls.Add(groupBoxMedicareKeys);
             tabMedicare.Controls.Add(groupBoxMedicareAction);
             tabMedicare.Location = new Point(4, 29);
-            tabMedicare.Margin = new Padding(4, 4, 4, 4);
+            tabMedicare.Margin = new Padding(4);
             tabMedicare.Name = "tabMedicare";
             tabMedicare.Padding = new Padding(3, 4, 3, 4);
-            tabMedicare.Size = new Size(1278, 1098);
+            tabMedicare.Size = new Size(1278, 1022);
             tabMedicare.TabIndex = 3;
-            tabMedicare.Text = "“Ω±£Ω”ø⁄";
+            tabMedicare.Text = "Âåª‰øùÊé•Âè£";
             tabMedicare.UseVisualStyleBackColor = true;
             // 
             // groupBoxMedicareParams
@@ -1218,13 +1322,13 @@ namespace CryptoTool.Win
             groupBoxMedicareParams.Controls.Add(labelMedicareData);
             groupBoxMedicareParams.Controls.Add(textMedicareData);
             groupBoxMedicareParams.Location = new Point(8, 6);
-            groupBoxMedicareParams.Margin = new Padding(4, 4, 4, 4);
+            groupBoxMedicareParams.Margin = new Padding(4);
             groupBoxMedicareParams.Name = "groupBoxMedicareParams";
-            groupBoxMedicareParams.Padding = new Padding(4, 4, 4, 4);
+            groupBoxMedicareParams.Padding = new Padding(4);
             groupBoxMedicareParams.Size = new Size(1264, 249);
             groupBoxMedicareParams.TabIndex = 0;
             groupBoxMedicareParams.TabStop = false;
-            groupBoxMedicareParams.Text = "«Î«Û≤Œ ˝";
+            groupBoxMedicareParams.Text = "ËØ∑Ê±ÇÂèÇÊï∞";
             // 
             // labelMedicareAppId
             // 
@@ -1239,7 +1343,7 @@ namespace CryptoTool.Win
             // textMedicareAppId
             // 
             textMedicareAppId.Location = new Point(100, 27);
-            textMedicareAppId.Margin = new Padding(4, 4, 4, 4);
+            textMedicareAppId.Margin = new Padding(4);
             textMedicareAppId.Name = "textMedicareAppId";
             textMedicareAppId.Size = new Size(350, 27);
             textMedicareAppId.TabIndex = 1;
@@ -1257,7 +1361,7 @@ namespace CryptoTool.Win
             // textMedicareAppSecret
             // 
             textMedicareAppSecret.Location = new Point(561, 27);
-            textMedicareAppSecret.Margin = new Padding(4, 4, 4, 4);
+            textMedicareAppSecret.Margin = new Padding(4);
             textMedicareAppSecret.Name = "textMedicareAppSecret";
             textMedicareAppSecret.Size = new Size(350, 27);
             textMedicareAppSecret.TabIndex = 3;
@@ -1275,7 +1379,7 @@ namespace CryptoTool.Win
             // textMedicareVersion
             // 
             textMedicareVersion.Location = new Point(100, 62);
-            textMedicareVersion.Margin = new Padding(4, 4, 4, 4);
+            textMedicareVersion.Margin = new Padding(4);
             textMedicareVersion.Name = "textMedicareVersion";
             textMedicareVersion.Size = new Size(120, 27);
             textMedicareVersion.TabIndex = 5;
@@ -1293,7 +1397,7 @@ namespace CryptoTool.Win
             // textMedicareTimestamp
             // 
             textMedicareTimestamp.Location = new Point(339, 62);
-            textMedicareTimestamp.Margin = new Padding(4, 4, 4, 4);
+            textMedicareTimestamp.Margin = new Padding(4);
             textMedicareTimestamp.Name = "textMedicareTimestamp";
             textMedicareTimestamp.Size = new Size(190, 27);
             textMedicareTimestamp.TabIndex = 7;
@@ -1312,7 +1416,7 @@ namespace CryptoTool.Win
             // textMedicareSignType
             // 
             textMedicareSignType.Location = new Point(639, 62);
-            textMedicareSignType.Margin = new Padding(4, 4, 4, 4);
+            textMedicareSignType.Margin = new Padding(4);
             textMedicareSignType.Name = "textMedicareSignType";
             textMedicareSignType.Size = new Size(111, 27);
             textMedicareSignType.TabIndex = 9;
@@ -1330,7 +1434,7 @@ namespace CryptoTool.Win
             // textMedicareEncType
             // 
             textMedicareEncType.Location = new Point(850, 62);
-            textMedicareEncType.Margin = new Padding(4, 4, 4, 4);
+            textMedicareEncType.Margin = new Padding(4);
             textMedicareEncType.Name = "textMedicareEncType";
             textMedicareEncType.Size = new Size(120, 27);
             textMedicareEncType.TabIndex = 11;
@@ -1343,13 +1447,13 @@ namespace CryptoTool.Win
             labelMedicareData.Name = "labelMedicareData";
             labelMedicareData.Size = new Size(73, 20);
             labelMedicareData.TabIndex = 12;
-            labelMedicareData.Text = "“µŒÒ ˝æ›:";
+            labelMedicareData.Text = "‰∏öÂä°Êï∞ÊçÆ:";
             // 
             // textMedicareData
             // 
             textMedicareData.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textMedicareData.Location = new Point(100, 96);
-            textMedicareData.Margin = new Padding(4, 4, 4, 4);
+            textMedicareData.Margin = new Padding(4);
             textMedicareData.Multiline = true;
             textMedicareData.Name = "textMedicareData";
             textMedicareData.ScrollBars = ScrollBars.Both;
@@ -1370,13 +1474,13 @@ namespace CryptoTool.Win
             groupBoxMedicareKeys.Controls.Add(labelMedicarePrivateKey);
             groupBoxMedicareKeys.Controls.Add(textMedicarePrivateKey);
             groupBoxMedicareKeys.Location = new Point(8, 262);
-            groupBoxMedicareKeys.Margin = new Padding(4, 4, 4, 4);
+            groupBoxMedicareKeys.Margin = new Padding(4);
             groupBoxMedicareKeys.Name = "groupBoxMedicareKeys";
-            groupBoxMedicareKeys.Padding = new Padding(4, 4, 4, 4);
+            groupBoxMedicareKeys.Padding = new Padding(4);
             groupBoxMedicareKeys.Size = new Size(1264, 185);
             groupBoxMedicareKeys.TabIndex = 1;
             groupBoxMedicareKeys.TabStop = false;
-            groupBoxMedicareKeys.Text = "“Ω±£SM2/SM4√‹‘ø";
+            groupBoxMedicareKeys.Text = "Âåª‰øùSM2/SM4ÂØÜÈí•";
             // 
             // btnGenerateMedicareSM4Key
             // 
@@ -1385,7 +1489,7 @@ namespace CryptoTool.Win
             btnGenerateMedicareSM4Key.Name = "btnGenerateMedicareSM4Key";
             btnGenerateMedicareSM4Key.Size = new Size(150, 31);
             btnGenerateMedicareSM4Key.TabIndex = 0;
-            btnGenerateMedicareSM4Key.Text = "…˙≥…“Ω±£SM4√‹‘ø";
+            btnGenerateMedicareSM4Key.Text = "ÁîüÊàêÂåª‰øùSM4ÂØÜÈí•";
             btnGenerateMedicareSM4Key.UseVisualStyleBackColor = true;
             btnGenerateMedicareSM4Key.Click += btnGenerateMedicareSM4Key_Click;
             // 
@@ -1396,13 +1500,13 @@ namespace CryptoTool.Win
             labelMedicareSM4Key.Name = "labelMedicareSM4Key";
             labelMedicareSM4Key.Size = new Size(145, 20);
             labelMedicareSM4Key.TabIndex = 6;
-            labelMedicareSM4Key.Text = "“Ω±£SM4√‹‘ø(Hex):";
+            labelMedicareSM4Key.Text = "Âåª‰øùSM4ÂØÜÈí•(Hex):";
             // 
             // textMedicareSM4Key
             // 
             textMedicareSM4Key.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textMedicareSM4Key.Location = new Point(167, 142);
-            textMedicareSM4Key.Margin = new Padding(4, 4, 4, 4);
+            textMedicareSM4Key.Margin = new Padding(4);
             textMedicareSM4Key.Name = "textMedicareSM4Key";
             textMedicareSM4Key.Size = new Size(1083, 27);
             textMedicareSM4Key.TabIndex = 7;
@@ -1414,7 +1518,7 @@ namespace CryptoTool.Win
             btnGenerateMedicareKey.Name = "btnGenerateMedicareKey";
             btnGenerateMedicareKey.Size = new Size(120, 31);
             btnGenerateMedicareKey.TabIndex = 8;
-            btnGenerateMedicareKey.Text = "…˙≥…√‹‘ø∂‘";
+            btnGenerateMedicareKey.Text = "ÁîüÊàêÂØÜÈí•ÂØπ";
             btnGenerateMedicareKey.UseVisualStyleBackColor = true;
             btnGenerateMedicareKey.Click += btnGenerateMedicareKey_Click;
             // 
@@ -1425,7 +1529,7 @@ namespace CryptoTool.Win
             btnImportMedicareKey.Name = "btnImportMedicareKey";
             btnImportMedicareKey.Size = new Size(120, 31);
             btnImportMedicareKey.TabIndex = 9;
-            btnImportMedicareKey.Text = "µº»Î√‹‘ø";
+            btnImportMedicareKey.Text = "ÂØºÂÖ•ÂØÜÈí•";
             btnImportMedicareKey.UseVisualStyleBackColor = true;
             btnImportMedicareKey.Click += btnImportMedicareKey_Click;
             // 
@@ -1436,7 +1540,7 @@ namespace CryptoTool.Win
             btnExportMedicareKey.Name = "btnExportMedicareKey";
             btnExportMedicareKey.Size = new Size(120, 31);
             btnExportMedicareKey.TabIndex = 10;
-            btnExportMedicareKey.Text = "µº≥ˆ√‹‘ø";
+            btnExportMedicareKey.Text = "ÂØºÂá∫ÂØÜÈí•";
             btnExportMedicareKey.UseVisualStyleBackColor = true;
             btnExportMedicareKey.Click += btnExportMedicareKey_Click;
             // 
@@ -1447,13 +1551,13 @@ namespace CryptoTool.Win
             labelMedicarePublicKey.Name = "labelMedicarePublicKey";
             labelMedicarePublicKey.Size = new Size(82, 20);
             labelMedicarePublicKey.TabIndex = 11;
-            labelMedicarePublicKey.Text = "π´‘ø(Hex):";
+            labelMedicarePublicKey.Text = "ÂÖ¨Èí•(Hex):";
             // 
             // textMedicarePublicKey
             // 
             textMedicarePublicKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textMedicarePublicKey.Location = new Point(100, 62);
-            textMedicarePublicKey.Margin = new Padding(4, 4, 4, 4);
+            textMedicarePublicKey.Margin = new Padding(4);
             textMedicarePublicKey.Name = "textMedicarePublicKey";
             textMedicarePublicKey.Size = new Size(1150, 27);
             textMedicarePublicKey.TabIndex = 12;
@@ -1465,13 +1569,13 @@ namespace CryptoTool.Win
             labelMedicarePrivateKey.Name = "labelMedicarePrivateKey";
             labelMedicarePrivateKey.Size = new Size(82, 20);
             labelMedicarePrivateKey.TabIndex = 13;
-            labelMedicarePrivateKey.Text = "ÀΩ‘ø(Hex):";
+            labelMedicarePrivateKey.Text = "ÁßÅÈí•(Hex):";
             // 
             // textMedicarePrivateKey
             // 
             textMedicarePrivateKey.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textMedicarePrivateKey.Location = new Point(100, 102);
-            textMedicarePrivateKey.Margin = new Padding(4, 4, 4, 4);
+            textMedicarePrivateKey.Margin = new Padding(4);
             textMedicarePrivateKey.Name = "textMedicarePrivateKey";
             textMedicarePrivateKey.Size = new Size(1150, 27);
             textMedicarePrivateKey.TabIndex = 14;
@@ -1492,13 +1596,13 @@ namespace CryptoTool.Win
             groupBoxMedicareAction.Controls.Add(labelMedicareDecData);
             groupBoxMedicareAction.Controls.Add(textMedicareDecData);
             groupBoxMedicareAction.Location = new Point(8, 458);
-            groupBoxMedicareAction.Margin = new Padding(4, 4, 4, 4);
+            groupBoxMedicareAction.Margin = new Padding(4);
             groupBoxMedicareAction.Name = "groupBoxMedicareAction";
-            groupBoxMedicareAction.Padding = new Padding(4, 4, 4, 4);
+            groupBoxMedicareAction.Padding = new Padding(4);
             groupBoxMedicareAction.Size = new Size(1264, 613);
             groupBoxMedicareAction.TabIndex = 2;
             groupBoxMedicareAction.TabStop = false;
-            groupBoxMedicareAction.Text = "≤Ÿ◊˜∫ÕΩ·π˚";
+            groupBoxMedicareAction.Text = "Êìç‰ΩúÂíåÁªìÊûú";
             // 
             // btnMedicareSign
             // 
@@ -1507,7 +1611,7 @@ namespace CryptoTool.Win
             btnMedicareSign.Name = "btnMedicareSign";
             btnMedicareSign.Size = new Size(100, 31);
             btnMedicareSign.TabIndex = 1;
-            btnMedicareSign.Text = "«©√˚";
+            btnMedicareSign.Text = "Á≠æÂêç";
             btnMedicareSign.UseVisualStyleBackColor = true;
             btnMedicareSign.Click += btnMedicareSign_Click;
             // 
@@ -1518,7 +1622,7 @@ namespace CryptoTool.Win
             btnMedicareVerify.Name = "btnMedicareVerify";
             btnMedicareVerify.Size = new Size(100, 31);
             btnMedicareVerify.TabIndex = 2;
-            btnMedicareVerify.Text = "—È«©";
+            btnMedicareVerify.Text = "È™åÁ≠æ";
             btnMedicareVerify.UseVisualStyleBackColor = true;
             btnMedicareVerify.Click += btnMedicareVerify_Click;
             // 
@@ -1529,7 +1633,7 @@ namespace CryptoTool.Win
             btnMedicareEncrypt.Name = "btnMedicareEncrypt";
             btnMedicareEncrypt.Size = new Size(100, 31);
             btnMedicareEncrypt.TabIndex = 3;
-            btnMedicareEncrypt.Text = "º”√‹";
+            btnMedicareEncrypt.Text = "Âä†ÂØÜ";
             btnMedicareEncrypt.UseVisualStyleBackColor = true;
             btnMedicareEncrypt.Click += btnMedicareEncrypt_Click;
             // 
@@ -1540,7 +1644,7 @@ namespace CryptoTool.Win
             btnMedicareDecrypt.Name = "btnMedicareDecrypt";
             btnMedicareDecrypt.Size = new Size(100, 31);
             btnMedicareDecrypt.TabIndex = 4;
-            btnMedicareDecrypt.Text = "Ω‚√‹";
+            btnMedicareDecrypt.Text = "Ëß£ÂØÜ";
             btnMedicareDecrypt.UseVisualStyleBackColor = true;
             btnMedicareDecrypt.Click += btnMedicareDecrypt_Click;
             // 
@@ -1551,7 +1655,7 @@ namespace CryptoTool.Win
             labelMedicareSignatureString.Name = "labelMedicareSignatureString";
             labelMedicareSignatureString.Size = new Size(88, 20);
             labelMedicareSignatureString.TabIndex = 5;
-            labelMedicareSignatureString.Text = "¥˝«©◊÷∑˚¥Æ:";
+            labelMedicareSignatureString.Text = "ÂæÖÁ≠æÂ≠óÁ¨¶‰∏≤:";
             // 
             // textMedicareSignatureString
             // 
@@ -1571,7 +1675,7 @@ namespace CryptoTool.Win
             labelMedicareSignData.Name = "labelMedicareSignData";
             labelMedicareSignData.Size = new Size(146, 20);
             labelMedicareSignData.TabIndex = 7;
-            labelMedicareSignData.Text = "«©√˚Ω·π˚(signData):";
+            labelMedicareSignData.Text = "Á≠æÂêçÁªìÊûú(signData):";
             // 
             // textMedicareSignData
             // 
@@ -1591,7 +1695,7 @@ namespace CryptoTool.Win
             labelMedicareEncData.Name = "labelMedicareEncData";
             labelMedicareEncData.Size = new Size(112, 20);
             labelMedicareEncData.TabIndex = 11;
-            labelMedicareEncData.Text = "º”√‹Ω·π˚(Hex):";
+            labelMedicareEncData.Text = "Âä†ÂØÜÁªìÊûú(Hex):";
             // 
             // textMedicareEncData
             // 
@@ -1610,7 +1714,7 @@ namespace CryptoTool.Win
             labelMedicareDecData.Name = "labelMedicareDecData";
             labelMedicareDecData.Size = new Size(100, 24);
             labelMedicareDecData.TabIndex = 13;
-            labelMedicareDecData.Text = "Ω‚√‹Ω·π˚:";
+            labelMedicareDecData.Text = "Ëß£ÂØÜÁªìÊûú:";
             // 
             // textMedicareDecData
             // 
@@ -1638,7 +1742,7 @@ namespace CryptoTool.Win
             // 
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
             toolStripStatusLabel1.Size = new Size(39, 20);
-            toolStripStatusLabel1.Text = "æÕ–˜";
+            toolStripStatusLabel1.Text = "Â∞±Áª™";
             // 
             // Form1
             // 
@@ -1647,10 +1751,10 @@ namespace CryptoTool.Win
             ClientSize = new Size(1286, 1055);
             Controls.Add(statusStrip1);
             Controls.Add(tabControl1);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "º”Ω‚√‹π§æﬂ";
+            Text = "Âä†Ëß£ÂØÜÂ∑•ÂÖ∑";
             Load += Form1_Load;
             tabControl1.ResumeLayout(false);
             tabRSA.ResumeLayout(false);
@@ -1704,8 +1808,6 @@ namespace CryptoTool.Win
         private System.Windows.Forms.Button btnExportRSAKey;
         private System.Windows.Forms.GroupBox groupBoxRSASign;
         private System.Windows.Forms.Label labelRSAVerifyResult;
-        private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.ComboBox comboRSAType;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox textRSASignature;
         private System.Windows.Forms.Label label7;
@@ -1820,5 +1922,30 @@ namespace CryptoTool.Win
         private TextBox textMedicareEncData;
         private Label labelMedicareDecData;
         private TextBox textMedicareDecData;
+        private Label label25;
+        private ComboBox comboRSAKeyPadding;
+        private Label label26;
+        private ComboBox comboRSAKeyOutputFormat;
+        private ComboBox comboRSAEncryptOutputFormat;
+        private Label label27;
+        private Label label28;
+        private ComboBox comboRSASignOutputFormat;
+        private Label label29;
+        private ComboBox comboRSASignAlgmFormat;
+    }
+
+    /// <summary>
+    /// ÂÆö‰πâ‰∏Ä‰∏™Ë°®Á§∫‰∏ãÊãâÈÄâÈ°πÁöÑÁ±ª
+    /// </summary>
+    public class ComboBoxItem
+    {
+        public string Text { get; set; }  // ÊòæÁ§∫ÁöÑÊñáÂ≠ó
+        public object Value { get; set; } // ÂÖ≥ËÅîÁöÑÂÄºÔºå‰ΩøÁî® object Á±ªÂûãÊõ¥ÈÄöÁî®
+
+        // ÂèØÈÄâÔºöÈáçÂÜô ToString ÊñπÊ≥ïÔºåÈÄöÂ∏∏ÁªëÂÆöÂêé‰∏çÈúÄË¶ÅÔºå‰ΩÜÊúâÊó∂ÂèØÂ§áÁî®
+        public override string ToString()
+        {
+            return Text;
+        }
     }
 }

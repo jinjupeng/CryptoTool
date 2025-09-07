@@ -22,8 +22,12 @@ namespace CryptoTool.Win
         {
             // 初始化默认值
             comboRSAKeySize.SelectedIndex = 1; // 2048
-            comboRSAKeyFormat.SelectedIndex = 0; // XML
-            comboRSAType.SelectedIndex = 1; // RSA2
+            comboRSAKeyFormat.SelectedIndex = 1; // pkcs#8
+            comboRSAKeyPadding.SelectedIndex = 0; // PKCS#8
+            comboRSAKeyOutputFormat.SelectedIndex = 1; // base64
+            comboRSAEncryptOutputFormat.SelectedIndex = 0; // base64
+            comboRSASignAlgmFormat.SelectedIndex = 1; // SHA256withRSA(RSA2)
+            comboRSASignOutputFormat.SelectedIndex = 1; // base64
             comboSM4Mode.SelectedIndex = 0; // ECB
             comboSM4Padding.SelectedIndex = 0; // PKCS7
             comboSM4KeyFormat.SelectedIndex = 0; // Base64
@@ -72,14 +76,20 @@ namespace CryptoTool.Win
 
                 int keySize = int.Parse(comboRSAKeySize.SelectedItem.ToString());
                 string formatText = comboRSAKeyFormat.SelectedIndex.ToString();
-                RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
+                string outputFormat = comboRSAKeyOutputFormat.SelectedIndex.ToString();
+                RSAUtil.RSAKeyFormat rsaKeyFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
+                RSAUtil.RSAOutputFormat rsaOutputFormat = (RSAUtil.RSAOutputFormat)Enum.Parse(typeof(RSAUtil.RSAOutputFormat), outputFormat);
 
-                var keyPair = RSAUtil.CreateRSAKey(keySize, format);
+                var keyPair = RSAUtil.GenerateKeyPair(keySize);
+                var publicKey = (RsaKeyParameters)keyPair.Public;
+                var privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
+                string genPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, rsaOutputFormat, rsaKeyFormat);
+                string genPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, rsaOutputFormat, rsaKeyFormat);
 
-                textRSAPublicKey.Text = keyPair.Key;
-                textRSAPrivateKey.Text = keyPair.Value;
+                textRSAPublicKey.Text = genPublicKey;
+                textRSAPrivateKey.Text = genPrivateKey;
 
-                SetStatus($"RSA密钥对生成完成 - {keySize}位 {formatText}格式");
+                SetStatus($"RSA密钥对生成完成 - {keySize}位 {comboRSAKeyFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -219,10 +229,11 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA加密...");
 
-                string formatText = comboRSAKeyFormat.SelectedItem.ToString();
-                RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
-
-                string cipherText = RSAUtil.EncryptByRSA(textRSAPlainText.Text, textRSAPublicKey.Text, format);
+                string paddingText = comboRSAKeyPadding.SelectedItem.ToString();
+                string outputFormatText = comboRSAEncryptOutputFormat.SelectedItem.ToString();
+                RSAUtil.RSAPadding paddingFormat = (RSAUtil.RSAPadding)Enum.Parse(typeof(RSAUtil.RSAPadding), paddingText);
+                RSAUtil.RSAOutputFormat outputFormat = (RSAUtil.RSAOutputFormat)Enum.Parse(typeof(RSAUtil.RSAOutputFormat), outputFormatText);
+                var cipherText = RSAUtil.EncryptAuto(textRSAPlainText.Text, textRSAPublicKey.Text, paddingFormat, outputFormat);
                 textRSACipherText.Text = cipherText;
 
                 SetStatus("RSA加密完成");
@@ -252,10 +263,9 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA解密...");
 
-                string formatText = comboRSAKeyFormat.SelectedItem.ToString();
-                RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
-
-                string plainText = RSAUtil.DecryptByRSA(textRSACipherText.Text, textRSAPrivateKey.Text, format);
+                string paddingText = comboRSAKeyPadding.SelectedItem.ToString();
+                RSAUtil.RSAPadding paddingFormat = (RSAUtil.RSAPadding)Enum.Parse(typeof(RSAUtil.RSAPadding), paddingText);
+                string plainText = RSAUtil.DecryptAuto(textRSACipherText.Text, textRSAPrivateKey.Text, paddingFormat);
                 textRSAPlainText.Text = plainText;
 
                 SetStatus("RSA解密完成");
@@ -285,16 +295,17 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA签名...");
 
-                string rsaTypeText = comboRSAType.SelectedItem.ToString();
-                string formatText = comboRSAKeyFormat.SelectedItem.ToString();
+                string comboRSASignAlgmFormatText = comboRSASignAlgmFormat.SelectedItem.ToString();
+                string comboRSASignAlgmFormatIndex = comboRSASignAlgmFormat.SelectedIndex.ToString();
+                string signOutputFormatText = comboRSASignOutputFormat.SelectedItem.ToString();
 
-                RSAUtil.RSAType rsaType = (RSAUtil.RSAType)Enum.Parse(typeof(RSAUtil.RSAType), rsaTypeText);
-                RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
+                RSAUtil.SignatureAlgorithm signAlgmFormat = (RSAUtil.SignatureAlgorithm)Enum.Parse(typeof(RSAUtil.SignatureAlgorithm), comboRSASignAlgmFormatIndex);
+                RSAUtil.RSAOutputFormat outputFormat = (RSAUtil.RSAOutputFormat)Enum.Parse(typeof(RSAUtil.RSAOutputFormat), signOutputFormatText);
 
-                string signature = RSAUtil.HashAndSignString(textRSASignData.Text, textRSAPrivateKey.Text, rsaType, format);
+                string signature = RSAUtil.SignAuto(textRSASignData.Text, textRSAPrivateKey.Text, signAlgmFormat, outputFormat);
                 textRSASignature.Text = signature;
 
-                SetStatus($"RSA签名完成 - 使用{rsaTypeText}算法");
+                SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormatText}算法");
             }
             catch (Exception ex)
             {
@@ -327,13 +338,14 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA验签...");
 
-                string rsaTypeText = comboRSAType.SelectedItem.ToString();
-                string formatText = comboRSAKeyFormat.SelectedItem.ToString();
+                string comboRSASignAlgmFormatText = comboRSASignAlgmFormat.SelectedItem.ToString();
+                string comboRSASignAlgmFormatIndex = comboRSASignAlgmFormat.SelectedIndex.ToString();
+                string signOutputFormatText = comboRSASignOutputFormat.SelectedItem.ToString();
 
-                RSAUtil.RSAType rsaType = (RSAUtil.RSAType)Enum.Parse(typeof(RSAUtil.RSAType), rsaTypeText);
-                RSAUtil.RSAKeyFormat format = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), formatText);
+                RSAUtil.SignatureAlgorithm signAlgmFormat = (RSAUtil.SignatureAlgorithm)Enum.Parse(typeof(RSAUtil.SignatureAlgorithm), comboRSASignAlgmFormatIndex);
+                RSAUtil.RSAInputFormat inputFormat = (RSAUtil.RSAInputFormat)Enum.Parse(typeof(RSAUtil.RSAInputFormat), signOutputFormatText);
 
-                bool verifyResult = RSAUtil.VerifySigned(textRSASignData.Text, textRSASignature.Text, textRSAPublicKey.Text, rsaType, format);
+                bool verifyResult = RSAUtil.VerifyAuto(textRSASignData.Text, textRSASignature.Text, textRSAPublicKey.Text, signAlgmFormat, inputFormat);
 
                 labelRSAVerifyResult.Text = $"验签结果: {(verifyResult ? "验证成功" : "验证失败")}";
                 labelRSAVerifyResult.ForeColor = verifyResult ? Color.Green : Color.Red;
@@ -1373,6 +1385,23 @@ namespace CryptoTool.Win
                 long timeStamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 textMedicareTimestamp.Text = timeStamp.ToString();
             }
+        }
+
+        private void ComboRSAEncryptOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            label6.Text = $"密文({comboRSAEncryptOutputFormat.SelectedItem}):";
+        }
+
+
+        private void ComboRSASignOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            label8.Text = $"签名({comboRSASignOutputFormat.SelectedItem}):";
+        }
+
+        private void ComboRSAKeyOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            label3.Text = $"公钥({comboRSAKeyOutputFormat.SelectedItem}):";
+            label4.Text = $"私钥({comboRSAKeyOutputFormat.SelectedItem}):";
         }
     }
 }
