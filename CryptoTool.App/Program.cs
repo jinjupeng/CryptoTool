@@ -1894,18 +1894,18 @@ namespace CryptoTool.App
                 var privateKey = (Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters)keyPair.Private;
 
                 // 测试PEM格式
-                string pemPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAOutputFormat.PEM);
-                string pemPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAOutputFormat.PEM);
+                string pemPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAKeyFormat.PEM);
+                string pemPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAKeyFormat.PEM);
                 Console.WriteLine("PEM格式生成: 成功");
 
                 // 测试Base64格式
-                string base64PublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAOutputFormat.Base64);
-                string base64PrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAOutputFormat.Base64);
+                string base64PublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAKeyFormat.Base64);
+                string base64PrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAKeyFormat.Base64);
                 Console.WriteLine("Base64格式生成: 成功");
 
                 // 测试Hex格式
-                string hexPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAOutputFormat.Hex);
-                string hexPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAOutputFormat.Hex);
+                string hexPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, RSAUtil.RSAKeyFormat.Hex);
+                string hexPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, RSAUtil.RSAKeyFormat.Hex);
                 Console.WriteLine("Hex格式生成: 成功");
 
                 // 测试格式解析
@@ -1958,13 +1958,13 @@ namespace CryptoTool.App
                 Console.WriteLine($"OAEP填充: {(testData == decryptedOAEP ? "成功" : "失败")}");
 
                 // 测试Base64输出格式
-                string base64Encrypted = RSAUtil.Encrypt(testData, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAOutputFormat.Base64);
-                string base64Decrypted = RSAUtil.Decrypt(base64Encrypted, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAInputFormat.Base64);
+                string base64Encrypted = RSAUtil.Encrypt(testData, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Base64);
+                string base64Decrypted = RSAUtil.Decrypt(base64Encrypted, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Base64);
                 Console.WriteLine($"Base64格式: {(testData == base64Decrypted ? "成功" : "失败")}");
 
                 // 测试Hex输出格式
-                string hexEncrypted = RSAUtil.Encrypt(testData, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAOutputFormat.Hex);
-                string hexDecrypted = RSAUtil.Decrypt(hexEncrypted, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAInputFormat.Hex);
+                string hexEncrypted = RSAUtil.Encrypt(testData, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Hex);
+                string hexDecrypted = RSAUtil.Decrypt(hexEncrypted, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Hex);
                 Console.WriteLine($"Hex格式: {(testData == hexDecrypted ? "成功" : "失败")}");
 
                 // 测试不同编码
@@ -1979,8 +1979,8 @@ namespace CryptoTool.App
                     try
                     {
                         string chineseText = "中文测试内容";
-                        string encryptedChinese = RSAUtil.Encrypt(chineseText, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAOutputFormat.Base64, encoding);
-                        string decryptedChinese = RSAUtil.Decrypt(encryptedChinese, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAInputFormat.Base64, encoding);
+                        string encryptedChinese = RSAUtil.Encrypt(chineseText, publicKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Base64, encoding);
+                        string decryptedChinese = RSAUtil.Decrypt(encryptedChinese, privateKey, RSAUtil.RSAPadding.PKCS1, RSAUtil.RSAKeyFormat.Base64, encoding);
                         Console.WriteLine($"{name}编码: {(chineseText == decryptedChinese ? "成功" : "失败")}");
                     }
                     catch (Exception ex)
@@ -2029,11 +2029,11 @@ namespace CryptoTool.App
                 }
 
                 // 测试不同输出格式
-                string base64Signature = RSAUtil.Sign(testData, privateKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAOutputFormat.Base64);
-                string hexSignature = RSAUtil.Sign(testData, privateKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAOutputFormat.Hex);
+                string base64Signature = RSAUtil.Sign(testData, privateKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAKeyFormat.Base64);
+                string hexSignature = RSAUtil.Sign(testData, privateKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAKeyFormat.Hex);
 
-                bool base64Valid = RSAUtil.Verify(testData, base64Signature, publicKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAInputFormat.Base64);
-                bool hexValid = RSAUtil.Verify(testData, hexSignature, publicKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAInputFormat.Hex);
+                bool base64Valid = RSAUtil.Verify(testData, base64Signature, publicKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAKeyFormat.Base64);
+                bool hexValid = RSAUtil.Verify(testData, hexSignature, publicKey, RSAUtil.SignatureAlgorithm.SHA256withRSA, RSAUtil.RSAKeyFormat.Hex);
 
                 Console.WriteLine($"Base64签名格式: {base64Valid}");
                 Console.WriteLine($"Hex签名格式: {hexValid}");

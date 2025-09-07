@@ -592,7 +592,7 @@ namespace CryptoTool.Win
             label2.Name = "label2";
             label2.Size = new Size(73, 20);
             label2.TabIndex = 4;
-            label2.Text = "密钥格式:";
+            label2.Text = "密钥类型:";
             // 
             // comboRSAKeyFormat
             // 
