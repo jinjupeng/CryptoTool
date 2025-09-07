@@ -157,10 +157,9 @@ namespace CryptoTool.Common
                 var pemWriter = new PemWriter(stringWriter);
                 if (keyFormat == RSAKeyType.PKCS1)
                 {
-                    // PKCS#1 PEM for public key is non-standard but supported by BouncyCastle
-                    // It actually writes an RsaPublicKeyStructure
-                    var rsaPublicKey = new RsaPublicKeyStructure(publicKey.Modulus, publicKey.Exponent);
-                    pemWriter.WriteObject(rsaPublicKey);
+                    // 对于 PKCS#1 公钥，直接写入 RsaKeyParameters 对象
+                    // BouncyCastle 的 PemWriter 会自动处理并生成正确的 PEM 格式
+                    pemWriter.WriteObject(publicKey);
                 }
                 else
                 {
