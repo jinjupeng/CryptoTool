@@ -30,6 +30,7 @@ namespace CryptoTool.Win
         {
             tabControl1 = new TabControl();
             tabRSA = new TabPage();
+            tabRSAConvert = new TabPage();
             tabSM4 = new TabPage();
             tabSM2 = new TabPage();
             tabSM3 = new TabPage();
@@ -43,6 +44,7 @@ namespace CryptoTool.Win
             // tabControl1
             // 
             tabControl1.Controls.Add(tabRSA);
+            tabControl1.Controls.Add(tabRSAConvert);
             tabControl1.Controls.Add(tabSM4);
             tabControl1.Controls.Add(tabSM2);
             tabControl1.Controls.Add(tabSM3);
@@ -65,6 +67,17 @@ namespace CryptoTool.Win
             tabRSA.TabIndex = 0;
             tabRSA.Text = "RSA算法";
             tabRSA.UseVisualStyleBackColor = true;
+            // 
+            // tabRSAConvert
+            // 
+            tabRSAConvert.Location = new Point(4, 29);
+            tabRSAConvert.Margin = new Padding(4);
+            tabRSAConvert.Name = "tabRSAConvert";
+            tabRSAConvert.Padding = new Padding(4);
+            tabRSAConvert.Size = new Size(1278, 1022);
+            tabRSAConvert.TabIndex = 5;
+            tabRSAConvert.Text = "RSA格式转换";
+            tabRSAConvert.UseVisualStyleBackColor = true;
             // 
             // tabSM4
             // 
@@ -150,6 +163,7 @@ namespace CryptoTool.Win
 
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabRSA;
+        private System.Windows.Forms.TabPage tabRSAConvert;
         private System.Windows.Forms.TabPage tabSM4;
         private System.Windows.Forms.TabPage tabSM2;
         private TabPage tabSM3;

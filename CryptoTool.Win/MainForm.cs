@@ -10,6 +10,7 @@ namespace CryptoTool.Win
     public partial class MainForm : Form
     {
         private RSATabControl rsaTabControl;
+        private RSAConvertTabControl rsaConvertTabControl;
         private SM4TabControl sm4TabControl;
         private SM2TabControl sm2TabControl;
         private SM3TabControl sm3TabControl;
@@ -22,7 +23,7 @@ namespace CryptoTool.Win
             // 设置窗口可调整大小
             this.WindowState = FormWindowState.Maximized;
             this.MinimumSize = new Size(1400, 800);
-            
+
             InitializeTabControls();
         }
 
@@ -30,6 +31,7 @@ namespace CryptoTool.Win
         {
             // 创建各个用户控件
             rsaTabControl = new RSATabControl();
+            rsaConvertTabControl = new RSAConvertTabControl();
             sm4TabControl = new SM4TabControl();
             sm2TabControl = new SM2TabControl();
             sm3TabControl = new SM3TabControl();
@@ -37,6 +39,7 @@ namespace CryptoTool.Win
 
             // 设置控件尺寸和位置
             rsaTabControl.Dock = DockStyle.Fill;
+            rsaConvertTabControl.Dock = DockStyle.Fill;
             sm4TabControl.Dock = DockStyle.Fill;
             sm2TabControl.Dock = DockStyle.Fill;
             sm3TabControl.Dock = DockStyle.Fill;
@@ -45,6 +48,9 @@ namespace CryptoTool.Win
             // 将控件添加到对应的TabPage中
             tabRSA.Controls.Clear();
             tabRSA.Controls.Add(rsaTabControl);
+
+            tabRSAConvert.Controls.Clear();
+            tabRSAConvert.Controls.Add(rsaConvertTabControl);
 
             tabSM4.Controls.Clear();
             tabSM4.Controls.Add(sm4TabControl);
@@ -60,6 +66,7 @@ namespace CryptoTool.Win
 
             // 绑定状态更新事件
             rsaTabControl.StatusChanged += SetStatus;
+            rsaConvertTabControl.StatusChanged += SetStatus;
             sm4TabControl.StatusChanged += SetStatus;
             sm2TabControl.StatusChanged += SetStatus;
             sm3TabControl.StatusChanged += SetStatus;
