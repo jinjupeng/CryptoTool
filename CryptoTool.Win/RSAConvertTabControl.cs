@@ -401,7 +401,7 @@ namespace CryptoTool.Win
                 if (string.IsNullOrWhiteSpace(keyContent))
                     return;
 
-                bool isPrivateKey = radioPrivateKey.Checked || !radioPublicKey.Checked;
+                bool isPrivateKey = radioPrivateKey.Checked && !radioPublicKey.Checked;
 
                 // 使用智能检测来确定最佳的格式和类型组合
                 var (detectedFormat, detectedType) = SmartDetectKeyFormat(keyContent, isPrivateKey);
