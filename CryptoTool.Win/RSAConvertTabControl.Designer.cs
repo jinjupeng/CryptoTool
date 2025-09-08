@@ -213,6 +213,7 @@ namespace CryptoTool.Win
             radioPrivateKey.TabStop = true;
             radioPrivateKey.Text = "Ë½Ô¿";
             radioPrivateKey.UseVisualStyleBackColor = true;
+            radioPrivateKey.CheckedChanged += textInputKey_TextChanged;
             // 
             // radioPublicKey
             // 
@@ -223,6 +224,7 @@ namespace CryptoTool.Win
             radioPublicKey.TabIndex = 1;
             radioPublicKey.Text = "¹«Ô¿";
             radioPublicKey.UseVisualStyleBackColor = true;
+            radioPublicKey.CheckedChanged += textInputKey_TextChanged;
             // 
             // label2
             // 

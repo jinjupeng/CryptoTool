@@ -1117,5 +1117,47 @@ namespace CryptoTool.Common
         }
 
         #endregion
+
+        /// <summary>
+        /// 验证公钥和私钥是否匹配
+        /// </summary>
+        /// <param name="publicKeyStr"></param>
+        /// <param name="privateKeyStr"></param>
+        /// <param name="publicKeyFormat"></param>
+        /// <param name="publicKeyType"></param>
+        /// <param name="privateKeyFormat"></param>
+        /// <param name="privateKeyType"></param>
+        /// <returns></returns>
+        public static bool ValidateKeyPair(string publicKeyStr, string privateKeyStr,
+            RSAUtil.RSAKeyFormat publicKeyFormat, RSAUtil.RSAKeyType publicKeyType,
+            RSAUtil.RSAKeyFormat privateKeyFormat, RSAUtil.RSAKeyType privateKeyType)
+        {
+            try
+            {
+                // 解析公钥和私钥
+                var publicKey = (RsaKeyParameters)RSAUtil.ParseKey(publicKeyStr, false, publicKeyFormat, publicKeyType);
+                var privateKey = (RsaPrivateCrtKeyParameters)RSAUtil.ParseKey(privateKeyStr, true, privateKeyFormat, privateKeyType);
+
+                // 检查模数是否一致
+                if (!publicKey.Modulus.Equals(privateKey.Modulus))
+                    return false;
+
+                // 检查公指数是否一致
+                if (!publicKey.Exponent.Equals(privateKey.PublicExponent))
+                    return false;
+
+                // 进行加解密测试验证
+                string testMessage = "RSA Key Pair Validation Test";
+                string encryptedMessage = RSAUtil.Encrypt(testMessage, publicKey);
+                string decryptedMessage = RSAUtil.Decrypt(encryptedMessage, privateKey);
+
+                return testMessage == decryptedMessage;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }
