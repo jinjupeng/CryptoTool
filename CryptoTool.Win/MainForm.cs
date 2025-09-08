@@ -12,6 +12,7 @@ namespace CryptoTool.Win
         private RSATabControl rsaTabControl;
         private SM4TabControl sm4TabControl;
         private SM2TabControl sm2TabControl;
+        private SM3TabControl sm3TabControl;
         private MedicareTabControl medicareTabControl;
 
         public MainForm()
@@ -31,12 +32,14 @@ namespace CryptoTool.Win
             rsaTabControl = new RSATabControl();
             sm4TabControl = new SM4TabControl();
             sm2TabControl = new SM2TabControl();
+            sm3TabControl = new SM3TabControl();
             medicareTabControl = new MedicareTabControl();
 
             // 设置控件尺寸和位置
             rsaTabControl.Dock = DockStyle.Fill;
             sm4TabControl.Dock = DockStyle.Fill;
             sm2TabControl.Dock = DockStyle.Fill;
+            sm3TabControl.Dock = DockStyle.Fill;
             medicareTabControl.Dock = DockStyle.Fill;
 
             // 将控件添加到对应的TabPage中
@@ -49,6 +52,9 @@ namespace CryptoTool.Win
             tabSM2.Controls.Clear();
             tabSM2.Controls.Add(sm2TabControl);
 
+            tabSM3.Controls.Clear();
+            tabSM3.Controls.Add(sm3TabControl);
+
             tabMedicare.Controls.Clear();
             tabMedicare.Controls.Add(medicareTabControl);
 
@@ -56,6 +62,7 @@ namespace CryptoTool.Win
             rsaTabControl.StatusChanged += SetStatus;
             sm4TabControl.StatusChanged += SetStatus;
             sm2TabControl.StatusChanged += SetStatus;
+            sm3TabControl.StatusChanged += SetStatus;
             medicareTabControl.StatusChanged += SetStatus;
 
             // 绑定医保SM4密钥生成事件到SM4控件

@@ -32,6 +32,7 @@ namespace CryptoTool.Win
             tabRSA = new TabPage();
             tabSM4 = new TabPage();
             tabSM2 = new TabPage();
+            tabSM3 = new TabPage();
             tabMedicare = new TabPage();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
@@ -44,6 +45,7 @@ namespace CryptoTool.Win
             tabControl1.Controls.Add(tabRSA);
             tabControl1.Controls.Add(tabSM4);
             tabControl1.Controls.Add(tabSM2);
+            tabControl1.Controls.Add(tabSM3);
             tabControl1.Controls.Add(tabMedicare);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
@@ -86,6 +88,17 @@ namespace CryptoTool.Win
             tabSM2.Text = "SM2算法";
             tabSM2.UseVisualStyleBackColor = true;
             // 
+            // tabSM3
+            // 
+            tabSM3.Location = new Point(4, 29);
+            tabSM3.Margin = new Padding(4);
+            tabSM3.Name = "tabSM3";
+            tabSM3.Padding = new Padding(4);
+            tabSM3.Size = new Size(1278, 1022);
+            tabSM3.TabIndex = 3;
+            tabSM3.Text = "SM3算法";
+            tabSM3.UseVisualStyleBackColor = true;
+            // 
             // tabMedicare
             // 
             tabMedicare.Location = new Point(4, 29);
@@ -93,7 +106,7 @@ namespace CryptoTool.Win
             tabMedicare.Name = "tabMedicare";
             tabMedicare.Padding = new Padding(3, 4, 3, 4);
             tabMedicare.Size = new Size(1278, 1022);
-            tabMedicare.TabIndex = 3;
+            tabMedicare.TabIndex = 4;
             tabMedicare.Text = "医保接口";
             tabMedicare.UseVisualStyleBackColor = true;
             // 
@@ -139,6 +152,7 @@ namespace CryptoTool.Win
         private System.Windows.Forms.TabPage tabRSA;
         private System.Windows.Forms.TabPage tabSM4;
         private System.Windows.Forms.TabPage tabSM2;
+        private TabPage tabSM3;
         private TabPage tabMedicare;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
