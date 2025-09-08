@@ -15,6 +15,18 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_0CABE577006940AF8CB628217EFBC603"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_55043CE4E9064D28BA16D3D48FB1956F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9E9D6FD9CBC145C4903B3412D4450C61"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -44,6 +56,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -108,6 +128,46 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0CABE577006940AF8CB628217EFBC603"
+            {
+            "SourcePath" = "8:C:\\Users\\X\\OneDrive\\桌面\\favicon.ico"
+            "TargetName" = "8:favicon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55043CE4E9064D28BA16D3D48FB1956F"
+            {
+            "SourcePath" = "8:C:\\Windows\\System32\\msiexec.exe"
+            "TargetName" = "8:Uninstall.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -129,7 +189,7 @@
             "{1525181F-901A-416C-8A58-119130FE478E}:_DCC91BF626F94EC2A8F782871F71C647"
             {
             "Name" = "8:#1916"
-            "AlwaysCreate" = "11:FALSE"
+            "AlwaysCreate" = "11:TRUE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Property" = "8:DesktopFolder"
@@ -140,12 +200,23 @@
             "{1525181F-901A-416C-8A58-119130FE478E}:_DE866C7E4CA440BF87D8343DE759DD09"
             {
             "Name" = "8:#1919"
-            "AlwaysCreate" = "11:FALSE"
+            "AlwaysCreate" = "11:TRUE"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_2CA55752BCEA4192995736F7543E27A9"
+                    {
+                    "Name" = "8:CryptoTool"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_EE16EA839D8E4AAB87D48F5FC36317C0"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
         }
@@ -165,7 +236,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:CryptoTool.Pack"
         "ProductCode" = "8:{CA6A6C16-689D-474D-9B5F-EBE4492B0F98}"
-        "PackageCode" = "8:{B3F0EB8C-97FA-42F6-8D26-71B78A7A19F6}"
+        "PackageCode" = "8:{7ECF96EE-EFA7-4CD2-889A-1022D2304354}"
         "UpgradeCode" = "8:{E30D2F7B-4CAF-4FF1-9043-04D484FA754E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -294,9 +365,37 @@
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_9E9D6FD9CBC145C4903B3412D4450C61"
-            "Folder" = "8:_DCC91BF626F94EC2A8F782871F71C647"
+            "Folder" = "8:_2CA55752BCEA4192995736F7543E27A9"
+            "WorkingFolder" = "8:_DE866C7E4CA440BF87D8343DE759DD09"
+            "Icon" = "8:_0CABE577006940AF8CB628217EFBC603"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7C0A841B88814B20A81A6581DF43200C"
+            {
+            "Name" = "8:Uninstall"
+            "Arguments" = "8:/x {CA6A6C16-689D-474D-9B5F-EBE4492B0F98}"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_55043CE4E9064D28BA16D3D48FB1956F"
+            "Folder" = "8:_2CA55752BCEA4192995736F7543E27A9"
             "WorkingFolder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"
             "Icon" = "8:"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_A4EF85C4A8ED4FEA83551026448DB495"
+            {
+            "Name" = "8:CryptoTool"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_DCC91BF626F94EC2A8F782871F71C647"
+            "Folder" = "8:_DCC91BF626F94EC2A8F782871F71C647"
+            "WorkingFolder" = "8:_DCC91BF626F94EC2A8F782871F71C647"
+            "Icon" = "8:_0CABE577006940AF8CB628217EFBC603"
             "Feature" = "8:"
             }
         }
@@ -700,7 +799,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_9E9D6FD9CBC145C4903B3412D4450C61"
             {
-            "SourcePath" = "8:..\\CryptoTool.Win\\obj\\Release\\net8.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\CryptoTool.Win\\obj\\Debug\\net8.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"

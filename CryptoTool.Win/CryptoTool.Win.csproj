@@ -6,7 +6,16 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <PackageIcon>三花猫.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="favicon.ico" />
+  </ItemGroup>
+	<ItemGroup>
+		<Content Include="三花猫.png" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CryptoTool.Common\CryptoTool.Common.csproj" />
