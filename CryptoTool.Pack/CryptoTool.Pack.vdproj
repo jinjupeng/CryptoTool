@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_0CABE577006940AF8CB628217EFBC603"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_55043CE4E9064D28BA16D3D48FB1956F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -28,6 +22,12 @@
         "Entry"
         {
         "MsmKey" = "8:_9E9D6FD9CBC145C4903B3412D4450C61"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F6CB89ED23F04329918D7664E5106185"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -128,10 +128,10 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0CABE577006940AF8CB628217EFBC603"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55043CE4E9064D28BA16D3D48FB1956F"
             {
-            "SourcePath" = "8:C:\\Users\\X\\OneDrive\\桌面\\favicon.ico"
-            "TargetName" = "8:favicon.ico"
+            "SourcePath" = "8:C:\\Windows\\System32\\msiexec.exe"
+            "TargetName" = "8:Uninstall.exe"
             "Tag" = "8:"
             "Folder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"
             "Condition" = "8:"
@@ -148,10 +148,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_55043CE4E9064D28BA16D3D48FB1956F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6CB89ED23F04329918D7664E5106185"
             {
-            "SourcePath" = "8:C:\\Windows\\System32\\msiexec.exe"
-            "TargetName" = "8:Uninstall.exe"
+            "SourcePath" = "8:favicon.ico"
+            "TargetName" = "8:favicon.ico"
             "Tag" = "8:"
             "Folder" = "8:_A9A15FCF60464EA6A41E6CE87C00129A"
             "Condition" = "8:"
@@ -367,7 +367,7 @@
             "Target" = "8:_9E9D6FD9CBC145C4903B3412D4450C61"
             "Folder" = "8:_2CA55752BCEA4192995736F7543E27A9"
             "WorkingFolder" = "8:_DE866C7E4CA440BF87D8343DE759DD09"
-            "Icon" = "8:_0CABE577006940AF8CB628217EFBC603"
+            "Icon" = "8:_F6CB89ED23F04329918D7664E5106185"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7C0A841B88814B20A81A6581DF43200C"
@@ -395,7 +395,7 @@
             "Target" = "8:_DCC91BF626F94EC2A8F782871F71C647"
             "Folder" = "8:_DCC91BF626F94EC2A8F782871F71C647"
             "WorkingFolder" = "8:_DCC91BF626F94EC2A8F782871F71C647"
-            "Icon" = "8:_0CABE577006940AF8CB628217EFBC603"
+            "Icon" = "8:_F6CB89ED23F04329918D7664E5106185"
             "Feature" = "8:"
             }
         }
