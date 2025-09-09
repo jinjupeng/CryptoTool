@@ -170,7 +170,7 @@ namespace CryptoTool.Win
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "加解密工具";
-            Load += Form1_Load;
+            //Load += Form1_Load;
             tabControl1.ResumeLayout(false);
             statusStrip1.ResumeLayout(false);
             statusStrip1.PerformLayout();

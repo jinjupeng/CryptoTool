@@ -33,7 +33,7 @@ namespace CryptoTool.Win
             this.MinimumSize = new Size(1400, 800);
 
             InitializeTabControls();
-            InitializeUpdateService();
+            //InitializeUpdateService();
         }
 
         private void InitializeTabControls()
@@ -91,27 +91,27 @@ namespace CryptoTool.Win
             medicareTabControl.SM4KeyGenerated += (key) => sm4TabControl.UpdateKeyFromMedicare(key);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            SetStatus("就绪");
+//        private void Form1_Load(object sender, EventArgs e)
+//        {
+//            SetStatus("就绪");
             
-            // 启动后台更新检测服务
-            try
-            {
-                updateService?.Start(5000, 7200000); // 5秒后开始检测，然后每2小时检测一次
-                SetStatus("后台更新检测已启动");
-            }
-            catch (Exception ex)
-            {
-                SetStatus($"启动后台更新检测失败: {ex.Message}");
-            }
+//            // 启动后台更新检测服务
+//            try
+//            {
+//                updateService?.Start(5000, 7200000); // 5秒后开始检测，然后每2小时检测一次
+//                SetStatus("后台更新检测已启动");
+//            }
+//            catch (Exception ex)
+//            {
+//                SetStatus($"启动后台更新检测失败: {ex.Message}");
+//            }
 
-            // 在调试模式下，添加快捷键手动触发检测更新
-#if DEBUG
-            this.KeyPreview = true;
-            this.KeyDown += MainForm_KeyDown;
-#endif
-        }
+//            // 在调试模式下，添加快捷键手动触发检测更新
+//#if DEBUG
+//            this.KeyPreview = true;
+//            this.KeyDown += MainForm_KeyDown;
+//#endif
+//        }
 
 #if DEBUG
         /// <summary>

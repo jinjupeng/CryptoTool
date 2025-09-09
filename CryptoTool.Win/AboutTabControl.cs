@@ -14,20 +14,20 @@ using Octokit;
 namespace CryptoTool.Win
 {
     /// <summary>
-    /// ¹ØÓÚÈí¼şµÄÓÃ»§¿Ø¼ş£¬°üº¬Èí¼şĞÅÏ¢ºÍ×Ô¶¯¸üĞÂ¹¦ÄÜ
+    /// å…³äºè½¯ä»¶çš„ç”¨æˆ·æ§ä»¶ï¼ŒåŒ…å«è½¯ä»¶ä¿¡æ¯å’Œè‡ªåŠ¨æ›´æ–°åŠŸèƒ½
     /// </summary>
     public partial class AboutTabControl : UserControl
     {
-        #region ÊÂ¼ş¶¨Òå
+        #region äº‹ä»¶å®šä¹‰
 
         /// <summary>
-        /// ×´Ì¬¸üĞÂÊÂ¼ş
+        /// çŠ¶æ€æ›´æ–°äº‹ä»¶
         /// </summary>
         public event Action<string>? StatusChanged;
 
         #endregion
 
-        #region Ë½ÓĞ×Ö¶Î
+        #region ç§æœ‰å­—æ®µ
 
         private GitHubClient? _gitHubClient;
         private Release? _latestRelease;
@@ -37,63 +37,122 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¹¹Ôìº¯Êı
+        #region æ„é€ å‡½æ•°
 
         public AboutTabControl()
         {
             InitializeComponent();
             _httpClient = new HttpClient();
-            _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"));
+            InitializeGitHubClient();
             InitializeAppInfo();
         }
 
         #endregion
 
-        #region ³õÊ¼»¯·½·¨
+        #region GitHub å®¢æˆ·ç«¯åˆå§‹åŒ–
 
         /// <summary>
-        /// ³õÊ¼»¯Èí¼şĞÅÏ¢
+        /// åˆå§‹åŒ– GitHub å®¢æˆ·ç«¯ï¼Œæ”¯æŒè®¤è¯
+        /// </summary>
+        private void InitializeGitHubClient()
+        {
+            try
+            {
+                // ä»ç¯å¢ƒå˜é‡è·å– GitHub Token
+                var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
+                
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    // ä½¿ç”¨è®¤è¯çš„å®¢æˆ·ç«¯
+                    _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"))
+                    {
+                        Credentials = new Credentials(token)
+                    };
+                    SetStatus("GitHub å®¢æˆ·ç«¯å·²ä½¿ç”¨è®¤è¯åˆå§‹åŒ–");
+                }
+                else
+                {
+                    // ä½¿ç”¨æœªè®¤è¯çš„å®¢æˆ·ç«¯ï¼ˆè¾ƒä½é…é¢ï¼‰
+                    _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"));
+                    SetStatus("GitHub å®¢æˆ·ç«¯ä½¿ç”¨æœªè®¤è¯æ¨¡å¼ï¼ˆAPI é…é¢è¾ƒä½ï¼‰");
+                }
+            }
+            catch (Exception ex)
+            {
+                _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"));
+                SetStatus($"GitHub å®¢æˆ·ç«¯åˆå§‹åŒ–è­¦å‘Š: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// æ£€æŸ¥ GitHub API é…é¢
+        /// </summary>
+        private async Task<(int remaining, int limit, DateTimeOffset reset)> CheckApiRateLimitAsync()
+        {
+            if (_gitHubClient == null)
+            {
+                return (0, 0, DateTimeOffset.MinValue);
+            }
+
+            try
+            {
+                var rateLimit = await _gitHubClient.Miscellaneous.GetRateLimits();
+                var core = rateLimit.Resources.Core;
+                return (core.Remaining, core.Limit, core.Reset);
+            }
+            catch (Exception)
+            {
+                return (0, 0, DateTimeOffset.MinValue);
+            }
+        }
+
+        #endregion
+
+        #region åˆå§‹åŒ–æ–¹æ³•
+
+        /// <summary>
+        /// åˆå§‹åŒ–è½¯ä»¶ä¿¡æ¯
         /// </summary>
         private void InitializeAppInfo()
         {
             try
             {
                 var assembly = Assembly.GetExecutingAssembly();
-                var version = assembly.GetName().Version?.ToString() ?? "Î´Öª°æ±¾";
+                var version = assembly.GetName().Version?.ToString() ?? "æœªçŸ¥ç‰ˆæœ¬";
                 var location = assembly.Location;
-                var appPath = Path.GetDirectoryName(location) ?? "Î´ÖªÂ·¾¶";
+                var appPath = Path.GetDirectoryName(location) ?? "æœªçŸ¥è·¯å¾„";
 
-                // Èí¼ş»ù±¾ĞÅÏ¢
-                textAppName.Text = "CryptoTool ¼Ó½âÃÜ¹¤¾ß";
+                // è½¯ä»¶åŸºæœ¬ä¿¡æ¯
+                textAppName.Text = "CryptoTool åŠ è§£å¯†å·¥å…·";
                 textAppVersion.Text = version;
                 textAppAuthor.Text = "CryptoTool";
-                textAppDescription.Text = "Ò»¸ö¹¦ÄÜÇ¿´óµÄ¼Ó½âÃÜ¹¤¾ß£¬Ö§³ÖRSA¡¢SM2¡¢SM3¡¢SM4µÈ¶àÖÖ¼Ó½âÃÜËã·¨£¬" +
-                                        "ÒÔ¼°Ò½±£½Ó¿ÚµÄÇ©ÃûÑéÇ©ºÍ¼Ó½âÃÜ¹¦ÄÜ¡£Ìá¹©Ö±¹ÛµÄÍ¼ĞÎ½çÃæ£¬·½±ãÓÃ»§½øĞĞ¸÷ÖÖ¼Ó½âÃÜ²Ù×÷¡£";
-                linkAppRepository.Text = "CryptoTool";
+                textAppDescription.Text = "ä¸€ä¸ªåŠŸèƒ½å¼ºå¤§çš„åŠ è§£å¯†å·¥å…·ï¼Œæ”¯æŒRSAã€SM2ã€SM3ã€SM4ç­‰å¤šç§åŠ è§£å¯†ç®—æ³•ï¼Œ" +
+                                        "ä»¥åŠåŒ»ä¿æ¥å£çš„ç­¾åéªŒç­¾å’ŒåŠ è§£å¯†åŠŸèƒ½ã€‚æä¾›ç›´è§‚çš„å›¾å½¢ç•Œé¢ï¼Œæ–¹ä¾¿ç”¨æˆ·è¿›è¡Œå„ç§åŠ è§£å¯†æ“ä½œã€‚";
+                linkAppRepository.Text = "https://github.com/jinjupeng/CryptoTool";
                 textAppLicense.Text = "MIT License";
 
-                // µ±Ç°°æ±¾ĞÅÏ¢
+                // å½“å‰ç‰ˆæœ¬ä¿¡æ¯
                 textCurrentVersion.Text = version;
 
-                // ÏµÍ³ĞÅÏ¢
+                // ç³»ç»Ÿä¿¡æ¯
                 textOSInfo.Text = GetOSInfo();
                 textDotNetVersion.Text = Environment.Version.ToString();
                 textAppPath.Text = appPath;
 
-                // ³õÊ¼×´Ì¬
-                textUpdateStatus.Text = "µã»÷¼ì²é¸üĞÂ°´Å¥»ñÈ¡×îĞÂ°æ±¾ĞÅÏ¢";
-                textLatestVersion.Text = "Î´Öª";
+                // åˆå§‹çŠ¶æ€
+                textUpdateStatus.Text = "ç‚¹å‡»æ£€æŸ¥æ›´æ–°æŒ‰é’®è·å–æœ€æ–°ç‰ˆæœ¬ä¿¡æ¯";
+                textLatestVersion.Text = "æœªçŸ¥";
 
-                SetStatus("Èí¼şĞÅÏ¢³õÊ¼»¯Íê³É");
+                SetStatus("è½¯ä»¶ä¿¡æ¯åˆå§‹åŒ–å®Œæˆ");
             }
             catch (Exception ex)
             {
-                SetStatus($"³õÊ¼»¯Èí¼şĞÅÏ¢Ê§°Ü: {ex.Message}");
+                SetStatus($"åˆå§‹åŒ–è½¯ä»¶ä¿¡æ¯å¤±è´¥: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// »ñÈ¡²Ù×÷ÏµÍ³ĞÅÏ¢
+        /// è·å–æ“ä½œç³»ç»Ÿä¿¡æ¯
         /// </summary>
         /// <returns></returns>
         private static string GetOSInfo()
@@ -106,16 +165,16 @@ namespace CryptoTool.Win
             }
             catch
             {
-                return "Î´Öª²Ù×÷ÏµÍ³";
+                return "æœªçŸ¥æ“ä½œç³»ç»Ÿ";
             }
         }
 
         #endregion
 
-        #region ÊÂ¼ş´¦Àí·½·¨
+        #region äº‹ä»¶å¤„ç†æ–¹æ³•
 
         /// <summary>
-        /// ²Ö¿âÁ´½Óµã»÷ÊÂ¼ş
+        /// ä»“åº“é“¾æ¥ç‚¹å‡»äº‹ä»¶
         /// </summary>
         private void LinkAppRepository_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -129,27 +188,37 @@ namespace CryptoTool.Win
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ÎŞ·¨´ò¿ªÁ´½Ó: {ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"æ— æ³•æ‰“å¼€é“¾æ¥: {ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// ¼ì²é¸üĞÂ°´Å¥µã»÷ÊÂ¼ş
+        /// æ£€æŸ¥æ›´æ–°æŒ‰é’®ç‚¹å‡»äº‹ä»¶
         /// </summary>
         private async void BtnCheckUpdate_Click(object sender, EventArgs e)
         {
             btnCheckUpdate.Enabled = false;
-            textUpdateStatus.Text = "ÕıÔÚ¼ì²é¸üĞÂ...";
-            SetStatus("ÕıÔÚ¼ì²é¸üĞÂ...");
+            textUpdateStatus.Text = "æ­£åœ¨æ£€æŸ¥æ›´æ–°...";
+            SetStatus("æ­£åœ¨æ£€æŸ¥æ›´æ–°...");
 
             try
             {
+                // å…ˆæ£€æŸ¥ API é…é¢
+                var (remaining, limit, reset) = await CheckApiRateLimitAsync();
+                if (remaining <= 0)
+                {
+                    textUpdateStatus.Text = $"GitHub API é…é¢å·²ç”¨å®Œï¼Œé‡ç½®æ—¶é—´: {reset:HH:mm:ss}";
+                    SetStatus("GitHub API é…é¢å·²ç”¨å®Œ");
+                    return;
+                }
+                
+                SetStatus($"GitHub API é…é¢å‰©ä½™: {remaining}/{limit}");
                 await CheckForUpdatesAsync();
             }
             catch (Exception ex)
             {
-                textUpdateStatus.Text = $"¼ì²é¸üĞÂÊ§°Ü: {ex.Message}";
-                SetStatus($"¼ì²é¸üĞÂÊ§°Ü: {ex.Message}");
+                textUpdateStatus.Text = $"æ£€æŸ¥æ›´æ–°å¤±è´¥: {ex.Message}";
+                SetStatus($"æ£€æŸ¥æ›´æ–°å¤±è´¥: {ex.Message}");
             }
             finally
             {
@@ -158,21 +227,21 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// ÏÂÔØ¸üĞÂ°´Å¥µã»÷ÊÂ¼ş
+        /// ä¸‹è½½æ›´æ–°æŒ‰é’®ç‚¹å‡»äº‹ä»¶
         /// </summary>
         private async void BtnDownloadUpdate_Click(object sender, EventArgs e)
         {
             if (_latestRelease == null)
             {
-                MessageBox.Show("Î´»ñÈ¡µ½×îĞÂ°æ±¾ĞÅÏ¢", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("æœªè·å–åˆ°æœ€æ–°ç‰ˆæœ¬ä¿¡æ¯", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             btnDownloadUpdate.Enabled = false;
             progressUpdate.Visible = true;
             progressUpdate.Value = 0;
-            textUpdateStatus.Text = "ÕıÔÚÏÂÔØ¸üĞÂ...";
-            SetStatus("ÕıÔÚÏÂÔØ¸üĞÂ...");
+            textUpdateStatus.Text = "æ­£åœ¨ä¸‹è½½æ›´æ–°...";
+            SetStatus("æ­£åœ¨ä¸‹è½½æ›´æ–°...");
 
             try
             {
@@ -180,9 +249,9 @@ namespace CryptoTool.Win
             }
             catch (Exception ex)
             {
-                textUpdateStatus.Text = $"ÏÂÔØ¸üĞÂÊ§°Ü: {ex.Message}";
-                SetStatus($"ÏÂÔØ¸üĞÂÊ§°Ü: {ex.Message}");
-                MessageBox.Show($"ÏÂÔØ¸üĞÂÊ§°Ü: {ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                textUpdateStatus.Text = $"ä¸‹è½½æ›´æ–°å¤±è´¥: {ex.Message}";
+                SetStatus($"ä¸‹è½½æ›´æ–°å¤±è´¥: {ex.Message}");
+                MessageBox.Show($"ä¸‹è½½æ›´æ–°å¤±è´¥: {ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -193,16 +262,16 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¸üĞÂÏà¹Ø·½·¨
+        #region æ›´æ–°ç›¸å…³æ–¹æ³•
 
         /// <summary>
-        /// Òì²½¼ì²é¸üĞÂ
+        /// å¼‚æ­¥æ£€æŸ¥æ›´æ–°
         /// </summary>
         private async Task CheckForUpdatesAsync()
         {
             if (_gitHubClient == null)
             {
-                throw new InvalidOperationException("GitHub¿Í»§¶ËÎ´³õÊ¼»¯");
+                throw new InvalidOperationException("GitHubå®¢æˆ·ç«¯æœªåˆå§‹åŒ–");
             }
 
             try
@@ -219,52 +288,63 @@ namespace CryptoTool.Win
                     var comparison = currentVersion.CompareTo(latestVersion);
                     if (comparison < 0)
                     {
-                        textUpdateStatus.Text = "·¢ÏÖĞÂ°æ±¾£¬¿ÉÒÔÏÂÔØ¸üĞÂ";
+                        textUpdateStatus.Text = "å‘ç°æ–°ç‰ˆæœ¬ï¼Œå¯ä»¥ä¸‹è½½æ›´æ–°";
                         btnDownloadUpdate.Enabled = true;
-                        SetStatus("·¢ÏÖĞÂ°æ±¾");
+                        SetStatus("å‘ç°æ–°ç‰ˆæœ¬");
                     }
                     else if (comparison == 0)
                     {
-                        textUpdateStatus.Text = "µ±Ç°°æ±¾ÊÇ×îĞÂ°æ±¾";
+                        textUpdateStatus.Text = "å½“å‰ç‰ˆæœ¬æ˜¯æœ€æ–°ç‰ˆæœ¬";
                         btnDownloadUpdate.Enabled = false;
-                        SetStatus("µ±Ç°°æ±¾ÊÇ×îĞÂ°æ±¾");
+                        SetStatus("å½“å‰ç‰ˆæœ¬æ˜¯æœ€æ–°ç‰ˆæœ¬");
                     }
                     else
                     {
-                        textUpdateStatus.Text = "µ±Ç°°æ±¾±È×îĞÂ°æ±¾¸ü¸ß£¨¿ª·¢°æ±¾£©";
+                        textUpdateStatus.Text = "å½“å‰ç‰ˆæœ¬æ¯”æœ€æ–°ç‰ˆæœ¬æ›´é«˜ï¼ˆå¼€å‘ç‰ˆæœ¬ï¼‰";
                         btnDownloadUpdate.Enabled = false;
-                        SetStatus("µ±Ç°°æ±¾±È×îĞÂ°æ±¾¸ü¸ß");
+                        SetStatus("å½“å‰ç‰ˆæœ¬æ¯”æœ€æ–°ç‰ˆæœ¬æ›´é«˜");
                     }
                 }
                 else
                 {
-                    textUpdateStatus.Text = "°æ±¾±È½ÏÊ§°Ü£¬µ«ÒÑ»ñÈ¡µ½×îĞÂ°æ±¾ĞÅÏ¢";
+                    textUpdateStatus.Text = "ç‰ˆæœ¬æ¯”è¾ƒå¤±è´¥ï¼Œä½†å·²è·å–åˆ°æœ€æ–°ç‰ˆæœ¬ä¿¡æ¯";
                     btnDownloadUpdate.Enabled = true;
-                    SetStatus("°æ±¾±È½ÏÊ§°Ü");
+                    SetStatus("ç‰ˆæœ¬æ¯”è¾ƒå¤±è´¥");
                 }
             }
-            catch (RateLimitExceededException)
+            catch (RateLimitExceededException ex)
             {
-                textUpdateStatus.Text = "GitHub APIÇëÇó´ÎÊıÏŞÖÆ£¬ÇëÉÔºóÔÙÊÔ";
-                SetStatus("GitHub APIÇëÇó´ÎÊıÏŞÖÆ");
+                var resetTime = ex.Reset.ToString("HH:mm:ss");
+                textUpdateStatus.Text = $"GitHub API è¯·æ±‚æ¬¡æ•°é™åˆ¶ï¼Œé‡ç½®æ—¶é—´: {resetTime}";
+                SetStatus($"GitHub API è¯·æ±‚æ¬¡æ•°é™åˆ¶ï¼Œé‡ç½®æ—¶é—´: {resetTime}");
+                
+                MessageBox.Show(
+                    $"GitHub API è¯·æ±‚æ¬¡æ•°å·²è¾¾åˆ°é™åˆ¶ã€‚\n\n" +
+                    $"å»ºè®®è§£å†³æ–¹æ¡ˆï¼š\n" +
+                    $"1. è®¾ç½®ç¯å¢ƒå˜é‡ GITHUB_TOKEN ä»¥è·å¾—æ›´é«˜çš„APIé…é¢\n" +
+                    $"2. ç­‰å¾…é…é¢é‡ç½®æ—¶é—´: {resetTime}\n\n" +
+                    $"å¦‚éœ€è®¾ç½®Tokenï¼Œè¯·è®¿é—®: https://github.com/settings/tokens",
+                    "API é…é¢é™åˆ¶",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
             catch (NotFoundException)
             {
-                textUpdateStatus.Text = "Î´ÕÒµ½Èí¼ş²Ö¿â»ò°æ±¾ĞÅÏ¢";
-                SetStatus("Î´ÕÒµ½Èí¼ş²Ö¿â");
+                textUpdateStatus.Text = "æœªæ‰¾åˆ°è½¯ä»¶ä»“åº“æˆ–ç‰ˆæœ¬ä¿¡æ¯";
+                SetStatus("æœªæ‰¾åˆ°è½¯ä»¶ä»“åº“");
             }
             catch (Exception ex)
             {
-                textUpdateStatus.Text = $"¼ì²é¸üĞÂÊ§°Ü: {ex.Message}";
-                SetStatus($"¼ì²é¸üĞÂÊ§°Ü: {ex.Message}");
+                textUpdateStatus.Text = $"æ£€æŸ¥æ›´æ–°å¤±è´¥: {ex.Message}";
+                SetStatus($"æ£€æŸ¥æ›´æ–°å¤±è´¥: {ex.Message}");
                 throw;
             }
         }
 
         /// <summary>
-        /// ¾²Ä¬¼ì²é¸üĞÂ£¨ÓÃÓÚºóÌ¨¼ì²â£©
+        /// é™é»˜æ£€æŸ¥æ›´æ–°ï¼ˆç”¨äºåå°æ£€æµ‹ï¼‰
         /// </summary>
-        /// <returns>Èç¹ûÓĞĞÂ°æ±¾·µ»Ø Release ¶ÔÏó£¬·ñÔò·µ»Ø null</returns>
+        /// <returns>å¦‚æœæœ‰æ–°ç‰ˆæœ¬è¿”å› Release å¯¹è±¡ï¼Œå¦åˆ™è¿”å› null</returns>
         public async Task<Release?> SilentCheckForUpdatesAsync()
         {
             if (_gitHubClient == null)
@@ -274,6 +354,13 @@ namespace CryptoTool.Win
 
             try
             {
+                // å…ˆæ£€æŸ¥é…é¢
+                var (remaining, _, _) = await CheckApiRateLimitAsync();
+                if (remaining <= 5) // ä¿ç•™å°‘é‡é…é¢ç»™ç”¨æˆ·æ‰‹åŠ¨æ£€æŸ¥
+                {
+                    return null;
+                }
+
                 var latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
                 
                 var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
@@ -284,37 +371,37 @@ namespace CryptoTool.Win
                     var comparison = currentVersion.CompareTo(latestVersion);
                     if (comparison < 0)
                     {
-                        return latestRelease; // ·¢ÏÖĞÂ°æ±¾
+                        return latestRelease; // å‘ç°æ–°ç‰ˆæœ¬
                     }
                 }
                 
-                return null; // Ã»ÓĞĞÂ°æ±¾
+                return null; // æ²¡æœ‰æ–°ç‰ˆæœ¬
             }
             catch (Exception)
             {
-                return null; // ¼ì²âÊ§°Ü£¬¾²Ä¬ºöÂÔ
+                return null; // æ£€æµ‹å¤±è´¥ï¼Œé™é»˜å¿½ç•¥
             }
         }
 
         /// <summary>
-        /// ¿ªÊ¼ÏÂÔØ¸üĞÂÁ÷³Ì£¨´ÓÍâ²¿µ÷ÓÃ£©
+        /// å¼€å§‹ä¸‹è½½æ›´æ–°æµç¨‹ï¼ˆä»å¤–éƒ¨è°ƒç”¨ï¼‰
         /// </summary>
-        /// <param name="release">ÒªÏÂÔØµÄ°æ±¾</param>
+        /// <param name="release">è¦ä¸‹è½½çš„ç‰ˆæœ¬</param>
         public async Task StartDownloadUpdateAsync(Release release)
         {
             _latestRelease = release;
             textLatestVersion.Text = release.TagName;
             btnDownloadUpdate.Enabled = false;
             
-            // ÇĞ»»µ½¹ØÓÚÑ¡Ïî¿¨
+            // åˆ‡æ¢åˆ°å…³äºé€‰é¡¹å¡
             var parentForm = this.FindForm();
             if (parentForm is MainForm mainForm)
             {
-                // ¼ÙÉè¹ØÓÚÑ¡Ïî¿¨ÊÇ×îºóÒ»¸ö
+                // å‡è®¾å…³äºé€‰é¡¹å¡æ˜¯æœ€åä¸€ä¸ª
                 var tabControl = mainForm.Controls.OfType<TabControl>().FirstOrDefault();
                 if (tabControl != null)
                 {
-                    tabControl.SelectedIndex = tabControl.TabCount - 1; // ÇĞ»»µ½¹ØÓÚÑ¡Ïî¿¨
+                    tabControl.SelectedIndex = tabControl.TabCount - 1; // åˆ‡æ¢åˆ°å…³äºé€‰é¡¹å¡
                 }
             }
 
@@ -322,17 +409,17 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// ÏÂÔØ²¢°²×°¸üĞÂ
+        /// ä¸‹è½½å¹¶å®‰è£…æ›´æ–°
         /// </summary>
         private async Task DownloadAndInstallUpdateAsync(Release release)
         {
-            // ²éÕÒWindows¿ÉÖ´ĞĞÎÄ¼ş»ò°²×°°ü
+            // æŸ¥æ‰¾Windowså¯æ‰§è¡Œæ–‡ä»¶æˆ–å®‰è£…åŒ…
             ReleaseAsset? installerAsset = null;
             
-            // ÓÅÏÈ²éÕÒ¿ÉÖ´ĞĞÎÄ¼ş
+            // ä¼˜å…ˆæŸ¥æ‰¾å¯æ‰§è¡Œæ–‡ä»¶
             foreach (var asset in release.Assets)
             {
-                // ²éÕÒexeÎÄ¼ş£¨ÓÅÏÈ£©
+                // æŸ¥æ‰¾exeæ–‡ä»¶ï¼ˆä¼˜å…ˆï¼‰
                 if (asset.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && 
                     (asset.Name.Contains("win", StringComparison.OrdinalIgnoreCase) || 
                      asset.Name.Contains("windows", StringComparison.OrdinalIgnoreCase) ||
@@ -343,7 +430,7 @@ namespace CryptoTool.Win
                 }
             }
             
-            // Èç¹ûÃ»ÕÒµ½exe£¬²éÕÒMSI°²×°°ü
+            // å¦‚æœæ²¡æ‰¾åˆ°exeï¼ŒæŸ¥æ‰¾MSIå®‰è£…åŒ…
             if (installerAsset == null)
             {
                 foreach (var asset in release.Assets)
@@ -356,7 +443,7 @@ namespace CryptoTool.Win
                 }
             }
             
-            // Èç¹û»¹ÊÇÃ»ÕÒµ½£¬²éÕÒZIP°ü
+            // å¦‚æœè¿˜æ˜¯æ²¡æ‰¾åˆ°ï¼ŒæŸ¥æ‰¾ZIPåŒ…
             if (installerAsset == null)
             {
                 foreach (var asset in release.Assets)
@@ -374,7 +461,7 @@ namespace CryptoTool.Win
 
             if (installerAsset == null)
             {
-                throw new InvalidOperationException("Î´ÕÒµ½ÊÊÓÃÓÚWindowsµÄ°²×°°ü»ò¿ÉÖ´ĞĞÎÄ¼ş");
+                throw new InvalidOperationException("æœªæ‰¾åˆ°é€‚ç”¨äºWindowsçš„å®‰è£…åŒ…æˆ–å¯æ‰§è¡Œæ–‡ä»¶");
             }
 
             var tempPath = Path.GetTempPath();
@@ -382,7 +469,7 @@ namespace CryptoTool.Win
 
             try
             {
-                // ÏÂÔØÎÄ¼ş
+                // ä¸‹è½½æ–‡ä»¶
                 var progress = new Progress<int>(value =>
                 {
                     if (progressUpdate.InvokeRequired)
@@ -390,23 +477,23 @@ namespace CryptoTool.Win
                         progressUpdate.Invoke(() =>
                         {
                             progressUpdate.Value = value;
-                            textUpdateStatus.Text = $"ÕıÔÚÏÂÔØ¸üĞÂ... ({value}%)";
+                            textUpdateStatus.Text = $"æ­£åœ¨ä¸‹è½½æ›´æ–°... ({value}%)";
                         });
                     }
                     else
                     {
                         progressUpdate.Value = value;
-                        textUpdateStatus.Text = $"ÕıÔÚÏÂÔØ¸üĞÂ... ({value}%)";
+                        textUpdateStatus.Text = $"æ­£åœ¨ä¸‹è½½æ›´æ–°... ({value}%)";
                     }
-                    SetStatus($"ÕıÔÚÏÂÔØ¸üĞÂ... ({value}%)");
+                    SetStatus($"æ­£åœ¨ä¸‹è½½æ›´æ–°... ({value}%)");
                 });
 
                 await DownloadFileWithProgressAsync(installerAsset.BrowserDownloadUrl, downloadPath, progress);
 
-                textUpdateStatus.Text = "ÏÂÔØÍê³É£¬×¼±¸°²×°...";
-                SetStatus("ÏÂÔØÍê³É£¬×¼±¸°²×°...");
+                textUpdateStatus.Text = "ä¸‹è½½å®Œæˆï¼Œå‡†å¤‡å®‰è£…...";
+                SetStatus("ä¸‹è½½å®Œæˆï¼Œå‡†å¤‡å®‰è£…...");
 
-                // ¸ù¾İÎÄ¼şÀàĞÍ´¦Àí²»Í¬µÄ°²×°·½Ê½
+                // æ ¹æ®æ–‡ä»¶ç±»å‹å¤„ç†ä¸åŒçš„å®‰è£…æ–¹å¼
                 if (installerAsset.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                 {
                     await HandleExecutableUpdate(downloadPath, release, installerAsset);
@@ -422,7 +509,7 @@ namespace CryptoTool.Win
             }
             catch (Exception ex)
             {
-                // ÇåÀíÏÂÔØµÄÎÄ¼ş
+                // æ¸…ç†ä¸‹è½½çš„æ–‡ä»¶
                 try
                 {
                     if (File.Exists(downloadPath))
@@ -432,18 +519,18 @@ namespace CryptoTool.Win
                 }
                 catch { }
                 
-                throw new InvalidOperationException($"ÏÂÔØ»ò´¦Àí¸üĞÂÊ§°Ü: {ex.Message}", ex);
+                throw new InvalidOperationException($"ä¸‹è½½æˆ–å¤„ç†æ›´æ–°å¤±è´¥: {ex.Message}", ex);
             }
         }
 
         /// <summary>
-        /// ´¦Àí¿ÉÖ´ĞĞÎÄ¼ş¸üĞÂ
+        /// å¤„ç†å¯æ‰§è¡Œæ–‡ä»¶æ›´æ–°
         /// </summary>
         private async Task HandleExecutableUpdate(string downloadPath, Release release, ReleaseAsset asset)
         {
             var result = MessageBox.Show(
-                $"¸üĞÂ³ÌĞòÒÑÏÂÔØÍê³É£¬ÊÇ·ñÁ¢¼´Ìæ»»µ±Ç°³ÌĞò£¿\n\n°æ±¾: {release.TagName}\nÎÄ¼ş: {asset.Name}\n\nµã»÷\"ÊÇ\"½«¹Ø±ÕÓ¦ÓÃ³ÌĞò²¢¸üĞÂµ½ĞÂ°æ±¾¡£",
-                "°²×°¸üĞÂ",
+                $"æ›´æ–°ç¨‹åºå·²ä¸‹è½½å®Œæˆï¼Œæ˜¯å¦ç«‹å³æ›¿æ¢å½“å‰ç¨‹åºï¼Ÿ\n\nç‰ˆæœ¬: {release.TagName}\næ–‡ä»¶: {asset.Name}\n\nç‚¹å‡»\"æ˜¯\"å°†å…³é—­åº”ç”¨ç¨‹åºå¹¶æ›´æ–°åˆ°æ–°ç‰ˆæœ¬ã€‚",
+                "å®‰è£…æ›´æ–°",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -451,34 +538,34 @@ namespace CryptoTool.Win
             {
                 try
                 {
-                    // »ñÈ¡µ±Ç°Ó¦ÓÃ³ÌĞòÂ·¾¶
+                    // è·å–å½“å‰åº”ç”¨ç¨‹åºè·¯å¾„
                     var currentExePath = System.Windows.Forms.Application.ExecutablePath;
                     var backupPath = currentExePath + ".backup";
                     
-                    // ´´½¨¸üĞÂ½Å±¾
+                    // åˆ›å»ºæ›´æ–°è„šæœ¬
                     var updateScript = Path.Combine(Path.GetTempPath(), "CryptoTool_Update.bat");
                     var scriptContent = "@echo off\r\n" +
-                        "echo ÕıÔÚ¸üĞÂ CryptoTool...\r\n" +
+                        "echo æ­£åœ¨æ›´æ–° CryptoTool...\r\n" +
                         "timeout /t 2 /nobreak >nul\r\n" +
                         "\r\n" +
-                        "echo ±¸·İµ±Ç°°æ±¾...\r\n" +
+                        "echo å¤‡ä»½å½“å‰ç‰ˆæœ¬...\r\n" +
                         $"if exist \"{backupPath}\" del \"{backupPath}\"\r\n" +
                         $"move \"{currentExePath}\" \"{backupPath}\"\r\n" +
                         "\r\n" +
-                        "echo °²×°ĞÂ°æ±¾...\r\n" +
+                        "echo å®‰è£…æ–°ç‰ˆæœ¬...\r\n" +
                         $"move \"{downloadPath}\" \"{currentExePath}\"\r\n" +
                         "\r\n" +
-                        "echo Æô¶¯ĞÂ°æ±¾...\r\n" +
+                        "echo å¯åŠ¨æ–°ç‰ˆæœ¬...\r\n" +
                         $"start \"\" \"{currentExePath}\"\r\n" +
                         "\r\n" +
-                        "echo ÇåÀíÁÙÊ±ÎÄ¼ş...\r\n" +
+                        "echo æ¸…ç†ä¸´æ—¶æ–‡ä»¶...\r\n" +
                         "timeout /t 2 /nobreak >nul\r\n" +
                         $"if exist \"{backupPath}\" del \"{backupPath}\"\r\n" +
                         "del \"%~f0\"\r\n";
                     
                     await File.WriteAllTextAsync(updateScript, scriptContent, System.Text.Encoding.UTF8);
                     
-                    // Æô¶¯¸üĞÂ½Å±¾
+                    // å¯åŠ¨æ›´æ–°è„šæœ¬
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = updateScript,
@@ -486,33 +573,33 @@ namespace CryptoTool.Win
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
                     
-                    // ¹Ø±ÕÓ¦ÓÃ³ÌĞò
+                    // å…³é—­åº”ç”¨ç¨‹åº
                     System.Windows.Forms.Application.Exit();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"×Ô¶¯¸üĞÂÊ§°Ü: {ex.Message}\n\nÇëÊÖ¶¯Ìæ»»³ÌĞòÎÄ¼ş£º\n{downloadPath}", 
-                        "¸üĞÂÊ§°Ü", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"è‡ªåŠ¨æ›´æ–°å¤±è´¥: {ex.Message}\n\nè¯·æ‰‹åŠ¨æ›¿æ¢ç¨‹åºæ–‡ä»¶ï¼š\n{downloadPath}", 
+                        "æ›´æ–°å¤±è´¥", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             else
             {
-                textUpdateStatus.Text = $"¸üĞÂ³ÌĞòÒÑÏÂÔØµ½: {downloadPath}";
-                SetStatus("¸üĞÂ³ÌĞòÏÂÔØÍê³É£¬ÓÃ»§Ñ¡ÔñÉÔºóÊÖ¶¯°²×°");
+                textUpdateStatus.Text = $"æ›´æ–°ç¨‹åºå·²ä¸‹è½½åˆ°: {downloadPath}";
+                SetStatus("æ›´æ–°ç¨‹åºä¸‹è½½å®Œæˆï¼Œç”¨æˆ·é€‰æ‹©ç¨åæ‰‹åŠ¨å®‰è£…");
                 
-                MessageBox.Show($"¸üĞÂ³ÌĞòÒÑÏÂÔØµ½ÁÙÊ±Ä¿Â¼£º\n{downloadPath}\n\nÇëÊÖ¶¯Ìæ»»µ±Ç°³ÌĞòÎÄ¼şÒÔÍê³É¸üĞÂ¡£", 
-                    "ÏÂÔØÍê³É", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"æ›´æ–°ç¨‹åºå·²ä¸‹è½½åˆ°ä¸´æ—¶ç›®å½•ï¼š\n{downloadPath}\n\nè¯·æ‰‹åŠ¨æ›¿æ¢å½“å‰ç¨‹åºæ–‡ä»¶ä»¥å®Œæˆæ›´æ–°ã€‚", 
+                    "ä¸‹è½½å®Œæˆ", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         /// <summary>
-        /// ´¦ÀíMSI°²×°°ü¸üĞÂ
+        /// å¤„ç†MSIå®‰è£…åŒ…æ›´æ–°
         /// </summary>
         private async Task HandleMsiUpdate(string downloadPath, Release release, ReleaseAsset asset)
         {
             var result = MessageBox.Show(
-                $"MSI°²×°°üÒÑÏÂÔØÍê³É£¬ÊÇ·ñÁ¢¼´°²×°£¿\n\n°æ±¾: {release.TagName}\nÎÄ¼ş: {asset.Name}\n\nµã»÷\"ÊÇ\"½«Æô¶¯°²×°³ÌĞò¡£",
-                "°²×°¸üĞÂ",
+                $"MSIå®‰è£…åŒ…å·²ä¸‹è½½å®Œæˆï¼Œæ˜¯å¦ç«‹å³å®‰è£…ï¼Ÿ\n\nç‰ˆæœ¬: {release.TagName}\næ–‡ä»¶: {asset.Name}\n\nç‚¹å‡»\"æ˜¯\"å°†å¯åŠ¨å®‰è£…ç¨‹åºã€‚",
+                "å®‰è£…æ›´æ–°",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -525,30 +612,30 @@ namespace CryptoTool.Win
                     UseShellExecute = true
                 });
 
-                textUpdateStatus.Text = "MSI°²×°³ÌĞòÒÑÆô¶¯";
-                SetStatus("MSI°²×°³ÌĞòÒÑÆô¶¯");
+                textUpdateStatus.Text = "MSIå®‰è£…ç¨‹åºå·²å¯åŠ¨";
+                SetStatus("MSIå®‰è£…ç¨‹åºå·²å¯åŠ¨");
             }
             else
             {
-                textUpdateStatus.Text = $"MSI°²×°°üÒÑÏÂÔØµ½: {downloadPath}";
-                SetStatus("MSI°²×°°üÏÂÔØÍê³É£¬ÓÃ»§Ñ¡ÔñÉÔºó°²×°");
+                textUpdateStatus.Text = $"MSIå®‰è£…åŒ…å·²ä¸‹è½½åˆ°: {downloadPath}";
+                SetStatus("MSIå®‰è£…åŒ…ä¸‹è½½å®Œæˆï¼Œç”¨æˆ·é€‰æ‹©ç¨åå®‰è£…");
             }
         }
 
         /// <summary>
-        /// ´¦ÀíZIPÑ¹Ëõ°ü¸üĞÂ
+        /// å¤„ç†ZIPå‹ç¼©åŒ…æ›´æ–°
         /// </summary>
         private async Task HandleZipUpdate(string downloadPath, Release release, ReleaseAsset asset)
         {
             var result = MessageBox.Show(
-                $"³ÌĞòÑ¹Ëõ°üÒÑÏÂÔØÍê³É¡£\n\n°æ±¾: {release.TagName}\nÎÄ¼ş: {asset.Name}\n\nÇëÊÖ¶¯½âÑ¹²¢Ìæ»»³ÌĞòÎÄ¼ş¡£\n\nÊÇ·ñ´ò¿ªÏÂÔØÎÄ¼ş¼Ğ£¿",
-                "ÏÂÔØÍê³É",
+                $"ç¨‹åºå‹ç¼©åŒ…å·²ä¸‹è½½å®Œæˆã€‚\n\nç‰ˆæœ¬: {release.TagName}\næ–‡ä»¶: {asset.Name}\n\nè¯·æ‰‹åŠ¨è§£å‹å¹¶æ›¿æ¢ç¨‹åºæ–‡ä»¶ã€‚\n\næ˜¯å¦æ‰“å¼€ä¸‹è½½æ–‡ä»¶å¤¹ï¼Ÿ",
+                "ä¸‹è½½å®Œæˆ",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Information);
 
             if (result == DialogResult.Yes)
             {
-                // ´ò¿ª°üº¬ÏÂÔØÎÄ¼şµÄÎÄ¼ş¼Ğ
+                // æ‰“å¼€åŒ…å«ä¸‹è½½æ–‡ä»¶çš„æ–‡ä»¶å¤¹
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "explorer",
@@ -557,12 +644,12 @@ namespace CryptoTool.Win
                 });
             }
 
-            textUpdateStatus.Text = $"ZIPÑ¹Ëõ°üÒÑÏÂÔØµ½: {downloadPath}";
-            SetStatus("ZIPÑ¹Ëõ°üÏÂÔØÍê³É");
+            textUpdateStatus.Text = $"ZIPå‹ç¼©åŒ…å·²ä¸‹è½½åˆ°: {downloadPath}";
+            SetStatus("ZIPå‹ç¼©åŒ…ä¸‹è½½å®Œæˆ");
         }
 
         /// <summary>
-        /// ´ø½ø¶ÈµÄÎÄ¼şÏÂÔØ
+        /// å¸¦è¿›åº¦çš„æ–‡ä»¶ä¸‹è½½
         /// </summary>
         private async Task DownloadFileWithProgressAsync(string url, string destinationPath, IProgress<int> progress)
         {
@@ -593,12 +680,12 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¸¨Öú·½·¨
+        #region è¾…åŠ©æ–¹æ³•
 
         /// <summary>
-        /// ÉèÖÃ×´Ì¬ĞÅÏ¢
+        /// è®¾ç½®çŠ¶æ€ä¿¡æ¯
         /// </summary>
-        /// <param name="message">×´Ì¬ÏûÏ¢</param>
+        /// <param name="message">çŠ¶æ€æ¶ˆæ¯</param>
         private void SetStatus(string message)
         {
             StatusChanged?.Invoke(message);
