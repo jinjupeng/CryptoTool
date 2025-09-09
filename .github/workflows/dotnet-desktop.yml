@@ -240,7 +240,7 @@ jobs:
         <?xml version="1.0" encoding="UTF-8"?>
         <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
              xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-          <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
             <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
             
             <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
@@ -300,7 +300,7 @@ jobs:
           $wxsContent = @"
         <?xml version="1.0" encoding="UTF-8"?>
         <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-          <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
             <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
             
             <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
@@ -429,7 +429,7 @@ jobs:
         }
 
     # Upload entire publish directory as artifacts
-    - name: Upload Complete Publish Directory
+    - name: Upload Publish Directory
       uses: actions/upload-artifact@v4
       with:
         name: CryptoTool-${{ matrix.configuration }}-v${{ env.VERSION }}
