@@ -37,6 +37,16 @@ jobs:
       with:
         fetch-depth: 0
 
+    # Set UTF-8 encoding for all PowerShell operations
+    - name: Set PowerShell encoding
+      shell: pwsh
+      run: |
+        $PSDefaultParameterValues['*:Encoding'] = 'utf8'
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        [Console]::InputEncoding = [System.Text.Encoding]::UTF8
+        $env:PYTHONIOENCODING = "utf-8"
+        chcp 65001
+
     # Get version from git tag or csproj
     - name: Get Version
       id: get-version
@@ -52,7 +62,7 @@ jobs:
           Write-Host "Using git tag version: $version"
         } else {
           # Extract version from csproj file
-          [xml]$csproj = Get-Content "CryptoTool.Win\CryptoTool.Win.csproj"
+          [xml]$csproj = Get-Content "CryptoTool.Win\CryptoTool.Win.csproj" -Encoding UTF8
           $version = $csproj.Project.PropertyGroup.Version
           if ([string]::IsNullOrEmpty($version)) {
             $version = "1.0.0"
@@ -124,7 +134,7 @@ jobs:
         
         foreach ($proj in $projects) {
           Write-Host "Updating version in $proj..."
-          [xml]$xml = Get-Content $proj
+          [xml]$xml = Get-Content $proj -Encoding UTF8
           
           # Find the correct PropertyGroup (usually the first one)
           $propertyGroup = $xml.Project.PropertyGroup | Select-Object -First 1
@@ -163,6 +173,7 @@ jobs:
     - name: Publish WinForms App (Self-contained)
       shell: pwsh
       run: |
+        $env:DOTNET_CLI_UI_LANGUAGE = "en-US"
         dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
           --configuration ${{ matrix.configuration }} `
           --runtime win-x64 `
@@ -172,12 +183,14 @@ jobs:
           -p:PublishTrimmed=false `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:DebugType=None `
-          -p:DebugSymbols=false
+          -p:DebugSymbols=false `
+          -p:InvariantGlobalization=false
 
     # Publish the WinForms application (Framework-dependent)
     - name: Publish WinForms App (Framework-dependent)
       shell: pwsh
       run: |
+        $env:DOTNET_CLI_UI_LANGUAGE = "en-US"
         dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
           --configuration ${{ matrix.configuration }} `
           --runtime win-x64 `
@@ -185,12 +198,14 @@ jobs:
           --output ./publish/CryptoTool.Win-FrameworkDependent `
           -p:PublishSingleFile=true `
           -p:DebugType=None `
-          -p:DebugSymbols=false
+          -p:DebugSymbols=false `
+          -p:InvariantGlobalization=false
 
     # Publish the Console App
     - name: Publish Console App
       shell: pwsh
       run: |
+        $env:DOTNET_CLI_UI_LANGUAGE = "en-US"
         dotnet publish CryptoTool.App\CryptoTool.App.csproj `
           --configuration ${{ matrix.configuration }} `
           --runtime win-x64 `
@@ -199,7 +214,8 @@ jobs:
           -p:PublishSingleFile=true `
           -p:PublishTrimmed=false `
           -p:DebugType=None `
-          -p:DebugSymbols=false
+          -p:DebugSymbols=false `
+          -p:InvariantGlobalization=false
 
     # Rename executables with version info
     - name: Rename executables

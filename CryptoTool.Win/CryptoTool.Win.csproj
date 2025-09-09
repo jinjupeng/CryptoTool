@@ -21,6 +21,10 @@
     <ApplicationVersion>$(Version).$(ApplicationRevision)</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    
+    <!-- 添加编码相关配置 -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <FileEncoding>UTF-8</FileEncoding>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

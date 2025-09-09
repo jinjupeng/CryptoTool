@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace CryptoTool.Win
@@ -12,9 +13,20 @@ namespace CryptoTool.Win
         {
             try
             {
-                // Set console encoding to UTF-8 to handle Chinese characters
+                // Set encoding to UTF-8 to handle Chinese characters properly
                 Console.OutputEncoding = Encoding.UTF8;
                 Console.InputEncoding = Encoding.UTF8;
+                
+                // Set the default encoding for the application
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                
+                // Ensure culture info supports Chinese characters
+                Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+                Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+                
+                // Set application-wide culture
+                CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
             }
             catch
             {
