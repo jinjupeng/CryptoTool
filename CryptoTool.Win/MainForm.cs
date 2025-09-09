@@ -4,6 +4,8 @@ using System.Text;
 using Org.BouncyCastle.Crypto.Parameters;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Octokit;
+using System.Windows.Forms;
 
 namespace CryptoTool.Win
 {
@@ -17,6 +19,11 @@ namespace CryptoTool.Win
         private MedicareTabControl medicareTabControl;
         private AboutTabControl aboutTabControl;
 
+        // 后台更新服务和通知控件
+        private BackgroundUpdateService updateService;
+        private UpdateNotificationControl updateNotification;
+        private Release? pendingRelease;
+
         public MainForm()
         {
             InitializeComponent();
@@ -26,6 +33,7 @@ namespace CryptoTool.Win
             this.MinimumSize = new Size(1400, 800);
 
             InitializeTabControls();
+            InitializeUpdateService();
         }
 
         private void InitializeTabControls()
@@ -86,16 +94,189 @@ namespace CryptoTool.Win
         private void Form1_Load(object sender, EventArgs e)
         {
             SetStatus("就绪");
+            
+            // 启动后台更新检测服务
+            try
+            {
+                updateService?.Start(5000, 7200000); // 5秒后开始检测，然后每2小时检测一次
+                SetStatus("后台更新检测已启动");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"启动后台更新检测失败: {ex.Message}");
+            }
+
+            // 在调试模式下，添加快捷键手动触发检测更新
+#if DEBUG
+            this.KeyPreview = true;
+            this.KeyDown += MainForm_KeyDown;
+#endif
         }
+
+#if DEBUG
+        /// <summary>
+        /// 调试模式下的快捷键处理（用于测试）
+        /// </summary>
+        private async void MainForm_KeyDown(object? sender, KeyEventArgs e)
+        {
+            // Ctrl+U 手动触发更新检测
+            if (e.Control && e.KeyCode == Keys.U)
+            {
+                SetStatus("手动触发更新检测...");
+                try
+                {
+                    await updateService?.ManualCheckAsync();
+                }
+                catch (Exception ex)
+                {
+                    SetStatus($"手动检测更新失败: {ex.Message}");
+                }
+            }
+        }
+#endif
 
         #region 辅助方法
 
         private void SetStatus(string message)
         {
             toolStripStatusLabel1.Text = message;
-            Application.DoEvents();
+            System.Windows.Forms.Application.DoEvents();
         }
 
         #endregion
+
+        /// <summary>
+        /// 初始化后台更新服务
+        /// </summary>
+        private void InitializeUpdateService()
+        {
+            try
+            {
+                // 创建后台更新服务
+                updateService = new BackgroundUpdateService();
+                updateService.NewVersionFound += OnNewVersionFound;
+                updateService.StatusUpdated += OnUpdateStatusChanged;
+
+                // 创建更新通知控件
+                updateNotification = new UpdateNotificationControl
+                {
+                    Visible = false,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Right
+                };
+
+                // 设置通知控件位置（右上角）
+                updateNotification.Location = new Point(
+                    this.ClientSize.Width - updateNotification.Width - 20, 20);
+
+                // 绑定通知控件事件
+                updateNotification.UpdateClicked += OnUpdateNotificationClicked;
+                updateNotification.CloseClicked += OnUpdateNotificationClosed;
+
+                // 添加到主窗体
+                this.Controls.Add(updateNotification);
+                updateNotification.BringToFront();
+
+                // 监听窗体大小变化，调整通知位置
+                this.SizeChanged += MainForm_SizeChanged;
+
+                SetStatus("后台更新检测服务初始化完成");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"初始化更新服务失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 窗体大小变化时调整通知位置
+        /// </summary>
+        private void MainForm_SizeChanged(object? sender, EventArgs e)
+        {
+            if (updateNotification != null && this.WindowState != FormWindowState.Minimized)
+            {
+                updateNotification.Location = new Point(
+                    this.ClientSize.Width - updateNotification.Width - 20, 20);
+            }
+        }
+
+        /// <summary>
+        /// 发现新版本时的处理
+        /// </summary>
+        private void OnNewVersionFound(Release release)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(() => OnNewVersionFound(release));
+                return;
+            }
+
+            try
+            {
+                pendingRelease = release;
+                updateNotification.Message = $"发现新版本 {release.TagName}";
+                updateNotification.ShowNotification();
+                
+                SetStatus($"发现新版本 {release.TagName}，点击右上角提示进行更新");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"显示更新通知失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 更新状态变化时的处理
+        /// </summary>
+        private void OnUpdateStatusChanged(string status)
+        {
+            // 只在调试模式下显示详细的后台检测状态
+#if DEBUG
+            if (this.InvokeRequired)
+            {
+                this.Invoke(() => SetStatus(status));
+            }
+            else
+            {
+                SetStatus(status);
+            }
+#endif
+        }
+
+        /// <summary>
+        /// 更新通知被点击时的处理
+        /// </summary>
+        private async void OnUpdateNotificationClicked(object? sender, EventArgs e)
+        {
+            if (pendingRelease == null) return;
+
+            try
+            {
+                updateNotification.HideNotification();
+                
+                // 切换到关于选项卡
+                tabControl1.SelectedIndex = tabControl1.TabCount - 1;
+                
+                // 开始下载更新
+                await aboutTabControl.StartDownloadUpdateAsync(pendingRelease);
+                
+                pendingRelease = null;
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"启动更新下载失败: {ex.Message}");
+                MessageBox.Show($"启动更新下载失败: {ex.Message}", "错误", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// 更新通知被关闭时的处理
+        /// </summary>
+        private void OnUpdateNotificationClosed(object? sender, EventArgs e)
+        {
+            updateNotification.HideNotification();
+            pendingRelease = null;
+            SetStatus("已忽略更新提示");
+        }
     }
 }

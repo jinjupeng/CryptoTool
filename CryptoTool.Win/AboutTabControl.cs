@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -65,10 +66,10 @@ namespace CryptoTool.Win
                 // 软件基本信息
                 textAppName.Text = "CryptoTool 加解密工具";
                 textAppVersion.Text = version;
-                textAppAuthor.Text = "jinjupeng";
+                textAppAuthor.Text = "CryptoTool";
                 textAppDescription.Text = "一个功能强大的加解密工具，支持RSA、SM2、SM3、SM4等多种加解密算法，" +
                                         "以及医保接口的签名验签和加解密功能。提供直观的图形界面，方便用户进行各种加解密操作。";
-                linkAppRepository.Text = "https://github.com/jinjupeng/CryptoTool";
+                linkAppRepository.Text = "CryptoTool";
                 textAppLicense.Text = "MIT License";
 
                 // 当前版本信息
@@ -258,6 +259,66 @@ namespace CryptoTool.Win
                 SetStatus($"检查更新失败: {ex.Message}");
                 throw;
             }
+        }
+
+        /// <summary>
+        /// 静默检查更新（用于后台检测）
+        /// </summary>
+        /// <returns>如果有新版本返回 Release 对象，否则返回 null</returns>
+        public async Task<Release?> SilentCheckForUpdatesAsync()
+        {
+            if (_gitHubClient == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                var latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
+                
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var latestVersionString = latestRelease.TagName.TrimStart('v');
+                
+                if (Version.TryParse(latestVersionString, out var latestVersion) && currentVersion != null)
+                {
+                    var comparison = currentVersion.CompareTo(latestVersion);
+                    if (comparison < 0)
+                    {
+                        return latestRelease; // 发现新版本
+                    }
+                }
+                
+                return null; // 没有新版本
+            }
+            catch (Exception)
+            {
+                return null; // 检测失败，静默忽略
+            }
+        }
+
+        /// <summary>
+        /// 开始下载更新流程（从外部调用）
+        /// </summary>
+        /// <param name="release">要下载的版本</param>
+        public async Task StartDownloadUpdateAsync(Release release)
+        {
+            _latestRelease = release;
+            textLatestVersion.Text = release.TagName;
+            btnDownloadUpdate.Enabled = false;
+            
+            // 切换到关于选项卡
+            var parentForm = this.FindForm();
+            if (parentForm is MainForm mainForm)
+            {
+                // 假设关于选项卡是最后一个
+                var tabControl = mainForm.Controls.OfType<TabControl>().FirstOrDefault();
+                if (tabControl != null)
+                {
+                    tabControl.SelectedIndex = tabControl.TabCount - 1; // 切换到关于选项卡
+                }
+            }
+
+            await DownloadAndInstallUpdateAsync(release);
         }
 
         /// <summary>
