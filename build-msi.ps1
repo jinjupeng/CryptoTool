@@ -120,10 +120,10 @@ $packageGuid = [System.Guid]::NewGuid().ToString().ToUpper()
 $wxsContent = @"
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-  <Package Id="$packageGuid" Name="CryptoTool" Language="1033" Version="$Version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
-    <SummaryInformation Keywords="Installer" Description="CryptoTool ¼Ó½âÃÜ¹¤¾ß°²×°³ÌÐò" Manufacturer="jinjupeng" />
+  <Package Id="*" Name="CryptoTool" Language="1033" Version="$Version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+    <SummaryInformation Keywords="Installer" Description="CryptoTool åŠ è§£å¯†å·¥å…·å®‰è£…ç¨‹åº" Manufacturer="jinjupeng" />
     
-    <MajorUpgrade DowngradeErrorMessage="ÒÑ°²×°¸üÐÂ°æ±¾µÄ [ProductName]¡£" />
+    <MajorUpgrade DowngradeErrorMessage="å·²å®‰è£…æ›´æ–°ç‰ˆæœ¬çš„ [ProductName]ã€‚" />
     <MediaTemplate EmbedCab="yes" />
     
     <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
@@ -137,8 +137,8 @@ $wxsContent = @"
       <Directory Id="INSTALLFOLDER" Name="CryptoTool">
         <Component Id="MainExecutable">
           <File Id="CryptoToolExe" Source="$absoluteExePath" KeyPath="yes">
-            <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool ¼Ó½âÃÜ¹¤¾ß" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
-            <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool ¼Ó½âÃÜ¹¤¾ß" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+            <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool åŠ è§£å¯†å·¥å…·" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+            <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool åŠ è§£å¯†å·¥å…·" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
           </File>
         </Component>
       </Directory>

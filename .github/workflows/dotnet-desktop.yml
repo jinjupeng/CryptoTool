@@ -193,8 +193,8 @@ jobs:
               <Directory Id="INSTALLFOLDER" Name="CryptoTool">
                 <Component Id="MainExecutable">
                   <File Id="CryptoToolExe" Source="./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe" KeyPath="yes">
-                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool ¼Ó½âÃÜ¹¤¾ß" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
-                    <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool ¼Ó½âÃÜ¹¤¾ß" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool åŠ è§£å¯†å·¥å…·" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+                    <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool åŠ è§£å¯†å·¥å…·" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
                   </File>
                 </Component>
               </Directory>
@@ -335,22 +335,22 @@ jobs:
         body: |
           ## CryptoTool v${{ needs.build.outputs.version }}
           
-          ### ÏÂÔØËµÃ÷ / Download Instructions
+          ### ä¸‹è½½è¯´æ˜ / Download Instructions
           
-          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-SelfContained.exe**: ×Ô°üº¬¿ÉÖ´ĞĞÎÄ¼ş£¬ÎŞĞè°²×°.NETÔËĞĞÊ±
-          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-FrameworkDependent.exe**: ¿ò¼ÜÒÀÀµ¿ÉÖ´ĞĞÎÄ¼ş£¬ĞèÒª.NET 8ÔËĞĞÊ±
-          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-Setup.msi**: Windows°²×°°ü£¬°üº¬×ÀÃæºÍ¿ªÊ¼²Ëµ¥¿ì½İ·½Ê½
-          - **CryptoTool.App-v${{ needs.build.outputs.version }}-win-x64.exe**: ¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞò
-          - **ZIPÎÄ¼ş**: °üº¬ÍêÕû·¢²¼ÎÄ¼şµÄÑ¹Ëõ°ü
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-SelfContained.exe**: è‡ªåŒ…å«å¯æ‰§è¡Œæ–‡ä»¶ï¼Œæ— éœ€å®‰è£….NETè¿è¡Œæ—¶
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-FrameworkDependent.exe**: æ¡†æ¶ä¾èµ–å¯æ‰§è¡Œæ–‡ä»¶ï¼Œéœ€è¦.NET 8è¿è¡Œæ—¶
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-Setup.msi**: Windowså®‰è£…åŒ…ï¼ŒåŒ…å«æ¡Œé¢å’Œå¼€å§‹èœå•å¿«æ·æ–¹å¼
+          - **CryptoTool.App-v${{ needs.build.outputs.version }}-win-x64.exe**: æ§åˆ¶å°åº”ç”¨ç¨‹åº
+          - **ZIPæ–‡ä»¶**: åŒ…å«å®Œæ•´å‘å¸ƒæ–‡ä»¶çš„å‹ç¼©åŒ…
           
-          ### ¹¦ÄÜÌØĞÔ / Features
-          - Ö§³ÖRSA¡¢SM2¡¢SM3¡¢SM4µÈ¶àÖÖ¼Ó½âÃÜËã·¨
-          - Ìá¹©Windows FormsÍ¼ĞÎ½çÃæºÍ¿ØÖÆÌ¨Ó¦ÓÃ
-          - Ö§³ÖÃÜÔ¿¸ñÊ½×ª»»ºÍÖ¤Êé¹ÜÀí
+          ### åŠŸèƒ½ç‰¹æ€§ / Features
+          - æ”¯æŒRSAã€SM2ã€SM3ã€SM4ç­‰å¤šç§åŠ è§£å¯†ç®—æ³•
+          - æä¾›Windows Formså›¾å½¢ç•Œé¢å’Œæ§åˆ¶å°åº”ç”¨
+          - æ”¯æŒå¯†é’¥æ ¼å¼è½¬æ¢å’Œè¯ä¹¦ç®¡ç†
           
-          ### ÏµÍ³ÒªÇó / System Requirements
+          ### ç³»ç»Ÿè¦æ±‚ / System Requirements
           - Windows 10/11 (x64)
-          - .NET 8.0 Runtime (½ö¿ò¼ÜÒÀÀµ°æ±¾ĞèÒª)
+          - .NET 8.0 Runtime (ä»…æ¡†æ¶ä¾èµ–ç‰ˆæœ¬éœ€è¦)
         draft: false
         prerelease: false
       env:
