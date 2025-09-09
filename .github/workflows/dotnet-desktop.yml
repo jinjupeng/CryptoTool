@@ -70,40 +70,41 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # Install WiX toolset for MSI creation (using v4 for better compatibility)
-    - name: Install WiX toolset
+    # Install WiX toolset and manually acquire UI Extension
+    - name: Install WiX toolset and UI Extension
       shell: pwsh
       run: |
         # Install WiX v4 for better extension compatibility
         dotnet tool install --global wix --version 4.0.5
+        Write-Host "Installed WiX version: $(wix --version)"
+
+        # Manually download the correct UI extension version via a dummy project
+        Write-Host "Manually downloading WiX UI Extension v4.0.5..."
+        New-Item -Path "tempext" -ItemType Directory -Force
+        $csprojContent = @"
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <TargetFramework>net8.0</TargetFramework>
+          </PropertyGroup>
+          <ItemGroup>
+            <PackageReference Include="WixToolset.UI.wixext" Version="4.0.5" />
+          </ItemGroup>
+        </Project>
+        "@
+        $csprojContent | Out-File -FilePath "tempext/tempext.csproj" -Encoding UTF8
         
-        # Check WiX version
-        $wixVersion = wix --version
-        Write-Host "Installed WiX version: $wixVersion"
+        dotnet restore tempext/tempext.csproj
         
-        # Try to add UI extension
-        try {
-          Write-Host "Attempting to add WiX UI extension..."
-          $result = wix extension add WixToolset.UI.wixext 2>&1
-          if ($LASTEXITCODE -eq 0) {
-            Write-Host "WiX UI extension installed successfully"
-            echo "HAS_UI_EXTENSION=true" >> $env:GITHUB_ENV
-          } else {
-            Write-Warning "Failed to install WiX UI extension: $result"
-            echo "HAS_UI_EXTENSION=false" >> $env:GITHUB_ENV
-          }
-        } catch {
-          Write-Warning "Could not install WiX UI extension: $($_.Exception.Message)"
+        # Find the extension DLL in the global NuGet package cache
+        $extPath = Get-ChildItem -Path "$env:USERPROFILE\.nuget\packages\wixtoolset.ui.wixext\4.0.5" -Filter "WixToolset.UI.wixext.dll" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        
+        if ($extPath) {
+          Write-Host "Found WiX UI extension DLL at: $extPath"
+          echo "UI_EXTENSION_PATH=$extPath" >> $env:GITHUB_ENV
+          echo "HAS_UI_EXTENSION=true" >> $env:GITHUB_ENV
+        } else {
+          Write-Warning "Could not find WiX UI extension DLL. MSI will be built without UI."
           echo "HAS_UI_EXTENSION=false" >> $env:GITHUB_ENV
-        }
-        
-        # List installed extensions
-        Write-Host "Checking installed extensions..."
-        try {
-          $extensions = wix extension list 2>&1
-          Write-Host "Installed extensions: $extensions"
-        } catch {
-          Write-Host "Could not list extensions"
         }
 
     # Update project versions if using git tag
@@ -366,8 +367,8 @@ jobs:
         
         try {
           if ($hasUI) {
-            Write-Host "Building MSI with UI extension..."
-            wix build ./publish/installer/CryptoTool.wxs -o $msiPath -ext WixToolset.UI.wixext
+            Write-Host "Building MSI with UI extension from path: ${{ env.UI_EXTENSION_PATH }}"
+            wix build ./publish/installer/CryptoTool.wxs -o $msiPath -ext "${{ env.UI_EXTENSION_PATH }}"
           } else {
             Write-Host "Building basic MSI without UI extension..."
             wix build ./publish/installer/CryptoTool.wxs -o $msiPath
@@ -431,7 +432,7 @@ jobs:
     - name: Upload Complete Publish Directory
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-Complete-${{ matrix.configuration }}-v${{ env.VERSION }}
+        name: CryptoTool-${{ matrix.configuration }}-v${{ env.VERSION }}
         path: ./publish/
       if: always()
 
@@ -448,7 +449,7 @@ jobs:
     - name: Download artifacts (Release only)
       uses: actions/download-artifact@v4
       with:
-        name: CryptoTool-Complete-Release-v${{ needs.build.outputs.version }}
+        name: CryptoTool-Release-v${{ needs.build.outputs.version }}
         path: ./publish
         
     - name: Organize Release Files
