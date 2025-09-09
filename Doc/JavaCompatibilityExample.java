@@ -14,17 +14,17 @@ import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.encoders.Base64;
 
 /**
- * Java¶ËSM2¹¤¾ßÀà£¬ÓÃÓÚÓëC#¶Ë½øĞĞ¼æÈİĞÔ²âÊÔ
- * ÖØµã½â¾öÃÜÎÄ¸ñÊ½¼æÈİĞÔÎÊÌâ
+ * Javaç«¯SM2å·¥å…·ç±»ï¼Œç”¨äºä¸C#ç«¯è¿›è¡Œå…¼å®¹æ€§æµ‹è¯•
+ * é‡ç‚¹è§£å†³å¯†æ–‡æ ¼å¼å…¼å®¹æ€§é—®é¢˜
  */
 public class JavaCompatibilityExample {
     private static final String CURVE_NAME = "sm2p256v1";
     private static final int RS_LENGTH = 32;
-    private static final int C1_LENGTH = 65; // Î´Ñ¹Ëõµã³¤¶È£¨°üº¬0x04Ç°×º£©
-    private static final int C1_LENGTH_NO_PREFIX = 64; // ²»°üº¬0x04Ç°×ºµÄ³¤¶È
+    private static final int C1_LENGTH = 65; // æœªå‹ç¼©ç‚¹é•¿åº¦ï¼ˆåŒ…å«0x04å‰ç¼€ï¼‰
+    private static final int C1_LENGTH_NO_PREFIX = 64; // ä¸åŒ…å«0x04å‰ç¼€çš„é•¿åº¦
     private static final int C3_LENGTH = 32;
     
-    // SM2ÇúÏß²ÎÊı
+    // SM2æ›²çº¿å‚æ•°
     private static final X9ECParameters SM2_ECX9_PARAMS = GMNamedCurves.getByName(CURVE_NAME);
     private static final ECDomainParameters SM2_DOMAIN_PARAMS = new ECDomainParameters(
         SM2_ECX9_PARAMS.getCurve(),
@@ -34,7 +34,7 @@ public class JavaCompatibilityExample {
     );
 
     /**
-     * ´Ó16½øÖÆ×Ö·û´®´´½¨¹«Ô¿
+     * ä»16è¿›åˆ¶å­—ç¬¦ä¸²åˆ›å»ºå…¬é’¥
      */
     public static ECPublicKeyParameters createPublicKeyFromHex(String hexPublicKey) {
         byte[] keyBytes = Hex.decode(hexPublicKey);
@@ -43,7 +43,7 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ´Ó16½øÖÆ×Ö·û´®´´½¨Ë½Ô¿
+     * ä»16è¿›åˆ¶å­—ç¬¦ä¸²åˆ›å»ºç§é’¥
      */
     public static ECPrivateKeyParameters createPrivateKeyFromHex(String hexPrivateKey) {
         BigInteger d = new BigInteger(hexPrivateKey, 16);
@@ -51,8 +51,8 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * Java BouncyCastle¼ÓÃÜ£¨Éú³ÉC#¼æÈİµÄÃÜÎÄ£©
-     * JavaÉú³ÉµÄÃÜÎÄĞèÒªÔÚ¿ªÍ·Ìí¼Ó0x04²ÅÄÜ±»C#½âÃÜ
+     * Java BouncyCastleåŠ å¯†ï¼ˆç”ŸæˆC#å…¼å®¹çš„å¯†æ–‡ï¼‰
+     * Javaç”Ÿæˆçš„å¯†æ–‡éœ€è¦åœ¨å¼€å¤´æ·»åŠ 0x04æ‰èƒ½è¢«C#è§£å¯†
      */
     public static String encryptForDotNet(String plainText, ECPublicKeyParameters publicKey) throws Exception {
         SM2Engine engine = new SM2Engine();
@@ -61,20 +61,20 @@ public class JavaCompatibilityExample {
         byte[] plainBytes = plainText.getBytes("UTF-8");
         byte[] javaCiphertext = engine.processBlock(plainBytes, 0, plainBytes.length);
         
-        // Java BouncyCastleÉú³ÉµÄÃÜÎÄĞèÒªÌí¼Ó0x04Ç°×º²ÅÄÜÔÚC#ÖĞ½âÃÜ
+        // Java BouncyCastleç”Ÿæˆçš„å¯†æ–‡éœ€è¦æ·»åŠ 0x04å‰ç¼€æ‰èƒ½åœ¨C#ä¸­è§£å¯†
         byte[] dotNetCompatibleCiphertext = addPrefixForDotNet(javaCiphertext);
         
         return Base64.toBase64String(dotNetCompatibleCiphertext);
     }
 
     /**
-     * Java BouncyCastle½âÃÜ£¨½âÃÜÀ´×ÔC#µÄÃÜÎÄ£©
-     * À´×ÔC#µÄÃÜÎÄĞèÒªÒÆ³ı¿ªÍ·µÄ0x04²ÅÄÜ±»Java½âÃÜ
+     * Java BouncyCastleè§£å¯†ï¼ˆè§£å¯†æ¥è‡ªC#çš„å¯†æ–‡ï¼‰
+     * æ¥è‡ªC#çš„å¯†æ–‡éœ€è¦ç§»é™¤å¼€å¤´çš„0x04æ‰èƒ½è¢«Javaè§£å¯†
      */
     public static String decryptFromDotNet(String encryptedData, ECPrivateKeyParameters privateKey) throws Exception {
         byte[] dotNetCiphertext = Base64.decode(encryptedData);
         
-        // À´×ÔC#µÄÃÜÎÄĞèÒªÒÆ³ı0x04Ç°×º²ÅÄÜÔÚJavaÖĞ½âÃÜ
+        // æ¥è‡ªC#çš„å¯†æ–‡éœ€è¦ç§»é™¤0x04å‰ç¼€æ‰èƒ½åœ¨Javaä¸­è§£å¯†
         byte[] javaCompatibleCiphertext = removePrefixFromDotNet(dotNetCiphertext);
         
         SM2Engine engine = new SM2Engine();
@@ -85,36 +85,36 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ÎªJavaÃÜÎÄÌí¼Ó0x04Ç°×º£¬Ê¹ÆäÓëC# BouncyCastle¼æÈİ
+     * ä¸ºJavaå¯†æ–‡æ·»åŠ 0x04å‰ç¼€ï¼Œä½¿å…¶ä¸C# BouncyCastleå…¼å®¹
      */
     private static byte[] addPrefixForDotNet(byte[] javaCiphertext) {
         if (javaCiphertext == null || javaCiphertext.length <= C1_LENGTH_NO_PREFIX + C3_LENGTH) {
-            throw new IllegalArgumentException("ÎŞĞ§µÄJavaÃÜÎÄ¸ñÊ½");
+            throw new IllegalArgumentException("æ— æ•ˆçš„Javaå¯†æ–‡æ ¼å¼");
         }
 
-        // Java BouncyCastleÉú³ÉµÄÃÜÎÄ¸ñÊ½£ºC1(64×Ö½Ú£¬²»º¬0x04) + C2 + C3
-        // C# BouncyCastleÆÚÍûµÄ¸ñÊ½£ºC1(65×Ö½Ú£¬º¬0x04) + C2 + C3
+        // Java BouncyCastleç”Ÿæˆçš„å¯†æ–‡æ ¼å¼ï¼šC1(64å­—èŠ‚ï¼Œä¸å«0x04) + C2 + C3
+        // C# BouncyCastleæœŸæœ›çš„æ ¼å¼ï¼šC1(65å­—èŠ‚ï¼Œå«0x04) + C2 + C3
         byte[] dotNetCiphertext = new byte[javaCiphertext.length + 1];
-        dotNetCiphertext[0] = 0x04; // Ìí¼ÓÎ´Ñ¹Ëõµã±êÊ¶
+        dotNetCiphertext[0] = 0x04; // æ·»åŠ æœªå‹ç¼©ç‚¹æ ‡è¯†
         System.arraycopy(javaCiphertext, 0, dotNetCiphertext, 1, javaCiphertext.length);
         
         return dotNetCiphertext;
     }
 
     /**
-     * ´ÓC#ÃÜÎÄÒÆ³ı0x04Ç°×º£¬Ê¹ÆäÓëJava BouncyCastle¼æÈİ
+     * ä»C#å¯†æ–‡ç§»é™¤0x04å‰ç¼€ï¼Œä½¿å…¶ä¸Java BouncyCastleå…¼å®¹
      */
     private static byte[] removePrefixFromDotNet(byte[] dotNetCiphertext) {
         if (dotNetCiphertext == null || dotNetCiphertext.length <= C1_LENGTH + C3_LENGTH) {
-            throw new IllegalArgumentException("ÎŞĞ§µÄC#ÃÜÎÄ¸ñÊ½");
+            throw new IllegalArgumentException("æ— æ•ˆçš„C#å¯†æ–‡æ ¼å¼");
         }
 
         if (dotNetCiphertext[0] != 0x04) {
-            throw new IllegalArgumentException("C#ÃÜÎÄ¸ñÊ½´íÎó£ºÆÚÍûÒÔ0x04¿ªÍ·");
+            throw new IllegalArgumentException("C#å¯†æ–‡æ ¼å¼é”™è¯¯ï¼šæœŸæœ›ä»¥0x04å¼€å¤´");
         }
 
-        // C# BouncyCastleÉú³ÉµÄÃÜÎÄ¸ñÊ½£ºC1(65×Ö½Ú£¬º¬0x04) + C2 + C3
-        // Java BouncyCastleÆÚÍûµÄ¸ñÊ½£ºC1(64×Ö½Ú£¬²»º¬0x04) + C2 + C3
+        // C# BouncyCastleç”Ÿæˆçš„å¯†æ–‡æ ¼å¼ï¼šC1(65å­—èŠ‚ï¼Œå«0x04) + C2 + C3
+        // Java BouncyCastleæœŸæœ›çš„æ ¼å¼ï¼šC1(64å­—èŠ‚ï¼Œä¸å«0x04) + C2 + C3
         byte[] javaCiphertext = new byte[dotNetCiphertext.length - 1];
         System.arraycopy(dotNetCiphertext, 1, javaCiphertext, 0, dotNetCiphertext.length - 1);
         
@@ -122,7 +122,7 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ¼ì²âÃÜÎÄÊÇ·ñÎªC#¸ñÊ½£¨°üº¬0x04Ç°×º£©
+     * æ£€æµ‹å¯†æ–‡æ˜¯å¦ä¸ºC#æ ¼å¼ï¼ˆåŒ…å«0x04å‰ç¼€ï¼‰
      */
     public static boolean isDotNetFormat(byte[] ciphertext) {
         return ciphertext != null && 
@@ -131,17 +131,17 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ÖÇÄÜ½âÃÜ - ×Ô¶¯¼ì²âÃÜÎÄÀ´Ô´²¢Ê¹ÓÃÏàÓ¦µÄ½âÃÜ·½Ê½
+     * æ™ºèƒ½è§£å¯† - è‡ªåŠ¨æ£€æµ‹å¯†æ–‡æ¥æºå¹¶ä½¿ç”¨ç›¸åº”çš„è§£å¯†æ–¹å¼
      */
     public static String smartDecrypt(String encryptedData, ECPrivateKeyParameters privateKey) throws Exception {
         byte[] ciphertext = Base64.decode(encryptedData);
         
         if (isDotNetFormat(ciphertext)) {
-            System.out.println("¼ì²âµ½C#¸ñÊ½ÃÜÎÄ£¬Ê¹ÓÃC#¼æÈİ½âÃÜÄ£Ê½");
+            System.out.println("æ£€æµ‹åˆ°C#æ ¼å¼å¯†æ–‡ï¼Œä½¿ç”¨C#å…¼å®¹è§£å¯†æ¨¡å¼");
             return decryptFromDotNet(encryptedData, privateKey);
         } else {
-            System.out.println("¼ì²âµ½Java¸ñÊ½ÃÜÎÄ£¬Ê¹ÓÃ±ê×¼½âÃÜÄ£Ê½");
-            // ±ê×¼Java½âÃÜ
+            System.out.println("æ£€æµ‹åˆ°Javaæ ¼å¼å¯†æ–‡ï¼Œä½¿ç”¨æ ‡å‡†è§£å¯†æ¨¡å¼");
+            // æ ‡å‡†Javaè§£å¯†
             SM2Engine engine = new SM2Engine();
             engine.init(false, privateKey);
             byte[] decryptedBytes = engine.processBlock(ciphertext, 0, ciphertext.length);
@@ -150,12 +150,12 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ½«ASN.1 DER¸ñÊ½Ç©Ãû×ª»»ÎªRS¸ñÊ½
+     * å°†ASN.1 DERæ ¼å¼ç­¾åè½¬æ¢ä¸ºRSæ ¼å¼
      */
     public static byte[] convertAsn1ToRs(byte[] asn1Signature) throws Exception {
         ASN1Sequence sequence = ASN1Sequence.getInstance(asn1Signature);
         if (sequence.size() != 2) {
-            throw new IllegalArgumentException("ASN.1Ç©Ãû¸ñÊ½´íÎó");
+            throw new IllegalArgumentException("ASN.1ç­¾åæ ¼å¼é”™è¯¯");
         }
         
         BigInteger r = ASN1Integer.getInstance(sequence.getObjectAt(0)).getValue();
@@ -172,11 +172,11 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ½«RS¸ñÊ½Ç©Ãû×ª»»ÎªASN.1 DER¸ñÊ½
+     * å°†RSæ ¼å¼ç­¾åè½¬æ¢ä¸ºASN.1 DERæ ¼å¼
      */
     public static byte[] convertRsToAsn1(byte[] rsSignature) throws Exception {
         if (rsSignature.length != RS_LENGTH * 2) {
-            throw new IllegalArgumentException("RSÇ©Ãû³¤¶È´íÎó");
+            throw new IllegalArgumentException("RSç­¾åé•¿åº¦é”™è¯¯");
         }
         
         byte[] rBytes = Arrays.copyOfRange(rsSignature, 0, RS_LENGTH);
@@ -193,7 +193,7 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ½«BigInteger×ª»»Îª¹Ì¶¨³¤¶È×Ö½ÚÊı×é£¨32×Ö½Ú£©
+     * å°†BigIntegerè½¬æ¢ä¸ºå›ºå®šé•¿åº¦å­—èŠ‚æ•°ç»„ï¼ˆ32å­—èŠ‚ï¼‰
      */
     private static byte[] bigIntegerToFixedBytes(BigInteger bigInt) {
         byte[] bytes = bigInt.toByteArray();
@@ -201,20 +201,20 @@ public class JavaCompatibilityExample {
         if (bytes.length == RS_LENGTH) {
             return bytes;
         } else if (bytes.length == RS_LENGTH + 1 && bytes[0] == 0) {
-            // ÒÆ³ı·ûºÅÎ»
+            // ç§»é™¤ç¬¦å·ä½
             return Arrays.copyOfRange(bytes, 1, RS_LENGTH + 1);
         } else if (bytes.length < RS_LENGTH) {
-            // Ç°Ãæ²¹0
+            // å‰é¢è¡¥0
             byte[] result = new byte[RS_LENGTH];
             System.arraycopy(bytes, 0, result, RS_LENGTH - bytes.length, bytes.length);
             return result;
         } else {
-            throw new IllegalArgumentException("BigInteger³¤¶È³¬³öÔ¤ÆÚ: " + bytes.length);
+            throw new IllegalArgumentException("BigIntegeré•¿åº¦è¶…å‡ºé¢„æœŸ: " + bytes.length);
         }
     }
 
     /**
-     * SM2Ç©Ãû£¨Êä³öASN.1¸ñÊ½£©
+     * SM2ç­¾åï¼ˆè¾“å‡ºASN.1æ ¼å¼ï¼‰
      */
     public static String signSM2Asn1(byte[] data, ECPrivateKeyParameters privateKey) throws Exception {
         SM2Signer signer = new SM2Signer();
@@ -225,30 +225,30 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * SM2Ç©Ãû£¨Êä³öRS¸ñÊ½£©
+     * SM2ç­¾åï¼ˆè¾“å‡ºRSæ ¼å¼ï¼‰
      */
     public static String signSM2Rs(byte[] data, ECPrivateKeyParameters privateKey) throws Exception {
-        // ÏÈÉú³ÉASN.1¸ñÊ½Ç©Ãû
+        // å…ˆç”ŸæˆASN.1æ ¼å¼ç­¾å
         String asn1Hex = signSM2Asn1(data, privateKey);
         byte[] asn1Bytes = Hex.decode(asn1Hex);
         
-        // ×ª»»ÎªRS¸ñÊ½
+        // è½¬æ¢ä¸ºRSæ ¼å¼
         byte[] rsBytes = convertAsn1ToRs(asn1Bytes);
         return Hex.toHexString(rsBytes).toUpperCase();
     }
 
     /**
-     * SM2ÑéÇ©
+     * SM2éªŒç­¾
      */
     public static boolean verifySM2(byte[] data, String signatureHex, ECPublicKeyParameters publicKey, boolean isRsFormat) throws Exception {
         byte[] signatureBytes;
         
         if (isRsFormat) {
-            // RS¸ñÊ½ĞèÒª×ª»»ÎªASN.1¸ñÊ½
+            // RSæ ¼å¼éœ€è¦è½¬æ¢ä¸ºASN.1æ ¼å¼
             byte[] rsBytes = Hex.decode(signatureHex);
             signatureBytes = convertRsToAsn1(rsBytes);
         } else {
-            // ASN.1¸ñÊ½Ö±½ÓÊ¹ÓÃ
+            // ASN.1æ ¼å¼ç›´æ¥ä½¿ç”¨
             signatureBytes = Hex.decode(signatureHex);
         }
         
@@ -259,69 +259,69 @@ public class JavaCompatibilityExample {
     }
 
     /**
-     * ²âÊÔ·½·¨
+     * æµ‹è¯•æ–¹æ³•
      */
     public static void main(String[] args) {
         try {
-            System.out.println("=== Java¶ËSM2¼æÈİĞÔ²âÊÔ ===");
+            System.out.println("=== Javaç«¯SM2å…¼å®¹æ€§æµ‹è¯• ===");
             
-            // Ê¹ÓÃ¹Ì¶¨µÄ²âÊÔÃÜÔ¿£¨ÇëÌæ»»ÎªC#¶ËÉú³ÉµÄÃÜÔ¿£©
+            // ä½¿ç”¨å›ºå®šçš„æµ‹è¯•å¯†é’¥ï¼ˆè¯·æ›¿æ¢ä¸ºC#ç«¯ç”Ÿæˆçš„å¯†é’¥ï¼‰
             String hexPublicKey = "04FD1B00C159476108D81A649EEF2C03BF09E63CCA59F8FC26C5D8FE58D904CF9ABB135FA08A7293ECE5E164663CCC26DD77FEF19C17779362460D269F36B3CCEC";
             String hexPrivateKey = "0AF453D26831E0A71CD8D1C2F36A3E3A52B8B30C69FC1944EAF7B216C254C5EA";
             
             ECPublicKeyParameters publicKey = createPublicKeyFromHex(hexPublicKey);
             ECPrivateKeyParameters privateKey = createPrivateKeyFromHex(hexPrivateKey);
             
-            // ²âÊÔÊı¾İ
-            String testData = "¹úÃÜSM2·Ç¶Ô³Æ¼ÓÃÜËã·¨²âÊÔ";
+            // æµ‹è¯•æ•°æ®
+            String testData = "å›½å¯†SM2éå¯¹ç§°åŠ å¯†ç®—æ³•æµ‹è¯•";
             byte[] dataBytes = testData.getBytes("UTF-8");
             
-            System.out.println("²âÊÔÊı¾İ: " + testData);
-            System.out.println("¹«Ô¿: " + hexPublicKey);
-            System.out.println("Ë½Ô¿: " + hexPrivateKey);
+            System.out.println("æµ‹è¯•æ•°æ®: " + testData);
+            System.out.println("å…¬é’¥: " + hexPublicKey);
+            System.out.println("ç§é’¥: " + hexPrivateKey);
             
-            // === ¼Ó½âÃÜ¼æÈİĞÔ²âÊÔ ===
-            System.out.println("\n=== ¼Ó½âÃÜ¼æÈİĞÔ²âÊÔ ===");
+            // === åŠ è§£å¯†å…¼å®¹æ€§æµ‹è¯• ===
+            System.out.println("\n=== åŠ è§£å¯†å…¼å®¹æ€§æµ‹è¯• ===");
             
-            // 1. Java¼ÓÃÜ£¬Éú³ÉC#¼æÈİÃÜÎÄ
+            // 1. JavaåŠ å¯†ï¼Œç”ŸæˆC#å…¼å®¹å¯†æ–‡
             String ciphertextForDotNet = encryptForDotNet(testData, publicKey);
-            System.out.println("JavaÉú³ÉµÄC#¼æÈİÃÜÎÄ: " + ciphertextForDotNet);
+            System.out.println("Javaç”Ÿæˆçš„C#å…¼å®¹å¯†æ–‡: " + ciphertextForDotNet);
             
-            // 2. Java½âÃÜ×Ô¼ºÉú³ÉµÄC#¼æÈİÃÜÎÄ
+            // 2. Javaè§£å¯†è‡ªå·±ç”Ÿæˆçš„C#å…¼å®¹å¯†æ–‡
             String decryptedFromOwn = decryptFromDotNet(ciphertextForDotNet, privateKey);
-            System.out.println("Java½âÃÜ×Ô¼ºµÄC#¼æÈİÃÜÎÄ: " + decryptedFromOwn);
-            System.out.println("×Ô½âÃÜÑéÖ¤: " + (testData.equals(decryptedFromOwn) ? "³É¹¦" : "Ê§°Ü"));
+            System.out.println("Javaè§£å¯†è‡ªå·±çš„C#å…¼å®¹å¯†æ–‡: " + decryptedFromOwn);
+            System.out.println("è‡ªè§£å¯†éªŒè¯: " + (testData.equals(decryptedFromOwn) ? "æˆåŠŸ" : "å¤±è´¥"));
             
-            // 3. ²âÊÔÖÇÄÜ½âÃÜ
+            // 3. æµ‹è¯•æ™ºèƒ½è§£å¯†
             String smartDecryptResult = smartDecrypt(ciphertextForDotNet, privateKey);
-            System.out.println("ÖÇÄÜ½âÃÜ½á¹û: " + smartDecryptResult);
-            System.out.println("ÖÇÄÜ½âÃÜÑéÖ¤: " + (testData.equals(smartDecryptResult) ? "³É¹¦" : "Ê§°Ü"));
+            System.out.println("æ™ºèƒ½è§£å¯†ç»“æœ: " + smartDecryptResult);
+            System.out.println("æ™ºèƒ½è§£å¯†éªŒè¯: " + (testData.equals(smartDecryptResult) ? "æˆåŠŸ" : "å¤±è´¥"));
             
-            // 4. ÃÜÎÄ¸ñÊ½¼ì²â
+            // 4. å¯†æ–‡æ ¼å¼æ£€æµ‹
             byte[] ciphertextBytes = Base64.decode(ciphertextForDotNet);
             boolean formatDetection = isDotNetFormat(ciphertextBytes);
-            System.out.println("ÃÜÎÄ¸ñÊ½¼ì²â: " + (formatDetection ? "C#¸ñÊ½" : "Java¸ñÊ½"));
+            System.out.println("å¯†æ–‡æ ¼å¼æ£€æµ‹: " + (formatDetection ? "C#æ ¼å¼" : "Javaæ ¼å¼"));
             
-            // === Ç©ÃûÑéÇ©²âÊÔ ===
-            System.out.println("\n=== Ç©ÃûÑéÇ©²âÊÔ ===");
+            // === ç­¾åéªŒç­¾æµ‹è¯• ===
+            System.out.println("\n=== ç­¾åéªŒç­¾æµ‹è¯• ===");
             
-            // 1. Éú³ÉASN.1¸ñÊ½Ç©Ãû
+            // 1. ç”ŸæˆASN.1æ ¼å¼ç­¾å
             String asn1Signature = signSM2Asn1(dataBytes, privateKey);
-            System.out.println("ASN.1¸ñÊ½Ç©Ãû: " + asn1Signature);
+            System.out.println("ASN.1æ ¼å¼ç­¾å: " + asn1Signature);
             
-            // 2. Éú³ÉRS¸ñÊ½Ç©Ãû
+            // 2. ç”ŸæˆRSæ ¼å¼ç­¾å
             String rsSignature = signSM2Rs(dataBytes, privateKey);
-            System.out.println("RS¸ñÊ½Ç©Ãû: " + rsSignature);
+            System.out.println("RSæ ¼å¼ç­¾å: " + rsSignature);
             
-            // 3. ÑéÖ¤ASN.1¸ñÊ½Ç©Ãû
+            // 3. éªŒè¯ASN.1æ ¼å¼ç­¾å
             boolean asn1Valid = verifySM2(dataBytes, asn1Signature, publicKey, false);
-            System.out.println("ASN.1Ç©ÃûÑéÖ¤: " + (asn1Valid ? "³É¹¦" : "Ê§°Ü"));
+            System.out.println("ASN.1ç­¾åéªŒè¯: " + (asn1Valid ? "æˆåŠŸ" : "å¤±è´¥"));
             
-            // 4. ÑéÖ¤RS¸ñÊ½Ç©Ãû
+            // 4. éªŒè¯RSæ ¼å¼ç­¾å
             boolean rsValid = verifySM2(dataBytes, rsSignature, publicKey, true);
-            System.out.println("RSÇ©ÃûÑéÖ¤: " + (rsValid ? "³É¹¦" : "Ê§°Ü"));
+            System.out.println("RSç­¾åéªŒè¯: " + (rsValid ? "æˆåŠŸ" : "å¤±è´¥"));
             
-            // 5. ¸ñÊ½×ª»»²âÊÔ
+            // 5. æ ¼å¼è½¬æ¢æµ‹è¯•
             byte[] asn1Bytes = Hex.decode(asn1Signature);
             byte[] rsBytes = Hex.decode(rsSignature);
             
@@ -331,21 +331,21 @@ public class JavaCompatibilityExample {
             boolean rsConvertOk = Arrays.equals(rsBytes, convertedRs);
             boolean asn1ConvertOk = Arrays.equals(asn1Bytes, convertedAsn1);
             
-            System.out.println("¸ñÊ½×ª»»ÑéÖ¤:");
-            System.out.println("ASN.1 -> RS: " + (rsConvertOk ? "³É¹¦" : "Ê§°Ü"));
-            System.out.println("RS -> ASN.1: " + (asn1ConvertOk ? "³É¹¦" : "Ê§°Ü"));
+            System.out.println("æ ¼å¼è½¬æ¢éªŒè¯:");
+            System.out.println("ASN.1 -> RS: " + (rsConvertOk ? "æˆåŠŸ" : "å¤±è´¥"));
+            System.out.println("RS -> ASN.1: " + (asn1ConvertOk ? "æˆåŠŸ" : "å¤±è´¥"));
             
-            System.out.println("\n=== ÓëC#¶Ë»¥×ªËµÃ÷ ===");
-            System.out.println("1. ¼ÓÃÜ¼æÈİĞÔ£º");
-            System.out.println("   - Java¶ËÊ¹ÓÃ encryptForDotNet() Éú³ÉC#¼æÈİÃÜÎÄ");
-            System.out.println("   - Java¶ËÊ¹ÓÃ decryptFromDotNet() ½âÃÜC#ÃÜÎÄ");
-            System.out.println("   - C#¶ËÊ¹ÓÃ EncryptForJava() Éú³ÉJava¼æÈİÃÜÎÄ");
-            System.out.println("   - C#¶ËÊ¹ÓÃ DecryptFromJava() ½âÃÜJavaÃÜÎÄ");
-            System.out.println("2. ºËĞÄ²îÒì£ºC1²¿·ÖµÄ0x04Ç°×º´¦Àí");
-            System.out.println("   - JavaÃÜÎÄ£ºC1²»º¬0x04Ç°×º(64×Ö½Ú) + C2 + C3");
-            System.out.println("   - C#ÃÜÎÄ£ºC1º¬0x04Ç°×º(65×Ö½Ú) + C2 + C3");
-            System.out.println("3. ÖÇÄÜ½âÃÜ£º×Ô¶¯¼ì²âÃÜÎÄ¸ñÊ½²¢Ñ¡ÔñºÏÊÊµÄ½âÃÜ·½Ê½");
-            System.out.println("4. Ç©Ãû¸ñÊ½£ºÁ½¶ËÍêÈ«¼æÈİ£¬Ö§³ÖASN.1ºÍRS¸ñÊ½»¥×ª");
+            System.out.println("\n=== ä¸C#ç«¯äº’è½¬è¯´æ˜ ===");
+            System.out.println("1. åŠ å¯†å…¼å®¹æ€§ï¼š");
+            System.out.println("   - Javaç«¯ä½¿ç”¨ encryptForDotNet() ç”ŸæˆC#å…¼å®¹å¯†æ–‡");
+            System.out.println("   - Javaç«¯ä½¿ç”¨ decryptFromDotNet() è§£å¯†C#å¯†æ–‡");
+            System.out.println("   - C#ç«¯ä½¿ç”¨ EncryptForJava() ç”ŸæˆJavaå…¼å®¹å¯†æ–‡");
+            System.out.println("   - C#ç«¯ä½¿ç”¨ DecryptFromJava() è§£å¯†Javaå¯†æ–‡");
+            System.out.println("2. æ ¸å¿ƒå·®å¼‚ï¼šC1éƒ¨åˆ†çš„0x04å‰ç¼€å¤„ç†");
+            System.out.println("   - Javaå¯†æ–‡ï¼šC1ä¸å«0x04å‰ç¼€(64å­—èŠ‚) + C2 + C3");
+            System.out.println("   - C#å¯†æ–‡ï¼šC1å«0x04å‰ç¼€(65å­—èŠ‚) + C2 + C3");
+            System.out.println("3. æ™ºèƒ½è§£å¯†ï¼šè‡ªåŠ¨æ£€æµ‹å¯†æ–‡æ ¼å¼å¹¶é€‰æ‹©åˆé€‚çš„è§£å¯†æ–¹å¼");
+            System.out.println("4. ç­¾åæ ¼å¼ï¼šä¸¤ç«¯å®Œå…¨å…¼å®¹ï¼Œæ”¯æŒASN.1å’ŒRSæ ¼å¼äº’è½¬");
             
         } catch (Exception e) {
             e.printStackTrace();
