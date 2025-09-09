@@ -1,4 +1,4 @@
-﻿using CryptoTool.Common;
+using CryptoTool.Common;
 using System.Text;
 using Org.BouncyCastle.Crypto.Parameters;
 

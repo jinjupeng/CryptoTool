@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class AboutTabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -21,11 +21,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -86,7 +86,7 @@ namespace CryptoTool.Win
             groupBoxAppInfo.Size = new Size(1264, 220);
             groupBoxAppInfo.TabIndex = 0;
             groupBoxAppInfo.TabStop = false;
-            groupBoxAppInfo.Text = "Èí¼şĞÅÏ¢";
+            groupBoxAppInfo.Text = "è½¯ä»¶ä¿¡æ¯";
             // 
             // labelAppName
             // 
@@ -96,7 +96,7 @@ namespace CryptoTool.Win
             labelAppName.Name = "labelAppName";
             labelAppName.Size = new Size(73, 20);
             labelAppName.TabIndex = 0;
-            labelAppName.Text = "Èí¼şÃû³Æ:";
+            labelAppName.Text = "è½¯ä»¶åç§°:";
             // 
             // textAppName
             // 
@@ -115,7 +115,7 @@ namespace CryptoTool.Win
             labelAppVersion.Name = "labelAppVersion";
             labelAppVersion.Size = new Size(73, 20);
             labelAppVersion.TabIndex = 2;
-            labelAppVersion.Text = "Èí¼ş°æ±¾:";
+            labelAppVersion.Text = "è½¯ä»¶ç‰ˆæœ¬:";
             // 
             // textAppVersion
             // 
@@ -134,7 +134,7 @@ namespace CryptoTool.Win
             labelAppAuthor.Name = "labelAppAuthor";
             labelAppAuthor.Size = new Size(73, 20);
             labelAppAuthor.TabIndex = 4;
-            labelAppAuthor.Text = "Èí¼ş×÷Õß:";
+            labelAppAuthor.Text = "è½¯ä»¶ä½œè€…:";
             // 
             // textAppAuthor
             // 
@@ -153,7 +153,7 @@ namespace CryptoTool.Win
             labelAppDescription.Name = "labelAppDescription";
             labelAppDescription.Size = new Size(73, 20);
             labelAppDescription.TabIndex = 6;
-            labelAppDescription.Text = "Èí¼şÃèÊö:";
+            labelAppDescription.Text = "è½¯ä»¶æè¿°:";
             // 
             // textAppDescription
             // 
@@ -175,7 +175,7 @@ namespace CryptoTool.Win
             labelAppRepository.Name = "labelAppRepository";
             labelAppRepository.Size = new Size(73, 20);
             labelAppRepository.TabIndex = 8;
-            labelAppRepository.Text = "´úÂë²Ö¿â:";
+            labelAppRepository.Text = "ä»£ç ä»“åº“:";
             // 
             // linkAppRepository
             // 
@@ -195,7 +195,7 @@ namespace CryptoTool.Win
             labelAppLicense.Name = "labelAppLicense";
             labelAppLicense.Size = new Size(73, 20);
             labelAppLicense.TabIndex = 10;
-            labelAppLicense.Text = "Èí¼şĞí¿É:";
+            labelAppLicense.Text = "è½¯ä»¶è®¸å¯:";
             // 
             // textAppLicense
             // 
@@ -225,7 +225,7 @@ namespace CryptoTool.Win
             groupBoxUpdate.Size = new Size(1264, 150);
             groupBoxUpdate.TabIndex = 1;
             groupBoxUpdate.TabStop = false;
-            groupBoxUpdate.Text = "×Ô¶¯¸üĞÂ";
+            groupBoxUpdate.Text = "è‡ªåŠ¨æ›´æ–°";
             // 
             // labelCurrentVersion
             // 
@@ -235,7 +235,7 @@ namespace CryptoTool.Win
             labelCurrentVersion.Name = "labelCurrentVersion";
             labelCurrentVersion.Size = new Size(73, 20);
             labelCurrentVersion.TabIndex = 0;
-            labelCurrentVersion.Text = "µ±Ç°°æ±¾:";
+            labelCurrentVersion.Text = "å½“å‰ç‰ˆæœ¬:";
             // 
             // textCurrentVersion
             // 
@@ -254,7 +254,7 @@ namespace CryptoTool.Win
             labelLatestVersion.Name = "labelLatestVersion";
             labelLatestVersion.Size = new Size(73, 20);
             labelLatestVersion.TabIndex = 2;
-            labelLatestVersion.Text = "×îĞÂ°æ±¾:";
+            labelLatestVersion.Text = "æœ€æ–°ç‰ˆæœ¬:";
             // 
             // textLatestVersion
             // 
@@ -273,7 +273,7 @@ namespace CryptoTool.Win
             labelUpdateStatus.Name = "labelUpdateStatus";
             labelUpdateStatus.Size = new Size(73, 20);
             labelUpdateStatus.TabIndex = 4;
-            labelUpdateStatus.Text = "¸üĞÂ×´Ì¬:";
+            labelUpdateStatus.Text = "æ›´æ–°çŠ¶æ€:";
             // 
             // textUpdateStatus
             // 
@@ -292,7 +292,7 @@ namespace CryptoTool.Win
             btnCheckUpdate.Name = "btnCheckUpdate";
             btnCheckUpdate.Size = new Size(120, 31);
             btnCheckUpdate.TabIndex = 6;
-            btnCheckUpdate.Text = "¼ì²é¸üĞÂ";
+            btnCheckUpdate.Text = "æ£€æŸ¥æ›´æ–°";
             btnCheckUpdate.UseVisualStyleBackColor = true;
             btnCheckUpdate.Click += BtnCheckUpdate_Click;
             // 
@@ -304,7 +304,7 @@ namespace CryptoTool.Win
             btnDownloadUpdate.Name = "btnDownloadUpdate";
             btnDownloadUpdate.Size = new Size(120, 31);
             btnDownloadUpdate.TabIndex = 7;
-            btnDownloadUpdate.Text = "ÏÂÔØ¸üĞÂ";
+            btnDownloadUpdate.Text = "ä¸‹è½½æ›´æ–°";
             btnDownloadUpdate.UseVisualStyleBackColor = true;
             btnDownloadUpdate.Click += BtnDownloadUpdate_Click;
             // 
@@ -334,7 +334,7 @@ namespace CryptoTool.Win
             groupBoxSystemInfo.Size = new Size(1264, 120);
             groupBoxSystemInfo.TabIndex = 2;
             groupBoxSystemInfo.TabStop = false;
-            groupBoxSystemInfo.Text = "ÏµÍ³ĞÅÏ¢";
+            groupBoxSystemInfo.Text = "ç³»ç»Ÿä¿¡æ¯";
             // 
             // labelOSInfo
             // 
@@ -344,7 +344,7 @@ namespace CryptoTool.Win
             labelOSInfo.Name = "labelOSInfo";
             labelOSInfo.Size = new Size(73, 20);
             labelOSInfo.TabIndex = 0;
-            labelOSInfo.Text = "²Ù×÷ÏµÍ³:";
+            labelOSInfo.Text = "æ“ä½œç³»ç»Ÿ:";
             // 
             // textOSInfo
             // 
@@ -364,7 +364,7 @@ namespace CryptoTool.Win
             labelDotNetVersion.Name = "labelDotNetVersion";
             labelDotNetVersion.Size = new Size(101, 20);
             labelDotNetVersion.TabIndex = 2;
-            labelDotNetVersion.Text = ".NET¿ò¼Ü°æ±¾:";
+            labelDotNetVersion.Text = ".NETæ¡†æ¶ç‰ˆæœ¬:";
             // 
             // textDotNetVersion
             // 
@@ -383,7 +383,7 @@ namespace CryptoTool.Win
             labelAppPath.Name = "labelAppPath";
             labelAppPath.Size = new Size(73, 20);
             labelAppPath.TabIndex = 4;
-            labelAppPath.Text = "°²×°Â·¾¶:";
+            labelAppPath.Text = "å®‰è£…è·¯å¾„:";
             // 
             // textAppPath
             // 

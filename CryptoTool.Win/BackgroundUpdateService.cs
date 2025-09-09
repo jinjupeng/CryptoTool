@@ -7,25 +7,25 @@ using Octokit;
 namespace CryptoTool.Win
 {
     /// <summary>
-    /// ºóÌ¨°æ±¾¼ì²â·şÎñ
+    /// åå°ç‰ˆæœ¬æ£€æµ‹æœåŠ¡
     /// </summary>
     public class BackgroundUpdateService
     {
-        #region ÊÂ¼ş¶¨Òå
+        #region äº‹ä»¶å®šä¹‰
 
         /// <summary>
-        /// ·¢ÏÖĞÂ°æ±¾ÊÂ¼ş
+        /// å‘ç°æ–°ç‰ˆæœ¬äº‹ä»¶
         /// </summary>
         public event Action<Release>? NewVersionFound;
 
         /// <summary>
-        /// ¼ì²â×´Ì¬¸üĞÂÊÂ¼ş
+        /// æ£€æµ‹çŠ¶æ€æ›´æ–°äº‹ä»¶
         /// </summary>
         public event Action<string>? StatusUpdated;
 
         #endregion
 
-        #region Ë½ÓĞ×Ö¶Î
+        #region ç§æœ‰å­—æ®µ
 
         private readonly GitHubClient _gitHubClient;
         private readonly string _repositoryOwner = "jinjupeng";
@@ -36,47 +36,47 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¹¹Ôìº¯Êı
+        #region æ„é€ å‡½æ•°
 
         public BackgroundUpdateService()
         {
             _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"));
             _semaphore = new SemaphoreSlim(1, 1);
             
-            // ´´½¨¶¨Ê±Æ÷£¬µ«²»Á¢¼´Æô¶¯
+            // åˆ›å»ºå®šæ—¶å™¨ï¼Œä½†ä¸ç«‹å³å¯åŠ¨
             _timer = new System.Threading.Timer(async _ => await CheckForUpdatesAsync(), null, Timeout.Infinite, Timeout.Infinite);
         }
 
         #endregion
 
-        #region ¹«¹²·½·¨
+        #region å…¬å…±æ–¹æ³•
 
         /// <summary>
-        /// Æô¶¯ºóÌ¨¼ì²â·şÎñ
+        /// å¯åŠ¨åå°æ£€æµ‹æœåŠ¡
         /// </summary>
-        /// <param name="initialDelay">³õÊ¼ÑÓ³ÙÊ±¼ä£¨ºÁÃë£©£¬Ä¬ÈÏ5Ãë</param>
-        /// <param name="interval">¼ì²â¼ä¸ôÊ±¼ä£¨ºÁÃë£©£¬Ä¬ÈÏ2Ğ¡Ê±</param>
-        public void Start(int initialDelay = 5000, int interval = 7200000) // Ä¬ÈÏ2Ğ¡Ê±¼ì²âÒ»´Î
+        /// <param name="initialDelay">åˆå§‹å»¶è¿Ÿæ—¶é—´ï¼ˆæ¯«ç§’ï¼‰ï¼Œé»˜è®¤5ç§’</param>
+        /// <param name="interval">æ£€æµ‹é—´éš”æ—¶é—´ï¼ˆæ¯«ç§’ï¼‰ï¼Œé»˜è®¤2å°æ—¶</param>
+        public void Start(int initialDelay = 5000, int interval = 7200000) // é»˜è®¤2å°æ—¶æ£€æµ‹ä¸€æ¬¡
         {
             if (_disposed) return;
 
-            StatusUpdated?.Invoke("ºóÌ¨¸üĞÂ¼ì²â·şÎñÒÑÆô¶¯");
+            StatusUpdated?.Invoke("åå°æ›´æ–°æ£€æµ‹æœåŠ¡å·²å¯åŠ¨");
             _timer.Change(initialDelay, interval);
         }
 
         /// <summary>
-        /// Í£Ö¹ºóÌ¨¼ì²â·şÎñ
+        /// åœæ­¢åå°æ£€æµ‹æœåŠ¡
         /// </summary>
         public void Stop()
         {
             if (_disposed) return;
 
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            StatusUpdated?.Invoke("ºóÌ¨¸üĞÂ¼ì²â·şÎñÒÑÍ£Ö¹");
+            StatusUpdated?.Invoke("åå°æ›´æ–°æ£€æµ‹æœåŠ¡å·²åœæ­¢");
         }
 
         /// <summary>
-        /// ÊÖ¶¯´¥·¢°æ±¾¼ì²â
+        /// æ‰‹åŠ¨è§¦å‘ç‰ˆæœ¬æ£€æµ‹
         /// </summary>
         /// <returns></returns>
         public async Task ManualCheckAsync()
@@ -88,10 +88,10 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region Ë½ÓĞ·½·¨
+        #region ç§æœ‰æ–¹æ³•
 
         /// <summary>
-        /// Òì²½¼ì²é¸üĞÂ
+        /// å¼‚æ­¥æ£€æŸ¥æ›´æ–°
         /// </summary>
         private async Task CheckForUpdatesAsync()
         {
@@ -100,7 +100,7 @@ namespace CryptoTool.Win
 
             try
             {
-                StatusUpdated?.Invoke("ÕıÔÚºóÌ¨¼ì²â¸üĞÂ...");
+                StatusUpdated?.Invoke("æ­£åœ¨åå°æ£€æµ‹æ›´æ–°...");
 
                 var latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
                 
@@ -112,36 +112,36 @@ namespace CryptoTool.Win
                     var comparison = currentVersion.CompareTo(latestVersion);
                     if (comparison < 0)
                     {
-                        // ·¢ÏÖĞÂ°æ±¾
-                        StatusUpdated?.Invoke($"·¢ÏÖĞÂ°æ±¾ {latestVersion}");
+                        // å‘ç°æ–°ç‰ˆæœ¬
+                        StatusUpdated?.Invoke($"å‘ç°æ–°ç‰ˆæœ¬ {latestVersion}");
                         NewVersionFound?.Invoke(latestRelease);
                         return;
                     }
                     else if (comparison == 0)
                     {
-                        StatusUpdated?.Invoke("µ±Ç°°æ±¾ÊÇ×îĞÂ°æ±¾");
+                        StatusUpdated?.Invoke("å½“å‰ç‰ˆæœ¬æ˜¯æœ€æ–°ç‰ˆæœ¬");
                     }
                     else
                     {
-                        StatusUpdated?.Invoke("µ±Ç°°æ±¾¸ßÓÚ×îĞÂ·¢²¼°æ±¾");
+                        StatusUpdated?.Invoke("å½“å‰ç‰ˆæœ¬é«˜äºæœ€æ–°å‘å¸ƒç‰ˆæœ¬");
                     }
                 }
                 else
                 {
-                    StatusUpdated?.Invoke("°æ±¾±È½ÏÊ§°Ü");
+                    StatusUpdated?.Invoke("ç‰ˆæœ¬æ¯”è¾ƒå¤±è´¥");
                 }
             }
             catch (RateLimitExceededException)
             {
-                StatusUpdated?.Invoke("GitHub API ÇëÇóÏŞÖÆ£¬½«ÉÔºóÖØÊÔ");
+                StatusUpdated?.Invoke("GitHub API è¯·æ±‚é™åˆ¶ï¼Œå°†ç¨åé‡è¯•");
             }
             catch (NotFoundException)
             {
-                StatusUpdated?.Invoke("Î´ÕÒµ½Èí¼ş²Ö¿â");
+                StatusUpdated?.Invoke("æœªæ‰¾åˆ°è½¯ä»¶ä»“åº“");
             }
             catch (Exception ex)
             {
-                StatusUpdated?.Invoke($"ºóÌ¨¼ì²â¸üĞÂÊ§°Ü: {ex.Message}");
+                StatusUpdated?.Invoke($"åå°æ£€æµ‹æ›´æ–°å¤±è´¥: {ex.Message}");
             }
             finally
             {
@@ -151,7 +151,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region IDisposable ÊµÏÖ
+        #region IDisposable å®ç°
 
         public void Dispose()
         {
@@ -161,7 +161,7 @@ namespace CryptoTool.Win
             _timer?.Dispose();
             _semaphore?.Dispose();
             
-            StatusUpdated?.Invoke("ºóÌ¨¸üĞÂ¼ì²â·şÎñÒÑÊÍ·Å");
+            StatusUpdated?.Invoke("åå°æ›´æ–°æ£€æµ‹æœåŠ¡å·²é‡Šæ”¾");
         }
 
         #endregion

@@ -34,25 +34,25 @@ namespace CryptoTool.Win
             comboSM4KeyFormat.SelectedItem = "Hex";
         }
 
-        #region SM4¹¦ÄÜ
+        #region SM4åŠŸèƒ½
 
         private void btnGenerateSM4Key_Click(object sender, EventArgs e)
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉSM4ÃÜÔ¿...");
+                SetStatus("æ­£åœ¨ç”ŸæˆSM4å¯†é’¥...");
 
                 string formatText = comboSM4KeyFormat.SelectedItem.ToString();
                 SM4Util.FormatType format = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), formatText);
 
                 string key = SM4Util.GenerateKey(format);
                 textSM4Key.Text = key;
-                SetStatus($"SM4ÃÜÔ¿Éú³ÉÍê³É - {formatText}¸ñÊ½");
+                SetStatus($"SM4å¯†é’¥ç”Ÿæˆå®Œæˆ - {formatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉSM4ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉSM4ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"ç”ŸæˆSM4å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆSM4å¯†é’¥å¤±è´¥");
             }
         }
 
@@ -60,19 +60,19 @@ namespace CryptoTool.Win
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉSM4³õÊ¼ÏòÁ¿...");
+                SetStatus("æ­£åœ¨ç”ŸæˆSM4åˆå§‹å‘é‡...");
 
                 string formatText = comboSM4IVFormat.SelectedItem.ToString();
                 SM4Util.FormatType format = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), formatText);
 
                 string iv = SM4Util.GenerateIV(format);
                 textSM4IV.Text = iv;
-                SetStatus($"SM4³õÊ¼ÏòÁ¿Éú³ÉÍê³É - {formatText}¸ñÊ½");
+                SetStatus($"SM4åˆå§‹å‘é‡ç”Ÿæˆå®Œæˆ - {formatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉSM4³õÊ¼ÏòÁ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉSM4³õÊ¼ÏòÁ¿Ê§°Ü");
+                MessageBox.Show($"ç”ŸæˆSM4åˆå§‹å‘é‡å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆSM4åˆå§‹å‘é‡å¤±è´¥");
             }
         }
 
@@ -82,24 +82,24 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM4PlainText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃ÷ÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥æ˜æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM4Key.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM4ÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM4å¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 string mode = comboSM4Mode.SelectedItem.ToString();
                 if (mode == "CBC" && string.IsNullOrEmpty(textSM4IV.Text))
                 {
-                    MessageBox.Show("CBCÄ£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÉú³É»òÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("CBCæ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM4¼ÓÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM4åŠ å¯†...");
 
                 string paddingText = comboSM4Padding.SelectedItem.ToString();
                 string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
@@ -124,12 +124,12 @@ namespace CryptoTool.Win
                 }
 
                 textSM4CipherText.Text = cipherText;
-                SetStatus($"SM4¼ÓÃÜÍê³É - Ê¹ÓÃ{mode}Ä£Ê½£¬Ã÷ÎÄ{plaintextFormatText}¸ñÊ½£¬Êä³ö{ciphertextFormatText}¸ñÊ½");
+                SetStatus($"SM4åŠ å¯†å®Œæˆ - ä½¿ç”¨{mode}æ¨¡å¼ï¼Œæ˜æ–‡{plaintextFormatText}æ ¼å¼ï¼Œè¾“å‡º{ciphertextFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM4¼ÓÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM4¼ÓÃÜÊ§°Ü");
+                MessageBox.Show($"SM4åŠ å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM4åŠ å¯†å¤±è´¥");
             }
         }
 
@@ -139,24 +139,24 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM4CipherText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃÜÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥å¯†æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM4Key.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM4ÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM4å¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 string mode = comboSM4Mode.SelectedItem.ToString();
                 if (mode == "CBC" && string.IsNullOrEmpty(textSM4IV.Text))
                 {
-                    MessageBox.Show("CBCÄ£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÉú³É»òÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("CBCæ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM4½âÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM4è§£å¯†...");
 
                 string paddingText = comboSM4Padding.SelectedItem.ToString();
                 string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
@@ -181,18 +181,18 @@ namespace CryptoTool.Win
                 }
 
                 textSM4PlainText.Text = plainText;
-                SetStatus($"SM4½âÃÜÍê³É - Ê¹ÓÃ{mode}Ä£Ê½£¬ÃÜÎÄ{ciphertextFormatText}¸ñÊ½£¬Êä³ö{plaintextFormatText}¸ñÊ½");
+                SetStatus($"SM4è§£å¯†å®Œæˆ - ä½¿ç”¨{mode}æ¨¡å¼ï¼Œå¯†æ–‡{ciphertextFormatText}æ ¼å¼ï¼Œè¾“å‡º{plaintextFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM4½âÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM4½âÃÜÊ§°Ü");
+                MessageBox.Show($"SM4è§£å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM4è§£å¯†å¤±è´¥");
             }
         }
 
         private void comboSM4Mode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // µ±Ñ¡ÔñECBÄ£Ê½Ê±£¬½ûÓÃ³õÊ¼ÏòÁ¿Ïà¹Ø¿Ø¼ş
+            // å½“é€‰æ‹©ECBæ¨¡å¼æ—¶ï¼Œç¦ç”¨åˆå§‹å‘é‡ç›¸å…³æ§ä»¶
             bool isCBC = comboSM4Mode.SelectedItem.ToString() == "CBC";
             textSM4IV.Enabled = isCBC;
             btnGenerateSM4IV.Enabled = isCBC;
@@ -206,17 +206,17 @@ namespace CryptoTool.Win
 
         private void comboSM4IVFormat_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // µ±¸ñÊ½±ä»¯Ê±£¬Èç¹ûµ±Ç°ÓĞIVÄÚÈİ£¬³¢ÊÔ×ª»»¸ñÊ½
+            // å½“æ ¼å¼å˜åŒ–æ—¶ï¼Œå¦‚æœå½“å‰æœ‰IVå†…å®¹ï¼Œå°è¯•è½¬æ¢æ ¼å¼
             if (string.IsNullOrEmpty(textSM4IV.Text)) return;
 
             try
             {
-                // Ôİ²»ÊµÏÖ×Ô¶¯¸ñÊ½×ª»»£¬±ÜÃâ´íÎó×ª»»
-                // ÓÃ»§ĞèÒªÖØĞÂÉú³ÉIV»òÊÖ¶¯ÊäÈëÕıÈ·¸ñÊ½µÄIV
+                // æš‚ä¸å®ç°è‡ªåŠ¨æ ¼å¼è½¬æ¢ï¼Œé¿å…é”™è¯¯è½¬æ¢
+                // ç”¨æˆ·éœ€è¦é‡æ–°ç”ŸæˆIVæˆ–æ‰‹åŠ¨è¾“å…¥æ­£ç¡®æ ¼å¼çš„IV
             }
             catch
             {
-                // ¸ñÊ½×ª»»Ê§°Ü£¬ºöÂÔ
+                // æ ¼å¼è½¬æ¢å¤±è´¥ï¼Œå¿½ç•¥
             }
         }
 

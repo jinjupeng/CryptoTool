@@ -9,7 +9,7 @@ namespace CryptoTool.Win
     {
         public event Action<string> StatusChanged;
 
-        // ´æ´¢µ¼ÈëµÄ¹«Ô¿ºÍË½Ô¿ÓÃÓÚÑéÖ¤
+        // å­˜å‚¨å¯¼å…¥çš„å…¬é’¥å’Œç§é’¥ç”¨äºéªŒè¯
         private string _publicKeyForValidation = string.Empty;
         private string _privateKeyForValidation = string.Empty;
         private RSAUtil.RSAKeyFormat _publicKeyFormatForValidation = RSAUtil.RSAKeyFormat.PEM;
@@ -25,15 +25,15 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // ³õÊ¼»¯Ä¬ÈÏÖµ
+            // åˆå§‹åŒ–é»˜è®¤å€¼
             comboInputKeyType.SelectedIndex = 0; // PKCS1
             comboInputFormat.SelectedIndex = 0; // PEM
             comboOutputKeyType.SelectedIndex = 1; // PKCS8
             comboOutputFormat.SelectedIndex = 0; // PEM
-            radioPrivateKey.Checked = true; // Ä¬ÈÏÑ¡ÔñË½Ô¿
+            radioPrivateKey.Checked = true; // é»˜è®¤é€‰æ‹©ç§é’¥
 
-            // ³õÊ¼»¯ÑéÖ¤½á¹û±êÇ©
-            labelValidationResult.Text = "ÑéÖ¤½á¹û: µÈ´ıÑéÖ¤";
+            // åˆå§‹åŒ–éªŒè¯ç»“æœæ ‡ç­¾
+            labelValidationResult.Text = "éªŒè¯ç»“æœ: ç­‰å¾…éªŒè¯";
             labelValidationResult.ForeColor = Color.Gray;
         }
 
@@ -42,7 +42,7 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region ÊÂ¼ş´¦Àí
+        #region äº‹ä»¶å¤„ç†
 
         private void btnImportFromFile_Click(object sender, EventArgs e)
         {
@@ -50,25 +50,25 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Filter = "ÃÜÔ¿ÎÄ¼ş (*.txt;*.key;*.pem;*.pub)|*.txt;*.key;*.pem;*.pub|ËùÓĞÎÄ¼ş (*.*)|*.*";
-                    openFileDialog.Title = "µ¼ÈëRSAÃÜÔ¿ÎÄ¼ş";
+                    openFileDialog.Filter = "å¯†é’¥æ–‡ä»¶ (*.txt;*.key;*.pem;*.pub)|*.txt;*.key;*.pem;*.pub|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
+                    openFileDialog.Title = "å¯¼å…¥RSAå¯†é’¥æ–‡ä»¶";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         string content = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
                         textInputKey.Text = content.Trim();
                         
-                        // ¸ù¾İÎÄ¼şÄÚÈİ×Ô¶¯ÅĞ¶ÏÃÜÔ¿ÀàĞÍ
+                        // æ ¹æ®æ–‡ä»¶å†…å®¹è‡ªåŠ¨åˆ¤æ–­å¯†é’¥ç±»å‹
                         AutoDetectKeyType(content);
                         
-                        SetStatus("ÃÜÔ¿ÎÄ¼şµ¼Èë³É¹¦");
+                        SetStatus("å¯†é’¥æ–‡ä»¶å¯¼å…¥æˆåŠŸ");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"µ¼ÈëÃÜÔ¿ÎÄ¼şÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("µ¼ÈëÃÜÔ¿ÎÄ¼şÊ§°Ü");
+                MessageBox.Show($"å¯¼å…¥å¯†é’¥æ–‡ä»¶å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¯¼å…¥å¯†é’¥æ–‡ä»¶å¤±è´¥");
             }
         }
 
@@ -78,27 +78,27 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(_publicKeyForValidation) || string.IsNullOrEmpty(_privateKeyForValidation))
                 {
-                    MessageBox.Show("ÇëÏÈ·Ö±ğµ¼Èë¹«Ô¿ºÍË½Ô¿½øĞĞÑéÖ¤£¡\n\n²Ù×÷²½Öè£º\n1. µ¼ÈëË½Ô¿²¢µã»÷¡¸´ÓË½Ô¿ÌáÈ¡¹«Ô¿¡¹\n2. »ò·Ö±ğµ¼Èë¹«Ô¿ºÍË½Ô¿ÎÄ¼ş", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("è¯·å…ˆåˆ†åˆ«å¯¼å…¥å…¬é’¥å’Œç§é’¥è¿›è¡ŒéªŒè¯ï¼\n\næ“ä½œæ­¥éª¤ï¼š\n1. å¯¼å…¥ç§é’¥å¹¶ç‚¹å‡»ã€Œä»ç§é’¥æå–å…¬é’¥ã€\n2. æˆ–åˆ†åˆ«å¯¼å…¥å…¬é’¥å’Œç§é’¥æ–‡ä»¶", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                SetStatus("ÕıÔÚÑéÖ¤ÃÜÔ¿¶ÔÒ»ÖÂĞÔ...");
+                SetStatus("æ­£åœ¨éªŒè¯å¯†é’¥å¯¹ä¸€è‡´æ€§...");
 
                 bool isValid = RSAUtil.ValidateKeyPair(_publicKeyForValidation, _privateKeyForValidation, 
                     _publicKeyFormatForValidation, _publicKeyTypeForValidation,
                     _privateKeyFormatForValidation, _privateKeyTypeForValidation);
 
-                labelValidationResult.Text = $"ÑéÖ¤½á¹û: {(isValid ? "ÃÜÔ¿¶ÔÆ¥Åä" : "ÃÜÔ¿¶Ô²»Æ¥Åä")}";
+                labelValidationResult.Text = $"éªŒè¯ç»“æœ: {(isValid ? "å¯†é’¥å¯¹åŒ¹é…" : "å¯†é’¥å¯¹ä¸åŒ¹é…")}";
                 labelValidationResult.ForeColor = isValid ? Color.Green : Color.Red;
 
-                SetStatus($"ÃÜÔ¿¶ÔÑéÖ¤Íê³É - {(isValid ? "Æ¥Åä" : "²»Æ¥Åä")}");
+                SetStatus($"å¯†é’¥å¯¹éªŒè¯å®Œæˆ - {(isValid ? "åŒ¹é…" : "ä¸åŒ¹é…")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ÃÜÔ¿¶ÔÑéÖ¤Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelValidationResult.Text = "ÑéÖ¤½á¹û: ÑéÖ¤Òì³£";
+                MessageBox.Show($"å¯†é’¥å¯¹éªŒè¯å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelValidationResult.Text = "éªŒè¯ç»“æœ: éªŒè¯å¼‚å¸¸";
                 labelValidationResult.ForeColor = Color.Red;
-                SetStatus("ÃÜÔ¿¶ÔÑéÖ¤Ê§°Ü");
+                SetStatus("å¯†é’¥å¯¹éªŒè¯å¤±è´¥");
             }
         }
 
@@ -108,58 +108,58 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textInputKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÊäÈëË½Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆè¾“å…¥ç§é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (radioPublicKey.Checked)
                 {
-                    MessageBox.Show("ÇëÑ¡ÔñË½Ô¿ÀàĞÍ²ÅÄÜÌáÈ¡¹«Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·é€‰æ‹©ç§é’¥ç±»å‹æ‰èƒ½æå–å…¬é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ´ÓË½Ô¿ÌáÈ¡¹«Ô¿...");
+                SetStatus("æ­£åœ¨ä»ç§é’¥æå–å…¬é’¥...");
 
                 var inputKeyType = (RSAUtil.RSAKeyType)comboInputKeyType.SelectedIndex;
                 var inputFormat = (RSAUtil.RSAKeyFormat)comboInputFormat.SelectedIndex;
                 var outputKeyType = (RSAUtil.RSAKeyType)comboOutputKeyType.SelectedIndex;
                 var outputFormat = (RSAUtil.RSAKeyFormat)comboOutputFormat.SelectedIndex;
 
-                // ³¢ÊÔ½âÎöË½Ô¿£¬Èç¹ûÊ§°ÜÔòÊ¹ÓÃÖÇÄÜ¼ì²â
+                // å°è¯•è§£æç§é’¥ï¼Œå¦‚æœå¤±è´¥åˆ™ä½¿ç”¨æ™ºèƒ½æ£€æµ‹
                 AsymmetricKeyParameter? keyParam = SafeParseKey(textInputKey.Text, true, inputFormat, inputKeyType);
                 
                 if (keyParam == null)
                 {
-                    // Èç¹û½âÎöÊ§°Ü£¬³¢ÊÔÖÇÄÜ¼ì²â
+                    // å¦‚æœè§£æå¤±è´¥ï¼Œå°è¯•æ™ºèƒ½æ£€æµ‹
                     var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, true);
                     keyParam = SafeParseKey(textInputKey.Text, true, detectedFormat, detectedType);
                     
                     if (keyParam != null)
                     {
-                        // ¸üĞÂUIÏÔÊ¾¼ì²âµ½µÄ¸ñÊ½
+                        // æ›´æ–°UIæ˜¾ç¤ºæ£€æµ‹åˆ°çš„æ ¼å¼
                         comboInputFormat.SelectedIndex = (int)detectedFormat;
                         comboInputKeyType.SelectedIndex = (int)detectedType;
                         inputFormat = detectedFormat;
                         inputKeyType = detectedType;
-                        SetStatus("Ê¹ÓÃÖÇÄÜ¼ì²âÖØĞÂ½âÎöË½Ô¿³É¹¦");
+                        SetStatus("ä½¿ç”¨æ™ºèƒ½æ£€æµ‹é‡æ–°è§£æç§é’¥æˆåŠŸ");
                     }
                     else
                     {
-                        throw new ArgumentException("ÎŞ·¨½âÎöË½Ô¿£¬Çë¼ì²éÃÜÔ¿ÄÚÈİºÍ¸ñÊ½Ñ¡Ôñ");
+                        throw new ArgumentException("æ— æ³•è§£æç§é’¥ï¼Œè¯·æ£€æŸ¥å¯†é’¥å†…å®¹å’Œæ ¼å¼é€‰æ‹©");
                     }
                 }
 
                 var privateKey = (RsaPrivateCrtKeyParameters)keyParam;
 
-                // ´ÓË½Ô¿»ñÈ¡¹«Ô¿²ÎÊı
+                // ä»ç§é’¥è·å–å…¬é’¥å‚æ•°
                 var publicKey = new RsaKeyParameters(false, privateKey.Modulus, privateKey.PublicExponent);
 
-                // Éú³É¹«Ô¿×Ö·û´®
+                // ç”Ÿæˆå…¬é’¥å­—ç¬¦ä¸²
                 string publicKeyString = RSAUtil.GeneratePublicKeyString(publicKey, outputFormat, outputKeyType);
 
                 textOutputKey.Text = publicKeyString;
 
-                // ´æ´¢ÃÜÔ¿ÓÃÓÚÑéÖ¤
+                // å­˜å‚¨å¯†é’¥ç”¨äºéªŒè¯
                 _privateKeyForValidation = textInputKey.Text;
                 _privateKeyFormatForValidation = inputFormat;
                 _privateKeyTypeForValidation = inputKeyType;
@@ -167,21 +167,21 @@ namespace CryptoTool.Win
                 _publicKeyFormatForValidation = outputFormat;
                 _publicKeyTypeForValidation = outputKeyType;
 
-                // ×Ô¶¯ÑéÖ¤ÃÜÔ¿¶Ô
-                labelValidationResult.Text = "ÑéÖ¤½á¹û: ÃÜÔ¿¶ÔÆ¥Åä£¨´ÓË½Ô¿ÌáÈ¡£©";
+                // è‡ªåŠ¨éªŒè¯å¯†é’¥å¯¹
+                labelValidationResult.Text = "éªŒè¯ç»“æœ: å¯†é’¥å¯¹åŒ¹é…ï¼ˆä»ç§é’¥æå–ï¼‰";
                 labelValidationResult.ForeColor = Color.Green;
 
-                SetStatus("´ÓË½Ô¿ÌáÈ¡¹«Ô¿Íê³É");
+                SetStatus("ä»ç§é’¥æå–å…¬é’¥å®Œæˆ");
             }
             catch (InvalidCastException ex)
             {
-                MessageBox.Show($"´ÓË½Ô¿ÌáÈ¡¹«Ô¿Ê§°Ü£ºÃÜÔ¿ÀàĞÍ²»Æ¥Åä\n\nÏêÏ¸ĞÅÏ¢£º{ex.Message}\n\nÇëÈ·ÈÏÊäÈëµÄÊÇË½Ô¿¶ø²»ÊÇ¹«Ô¿", "ÀàĞÍ´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("´ÓË½Ô¿ÌáÈ¡¹«Ô¿Ê§°Ü - ÀàĞÍ²»Æ¥Åä");
+                MessageBox.Show($"ä»ç§é’¥æå–å…¬é’¥å¤±è´¥ï¼šå¯†é’¥ç±»å‹ä¸åŒ¹é…\n\nè¯¦ç»†ä¿¡æ¯ï¼š{ex.Message}\n\nè¯·ç¡®è®¤è¾“å…¥çš„æ˜¯ç§é’¥è€Œä¸æ˜¯å…¬é’¥", "ç±»å‹é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ä»ç§é’¥æå–å…¬é’¥å¤±è´¥ - ç±»å‹ä¸åŒ¹é…");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"´ÓË½Ô¿ÌáÈ¡¹«Ô¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("´ÓË½Ô¿ÌáÈ¡¹«Ô¿Ê§°Ü");
+                MessageBox.Show($"ä»ç§é’¥æå–å…¬é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ä»ç§é’¥æå–å…¬é’¥å¤±è´¥");
             }
         }
 
@@ -191,11 +191,11 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textInputKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÊäÈëÃÜÔ¿ÄÚÈİ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆè¾“å…¥å¯†é’¥å†…å®¹ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞ¸ñÊ½×ª»»...");
+                SetStatus("æ­£åœ¨è¿›è¡Œæ ¼å¼è½¬æ¢...");
 
                 var inputKeyType = (RSAUtil.RSAKeyType)comboInputKeyType.SelectedIndex;
                 var inputFormat = (RSAUtil.RSAKeyFormat)comboInputFormat.SelectedIndex;
@@ -205,97 +205,97 @@ namespace CryptoTool.Win
                 bool isPrivateKey = radioPrivateKey.Checked;
                 string convertedKey;
 
-                // ³¢ÊÔÊ¹ÓÃ¸ü°²È«µÄ½âÎö·½·¨
+                // å°è¯•ä½¿ç”¨æ›´å®‰å…¨çš„è§£ææ–¹æ³•
                 if (isPrivateKey)
                 {
-                    // ³¢ÊÔ°²È«½âÎöË½Ô¿
+                    // å°è¯•å®‰å…¨è§£æç§é’¥
                     var keyParam = SafeParseKey(textInputKey.Text, true, inputFormat, inputKeyType);
                     
                     if (keyParam == null)
                     {
-                        // Èç¹û½âÎöÊ§°Ü£¬³¢ÊÔÖÇÄÜ¼ì²â
+                        // å¦‚æœè§£æå¤±è´¥ï¼Œå°è¯•æ™ºèƒ½æ£€æµ‹
                         var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, true);
                         keyParam = SafeParseKey(textInputKey.Text, true, detectedFormat, detectedType);
                         
                         if (keyParam != null)
                         {
-                            // ¸üĞÂUIÏÔÊ¾¼ì²âµ½µÄ¸ñÊ½
+                            // æ›´æ–°UIæ˜¾ç¤ºæ£€æµ‹åˆ°çš„æ ¼å¼
                             comboInputFormat.SelectedIndex = (int)detectedFormat;
                             comboInputKeyType.SelectedIndex = (int)detectedType;
                             inputFormat = detectedFormat;
                             inputKeyType = detectedType;
-                            SetStatus("Ê¹ÓÃÖÇÄÜ¼ì²âÖØĞÂ½âÎöÃÜÔ¿³É¹¦");
+                            SetStatus("ä½¿ç”¨æ™ºèƒ½æ£€æµ‹é‡æ–°è§£æå¯†é’¥æˆåŠŸ");
                         }
                         else
                         {
-                            throw new ArgumentException("ÎŞ·¨½âÎöË½Ô¿£¬Çë¼ì²éÃÜÔ¿ÄÚÈİºÍ¸ñÊ½Ñ¡Ôñ");
+                            throw new ArgumentException("æ— æ³•è§£æç§é’¥ï¼Œè¯·æ£€æŸ¥å¯†é’¥å†…å®¹å’Œæ ¼å¼é€‰æ‹©");
                         }
                     }
 
-                    // È·±£ÊÇÕıÈ·µÄË½Ô¿ÀàĞÍ
+                    // ç¡®ä¿æ˜¯æ­£ç¡®çš„ç§é’¥ç±»å‹
                     if (keyParam is RsaPrivateCrtKeyParameters privateKey)
                     {
                         convertedKey = RSAUtil.GeneratePrivateKeyString(privateKey, outputFormat, outputKeyType);
                     }
                     else
                     {
-                        throw new InvalidCastException($"½âÎöµÄÃÜÔ¿ÀàĞÍ²»Æ¥Åä£¬ÆÚÍûRsaPrivateCrtKeyParameters£¬Êµ¼ÊµÃµ½{keyParam.GetType().Name}");
+                        throw new InvalidCastException($"è§£æçš„å¯†é’¥ç±»å‹ä¸åŒ¹é…ï¼ŒæœŸæœ›RsaPrivateCrtKeyParametersï¼Œå®é™…å¾—åˆ°{keyParam.GetType().Name}");
                     }
                 }
                 else
                 {
-                    // ³¢ÊÔ°²È«½âÎö¹«Ô¿
+                    // å°è¯•å®‰å…¨è§£æå…¬é’¥
                     var keyParam = SafeParseKey(textInputKey.Text, false, inputFormat, inputKeyType);
                     
                     if (keyParam == null)
                     {
-                        // Èç¹û½âÎöÊ§°Ü£¬³¢ÊÔÖÇÄÜ¼ì²â
+                        // å¦‚æœè§£æå¤±è´¥ï¼Œå°è¯•æ™ºèƒ½æ£€æµ‹
                         var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, false);
                         keyParam = SafeParseKey(textInputKey.Text, false, detectedFormat, detectedType);
                         
                         if (keyParam != null)
                         {
-                            // ¸üĞÂUIÏÔÊ¾¼ì²âµ½µÄ¸ñÊ½
+                            // æ›´æ–°UIæ˜¾ç¤ºæ£€æµ‹åˆ°çš„æ ¼å¼
                             comboInputFormat.SelectedIndex = (int)detectedFormat;
                             comboInputKeyType.SelectedIndex = (int)detectedType;
                             inputFormat = detectedFormat;
                             inputKeyType = detectedType;
-                            SetStatus("Ê¹ÓÃÖÇÄÜ¼ì²âÖØĞÂ½âÎöÃÜÔ¿³É¹¦");
+                            SetStatus("ä½¿ç”¨æ™ºèƒ½æ£€æµ‹é‡æ–°è§£æå¯†é’¥æˆåŠŸ");
                         }
                         else
                         {
-                            throw new ArgumentException("ÎŞ·¨½âÎö¹«Ô¿£¬Çë¼ì²éÃÜÔ¿ÄÚÈİºÍ¸ñÊ½Ñ¡Ôñ");
+                            throw new ArgumentException("æ— æ³•è§£æå…¬é’¥ï¼Œè¯·æ£€æŸ¥å¯†é’¥å†…å®¹å’Œæ ¼å¼é€‰æ‹©");
                         }
                     }
 
-                    // È·±£ÊÇÕıÈ·µÄ¹«Ô¿ÀàĞÍ
+                    // ç¡®ä¿æ˜¯æ­£ç¡®çš„å…¬é’¥ç±»å‹
                     if (keyParam is RsaKeyParameters publicKey)
                     {
                         convertedKey = RSAUtil.GeneratePublicKeyString(publicKey, outputFormat, outputKeyType);
                     }
                     else
                     {
-                        throw new InvalidCastException($"½âÎöµÄÃÜÔ¿ÀàĞÍ²»Æ¥Åä£¬ÆÚÍûRsaKeyParameters£¬Êµ¼ÊµÃµ½{keyParam.GetType().Name}");
+                        throw new InvalidCastException($"è§£æçš„å¯†é’¥ç±»å‹ä¸åŒ¹é…ï¼ŒæœŸæœ›RsaKeyParametersï¼Œå®é™…å¾—åˆ°{keyParam.GetType().Name}");
                     }
                 }
 
                 textOutputKey.Text = convertedKey;
-                SetStatus($"¸ñÊ½×ª»»Íê³É - {inputKeyType}/{inputFormat} -> {outputKeyType}/{outputFormat}");
+                SetStatus($"æ ¼å¼è½¬æ¢å®Œæˆ - {inputKeyType}/{inputFormat} -> {outputKeyType}/{outputFormat}");
             }
             catch (InvalidCastException ex)
             {
-                MessageBox.Show($"ÃÜÔ¿¸ñÊ½×ª»»Ê§°Ü£ºÃÜÔ¿ÀàĞÍ²»Æ¥Åä\n\nÏêÏ¸ĞÅÏ¢£º{ex.Message}\n\nÇë¼ì²é£º\n1. Ñ¡ÔñµÄÃÜÔ¿ÀàĞÍ£¨¹«Ô¿/Ë½Ô¿£©ÊÇ·ñÕıÈ·\n2. ÊäÈë¸ñÊ½ºÍÃÜÔ¿ÀàĞÍÑ¡ÔñÊÇ·ñÆ¥Åä\n3. ³¢ÊÔÊ¹ÓÃ×Ô¶¯¼ì²â¹¦ÄÜ", "¸ñÊ½×ª»»´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¸ñÊ½×ª»»Ê§°Ü - ÃÜÔ¿ÀàĞÍ²»Æ¥Åä");
+                MessageBox.Show($"å¯†é’¥æ ¼å¼è½¬æ¢å¤±è´¥ï¼šå¯†é’¥ç±»å‹ä¸åŒ¹é…\n\nè¯¦ç»†ä¿¡æ¯ï¼š{ex.Message}\n\nè¯·æ£€æŸ¥ï¼š\n1. é€‰æ‹©çš„å¯†é’¥ç±»å‹ï¼ˆå…¬é’¥/ç§é’¥ï¼‰æ˜¯å¦æ­£ç¡®\n2. è¾“å…¥æ ¼å¼å’Œå¯†é’¥ç±»å‹é€‰æ‹©æ˜¯å¦åŒ¹é…\n3. å°è¯•ä½¿ç”¨è‡ªåŠ¨æ£€æµ‹åŠŸèƒ½", "æ ¼å¼è½¬æ¢é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("æ ¼å¼è½¬æ¢å¤±è´¥ - å¯†é’¥ç±»å‹ä¸åŒ¹é…");
             }
             catch (ArgumentException ex)
             {
-                MessageBox.Show($"¸ñÊ½×ª»»Ê§°Ü£º{ex.Message}\n\n½¨Òé£º\n1. ¼ì²éÃÜÔ¿ÄÚÈİÊÇ·ñÍêÕû\n2. ³¢ÊÔ²»Í¬µÄÊäÈë¸ñÊ½×éºÏ\n3. Ê¹ÓÃ×Ô¶¯¼ì²â¹¦ÄÜ", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¸ñÊ½×ª»»Ê§°Ü");
+                MessageBox.Show($"æ ¼å¼è½¬æ¢å¤±è´¥ï¼š{ex.Message}\n\nå»ºè®®ï¼š\n1. æ£€æŸ¥å¯†é’¥å†…å®¹æ˜¯å¦å®Œæ•´\n2. å°è¯•ä¸åŒçš„è¾“å…¥æ ¼å¼ç»„åˆ\n3. ä½¿ç”¨è‡ªåŠ¨æ£€æµ‹åŠŸèƒ½", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("æ ¼å¼è½¬æ¢å¤±è´¥");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"¸ñÊ½×ª»»Ê§°Ü£º{ex.Message}\n\nÈç¹ûÎÊÌâ³ÖĞø´æÔÚ£º\n1. Çë³¢ÊÔÇå¿ÕÄÚÈİÖØĞÂÊäÈë\n2. ¼ì²éÃÜÔ¿ÊÇ·ñÀ´×Ô¿É¿¿À´Ô´\n3. ³¢ÊÔÊ¹ÓÃÎÄ¼şµ¼Èë¹¦ÄÜ", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¸ñÊ½×ª»»Ê§°Ü");
+                MessageBox.Show($"æ ¼å¼è½¬æ¢å¤±è´¥ï¼š{ex.Message}\n\nå¦‚æœé—®é¢˜æŒç»­å­˜åœ¨ï¼š\n1. è¯·å°è¯•æ¸…ç©ºå†…å®¹é‡æ–°è¾“å…¥\n2. æ£€æŸ¥å¯†é’¥æ˜¯å¦æ¥è‡ªå¯é æ¥æº\n3. å°è¯•ä½¿ç”¨æ–‡ä»¶å¯¼å…¥åŠŸèƒ½", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("æ ¼å¼è½¬æ¢å¤±è´¥");
             }
         }
 
@@ -303,11 +303,11 @@ namespace CryptoTool.Win
         {
             textInputKey.Clear();
             textOutputKey.Clear();
-            labelValidationResult.Text = "ÑéÖ¤½á¹û: µÈ´ıÑéÖ¤";
+            labelValidationResult.Text = "éªŒè¯ç»“æœ: ç­‰å¾…éªŒè¯";
             labelValidationResult.ForeColor = Color.Gray;
             _publicKeyForValidation = string.Empty;
             _privateKeyForValidation = string.Empty;
-            SetStatus("ÒÑÇå¿ÕËùÓĞÄÚÈİ");
+            SetStatus("å·²æ¸…ç©ºæ‰€æœ‰å†…å®¹");
         }
 
         private void btnSaveToFile_Click(object sender, EventArgs e)
@@ -316,7 +316,7 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textOutputKey.Text))
                 {
-                    MessageBox.Show("Ã»ÓĞ¿É±£´æµÄÄÚÈİ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("æ²¡æœ‰å¯ä¿å­˜çš„å†…å®¹ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -334,21 +334,21 @@ namespace CryptoTool.Win
                     };
 
                     saveFileDialog.Filter = GetFileFilter(outputFormat);
-                    saveFileDialog.Title = "±£´æ×ª»»ºóµÄÃÜÔ¿";
+                    saveFileDialog.Title = "ä¿å­˜è½¬æ¢åçš„å¯†é’¥";
                     saveFileDialog.FileName = $"rsa_{keyType}_key{extension}";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         File.WriteAllText(saveFileDialog.FileName, textOutputKey.Text, Encoding.UTF8);
-                        SetStatus("ÃÜÔ¿ÎÄ¼ş±£´æ³É¹¦");
-                        MessageBox.Show("ÃÜÔ¿ÎÄ¼ş±£´æ³É¹¦£¡", "³É¹¦", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SetStatus("å¯†é’¥æ–‡ä»¶ä¿å­˜æˆåŠŸ");
+                        MessageBox.Show("å¯†é’¥æ–‡ä»¶ä¿å­˜æˆåŠŸï¼", "æˆåŠŸ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"±£´æÎÄ¼şÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("±£´æÎÄ¼şÊ§°Ü");
+                MessageBox.Show($"ä¿å­˜æ–‡ä»¶å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ä¿å­˜æ–‡ä»¶å¤±è´¥");
             }
         }
 
@@ -358,32 +358,32 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textOutputKey.Text))
                 {
-                    MessageBox.Show("Ã»ÓĞ¿É¸´ÖÆµÄÄÚÈİ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("æ²¡æœ‰å¯å¤åˆ¶çš„å†…å®¹ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 Clipboard.SetText(textOutputKey.Text);
-                SetStatus("ÒÑ¸´ÖÆµ½¼ôÌù°å");
-                MessageBox.Show("ÒÑ¸´ÖÆµ½¼ôÌù°å£¡", "³É¹¦", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                SetStatus("å·²å¤åˆ¶åˆ°å‰ªè´´æ¿");
+                MessageBox.Show("å·²å¤åˆ¶åˆ°å‰ªè´´æ¿ï¼", "æˆåŠŸ", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"¸´ÖÆµ½¼ôÌù°åÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¸´ÖÆµ½¼ôÌù°åÊ§°Ü");
+                MessageBox.Show($"å¤åˆ¶åˆ°å‰ªè´´æ¿å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¤åˆ¶åˆ°å‰ªè´´æ¿å¤±è´¥");
             }
         }
 
         private void textInputKey_TextChanged(object sender, EventArgs e)
         {
-            // µ±ÊäÈëÃÜÔ¿ÄÚÈİ¸Ä±äÊ±£¬×Ô¶¯¼ì²âÃÜÔ¿ÀàĞÍ
+            // å½“è¾“å…¥å¯†é’¥å†…å®¹æ”¹å˜æ—¶ï¼Œè‡ªåŠ¨æ£€æµ‹å¯†é’¥ç±»å‹
             if (!string.IsNullOrEmpty(textInputKey.Text))
             {
                 AutoDetectKeyType(textInputKey.Text);
             }
             else
             {
-                // Çå¿ÕÑéÖ¤½á¹û
-                labelValidationResult.Text = "ÑéÖ¤½á¹û: µÈ´ıÑéÖ¤";
+                // æ¸…ç©ºéªŒè¯ç»“æœ
+                labelValidationResult.Text = "éªŒè¯ç»“æœ: ç­‰å¾…éªŒè¯";
                 labelValidationResult.ForeColor = Color.Gray;
                 _publicKeyForValidation = string.Empty;
                 _privateKeyForValidation = string.Empty;
@@ -392,7 +392,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¸¨Öú·½·¨
+        #region è¾…åŠ©æ–¹æ³•
 
         private void AutoDetectKeyType(string keyContent)
         {
@@ -403,14 +403,14 @@ namespace CryptoTool.Win
 
                 bool isPrivateKey = radioPrivateKey.Checked && !radioPublicKey.Checked;
 
-                // Ê¹ÓÃÖÇÄÜ¼ì²âÀ´È·¶¨×î¼ÑµÄ¸ñÊ½ºÍÀàĞÍ×éºÏ
+                // ä½¿ç”¨æ™ºèƒ½æ£€æµ‹æ¥ç¡®å®šæœ€ä½³çš„æ ¼å¼å’Œç±»å‹ç»„åˆ
                 var (detectedFormat, detectedType) = SmartDetectKeyFormat(keyContent, isPrivateKey);
 
-                // ¸üĞÂUIÑ¡Ôñ
+                // æ›´æ–°UIé€‰æ‹©
                 comboInputFormat.SelectedIndex = (int)detectedFormat;
                 comboInputKeyType.SelectedIndex = (int)detectedType;
 
-                // ´æ´¢¼ì²â½á¹ûÓÃÓÚÑéÖ¤
+                // å­˜å‚¨æ£€æµ‹ç»“æœç”¨äºéªŒè¯
                 if (isPrivateKey)
                 {
                     _privateKeyForValidation = keyContent;
@@ -424,12 +424,12 @@ namespace CryptoTool.Win
                     _publicKeyTypeForValidation = detectedType;
                 }
 
-                SetStatus($"ÃÜÔ¿ÀàĞÍ×Ô¶¯¼ì²â³É¹¦ - {detectedType}/{detectedFormat}");
+                SetStatus($"å¯†é’¥ç±»å‹è‡ªåŠ¨æ£€æµ‹æˆåŠŸ - {detectedType}/{detectedFormat}");
             }
             catch
             {
-                // ×Ô¶¯¼ì²âÊ§°ÜÊ±±£³ÖÄ¬ÈÏÖµ
-                SetStatus("ÎŞ·¨×Ô¶¯¼ì²âÃÜÔ¿ÀàĞÍ£¬ÇëÊÖ¶¯Ñ¡Ôñ");
+                // è‡ªåŠ¨æ£€æµ‹å¤±è´¥æ—¶ä¿æŒé»˜è®¤å€¼
+                SetStatus("æ— æ³•è‡ªåŠ¨æ£€æµ‹å¯†é’¥ç±»å‹ï¼Œè¯·æ‰‹åŠ¨é€‰æ‹©");
             }
         }
 
@@ -437,28 +437,28 @@ namespace CryptoTool.Win
         {
             return format switch
             {
-                RSAUtil.RSAKeyFormat.PEM => "PEMÎÄ¼ş (*.pem)|*.pem|ËùÓĞÎÄ¼ş (*.*)|*.*",
-                RSAUtil.RSAKeyFormat.Base64 => "ÎÄ±¾ÎÄ¼ş (*.txt)|*.txt|ËùÓĞÎÄ¼ş (*.*)|*.*",
-                RSAUtil.RSAKeyFormat.Hex => "ÎÄ±¾ÎÄ¼ş (*.txt)|*.txt|ËùÓĞÎÄ¼ş (*.*)|*.*",
-                _ => "ËùÓĞÎÄ¼ş (*.*)|*.*"
+                RSAUtil.RSAKeyFormat.PEM => "PEMæ–‡ä»¶ (*.pem)|*.pem|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*",
+                RSAUtil.RSAKeyFormat.Base64 => "æ–‡æœ¬æ–‡ä»¶ (*.txt)|*.txt|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*",
+                RSAUtil.RSAKeyFormat.Hex => "æ–‡æœ¬æ–‡ä»¶ (*.txt)|*.txt|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*",
+                _ => "æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*"
             };
         }
 
         /// <summary>
-        /// °²È«µØ½âÎöÃÜÔ¿£¬´¦Àí¸÷ÖÖ¿ÉÄÜµÄÒì³£Çé¿ö
+        /// å®‰å…¨åœ°è§£æå¯†é’¥ï¼Œå¤„ç†å„ç§å¯èƒ½çš„å¼‚å¸¸æƒ…å†µ
         /// </summary>
-        /// <param name="keyContent">ÃÜÔ¿ÄÚÈİ</param>
-        /// <param name="isPrivateKey">ÊÇ·ñÎªË½Ô¿</param>
-        /// <param name="format">ÃÜÔ¿¸ñÊ½</param>
-        /// <param name="keyType">ÃÜÔ¿ÀàĞÍ</param>
-        /// <returns>½âÎö½á¹û£¬Ê§°ÜÊ±·µ»Ønull</returns>
+        /// <param name="keyContent">å¯†é’¥å†…å®¹</param>
+        /// <param name="isPrivateKey">æ˜¯å¦ä¸ºç§é’¥</param>
+        /// <param name="format">å¯†é’¥æ ¼å¼</param>
+        /// <param name="keyType">å¯†é’¥ç±»å‹</param>
+        /// <returns>è§£æç»“æœï¼Œå¤±è´¥æ—¶è¿”å›null</returns>
         private static AsymmetricKeyParameter? SafeParseKey(string keyContent, bool isPrivateKey, RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType)
         {
-            // Ê×ÏÈ³¢ÊÔÖ±½Ó½âÎö·½·¨£¬±ÜÃâÍ¨ÓÃParseKey¿ÉÄÜµÄÀàĞÍÎÊÌâ
+            // é¦–å…ˆå°è¯•ç›´æ¥è§£ææ–¹æ³•ï¼Œé¿å…é€šç”¨ParseKeyå¯èƒ½çš„ç±»å‹é—®é¢˜
             var directResult = DirectParseKey(keyContent, isPrivateKey, format, keyType);
             if (directResult != null)
             {
-                // ÑéÖ¤·µ»ØµÄÃÜÔ¿ÀàĞÍÊÇ·ñ·ûºÏÔ¤ÆÚ
+                // éªŒè¯è¿”å›çš„å¯†é’¥ç±»å‹æ˜¯å¦ç¬¦åˆé¢„æœŸ
                 if (isPrivateKey && directResult is RsaPrivateCrtKeyParameters)
                 {
                     return directResult;
@@ -469,15 +469,15 @@ namespace CryptoTool.Win
                 }
             }
 
-            // Èç¹ûÖ±½Ó½âÎöÊ§°Ü£¬³¢ÊÔÍ¨ÓÃParseKey·½·¨
+            // å¦‚æœç›´æ¥è§£æå¤±è´¥ï¼Œå°è¯•é€šç”¨ParseKeyæ–¹æ³•
             try
             {
                 AsymmetricKeyParameter result = RSAUtil.ParseKey(keyContent, isPrivateKey, format, keyType);
                 
-                // ÑéÖ¤·µ»ØµÄÃÜÔ¿ÀàĞÍÊÇ·ñ·ûºÏÔ¤ÆÚ
+                // éªŒè¯è¿”å›çš„å¯†é’¥ç±»å‹æ˜¯å¦ç¬¦åˆé¢„æœŸ
                 if (isPrivateKey)
                 {
-                    // ¶ÔÓÚË½Ô¿£¬È·±£·µ»ØµÄÊÇRsaPrivateCrtKeyParametersÀàĞÍ
+                    // å¯¹äºç§é’¥ï¼Œç¡®ä¿è¿”å›çš„æ˜¯RsaPrivateCrtKeyParametersç±»å‹
                     if (result is RsaPrivateCrtKeyParameters)
                     {
                         return result;
@@ -485,7 +485,7 @@ namespace CryptoTool.Win
                 }
                 else
                 {
-                    // ¶ÔÓÚ¹«Ô¿£¬È·±£·µ»ØµÄÊÇRsaKeyParametersÀàĞÍ
+                    // å¯¹äºå…¬é’¥ï¼Œç¡®ä¿è¿”å›çš„æ˜¯RsaKeyParametersç±»å‹
                     if (result is RsaKeyParameters rsaKey && !rsaKey.IsPrivate)
                     {
                         return result;
@@ -494,21 +494,21 @@ namespace CryptoTool.Win
             }
             catch
             {
-                // ºöÂÔÒì³££¬·µ»Ønull±íÊ¾½âÎöÊ§°Ü
+                // å¿½ç•¥å¼‚å¸¸ï¼Œè¿”å›nullè¡¨ç¤ºè§£æå¤±è´¥
             }
 
             return null;
         }
 
         /// <summary>
-        /// ÖÇÄÜ¼ì²âÃÜÔ¿¸ñÊ½£¬³¢ÊÔ¶àÖÖ¿ÉÄÜĞÔ
+        /// æ™ºèƒ½æ£€æµ‹å¯†é’¥æ ¼å¼ï¼Œå°è¯•å¤šç§å¯èƒ½æ€§
         /// </summary>
-        /// <param name="keyContent">ÃÜÔ¿ÄÚÈİ</param>
-        /// <param name="isPrivateKey">ÊÇ·ñÎªË½Ô¿</param>
-        /// <returns>¼ì²âµ½µÄ¸ñÊ½ºÍÀàĞÍ</returns>
+        /// <param name="keyContent">å¯†é’¥å†…å®¹</param>
+        /// <param name="isPrivateKey">æ˜¯å¦ä¸ºç§é’¥</param>
+        /// <returns>æ£€æµ‹åˆ°çš„æ ¼å¼å’Œç±»å‹</returns>
         private (RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType) SmartDetectKeyFormat(string keyContent, bool isPrivateKey)
         {
-            // ³¢ÊÔËùÓĞ¿ÉÄÜµÄ×éºÏ
+            // å°è¯•æ‰€æœ‰å¯èƒ½çš„ç»„åˆ
             var combinations = new[]
             {
                 (RSAUtil.RSAKeyFormat.PEM, RSAUtil.RSAKeyType.PKCS8),
@@ -519,13 +519,13 @@ namespace CryptoTool.Win
                 (RSAUtil.RSAKeyFormat.Hex, RSAUtil.RSAKeyType.PKCS1)
             };
 
-            // Ê×ÏÈ³¢ÊÔÖ±½Ó½âÎö·½·¨
+            // é¦–å…ˆå°è¯•ç›´æ¥è§£ææ–¹æ³•
             foreach (var (format, keyType) in combinations)
             {
                 var result = DirectParseKey(keyContent, isPrivateKey, format, keyType);
                 if (result != null)
                 {
-                    // ÑéÖ¤½á¹ûÀàĞÍ
+                    // éªŒè¯ç»“æœç±»å‹
                     if (isPrivateKey && result is RsaPrivateCrtKeyParameters)
                     {
                         return (format, keyType);
@@ -537,7 +537,7 @@ namespace CryptoTool.Win
                 }
             }
 
-            // Èç¹ûÖ±½Ó½âÎö¶¼Ê§°Ü£¬³¢ÊÔSafeParseKey£¨°üº¬Í¨ÓÃParseKeyµÄ»ØÍË£©
+            // å¦‚æœç›´æ¥è§£æéƒ½å¤±è´¥ï¼Œå°è¯•SafeParseKeyï¼ˆåŒ…å«é€šç”¨ParseKeyçš„å›é€€ï¼‰
             foreach (var (format, keyType) in combinations)
             {
                 var result = SafeParseKey(keyContent, isPrivateKey, format, keyType);
@@ -547,17 +547,17 @@ namespace CryptoTool.Win
                 }
             }
 
-            throw new ArgumentException("ÎŞ·¨¼ì²âÃÜÔ¿¸ñÊ½£¬Çë¼ì²éÃÜÔ¿ÄÚÈİ");
+            throw new ArgumentException("æ— æ³•æ£€æµ‹å¯†é’¥æ ¼å¼ï¼Œè¯·æ£€æŸ¥å¯†é’¥å†…å®¹");
         }
 
         /// <summary>
-        /// ³¢ÊÔÖ±½ÓÊ¹ÓÃRSAUtilµÄ×¨ÓÃ·½·¨½âÎöÃÜÔ¿£¬±ÜÃâÍ¨ÓÃParseKey·½·¨µÄÀàĞÍÎÊÌâ
+        /// å°è¯•ç›´æ¥ä½¿ç”¨RSAUtilçš„ä¸“ç”¨æ–¹æ³•è§£æå¯†é’¥ï¼Œé¿å…é€šç”¨ParseKeyæ–¹æ³•çš„ç±»å‹é—®é¢˜
         /// </summary>
-        /// <param name="keyContent">ÃÜÔ¿ÄÚÈİ</param>
-        /// <param name="isPrivateKey">ÊÇ·ñÎªË½Ô¿</param>
-        /// <param name="format">ÃÜÔ¿¸ñÊ½</param>
-        /// <param name="keyType">ÃÜÔ¿ÀàĞÍ</param>
-        /// <returns>½âÎöºóµÄÃÜÔ¿¶ÔÏó</returns>
+        /// <param name="keyContent">å¯†é’¥å†…å®¹</param>
+        /// <param name="isPrivateKey">æ˜¯å¦ä¸ºç§é’¥</param>
+        /// <param name="format">å¯†é’¥æ ¼å¼</param>
+        /// <param name="keyType">å¯†é’¥ç±»å‹</param>
+        /// <returns>è§£æåçš„å¯†é’¥å¯¹è±¡</returns>
         private static AsymmetricKeyParameter? DirectParseKey(string keyContent, bool isPrivateKey, RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType)
         {
             try

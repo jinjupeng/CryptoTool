@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class MedicareTabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -96,7 +96,7 @@ namespace CryptoTool.Win
             groupBoxMedicareParams.Size = new Size(1264, 249);
             groupBoxMedicareParams.TabIndex = 0;
             groupBoxMedicareParams.TabStop = false;
-            groupBoxMedicareParams.Text = "ÇëÇó²ÎÊı";
+            groupBoxMedicareParams.Text = "è¯·æ±‚å‚æ•°";
             // 
             // labelMedicareAppId
             // 
@@ -215,7 +215,7 @@ namespace CryptoTool.Win
             labelMedicareData.Name = "labelMedicareData";
             labelMedicareData.Size = new Size(73, 20);
             labelMedicareData.TabIndex = 12;
-            labelMedicareData.Text = "ÒµÎñÊı¾İ:";
+            labelMedicareData.Text = "ä¸šåŠ¡æ•°æ®:";
             // 
             // textMedicareData
             // 
@@ -248,7 +248,7 @@ namespace CryptoTool.Win
             groupBoxMedicareKeys.Size = new Size(1264, 185);
             groupBoxMedicareKeys.TabIndex = 1;
             groupBoxMedicareKeys.TabStop = false;
-            groupBoxMedicareKeys.Text = "Ò½±£SM2/SM4ÃÜÔ¿";
+            groupBoxMedicareKeys.Text = "åŒ»ä¿SM2/SM4å¯†é’¥";
             // 
             // btnGenerateMedicareSM4Key
             // 
@@ -257,7 +257,7 @@ namespace CryptoTool.Win
             btnGenerateMedicareSM4Key.Name = "btnGenerateMedicareSM4Key";
             btnGenerateMedicareSM4Key.Size = new Size(150, 31);
             btnGenerateMedicareSM4Key.TabIndex = 0;
-            btnGenerateMedicareSM4Key.Text = "Éú³ÉÒ½±£SM4ÃÜÔ¿";
+            btnGenerateMedicareSM4Key.Text = "ç”ŸæˆåŒ»ä¿SM4å¯†é’¥";
             btnGenerateMedicareSM4Key.UseVisualStyleBackColor = true;
             btnGenerateMedicareSM4Key.Click += btnGenerateMedicareSM4Key_Click;
             // 
@@ -268,7 +268,7 @@ namespace CryptoTool.Win
             labelMedicareSM4Key.Name = "labelMedicareSM4Key";
             labelMedicareSM4Key.Size = new Size(145, 20);
             labelMedicareSM4Key.TabIndex = 6;
-            labelMedicareSM4Key.Text = "Ò½±£SM4ÃÜÔ¿(Hex):";
+            labelMedicareSM4Key.Text = "åŒ»ä¿SM4å¯†é’¥(Hex):";
             // 
             // textMedicareSM4Key
             // 
@@ -286,7 +286,7 @@ namespace CryptoTool.Win
             btnGenerateMedicareKey.Name = "btnGenerateMedicareKey";
             btnGenerateMedicareKey.Size = new Size(120, 31);
             btnGenerateMedicareKey.TabIndex = 8;
-            btnGenerateMedicareKey.Text = "Éú³ÉÃÜÔ¿¶Ô";
+            btnGenerateMedicareKey.Text = "ç”Ÿæˆå¯†é’¥å¯¹";
             btnGenerateMedicareKey.UseVisualStyleBackColor = true;
             btnGenerateMedicareKey.Click += btnGenerateMedicareKey_Click;
             // 
@@ -297,7 +297,7 @@ namespace CryptoTool.Win
             btnImportMedicareKey.Name = "btnImportMedicareKey";
             btnImportMedicareKey.Size = new Size(120, 31);
             btnImportMedicareKey.TabIndex = 9;
-            btnImportMedicareKey.Text = "µ¼ÈëÃÜÔ¿";
+            btnImportMedicareKey.Text = "å¯¼å…¥å¯†é’¥";
             btnImportMedicareKey.UseVisualStyleBackColor = true;
             btnImportMedicareKey.Click += btnImportMedicareKey_Click;
             // 
@@ -308,7 +308,7 @@ namespace CryptoTool.Win
             btnExportMedicareKey.Name = "btnExportMedicareKey";
             btnExportMedicareKey.Size = new Size(120, 31);
             btnExportMedicareKey.TabIndex = 10;
-            btnExportMedicareKey.Text = "µ¼³öÃÜÔ¿";
+            btnExportMedicareKey.Text = "å¯¼å‡ºå¯†é’¥";
             btnExportMedicareKey.UseVisualStyleBackColor = true;
             btnExportMedicareKey.Click += btnExportMedicareKey_Click;
             // 
@@ -319,7 +319,7 @@ namespace CryptoTool.Win
             labelMedicarePublicKey.Name = "labelMedicarePublicKey";
             labelMedicarePublicKey.Size = new Size(82, 20);
             labelMedicarePublicKey.TabIndex = 11;
-            labelMedicarePublicKey.Text = "¹«Ô¿(Hex):";
+            labelMedicarePublicKey.Text = "å…¬é’¥(Hex):";
             // 
             // textMedicarePublicKey
             // 
@@ -337,7 +337,7 @@ namespace CryptoTool.Win
             labelMedicarePrivateKey.Name = "labelMedicarePrivateKey";
             labelMedicarePrivateKey.Size = new Size(82, 20);
             labelMedicarePrivateKey.TabIndex = 13;
-            labelMedicarePrivateKey.Text = "Ë½Ô¿(Hex):";
+            labelMedicarePrivateKey.Text = "ç§é’¥(Hex):";
             // 
             // textMedicarePrivateKey
             // 
@@ -370,7 +370,7 @@ namespace CryptoTool.Win
             groupBoxMedicareAction.Size = new Size(1264, 450);
             groupBoxMedicareAction.TabIndex = 2;
             groupBoxMedicareAction.TabStop = false;
-            groupBoxMedicareAction.Text = "²Ù×÷ºÍ½á¹û";
+            groupBoxMedicareAction.Text = "æ“ä½œå’Œç»“æœ";
             // 
             // btnMedicareSign
             // 
@@ -379,7 +379,7 @@ namespace CryptoTool.Win
             btnMedicareSign.Name = "btnMedicareSign";
             btnMedicareSign.Size = new Size(100, 31);
             btnMedicareSign.TabIndex = 1;
-            btnMedicareSign.Text = "Ç©Ãû";
+            btnMedicareSign.Text = "ç­¾å";
             btnMedicareSign.UseVisualStyleBackColor = true;
             btnMedicareSign.Click += btnMedicareSign_Click;
             // 
@@ -390,7 +390,7 @@ namespace CryptoTool.Win
             btnMedicareVerify.Name = "btnMedicareVerify";
             btnMedicareVerify.Size = new Size(100, 31);
             btnMedicareVerify.TabIndex = 2;
-            btnMedicareVerify.Text = "ÑéÇ©";
+            btnMedicareVerify.Text = "éªŒç­¾";
             btnMedicareVerify.UseVisualStyleBackColor = true;
             btnMedicareVerify.Click += btnMedicareVerify_Click;
             // 
@@ -401,7 +401,7 @@ namespace CryptoTool.Win
             btnMedicareEncrypt.Name = "btnMedicareEncrypt";
             btnMedicareEncrypt.Size = new Size(100, 31);
             btnMedicareEncrypt.TabIndex = 3;
-            btnMedicareEncrypt.Text = "¼ÓÃÜ";
+            btnMedicareEncrypt.Text = "åŠ å¯†";
             btnMedicareEncrypt.UseVisualStyleBackColor = true;
             btnMedicareEncrypt.Click += btnMedicareEncrypt_Click;
             // 
@@ -412,7 +412,7 @@ namespace CryptoTool.Win
             btnMedicareDecrypt.Name = "btnMedicareDecrypt";
             btnMedicareDecrypt.Size = new Size(100, 31);
             btnMedicareDecrypt.TabIndex = 4;
-            btnMedicareDecrypt.Text = "½âÃÜ";
+            btnMedicareDecrypt.Text = "è§£å¯†";
             btnMedicareDecrypt.UseVisualStyleBackColor = true;
             btnMedicareDecrypt.Click += btnMedicareDecrypt_Click;
             // 
@@ -423,7 +423,7 @@ namespace CryptoTool.Win
             labelMedicareSignatureString.Name = "labelMedicareSignatureString";
             labelMedicareSignatureString.Size = new Size(88, 20);
             labelMedicareSignatureString.TabIndex = 5;
-            labelMedicareSignatureString.Text = "´ıÇ©×Ö·û´®:";
+            labelMedicareSignatureString.Text = "å¾…ç­¾å­—ç¬¦ä¸²:";
             // 
             // textMedicareSignatureString
             // 
@@ -443,7 +443,7 @@ namespace CryptoTool.Win
             labelMedicareSignData.Name = "labelMedicareSignData";
             labelMedicareSignData.Size = new Size(146, 20);
             labelMedicareSignData.TabIndex = 7;
-            labelMedicareSignData.Text = "Ç©Ãû½á¹û(signData):";
+            labelMedicareSignData.Text = "ç­¾åç»“æœ(signData):";
             // 
             // textMedicareSignData
             // 
@@ -463,7 +463,7 @@ namespace CryptoTool.Win
             labelMedicareEncData.Name = "labelMedicareEncData";
             labelMedicareEncData.Size = new Size(112, 20);
             labelMedicareEncData.TabIndex = 11;
-            labelMedicareEncData.Text = "¼ÓÃÜ½á¹û(Hex):";
+            labelMedicareEncData.Text = "åŠ å¯†ç»“æœ(Hex):";
             // 
             // textMedicareEncData
             // 
@@ -482,7 +482,7 @@ namespace CryptoTool.Win
             labelMedicareDecData.Name = "labelMedicareDecData";
             labelMedicareDecData.Size = new Size(100, 24);
             labelMedicareDecData.TabIndex = 13;
-            labelMedicareDecData.Text = "½âÃÜ½á¹û:";
+            labelMedicareDecData.Text = "è§£å¯†ç»“æœ:";
             // 
             // textMedicareDecData
             // 

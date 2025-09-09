@@ -26,13 +26,13 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region SM2¹¦ÄÜ
+        #region SM2åŠŸèƒ½
 
         private void btnGenerateSM2Key_Click(object sender, EventArgs e)
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉSM2ÃÜÔ¿¶Ô...");
+                SetStatus("æ­£åœ¨ç”ŸæˆSM2å¯†é’¥å¯¹...");
 
                 var keyPair = SM2Util.GenerateKeyPair();
                 var publicKey = (ECPublicKeyParameters)keyPair.Public;
@@ -51,12 +51,12 @@ namespace CryptoTool.Win
                     textSM2PrivateKey.Text = SM2Util.PrivateKeyToHex(privateKey);
                 }
 
-                SetStatus($"SM2ÃÜÔ¿¶ÔÉú³ÉÍê³É - {formatText}¸ñÊ½");
+                SetStatus($"SM2å¯†é’¥å¯¹ç”Ÿæˆå®Œæˆ - {formatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉSM2ÃÜÔ¿¶ÔÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉSM2ÃÜÔ¿¶ÔÊ§°Ü");
+                MessageBox.Show($"ç”ŸæˆSM2å¯†é’¥å¯¹å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆSM2å¯†é’¥å¯¹å¤±è´¥");
             }
         }
 
@@ -66,8 +66,8 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Filter = "ÃÜÔ¿ÎÄ¼ş (*.txt;*.key)|*.txt;*.key|ËùÓĞÎÄ¼ş (*.*)|*.*";
-                    openFileDialog.Title = "µ¼ÈëSM2ÃÜÔ¿ÎÄ¼ş";
+                    openFileDialog.Filter = "å¯†é’¥æ–‡ä»¶ (*.txt;*.key)|*.txt;*.key|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
+                    openFileDialog.Title = "å¯¼å…¥SM2å¯†é’¥æ–‡ä»¶";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -78,19 +78,19 @@ namespace CryptoTool.Win
                         {
                             textSM2PublicKey.Text = lines[0].Trim();
                             textSM2PrivateKey.Text = lines[1].Trim();
-                            SetStatus("SM2ÃÜÔ¿µ¼Èë³É¹¦");
+                            SetStatus("SM2å¯†é’¥å¯¼å…¥æˆåŠŸ");
                         }
                         else
                         {
-                            MessageBox.Show("ÃÜÔ¿ÎÄ¼ş¸ñÊ½´íÎó£¡Ó¦°üº¬¹«Ô¿ºÍË½Ô¿Á½ĞĞ¡£", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("å¯†é’¥æ–‡ä»¶æ ¼å¼é”™è¯¯ï¼åº”åŒ…å«å…¬é’¥å’Œç§é’¥ä¸¤è¡Œã€‚", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"µ¼ÈëSM2ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("µ¼ÈëSM2ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"å¯¼å…¥SM2å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¯¼å…¥SM2å¯†é’¥å¤±è´¥");
             }
         }
 
@@ -100,28 +100,28 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM2PublicKey.Text) || string.IsNullOrEmpty(textSM2PrivateKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM2ÃÜÔ¿¶Ô£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM2å¯†é’¥å¯¹ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    saveFileDialog.Filter = "ÃÜÔ¿ÎÄ¼ş (*.txt)|*.txt|ËùÓĞÎÄ¼ş (*.*)|*.*";
-                    saveFileDialog.Title = "µ¼³öSM2ÃÜÔ¿ÎÄ¼ş";
+                    saveFileDialog.Filter = "å¯†é’¥æ–‡ä»¶ (*.txt)|*.txt|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
+                    saveFileDialog.Title = "å¯¼å‡ºSM2å¯†é’¥æ–‡ä»¶";
                     saveFileDialog.FileName = "sm2_keys.txt";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        string content = $"¹«Ô¿£º\r\n{textSM2PublicKey.Text}\r\n\r\nË½Ô¿£º\r\n{textSM2PrivateKey.Text}";
+                        string content = $"å…¬é’¥ï¼š\r\n{textSM2PublicKey.Text}\r\n\r\nç§é’¥ï¼š\r\n{textSM2PrivateKey.Text}";
                         File.WriteAllText(saveFileDialog.FileName, content, Encoding.UTF8);
-                        SetStatus("SM2ÃÜÔ¿µ¼³ö³É¹¦");
+                        SetStatus("SM2å¯†é’¥å¯¼å‡ºæˆåŠŸ");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"µ¼³öSM2ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("µ¼³öSM2ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"å¯¼å‡ºSM2å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¯¼å‡ºSM2å¯†é’¥å¤±è´¥");
             }
         }
 
@@ -131,17 +131,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM2PlainText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃ÷ÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥æ˜æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM2PublicKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM2¹«Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM2å…¬é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM2¼ÓÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM2åŠ å¯†...");
 
                 string formatText = comboSM2KeyFormat.SelectedItem.ToString();
                 string cipherFormatText = comboSM2CipherFormat.SelectedItem.ToString();
@@ -160,12 +160,12 @@ namespace CryptoTool.Win
                 }
 
                 textSM2CipherText.Text = cipherText;
-                SetStatus($"SM2¼ÓÃÜÍê³É - Ê¹ÓÃ{cipherFormatText}¸ñÊ½");
+                SetStatus($"SM2åŠ å¯†å®Œæˆ - ä½¿ç”¨{cipherFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM2¼ÓÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM2¼ÓÃÜÊ§°Ü");
+                MessageBox.Show($"SM2åŠ å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM2åŠ å¯†å¤±è´¥");
             }
         }
 
@@ -175,17 +175,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM2CipherText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃÜÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥å¯†æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM2PrivateKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM2Ë½Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM2ç§é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM2½âÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM2è§£å¯†...");
 
                 string formatText = comboSM2KeyFormat.SelectedItem.ToString();
                 string cipherFormatText = comboSM2CipherFormat.SelectedItem.ToString();
@@ -204,12 +204,12 @@ namespace CryptoTool.Win
                 }
 
                 textSM2PlainText.Text = plainText;
-                SetStatus($"SM2½âÃÜÍê³É - Ê¹ÓÃ{cipherFormatText}¸ñÊ½");
+                SetStatus($"SM2è§£å¯†å®Œæˆ - ä½¿ç”¨{cipherFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM2½âÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM2½âÃÜÊ§°Ü");
+                MessageBox.Show($"SM2è§£å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM2è§£å¯†å¤±è´¥");
             }
         }
 
@@ -219,17 +219,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM2SignData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒªÇ©ÃûµÄÔ­ÎÄÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥è¦ç­¾åçš„åŸæ–‡æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM2PrivateKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM2Ë½Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM2ç§é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM2Ç©Ãû...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM2ç­¾å...");
 
                 string formatText = comboSM2KeyFormat.SelectedItem.ToString();
                 string signFormatText = comboSM2SignFormat.SelectedItem.ToString();
@@ -248,12 +248,12 @@ namespace CryptoTool.Win
                 }
 
                 textSM2Signature.Text = signature;
-                SetStatus($"SM2Ç©ÃûÍê³É - Ê¹ÓÃ{signFormatText}¸ñÊ½");
+                SetStatus($"SM2ç­¾åå®Œæˆ - ä½¿ç”¨{signFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM2Ç©ÃûÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM2Ç©ÃûÊ§°Ü");
+                MessageBox.Show($"SM2ç­¾åå¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM2ç­¾åå¤±è´¥");
             }
         }
 
@@ -263,23 +263,23 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM2SignData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÔ­ÎÄÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥åŸæ–‡æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM2Signature.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÇ©ÃûÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥ç­¾åæ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM2PublicKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëSM2¹«Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥SM2å…¬é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞSM2ÑéÇ©...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒSM2éªŒç­¾...");
 
                 string formatText = comboSM2KeyFormat.SelectedItem.ToString();
                 string signFormatText = comboSM2SignFormat.SelectedItem.ToString();
@@ -297,17 +297,17 @@ namespace CryptoTool.Win
                     verifyResult = SM2Util.VerifySm3WithSm2(textSM2SignData.Text, textSM2Signature.Text, publicKey, Encoding.UTF8, signFormat);
                 }
 
-                labelSM2VerifyResult.Text = $"ÑéÇ©½á¹û: {(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}";
+                labelSM2VerifyResult.Text = $"éªŒç­¾ç»“æœ: {(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}";
                 labelSM2VerifyResult.ForeColor = verifyResult ? Color.Green : Color.Red;
 
-                SetStatus($"SM2ÑéÇ©Íê³É - {(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}");
+                SetStatus($"SM2éªŒç­¾å®Œæˆ - {(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM2ÑéÇ©Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelSM2VerifyResult.Text = "ÑéÇ©½á¹û: ÑéÖ¤Òì³£";
+                MessageBox.Show($"SM2éªŒç­¾å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelSM2VerifyResult.Text = "éªŒç­¾ç»“æœ: éªŒè¯å¼‚å¸¸";
                 labelSM2VerifyResult.ForeColor = Color.Red;
-                SetStatus("SM2ÑéÇ©Ê§°Ü");
+                SetStatus("SM2éªŒç­¾å¤±è´¥");
             }
         }
 

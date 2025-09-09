@@ -1,4 +1,4 @@
-﻿namespace CryptoTool.Win
+namespace CryptoTool.Win
 {
     partial class RSATabControl : UserControl
     {

@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class SM2TabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -106,7 +106,7 @@ namespace CryptoTool.Win
             groupBoxSM2Keys.Size = new Size(1254, 242);
             groupBoxSM2Keys.TabIndex = 0;
             groupBoxSM2Keys.TabStop = false;
-            groupBoxSM2Keys.Text = "SM2ÃÜÔ¿Éú³É";
+            groupBoxSM2Keys.Text = "SM2å¯†é’¥ç”Ÿæˆ";
             // 
             // tableLayoutSM2Keys
             // 
@@ -150,7 +150,7 @@ namespace CryptoTool.Win
             label16.Name = "label16";
             label16.Size = new Size(73, 20);
             label16.TabIndex = 2;
-            label16.Text = "ÃÜÔ¿¸ñÊ½:";
+            label16.Text = "å¯†é’¥æ ¼å¼:";
             // 
             // comboSM2KeyFormat
             // 
@@ -170,7 +170,7 @@ namespace CryptoTool.Win
             btnGenerateSM2Key.Name = "btnGenerateSM2Key";
             btnGenerateSM2Key.Size = new Size(129, 30);
             btnGenerateSM2Key.TabIndex = 0;
-            btnGenerateSM2Key.Text = "Éú³ÉÃÜÔ¿¶Ô";
+            btnGenerateSM2Key.Text = "ç”Ÿæˆå¯†é’¥å¯¹";
             btnGenerateSM2Key.UseVisualStyleBackColor = true;
             btnGenerateSM2Key.Click += btnGenerateSM2Key_Click;
             // 
@@ -181,7 +181,7 @@ namespace CryptoTool.Win
             btnImportSM2Key.Name = "btnImportSM2Key";
             btnImportSM2Key.Size = new Size(103, 30);
             btnImportSM2Key.TabIndex = 7;
-            btnImportSM2Key.Text = "µ¼ÈëÃÜÔ¿";
+            btnImportSM2Key.Text = "å¯¼å…¥å¯†é’¥";
             btnImportSM2Key.UseVisualStyleBackColor = true;
             btnImportSM2Key.Click += btnImportSM2Key_Click;
             // 
@@ -192,7 +192,7 @@ namespace CryptoTool.Win
             btnExportSM2Key.Name = "btnExportSM2Key";
             btnExportSM2Key.Size = new Size(103, 30);
             btnExportSM2Key.TabIndex = 8;
-            btnExportSM2Key.Text = "µ¼³öÃÜÔ¿";
+            btnExportSM2Key.Text = "å¯¼å‡ºå¯†é’¥";
             btnExportSM2Key.UseVisualStyleBackColor = true;
             btnExportSM2Key.Click += btnExportSM2Key_Click;
             // 
@@ -205,7 +205,7 @@ namespace CryptoTool.Win
             label17.Name = "label17";
             label17.Size = new Size(1230, 20);
             label17.TabIndex = 4;
-            label17.Text = "¹«Ô¿:";
+            label17.Text = "å…¬é’¥:";
             // 
             // textSM2PublicKey
             // 
@@ -227,7 +227,7 @@ namespace CryptoTool.Win
             label18.Name = "label18";
             label18.Size = new Size(1230, 20);
             label18.TabIndex = 6;
-            label18.Text = "Ë½Ô¿:";
+            label18.Text = "ç§é’¥:";
             // 
             // textSM2PrivateKey
             // 
@@ -251,7 +251,7 @@ namespace CryptoTool.Win
             groupBoxSM2Encrypt.Size = new Size(1254, 200);
             groupBoxSM2Encrypt.TabIndex = 1;
             groupBoxSM2Encrypt.TabStop = false;
-            groupBoxSM2Encrypt.Text = "SM2¼ÓÃÜ½âÃÜ";
+            groupBoxSM2Encrypt.Text = "SM2åŠ å¯†è§£å¯†";
             // 
             // tableLayoutSM2Encrypt
             // 
@@ -294,7 +294,7 @@ namespace CryptoTool.Win
             label19.Name = "label19";
             label19.Size = new Size(73, 20);
             label19.TabIndex = 1;
-            label19.Text = "ÃÜÎÄ¸ñÊ½:";
+            label19.Text = "å¯†æ–‡æ ¼å¼:";
             // 
             // comboSM2CipherFormat
             // 
@@ -314,7 +314,7 @@ namespace CryptoTool.Win
             btnSM2Encrypt.Name = "btnSM2Encrypt";
             btnSM2Encrypt.Size = new Size(103, 30);
             btnSM2Encrypt.TabIndex = 2;
-            btnSM2Encrypt.Text = "¼ÓÃÜ";
+            btnSM2Encrypt.Text = "åŠ å¯†";
             btnSM2Encrypt.UseVisualStyleBackColor = true;
             btnSM2Encrypt.Click += btnSM2Encrypt_Click;
             // 
@@ -325,7 +325,7 @@ namespace CryptoTool.Win
             btnSM2Decrypt.Name = "btnSM2Decrypt";
             btnSM2Decrypt.Size = new Size(103, 30);
             btnSM2Decrypt.TabIndex = 3;
-            btnSM2Decrypt.Text = "½âÃÜ";
+            btnSM2Decrypt.Text = "è§£å¯†";
             btnSM2Decrypt.UseVisualStyleBackColor = true;
             btnSM2Decrypt.Click += btnSM2Decrypt_Click;
             // 
@@ -338,7 +338,7 @@ namespace CryptoTool.Win
             label20.Name = "label20";
             label20.Size = new Size(1230, 20);
             label20.TabIndex = 5;
-            label20.Text = "Ã÷ÎÄ:";
+            label20.Text = "æ˜æ–‡:";
             // 
             // textSM2PlainText
             // 
@@ -360,7 +360,7 @@ namespace CryptoTool.Win
             label21.Name = "label21";
             label21.Size = new Size(1230, 20);
             label21.TabIndex = 7;
-            label21.Text = "ÃÜÎÄ:";
+            label21.Text = "å¯†æ–‡:";
             // 
             // textSM2CipherText
             // 
@@ -384,7 +384,7 @@ namespace CryptoTool.Win
             groupBoxSM2Sign.Size = new Size(1254, 368);
             groupBoxSM2Sign.TabIndex = 2;
             groupBoxSM2Sign.TabStop = false;
-            groupBoxSM2Sign.Text = "SM2Êı×ÖÇ©Ãû";
+            groupBoxSM2Sign.Text = "SM2æ•°å­—ç­¾å";
             // 
             // tableLayoutSM2Sign
             // 
@@ -429,7 +429,7 @@ namespace CryptoTool.Win
             label22.Name = "label22";
             label22.Size = new Size(73, 20);
             label22.TabIndex = 1;
-            label22.Text = "Ç©Ãû¸ñÊ½:";
+            label22.Text = "ç­¾åæ ¼å¼:";
             // 
             // comboSM2SignFormat
             // 
@@ -449,7 +449,7 @@ namespace CryptoTool.Win
             btnSM2Sign.Name = "btnSM2Sign";
             btnSM2Sign.Size = new Size(103, 30);
             btnSM2Sign.TabIndex = 2;
-            btnSM2Sign.Text = "Ç©Ãû";
+            btnSM2Sign.Text = "ç­¾å";
             btnSM2Sign.UseVisualStyleBackColor = true;
             btnSM2Sign.Click += btnSM2Sign_Click;
             // 
@@ -460,7 +460,7 @@ namespace CryptoTool.Win
             btnSM2Verify.Name = "btnSM2Verify";
             btnSM2Verify.Size = new Size(103, 30);
             btnSM2Verify.TabIndex = 3;
-            btnSM2Verify.Text = "ÑéÇ©";
+            btnSM2Verify.Text = "éªŒç­¾";
             btnSM2Verify.UseVisualStyleBackColor = true;
             btnSM2Verify.Click += btnSM2Verify_Click;
             // 
@@ -473,7 +473,7 @@ namespace CryptoTool.Win
             label23.Name = "label23";
             label23.Size = new Size(1230, 20);
             label23.TabIndex = 5;
-            label23.Text = "Ô­ÎÄÊı¾İ:";
+            label23.Text = "åŸæ–‡æ•°æ®:";
             // 
             // textSM2SignData
             // 
@@ -495,7 +495,7 @@ namespace CryptoTool.Win
             label24.Name = "label24";
             label24.Size = new Size(1230, 20);
             label24.TabIndex = 7;
-            label24.Text = "Ç©Ãû:";
+            label24.Text = "ç­¾å:";
             // 
             // textSM2Signature
             // 
@@ -517,7 +517,7 @@ namespace CryptoTool.Win
             labelSM2VerifyResult.Name = "labelSM2VerifyResult";
             labelSM2VerifyResult.Size = new Size(1230, 22);
             labelSM2VerifyResult.TabIndex = 8;
-            labelSM2VerifyResult.Text = "ÑéÇ©½á¹û:";
+            labelSM2VerifyResult.Text = "éªŒç­¾ç»“æœ:";
             labelSM2VerifyResult.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // SM2TabControl

@@ -20,14 +20,14 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // ³õÊ¼»¯Ò½±£Ä¬ÈÏÖµ
+            // åˆå§‹åŒ–åŒ»ä¿é»˜è®¤å€¼
             textMedicareAppId.Text = "43AF047BBA47FC8A1AE8EFB2XXXXXXXX";
             textMedicareAppSecret.Text = "4117E877F5FA0A0188891283E4B617D5";
             textMedicareEncType.Text = "SM4";
             textMedicareSignType.Text = "SM2";
             textMedicareVersion.Text = "2.0.1";
 
-            // ÉèÖÃÄ¬ÈÏµÄÒµÎñÊı¾İÊ¾Àı
+            // è®¾ç½®é»˜è®¤çš„ä¸šåŠ¡æ•°æ®ç¤ºä¾‹
             var defaultData = new
             {
                 appId = "43AF047BBA47FC8A1AE8EFB2XXXXXXXX",
@@ -35,11 +35,11 @@ namespace CryptoTool.Win
                 idNo = "350582xxxxxxxx3519",
                 idType = "01",
                 phoneNumber = "137xxxxx033",
-                userName = "²âÊÔ"
+                userName = "æµ‹è¯•"
             };
             textMedicareData.Text = JsonConvert.SerializeObject(defaultData, Formatting.Indented);
 
-            // ÉèÖÃµ±Ç°Ê±¼ä´Á
+            // è®¾ç½®å½“å‰æ—¶é—´æˆ³
             textMedicareTimestamp.Text = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
         }
 
@@ -48,13 +48,13 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region Ò½±£¹¦ÄÜ
+        #region åŒ»ä¿åŠŸèƒ½
 
         private void btnGenerateMedicareKey_Click(object sender, EventArgs e)
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉÒ½±£SM2ÃÜÔ¿¶Ô...");
+                SetStatus("æ­£åœ¨ç”ŸæˆåŒ»ä¿SM2å¯†é’¥å¯¹...");
 
                 var keyPair = SM2Util.GenerateKeyPair();
                 var publicKey = (ECPublicKeyParameters)keyPair.Public;
@@ -63,12 +63,12 @@ namespace CryptoTool.Win
                 textMedicarePublicKey.Text = SM2Util.PublicKeyToHex(publicKey);
                 textMedicarePrivateKey.Text = SM2Util.PrivateKeyToHex(privateKey);
 
-                SetStatus("Ò½±£SM2ÃÜÔ¿¶ÔÉú³ÉÍê³É");
+                SetStatus("åŒ»ä¿SM2å¯†é’¥å¯¹ç”Ÿæˆå®Œæˆ");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉÒ½±£SM2ÃÜÔ¿¶ÔÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉÒ½±£SM2ÃÜÔ¿¶ÔÊ§°Ü");
+                MessageBox.Show($"ç”ŸæˆåŒ»ä¿SM2å¯†é’¥å¯¹å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆåŒ»ä¿SM2å¯†é’¥å¯¹å¤±è´¥");
             }
         }
 
@@ -78,8 +78,8 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Filter = "ÃÜÔ¿ÎÄ¼ş (*.txt;*.key)|*.txt;*.key|ËùÓĞÎÄ¼ş (*.*)|*.*";
-                    openFileDialog.Title = "µ¼ÈëÒ½±£ÃÜÔ¿ÎÄ¼ş";
+                    openFileDialog.Filter = "å¯†é’¥æ–‡ä»¶ (*.txt;*.key)|*.txt;*.key|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
+                    openFileDialog.Title = "å¯¼å…¥åŒ»ä¿å¯†é’¥æ–‡ä»¶";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -90,19 +90,19 @@ namespace CryptoTool.Win
                         {
                             textMedicarePublicKey.Text = lines[0].Trim();
                             textMedicarePrivateKey.Text = lines[1].Trim();
-                            SetStatus("Ò½±£ÃÜÔ¿µ¼Èë³É¹¦");
+                            SetStatus("åŒ»ä¿å¯†é’¥å¯¼å…¥æˆåŠŸ");
                         }
                         else
                         {
-                            MessageBox.Show("ÃÜÔ¿ÎÄ¼ş¸ñÊ½´íÎó£¡Ó¦°üº¬¹«Ô¿ºÍË½Ô¿Á½ĞĞ¡£", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("å¯†é’¥æ–‡ä»¶æ ¼å¼é”™è¯¯ï¼åº”åŒ…å«å…¬é’¥å’Œç§é’¥ä¸¤è¡Œã€‚", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"µ¼ÈëÒ½±£ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("µ¼ÈëÒ½±£ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"å¯¼å…¥åŒ»ä¿å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¯¼å…¥åŒ»ä¿å¯†é’¥å¤±è´¥");
             }
         }
 
@@ -112,28 +112,28 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMedicarePublicKey.Text) || string.IsNullOrEmpty(textMedicarePrivateKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëÒ½±£ÃÜÔ¿¶Ô£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åŒ»ä¿å¯†é’¥å¯¹ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    saveFileDialog.Filter = "ÃÜÔ¿ÎÄ¼ş (*.txt)|*.txt|ËùÓĞÎÄ¼ş (*.*)|*.*";
-                    saveFileDialog.Title = "µ¼³öÒ½±£ÃÜÔ¿ÎÄ¼ş";
+                    saveFileDialog.Filter = "å¯†é’¥æ–‡ä»¶ (*.txt)|*.txt|æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
+                    saveFileDialog.Title = "å¯¼å‡ºåŒ»ä¿å¯†é’¥æ–‡ä»¶";
                     saveFileDialog.FileName = "medicare_keys.txt";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        string content = $"¹«Ô¿£º\r\n{textMedicarePublicKey.Text}\r\n\r\nË½Ô¿£º\r\n{textMedicarePrivateKey.Text}";
+                        string content = $"å…¬é’¥ï¼š\r\n{textMedicarePublicKey.Text}\r\n\r\nç§é’¥ï¼š\r\n{textMedicarePrivateKey.Text}";
                         File.WriteAllText(saveFileDialog.FileName, content, Encoding.UTF8);
-                        SetStatus("Ò½±£ÃÜÔ¿µ¼³ö³É¹¦");
+                        SetStatus("åŒ»ä¿å¯†é’¥å¯¼å‡ºæˆåŠŸ");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"µ¼³öÒ½±£ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("µ¼³öÒ½±£ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"å¯¼å‡ºåŒ»ä¿å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("å¯¼å‡ºåŒ»ä¿å¯†é’¥å¤±è´¥");
             }
         }
 
@@ -143,30 +143,30 @@ namespace CryptoTool.Win
             {
                 if (ValidateMedicareInputs(false))
                 {
-                    SetStatus("ÕıÔÚ½øĞĞÒ½±£Ç©Ãû...");
+                    SetStatus("æ­£åœ¨è¿›è¡ŒåŒ»ä¿ç­¾å...");
 
-                    // ¹¹ÔìÇëÇó²ÎÊı
+                    // æ„é€ è¯·æ±‚å‚æ•°
                     var parameters = BuildMedicareParameters();
 
-                    // ½âÎöË½Ô¿
+                    // è§£æç§é’¥
                     var privateKey = SM2Util.ParsePrivateKeyFromHex(textMedicarePrivateKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
 
-                    // ¹¹ÔìÇ©Ãû×Ö·û´®
+                    // æ„é€ ç­¾åå­—ç¬¦ä¸²
                     string signatureString = MedicareUtil.BuildSignatureBaseString(parameters, appSecret);
                     textMedicareSignatureString.Text = signatureString;
 
-                    // Éú³ÉÇ©Ãû
+                    // ç”Ÿæˆç­¾å
                     string signData = MedicareUtil.SignParameters(parameters, privateKey, appSecret);
                     textMedicareSignData.Text = signData;
 
-                    SetStatus("Ò½±£Ç©ÃûÍê³É");
+                    SetStatus("åŒ»ä¿ç­¾åå®Œæˆ");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ò½±£Ç©ÃûÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ò½±£Ç©ÃûÊ§°Ü");
+                MessageBox.Show($"åŒ»ä¿ç­¾åå¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("åŒ»ä¿ç­¾åå¤±è´¥");
             }
         }
 
@@ -176,30 +176,30 @@ namespace CryptoTool.Win
             {
                 if (ValidateMedicareInputs(true))
                 {
-                    SetStatus("ÕıÔÚ½øĞĞÒ½±£ÑéÇ©...");
+                    SetStatus("æ­£åœ¨è¿›è¡ŒåŒ»ä¿éªŒç­¾...");
 
-                    // ¹¹Ôì²ÎÊı£¨²»°üº¬signData½øĞĞÑéÇ©£©
+                    // æ„é€ å‚æ•°ï¼ˆä¸åŒ…å«signDataè¿›è¡ŒéªŒç­¾ï¼‰
                     var parameters = BuildMedicareParameters();
 
-                    // ½âÎö¹«Ô¿
+                    // è§£æå…¬é’¥
                     var publicKey = SM2Util.ParsePublicKeyFromHex(textMedicarePublicKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
                     string signData = textMedicareSignData.Text.Trim();
 
-                    // ÑéÇ©
+                    // éªŒç­¾
                     bool verifyResult = MedicareUtil.VerifyParametersSignature(parameters, signData, publicKey, appSecret);
 
-                    MessageBox.Show($"ÑéÇ©½á¹û£º{(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}",
-                        "ÑéÇ©½á¹û", MessageBoxButtons.OK,
+                    MessageBox.Show($"éªŒç­¾ç»“æœï¼š{(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}",
+                        "éªŒç­¾ç»“æœ", MessageBoxButtons.OK,
                         verifyResult ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
 
-                    SetStatus($"Ò½±£ÑéÇ©Íê³É - {(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}");
+                    SetStatus($"åŒ»ä¿éªŒç­¾å®Œæˆ - {(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ò½±£ÑéÇ©Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ò½±£ÑéÇ©Ê§°Ü");
+                MessageBox.Show($"åŒ»ä¿éªŒç­¾å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("åŒ»ä¿éªŒç­¾å¤±è´¥");
             }
         }
 
@@ -209,12 +209,12 @@ namespace CryptoTool.Win
             {
                 if (ValidateMedicareEncryptedInputs(false))
                 {
-                    SetStatus("ÕıÔÚ½øĞĞÒ½±£Êı¾İ¼ÓÃÜ...");
+                    SetStatus("æ­£åœ¨è¿›è¡ŒåŒ»ä¿æ•°æ®åŠ å¯†...");
 
                     string appId = textMedicareAppId.Text.Trim();
                     string appSecret = textMedicareAppSecret.Text.Trim();
 
-                    // ½âÎöJSONÊı¾İ
+                    // è§£æJSONæ•°æ®
                     object dataObject;
                     try
                     {
@@ -222,21 +222,21 @@ namespace CryptoTool.Win
                     }
                     catch (JsonException)
                     {
-                        // Èç¹û²»ÊÇÓĞĞ§JSON£¬Ê¹ÓÃÔ­Ê¼×Ö·û´®
+                        // å¦‚æœä¸æ˜¯æœ‰æ•ˆJSONï¼Œä½¿ç”¨åŸå§‹å­—ç¬¦ä¸²
                         dataObject = textMedicareData.Text;
                     }
 
-                    // ¼ÓÃÜÊı¾İ
+                    // åŠ å¯†æ•°æ®
                     string encData = MedicareUtil.EncryptData(dataObject, appId, appSecret);
                     textMedicareEncData.Text = encData;
 
-                    SetStatus("Ò½±£Êı¾İ¼ÓÃÜÍê³É");
+                    SetStatus("åŒ»ä¿æ•°æ®åŠ å¯†å®Œæˆ");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ò½±£Êı¾İ¼ÓÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ò½±£Êı¾İ¼ÓÃÜÊ§°Ü");
+                MessageBox.Show($"åŒ»ä¿æ•°æ®åŠ å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("åŒ»ä¿æ•°æ®åŠ å¯†å¤±è´¥");
             }
         }
 
@@ -246,26 +246,26 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrWhiteSpace(textMedicareEncData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒª½âÃÜµÄencData£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥è¦è§£å¯†çš„encDataï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(textMedicareAppId.Text) || string.IsNullOrWhiteSpace(textMedicareAppSecret.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëAppIdºÍAppSecret£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥AppIdå’ŒAppSecretï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞÒ½±£Êı¾İ½âÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒåŒ»ä¿æ•°æ®è§£å¯†...");
 
                 string appId = textMedicareAppId.Text.Trim();
                 string appSecret = textMedicareAppSecret.Text.Trim();
                 string encData = textMedicareEncData.Text.Trim();
 
-                // ½âÃÜÊı¾İ
+                // è§£å¯†æ•°æ®
                 string decryptedData = MedicareUtil.DecryptEncData(encData, appId, appSecret);
 
-                // ³¢ÊÔ¸ñÊ½»¯JSONÏÔÊ¾
+                // å°è¯•æ ¼å¼åŒ–JSONæ˜¾ç¤º
                 try
                 {
                     var jsonObject = JsonConvert.DeserializeObject(decryptedData);
@@ -273,21 +273,21 @@ namespace CryptoTool.Win
                 }
                 catch
                 {
-                    // Èç¹û²»ÊÇÓĞĞ§JSON£¬Ö±½ÓÏÔÊ¾Ô­Ê¼Êı¾İ
+                    // å¦‚æœä¸æ˜¯æœ‰æ•ˆJSONï¼Œç›´æ¥æ˜¾ç¤ºåŸå§‹æ•°æ®
                     textMedicareDecData.Text = decryptedData;
                 }
 
-                SetStatus("Ò½±£Êı¾İ½âÃÜÍê³É");
+                SetStatus("åŒ»ä¿æ•°æ®è§£å¯†å®Œæˆ");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ò½±£Êı¾İ½âÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ò½±£Êı¾İ½âÃÜÊ§°Ü");
+                MessageBox.Show($"åŒ»ä¿æ•°æ®è§£å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("åŒ»ä¿æ•°æ®è§£å¯†å¤±è´¥");
             }
         }
 
         /// <summary>
-        /// Ò½±£¼ÓÃÜ¹¦ÄÜÊäÈëĞ£Ñé
+        /// åŒ»ä¿åŠ å¯†åŠŸèƒ½è¾“å…¥æ ¡éªŒ
         /// </summary>
         /// <param name="includeSignData"></param>
         /// <returns></returns>
@@ -295,19 +295,19 @@ namespace CryptoTool.Win
         {
             if (string.IsNullOrWhiteSpace(textMedicareAppId.Text))
             {
-                MessageBox.Show("ÇëÊäÈëAppId£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥AppIdï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicareAppSecret.Text))
             {
-                MessageBox.Show("ÇëÊäÈëAppSecret£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥AppSecretï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicareData.Text))
             {
-                MessageBox.Show("ÇëÊäÈëÒµÎñÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥ä¸šåŠ¡æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
@@ -315,7 +315,7 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// Ò½±£Ç©ÃûÑéÇ©¹¦ÄÜÊäÈëĞ£Ñé
+        /// åŒ»ä¿ç­¾åéªŒç­¾åŠŸèƒ½è¾“å…¥æ ¡éªŒ
         /// </summary>
         /// <param name="includeSignData"></param>
         /// <returns></returns>
@@ -323,37 +323,37 @@ namespace CryptoTool.Win
         {
             if (string.IsNullOrWhiteSpace(textMedicareAppId.Text))
             {
-                MessageBox.Show("ÇëÊäÈëAppId£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥AppIdï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicareAppSecret.Text))
             {
-                MessageBox.Show("ÇëÊäÈëAppSecret£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥AppSecretï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicareTimestamp.Text))
             {
-                MessageBox.Show("ÇëÊäÈëÊ±¼ä´Á£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·è¾“å…¥æ—¶é—´æˆ³ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicarePublicKey.Text))
             {
-                MessageBox.Show("ÇëÏÈÉú³É»òÊäÈë¹«Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥å…¬é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(textMedicarePrivateKey.Text))
             {
-                MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëË½Ô¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥ç§é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
             if (includeSignData && string.IsNullOrWhiteSpace(textMedicareSignData.Text))
             {
-                MessageBox.Show("ÇëÏÈ½øĞĞÇ©Ãû²Ù×÷»ñÈ¡SignData£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("è¯·å…ˆè¿›è¡Œç­¾åæ“ä½œè·å–SignDataï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
@@ -370,18 +370,18 @@ namespace CryptoTool.Win
             parameters["timestamp"] = textMedicareTimestamp.Text.Trim();
             parameters["version"] = textMedicareVersion.Text.Trim();
 
-            // Èç¹ûÓĞÊı¾İÄÚÈİ£¬Ìí¼Ódata×Ö¶Î
+            // å¦‚æœæœ‰æ•°æ®å†…å®¹ï¼Œæ·»åŠ dataå­—æ®µ
             if (!string.IsNullOrWhiteSpace(textMedicareData.Text))
             {
                 try
                 {
-                    // ³¢ÊÔ½âÎöÎªJSON¶ÔÏó
+                    // å°è¯•è§£æä¸ºJSONå¯¹è±¡
                     var dataObject = JsonConvert.DeserializeObject(textMedicareData.Text);
                     parameters["data"] = dataObject;
                 }
                 catch (JsonException)
                 {
-                    // Èç¹û²»ÊÇÓĞĞ§JSON£¬Ê¹ÓÃÔ­Ê¼×Ö·û´®
+                    // å¦‚æœä¸æ˜¯æœ‰æ•ˆJSONï¼Œä½¿ç”¨åŸå§‹å­—ç¬¦ä¸²
                     parameters["data"] = textMedicareData.Text.Trim();
                 }
             }
@@ -391,7 +391,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region Ò½±£SM4ÃÜÔ¿Éú³É¹¦ÄÜ
+        #region åŒ»ä¿SM4å¯†é’¥ç”ŸæˆåŠŸèƒ½
 
         private void btnGenerateMedicareSM4Key_Click(object sender, EventArgs e)
         {
@@ -399,13 +399,13 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrWhiteSpace(textMedicareAppId.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒ½±£AppId£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥åŒ»ä¿AppIdï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(textMedicareAppSecret.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒ½±£AppSecret£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥åŒ»ä¿AppSecretï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -414,56 +414,56 @@ namespace CryptoTool.Win
 
                 if (appId.Length < 16)
                 {
-                    MessageBox.Show("AppId³¤¶È²»×ã16×Ö½Ú£¬ÎŞ·¨ÅÉÉúSM4ÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("AppIdé•¿åº¦ä¸è¶³16å­—èŠ‚ï¼Œæ— æ³•æ´¾ç”ŸSM4å¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ¸ù¾İÒ½±£AppIdºÍAppSecretÉú³ÉSM4ÃÜÔ¿...");
+                SetStatus("æ­£åœ¨æ ¹æ®åŒ»ä¿AppIdå’ŒAppSecretç”ŸæˆSM4å¯†é’¥...");
 
-                // Ê¹ÓÃMedicareUtilÖĞµÄÂß¼­Éú³ÉSM4ÃÜÔ¿
+                // ä½¿ç”¨MedicareUtilä¸­çš„é€»è¾‘ç”ŸæˆSM4å¯†é’¥
                 string derivedKey = GetMedicareSM4Key(appId, appSecret);
                 textMedicareSM4Key.Text = derivedKey;
 
-                // Í¨ÖªÍâ²¿¸üĞÂSM4ÃÜÔ¿
+                // é€šçŸ¥å¤–éƒ¨æ›´æ–°SM4å¯†é’¥
                 SM4KeyGenerated?.Invoke(derivedKey);
 
-                SetStatus($"Ò½±£SM4ÃÜÔ¿Éú³ÉÍê³É - »ùÓÚAppIdºÍAppSecretÅÉÉú");
+                SetStatus($"åŒ»ä¿SM4å¯†é’¥ç”Ÿæˆå®Œæˆ - åŸºäºAppIdå’ŒAppSecretæ´¾ç”Ÿ");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉÒ½±£SM4ÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉÒ½±£SM4ÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"ç”ŸæˆåŒ»ä¿SM4å¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆåŒ»ä¿SM4å¯†é’¥å¤±è´¥");
             }
         }
 
         /// <summary>
-        /// ¸ù¾İÒ½±£¹æ·¶£¬´ÓAppIdºÍAppSecretÅÉÉúSM4ÃÜÔ¿
+        /// æ ¹æ®åŒ»ä¿è§„èŒƒï¼Œä»AppIdå’ŒAppSecretæ´¾ç”ŸSM4å¯†é’¥
         /// </summary>
         /// <param name="appId"></param>
         /// <param name="appSecret"></param>
         /// <returns></returns>
         private string GetMedicareSM4Key(string appId, string appSecret)
         {
-            // ÊµÏÖÒ½±£¹æ·¶µÄSM4ÃÜÔ¿ÅÉÉúËã·¨
-            // ÒÔappId(ÇşµÀid)×÷ÎªKey£¬¶ÔappSecret¼ÓÃÜ£¬µÃµ½ĞÂÃØÔ¿´®£¬È¡Ç°16×Ö½Ú×÷ÎªSM4ÃÜÔ¿
+            // å®ç°åŒ»ä¿è§„èŒƒçš„SM4å¯†é’¥æ´¾ç”Ÿç®—æ³•
+            // ä»¥appId(æ¸ é“id)ä½œä¸ºKeyï¼Œå¯¹appSecretåŠ å¯†ï¼Œå¾—åˆ°æ–°ç§˜é’¥ä¸²ï¼Œå–å‰16å­—èŠ‚ä½œä¸ºSM4å¯†é’¥
 
             if (appId.Length < 16)
             {
-                throw new ArgumentException("appId³¤¶È²»×ã16×Ö½Ú£¬ÎŞ·¨ÅÉÉúSM4ÃÜÔ¿", nameof(appId));
+                throw new ArgumentException("appIdé•¿åº¦ä¸è¶³16å­—èŠ‚ï¼Œæ— æ³•æ´¾ç”ŸSM4å¯†é’¥", nameof(appId));
             }
 
-            // È¡appIdµÄÇ°16×Ö½Ú×÷ÎªSM4ÃÜÔ¿À´¼ÓÃÜappSecret
+            // å–appIdçš„å‰16å­—èŠ‚ä½œä¸ºSM4å¯†é’¥æ¥åŠ å¯†appSecret
             string keyString = appId.Substring(0, 16);
 
-            // Ê¹ÓÃSM4-ECBÄ£Ê½£¬appIdÇ°16×Ö·û×÷ÎªÃÜÔ¿£¬¶ÔappSecret½øĞĞ¼ÓÃÜ
+            // ä½¿ç”¨SM4-ECBæ¨¡å¼ï¼ŒappIdå‰16å­—ç¬¦ä½œä¸ºå¯†é’¥ï¼Œå¯¹appSecretè¿›è¡ŒåŠ å¯†
             string encryptedData = SM4Util.EncryptEcb(appSecret, keyString, Encoding.UTF8);
 
-            // ½«Base64½á¹û×ª»»Îª×Ö½ÚÊı×é£¬ÔÙ×ª»»ÎªHex×Ö·û´®£¬È¡Ç°16¸ö×Ö·û£¨8×Ö½Ú£©×÷Îª×îÖÕµÄSM4ÃÜÔ¿
+            // å°†Base64ç»“æœè½¬æ¢ä¸ºå­—èŠ‚æ•°ç»„ï¼Œå†è½¬æ¢ä¸ºHexå­—ç¬¦ä¸²ï¼Œå–å‰16ä¸ªå­—ç¬¦ï¼ˆ8å­—èŠ‚ï¼‰ä½œä¸ºæœ€ç»ˆçš„SM4å¯†é’¥
             byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
             string hexResult = SM4Util.BytesToHex(encryptedBytes);
 
-            // È¡Ç°16¸ö×Ö·û×÷Îª×îÖÕµÄSM4ÃÜÔ¿£¨Hex¸ñÊ½£¬Êµ¼Ê¶ÔÓ¦8×Ö½Ú£©
-            // µ«SM4ĞèÒª16×Ö½ÚÃÜÔ¿£¬ËùÒÔÈ¡Ç°32¸ö×Ö·û£¨¶ÔÓ¦16×Ö½Ú£©
+            // å–å‰16ä¸ªå­—ç¬¦ä½œä¸ºæœ€ç»ˆçš„SM4å¯†é’¥ï¼ˆHexæ ¼å¼ï¼Œå®é™…å¯¹åº”8å­—èŠ‚ï¼‰
+            // ä½†SM4éœ€è¦16å­—èŠ‚å¯†é’¥ï¼Œæ‰€ä»¥å–å‰32ä¸ªå­—ç¬¦ï¼ˆå¯¹åº”16å­—èŠ‚ï¼‰
             string finalKey = hexResult.Substring(0, Math.Min(32, hexResult.Length));
 
             return finalKey;
@@ -472,7 +472,7 @@ namespace CryptoTool.Win
         #endregion
 
         /// <summary>
-        /// µ±Ê±¼ä´ÁÎÄ±¾¿òÊ§È¥½¹µãÇÒÎ´Ìî³äÄÚÈİÊ±£¬×Ô¶¯¸üĞÂÎªµ±Ç°Ê±¼ä´Á
+        /// å½“æ—¶é—´æˆ³æ–‡æœ¬æ¡†å¤±å»ç„¦ç‚¹ä¸”æœªå¡«å……å†…å®¹æ—¶ï¼Œè‡ªåŠ¨æ›´æ–°ä¸ºå½“å‰æ—¶é—´æˆ³
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

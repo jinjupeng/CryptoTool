@@ -5,25 +5,25 @@ using System.Windows.Forms;
 namespace CryptoTool.Win
 {
     /// <summary>
-    /// ¸üĞÂÌáÊ¾¿Ø¼ş£¬ÏÔÊ¾ÔÚ´°ÌåÓÒÉÏ½Ç
+    /// æ›´æ–°æç¤ºæ§ä»¶ï¼Œæ˜¾ç¤ºåœ¨çª—ä½“å³ä¸Šè§’
     /// </summary>
     public partial class UpdateNotificationControl : UserControl
     {
-        #region ÊÂ¼ş¶¨Òå
+        #region äº‹ä»¶å®šä¹‰
 
         /// <summary>
-        /// ¸üĞÂ°´Å¥µã»÷ÊÂ¼ş
+        /// æ›´æ–°æŒ‰é’®ç‚¹å‡»äº‹ä»¶
         /// </summary>
         public event EventHandler? UpdateClicked;
 
         /// <summary>
-        /// ¹Ø±Õ°´Å¥µã»÷ÊÂ¼ş
+        /// å…³é—­æŒ‰é’®ç‚¹å‡»äº‹ä»¶
         /// </summary>
         public event EventHandler? CloseClicked;
 
         #endregion
 
-        #region Ë½ÓĞ×Ö¶Î
+        #region ç§æœ‰å­—æ®µ
 
         private Label lblMessage;
         private Button btnUpdate;
@@ -32,10 +32,10 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ÊôĞÔ
+        #region å±æ€§
 
         /// <summary>
-        /// ÉèÖÃ»ò»ñÈ¡ÌáÊ¾ÏûÏ¢
+        /// è®¾ç½®æˆ–è·å–æç¤ºæ¶ˆæ¯
         /// </summary>
         public string Message
         {
@@ -51,7 +51,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¹¹Ôìº¯Êı
+        #region æ„é€ å‡½æ•°
 
         public UpdateNotificationControl()
         {
@@ -61,41 +61,41 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ³õÊ¼»¯·½·¨
+        #region åˆå§‹åŒ–æ–¹æ³•
 
         private void InitializeComponent()
         {
             this.SuspendLayout();
 
-            // Ö÷Ãæ°å
+            // ä¸»é¢æ¿
             mainPanel = new Panel
             {
-                BackColor = Color.FromArgb(220, 53, 69), // ºìÉ«±³¾°
+                BackColor = Color.FromArgb(220, 53, 69), // çº¢è‰²èƒŒæ™¯
                 BorderStyle = BorderStyle.None,
                 Size = new Size(300, 60),
                 Location = new Point(0, 0)
             };
 
-            // ÏûÏ¢±êÇ©
+            // æ¶ˆæ¯æ ‡ç­¾
             lblMessage = new Label
             {
-                Text = "·¢ÏÖĞÂ°æ±¾¿É¸üĞÂ",
+                Text = "å‘ç°æ–°ç‰ˆæœ¬å¯æ›´æ–°",
                 ForeColor = Color.White,
-                Font = new Font("Î¢ÈíÑÅºÚ", 9F, FontStyle.Regular),
+                Font = new Font("å¾®è½¯é›…é»‘", 9F, FontStyle.Regular),
                 AutoSize = false,
                 Size = new Size(180, 20),
                 Location = new Point(10, 8),
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
-            // ¸üĞÂ°´Å¥
+            // æ›´æ–°æŒ‰é’®
             btnUpdate = new Button
             {
-                Text = "¸üĞÂ",
-                BackColor = Color.FromArgb(255, 255, 255, 30), // °ëÍ¸Ã÷°×É«
+                Text = "æ›´æ–°",
+                BackColor = Color.FromArgb(255, 255, 255, 30), // åŠé€æ˜ç™½è‰²
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Î¢ÈíÑÅºÚ", 8F, FontStyle.Regular),
+                Font = new Font("å¾®è½¯é›…é»‘", 8F, FontStyle.Regular),
                 Size = new Size(50, 25),
                 Location = new Point(200, 8),
                 Cursor = Cursors.Hand
@@ -105,14 +105,14 @@ namespace CryptoTool.Win
             btnUpdate.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 255, 255, 50);
             btnUpdate.Click += BtnUpdate_Click;
 
-            // ¹Ø±Õ°´Å¥
+            // å…³é—­æŒ‰é’®
             btnClose = new Button
             {
-                Text = "¡Á",
+                Text = "Ã—",
                 BackColor = Color.Transparent,
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Î¢ÈíÑÅºÚ", 10F, FontStyle.Bold),
+                Font = new Font("å¾®è½¯é›…é»‘", 10F, FontStyle.Bold),
                 Size = new Size(25, 25),
                 Location = new Point(260, 8),
                 Cursor = Cursors.Hand
@@ -121,24 +121,24 @@ namespace CryptoTool.Win
             btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 255, 255, 50);
             btnClose.Click += BtnClose_Click;
 
-            // Ìí¼Ó¿Ø¼şµ½Ö÷Ãæ°å
+            // æ·»åŠ æ§ä»¶åˆ°ä¸»é¢æ¿
             mainPanel.Controls.Add(lblMessage);
             mainPanel.Controls.Add(btnUpdate);
             mainPanel.Controls.Add(btnClose);
 
-            // ÉèÖÃ¿Ø¼şÊôĞÔ
+            // è®¾ç½®æ§ä»¶å±æ€§
             this.BackColor = Color.Transparent;
             this.Size = new Size(300, 60);
             this.Controls.Add(mainPanel);
 
-            // ÉèÖÃÔ²½ÇĞ§¹û
+            // è®¾ç½®åœ†è§’æ•ˆæœ
             SetRoundedCorners();
 
             this.ResumeLayout(false);
         }
 
         /// <summary>
-        /// ÉèÖÃÔ²½ÇĞ§¹û
+        /// è®¾ç½®åœ†è§’æ•ˆæœ
         /// </summary>
         private void SetRoundedCorners()
         {
@@ -157,7 +157,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ÊÂ¼ş´¦Àí·½·¨
+        #region äº‹ä»¶å¤„ç†æ–¹æ³•
 
         private void BtnUpdate_Click(object? sender, EventArgs e)
         {
@@ -171,17 +171,17 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ¹«¹²·½·¨
+        #region å…¬å…±æ–¹æ³•
 
         /// <summary>
-        /// ÏÔÊ¾¸üĞÂÌáÊ¾£¨´ø¶¯»­Ğ§¹û£©
+        /// æ˜¾ç¤ºæ›´æ–°æç¤ºï¼ˆå¸¦åŠ¨ç”»æ•ˆæœï¼‰
         /// </summary>
         public void ShowNotification()
         {
             this.Visible = true;
             this.BringToFront();
 
-            // µ­Èë¶¯»­Ğ§¹û
+            // æ·¡å…¥åŠ¨ç”»æ•ˆæœ
             var timer = new System.Windows.Forms.Timer { Interval = 30 };
             var opacity = 0.0;
             timer.Tick += (s, e) =>
@@ -199,11 +199,11 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// Òş²Ø¸üĞÂÌáÊ¾£¨´ø¶¯»­Ğ§¹û£©
+        /// éšè—æ›´æ–°æç¤ºï¼ˆå¸¦åŠ¨ç”»æ•ˆæœï¼‰
         /// </summary>
         public void HideNotification()
         {
-            // µ­³ö¶¯»­Ğ§¹û
+            // æ·¡å‡ºåŠ¨ç”»æ•ˆæœ
             var timer = new System.Windows.Forms.Timer { Interval = 30 };
             var opacity = 1.0;
             timer.Tick += (s, e) =>

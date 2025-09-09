@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class RSAConvertTabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -103,7 +103,7 @@ namespace CryptoTool.Win
             groupBoxKeyInput.Size = new Size(1254, 358);
             groupBoxKeyInput.TabIndex = 0;
             groupBoxKeyInput.TabStop = false;
-            groupBoxKeyInput.Text = "ÃÜÔ¿ÊäÈë";
+            groupBoxKeyInput.Text = "å¯†é’¥è¾“å…¥";
             // 
             // tableLayoutKeyInput
             // 
@@ -142,7 +142,7 @@ namespace CryptoTool.Win
             btnImportFromFile.Name = "btnImportFromFile";
             btnImportFromFile.Size = new Size(129, 32);
             btnImportFromFile.TabIndex = 0;
-            btnImportFromFile.Text = "´ÓÎÄ¼şµ¼Èë";
+            btnImportFromFile.Text = "ä»æ–‡ä»¶å¯¼å…¥";
             btnImportFromFile.UseVisualStyleBackColor = true;
             btnImportFromFile.Click += btnImportFromFile_Click;
             // 
@@ -153,7 +153,7 @@ namespace CryptoTool.Win
             btnValidateKeyPair.Name = "btnValidateKeyPair";
             btnValidateKeyPair.Size = new Size(129, 32);
             btnValidateKeyPair.TabIndex = 1;
-            btnValidateKeyPair.Text = "ÃÜÔ¿¶ÔÑéÖ¤";
+            btnValidateKeyPair.Text = "å¯†é’¥å¯¹éªŒè¯";
             btnValidateKeyPair.UseVisualStyleBackColor = true;
             btnValidateKeyPair.Click += btnValidateKeyPair_Click;
             // 
@@ -164,7 +164,7 @@ namespace CryptoTool.Win
             btnGetPublicKeyFromPrivate.Name = "btnGetPublicKeyFromPrivate";
             btnGetPublicKeyFromPrivate.Size = new Size(149, 32);
             btnGetPublicKeyFromPrivate.TabIndex = 2;
-            btnGetPublicKeyFromPrivate.Text = "´ÓË½Ô¿ÌáÈ¡¹«Ô¿";
+            btnGetPublicKeyFromPrivate.Text = "ä»ç§é’¥æå–å…¬é’¥";
             btnGetPublicKeyFromPrivate.UseVisualStyleBackColor = true;
             btnGetPublicKeyFromPrivate.Click += btnGetPublicKeyFromPrivate_Click;
             // 
@@ -177,7 +177,7 @@ namespace CryptoTool.Win
             label1.Name = "label1";
             label1.Size = new Size(1230, 20);
             label1.TabIndex = 1;
-            label1.Text = "ÃÜÔ¿ÄÚÈİ:";
+            label1.Text = "å¯†é’¥å†…å®¹:";
             // 
             // textInputKey
             // 
@@ -211,7 +211,7 @@ namespace CryptoTool.Win
             radioPrivateKey.Size = new Size(60, 24);
             radioPrivateKey.TabIndex = 0;
             radioPrivateKey.TabStop = true;
-            radioPrivateKey.Text = "Ë½Ô¿";
+            radioPrivateKey.Text = "ç§é’¥";
             radioPrivateKey.UseVisualStyleBackColor = true;
             radioPrivateKey.CheckedChanged += textInputKey_TextChanged;
             // 
@@ -222,7 +222,7 @@ namespace CryptoTool.Win
             radioPublicKey.Name = "radioPublicKey";
             radioPublicKey.Size = new Size(60, 24);
             radioPublicKey.TabIndex = 1;
-            radioPublicKey.Text = "¹«Ô¿";
+            radioPublicKey.Text = "å…¬é’¥";
             radioPublicKey.UseVisualStyleBackColor = true;
             radioPublicKey.CheckedChanged += textInputKey_TextChanged;
             // 
@@ -233,7 +233,7 @@ namespace CryptoTool.Win
             label2.Name = "label2";
             label2.Size = new Size(73, 20);
             label2.TabIndex = 2;
-            label2.Text = "ÃÜÔ¿ÀàĞÍ:";
+            label2.Text = "å¯†é’¥ç±»å‹:";
             // 
             // groupBoxConversion
             // 
@@ -246,7 +246,7 @@ namespace CryptoTool.Win
             groupBoxConversion.Size = new Size(1254, 358);
             groupBoxConversion.TabIndex = 1;
             groupBoxConversion.TabStop = false;
-            groupBoxConversion.Text = "¸ñÊ½×ª»»";
+            groupBoxConversion.Text = "æ ¼å¼è½¬æ¢";
             // 
             // tableLayoutConversion
             // 
@@ -290,7 +290,7 @@ namespace CryptoTool.Win
             label3.Name = "label3";
             label3.Size = new Size(88, 20);
             label3.TabIndex = 0;
-            label3.Text = "ÊäÈëÃÜÔ¿ÀàĞÍ:";
+            label3.Text = "è¾“å…¥å¯†é’¥ç±»å‹:";
             // 
             // comboInputKeyType
             // 
@@ -309,7 +309,7 @@ namespace CryptoTool.Win
             label4.Name = "label4";
             label4.Size = new Size(88, 20);
             label4.TabIndex = 2;
-            label4.Text = "ÊäÈëÃÜÔ¿¸ñÊ½:";
+            label4.Text = "è¾“å…¥å¯†é’¥æ ¼å¼:";
             // 
             // comboInputFormat
             // 
@@ -328,7 +328,7 @@ namespace CryptoTool.Win
             label5.Name = "label5";
             label5.Size = new Size(88, 20);
             label5.TabIndex = 4;
-            label5.Text = "Êä³öÃÜÔ¿ÀàĞÍ:";
+            label5.Text = "è¾“å‡ºå¯†é’¥ç±»å‹:";
             // 
             // comboOutputKeyType
             // 
@@ -347,7 +347,7 @@ namespace CryptoTool.Win
             label6.Name = "label6";
             label6.Size = new Size(88, 20);
             label6.TabIndex = 6;
-            label6.Text = "Êä³öÃÜÔ¿¸ñÊ½:";
+            label6.Text = "è¾“å‡ºå¯†é’¥æ ¼å¼:";
             // 
             // comboOutputFormat
             // 
@@ -365,7 +365,7 @@ namespace CryptoTool.Win
             btnConvert.Name = "btnConvert";
             btnConvert.Size = new Size(94, 45);
             btnConvert.TabIndex = 8;
-            btnConvert.Text = "×ª»»";
+            btnConvert.Text = "è½¬æ¢";
             btnConvert.UseVisualStyleBackColor = true;
             btnConvert.Click += btnConvert_Click;
             // 
@@ -375,7 +375,7 @@ namespace CryptoTool.Win
             btnClear.Name = "btnClear";
             btnClear.Size = new Size(94, 45);
             btnClear.TabIndex = 9;
-            btnClear.Text = "Çå¿Õ";
+            btnClear.Text = "æ¸…ç©º";
             btnClear.UseVisualStyleBackColor = true;
             btnClear.Click += btnClear_Click;
             // 
@@ -388,7 +388,7 @@ namespace CryptoTool.Win
             label7.Name = "label7";
             label7.Size = new Size(1230, 20);
             label7.TabIndex = 1;
-            label7.Text = "×ª»»½á¹û:";
+            label7.Text = "è½¬æ¢ç»“æœ:";
             // 
             // textOutputKey
             // 
@@ -413,7 +413,7 @@ namespace CryptoTool.Win
             groupBoxActions.Size = new Size(1254, 76);
             groupBoxActions.TabIndex = 2;
             groupBoxActions.TabStop = false;
-            groupBoxActions.Text = "²Ù×÷";
+            groupBoxActions.Text = "æ“ä½œ";
             // 
             // tableLayoutActions
             // 
@@ -439,7 +439,7 @@ namespace CryptoTool.Win
             btnSaveToFile.Name = "btnSaveToFile";
             btnSaveToFile.Size = new Size(144, 34);
             btnSaveToFile.TabIndex = 0;
-            btnSaveToFile.Text = "±£´æµ½ÎÄ¼ş";
+            btnSaveToFile.Text = "ä¿å­˜åˆ°æ–‡ä»¶";
             btnSaveToFile.UseVisualStyleBackColor = true;
             btnSaveToFile.Click += btnSaveToFile_Click;
             // 
@@ -450,7 +450,7 @@ namespace CryptoTool.Win
             btnCopyToClipboard.Name = "btnCopyToClipboard";
             btnCopyToClipboard.Size = new Size(144, 34);
             btnCopyToClipboard.TabIndex = 1;
-            btnCopyToClipboard.Text = "¸´ÖÆµ½¼ôÌù°å";
+            btnCopyToClipboard.Text = "å¤åˆ¶åˆ°å‰ªè´´æ¿";
             btnCopyToClipboard.UseVisualStyleBackColor = true;
             btnCopyToClipboard.Click += btnCopyToClipboard_Click;
             // 
@@ -462,7 +462,7 @@ namespace CryptoTool.Win
             labelValidationResult.Name = "labelValidationResult";
             labelValidationResult.Size = new Size(932, 40);
             labelValidationResult.TabIndex = 2;
-            labelValidationResult.Text = "ÑéÖ¤½á¹û: ";
+            labelValidationResult.Text = "éªŒè¯ç»“æœ: ";
             labelValidationResult.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // RSAConvertTabControl

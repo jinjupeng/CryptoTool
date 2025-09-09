@@ -15,7 +15,7 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // ÉèÖÃÄ¬ÈÏÑ¡Ïî
+            // è®¾ç½®é»˜è®¤é€‰é¡¹
             comboSM3DataFormat.SelectedIndex = 0; // Text
             comboSM3OutputFormat.SelectedIndex = 0; // Hex
             comboSM3FileHashFormat.SelectedIndex = 0; // Hex
@@ -24,7 +24,7 @@ namespace CryptoTool.Win
             comboSM3HMACDataFormat.SelectedIndex = 0; // Text
             comboSM3HMACOutputFormat.SelectedIndex = 0; // Hex
 
-            // ÉèÖÃÊ¾ÀıÊı¾İ
+            // è®¾ç½®ç¤ºä¾‹æ•°æ®
             textSM3Input.Text = "Hello SM3!";
             textSM3HMACData.Text = "Hello HMAC-SM3!";
             textSM3HMACKey.Text = "mySecretKey";
@@ -35,7 +35,7 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region SM3¹şÏ£¼ÆËã
+        #region SM3å“ˆå¸Œè®¡ç®—
 
         private void btnSM3Hash_Click(object sender, EventArgs e)
         {
@@ -43,11 +43,11 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM3Input.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒª¼ÆËã¹şÏ£µÄÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥è¦è®¡ç®—å“ˆå¸Œçš„æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ¼ÆËãSM3¹şÏ£...");
+                SetStatus("æ­£åœ¨è®¡ç®—SM3å“ˆå¸Œ...");
 
                 string inputData = textSM3Input.Text;
                 string dataFormat = comboSM3DataFormat.SelectedItem.ToString();
@@ -64,12 +64,12 @@ namespace CryptoTool.Win
                 };
 
                 textSM3Output.Text = result;
-                SetStatus($"SM3¹şÏ£¼ÆËãÍê³É - ÊäÈë¸ñÊ½£º{dataFormat}£¬Êä³ö¸ñÊ½£º{outputFormat}");
+                SetStatus($"SM3å“ˆå¸Œè®¡ç®—å®Œæˆ - è¾“å…¥æ ¼å¼ï¼š{dataFormat}ï¼Œè¾“å‡ºæ ¼å¼ï¼š{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"SM3¹şÏ£¼ÆËãÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("SM3¹şÏ£¼ÆËãÊ§°Ü");
+                MessageBox.Show($"SM3å“ˆå¸Œè®¡ç®—å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("SM3å“ˆå¸Œè®¡ç®—å¤±è´¥");
             }
         }
 
@@ -77,12 +77,12 @@ namespace CryptoTool.Win
         {
             textSM3Input.Clear();
             textSM3Output.Clear();
-            SetStatus("ÒÑÇå¿ÕÊäÈëºÍÊä³ö");
+            SetStatus("å·²æ¸…ç©ºè¾“å…¥å’Œè¾“å‡º");
         }
 
         #endregion
 
-        #region ÎÄ¼ş¹şÏ£¼ÆËã
+        #region æ–‡ä»¶å“ˆå¸Œè®¡ç®—
 
         private void btnSM3SelectFile_Click(object sender, EventArgs e)
         {
@@ -90,20 +90,20 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Title = "Ñ¡ÔñÒª¼ÆËãSM3¹şÏ£µÄÎÄ¼ş";
-                    openFileDialog.Filter = "ËùÓĞÎÄ¼ş (*.*)|*.*";
+                    openFileDialog.Title = "é€‰æ‹©è¦è®¡ç®—SM3å“ˆå¸Œçš„æ–‡ä»¶";
+                    openFileDialog.Filter = "æ‰€æœ‰æ–‡ä»¶ (*.*)|*.*";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         textSM3FilePath.Text = openFileDialog.FileName;
-                        SetStatus("ÒÑÑ¡ÔñÎÄ¼ş£º" + Path.GetFileName(openFileDialog.FileName));
+                        SetStatus("å·²é€‰æ‹©æ–‡ä»¶ï¼š" + Path.GetFileName(openFileDialog.FileName));
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ñ¡ÔñÎÄ¼şÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ñ¡ÔñÎÄ¼şÊ§°Ü");
+                MessageBox.Show($"é€‰æ‹©æ–‡ä»¶å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("é€‰æ‹©æ–‡ä»¶å¤±è´¥");
             }
         }
 
@@ -113,17 +113,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM3FilePath.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÑ¡ÔñÒª¼ÆËã¹şÏ£µÄÎÄ¼ş£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆé€‰æ‹©è¦è®¡ç®—å“ˆå¸Œçš„æ–‡ä»¶ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (!File.Exists(textSM3FilePath.Text))
                 {
-                    MessageBox.Show("ÎÄ¼ş²»´æÔÚ£¬ÇëÖØĞÂÑ¡Ôñ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("æ–‡ä»¶ä¸å­˜åœ¨ï¼Œè¯·é‡æ–°é€‰æ‹©ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ¼ÆËãÎÄ¼şSM3¹şÏ£...");
+                SetStatus("æ­£åœ¨è®¡ç®—æ–‡ä»¶SM3å“ˆå¸Œ...");
 
                 string outputFormat = comboSM3FileHashFormat.SelectedItem.ToString();
                 
@@ -137,18 +137,18 @@ namespace CryptoTool.Win
                 textSM3FileHash.Text = result;
                 
                 FileInfo fileInfo = new FileInfo(textSM3FilePath.Text);
-                SetStatus($"ÎÄ¼şSM3¹şÏ£¼ÆËãÍê³É - ÎÄ¼ş´óĞ¡£º{FormatFileSize(fileInfo.Length)}£¬Êä³ö¸ñÊ½£º{outputFormat}");
+                SetStatus($"æ–‡ä»¶SM3å“ˆå¸Œè®¡ç®—å®Œæˆ - æ–‡ä»¶å¤§å°ï¼š{FormatFileSize(fileInfo.Length)}ï¼Œè¾“å‡ºæ ¼å¼ï¼š{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"¼ÆËãÎÄ¼ş¹şÏ£Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¼ÆËãÎÄ¼ş¹şÏ£Ê§°Ü");
+                MessageBox.Show($"è®¡ç®—æ–‡ä»¶å“ˆå¸Œå¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("è®¡ç®—æ–‡ä»¶å“ˆå¸Œå¤±è´¥");
             }
         }
 
         #endregion
 
-        #region ¹şÏ£ÖµÑéÖ¤
+        #region å“ˆå¸Œå€¼éªŒè¯
 
         private void btnSM3Verify_Click(object sender, EventArgs e)
         {
@@ -156,17 +156,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM3VerifyData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒªÑéÖ¤µÄÔ­Ê¼Êı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥è¦éªŒè¯çš„åŸå§‹æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM3VerifyHash.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÆÚÍûµÄ¹şÏ£Öµ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥æœŸæœ›çš„å“ˆå¸Œå€¼ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚÑéÖ¤SM3¹şÏ£Öµ...");
+                SetStatus("æ­£åœ¨éªŒè¯SM3å“ˆå¸Œå€¼...");
 
                 string inputData = textSM3VerifyData.Text;
                 string expectedHash = textSM3VerifyHash.Text;
@@ -194,23 +194,23 @@ namespace CryptoTool.Win
                     verifyResult = SM3Util.VerifyHash(dataBytes, expectedHashBytes);
                 }
 
-                labelSM3VerifyResult.Text = $"ÑéÖ¤½á¹û: {(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}";
+                labelSM3VerifyResult.Text = $"éªŒè¯ç»“æœ: {(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}";
                 labelSM3VerifyResult.ForeColor = verifyResult ? Color.Green : Color.Red;
 
-                SetStatus($"SM3¹şÏ£ÑéÖ¤Íê³É - {(verifyResult ? "ÑéÖ¤³É¹¦" : "ÑéÖ¤Ê§°Ü")}");
+                SetStatus($"SM3å“ˆå¸ŒéªŒè¯å®Œæˆ - {(verifyResult ? "éªŒè¯æˆåŠŸ" : "éªŒè¯å¤±è´¥")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"¹şÏ£ÖµÑéÖ¤Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelSM3VerifyResult.Text = "ÑéÖ¤½á¹û: ÑéÖ¤Òì³£";
+                MessageBox.Show($"å“ˆå¸Œå€¼éªŒè¯å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelSM3VerifyResult.Text = "éªŒè¯ç»“æœ: éªŒè¯å¼‚å¸¸";
                 labelSM3VerifyResult.ForeColor = Color.Red;
-                SetStatus("¹şÏ£ÖµÑéÖ¤Ê§°Ü");
+                SetStatus("å“ˆå¸Œå€¼éªŒè¯å¤±è´¥");
             }
         }
 
         #endregion
 
-        #region HMAC-SM3¼ÆËã
+        #region HMAC-SM3è®¡ç®—
 
         private void btnSM3HMAC_Click(object sender, EventArgs e)
         {
@@ -218,17 +218,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textSM3HMACData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒª¼ÆËãHMACµÄÊı¾İ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥è¦è®¡ç®—HMACçš„æ•°æ®ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textSM3HMACKey.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëHMACÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥HMACå¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ¼ÆËãHMAC-SM3...");
+                SetStatus("æ­£åœ¨è®¡ç®—HMAC-SM3...");
 
                 string inputData = textSM3HMACData.Text;
                 string key = textSM3HMACKey.Text;
@@ -236,7 +236,7 @@ namespace CryptoTool.Win
                 string outputFormat = comboSM3HMACOutputFormat.SelectedItem.ToString();
 
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
-                byte[] keyBytes = Encoding.UTF8.GetBytes(key); // HMACÃÜÔ¿Í¨³£Ê¹ÓÃUTF8±àÂë
+                byte[] keyBytes = Encoding.UTF8.GetBytes(key); // HMACå¯†é’¥é€šå¸¸ä½¿ç”¨UTF8ç¼–ç 
                 
                 string result = outputFormat switch
                 {
@@ -246,25 +246,25 @@ namespace CryptoTool.Win
                 };
 
                 textSM3HMACOutput.Text = result;
-                SetStatus($"HMAC-SM3¼ÆËãÍê³É - Êı¾İ¸ñÊ½£º{dataFormat}£¬Êä³ö¸ñÊ½£º{outputFormat}");
+                SetStatus($"HMAC-SM3è®¡ç®—å®Œæˆ - æ•°æ®æ ¼å¼ï¼š{dataFormat}ï¼Œè¾“å‡ºæ ¼å¼ï¼š{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"HMAC-SM3¼ÆËãÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("HMAC-SM3¼ÆËãÊ§°Ü");
+                MessageBox.Show($"HMAC-SM3è®¡ç®—å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("HMAC-SM3è®¡ç®—å¤±è´¥");
             }
         }
 
         #endregion
 
-        #region ¸¨Öú·½·¨
+        #region è¾…åŠ©æ–¹æ³•
 
         /// <summary>
-        /// ¸ù¾İ¸ñÊ½×ª»»ÊäÈëÊı¾İÎª×Ö½ÚÊı×é
+        /// æ ¹æ®æ ¼å¼è½¬æ¢è¾“å…¥æ•°æ®ä¸ºå­—èŠ‚æ•°ç»„
         /// </summary>
-        /// <param name="input">ÊäÈë×Ö·û´®</param>
-        /// <param name="format">Êı¾İ¸ñÊ½</param>
-        /// <returns>×Ö½ÚÊı×é</returns>
+        /// <param name="input">è¾“å…¥å­—ç¬¦ä¸²</param>
+        /// <param name="format">æ•°æ®æ ¼å¼</param>
+        /// <returns>å­—èŠ‚æ•°ç»„</returns>
         private byte[] ConvertInputData(string input, string format)
         {
             return format switch
@@ -277,10 +277,10 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// ¸ñÊ½»¯ÎÄ¼ş´óĞ¡ÏÔÊ¾
+        /// æ ¼å¼åŒ–æ–‡ä»¶å¤§å°æ˜¾ç¤º
         /// </summary>
-        /// <param name="bytes">×Ö½ÚÊı</param>
-        /// <returns>¸ñÊ½»¯µÄÎÄ¼ş´óĞ¡×Ö·û´®</returns>
+        /// <param name="bytes">å­—èŠ‚æ•°</param>
+        /// <returns>æ ¼å¼åŒ–çš„æ–‡ä»¶å¤§å°å­—ç¬¦ä¸²</returns>
         private string FormatFileSize(long bytes)
         {
             const long KB = 1024;
@@ -302,36 +302,36 @@ namespace CryptoTool.Win
 
         private void ComboSM3DataFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label1.Text = $"ÊäÈëÊı¾İ({comboSM3DataFormat.SelectedItem}):";
+            //label1.Text = $"è¾“å…¥æ•°æ®({comboSM3DataFormat.SelectedItem}):";
         }
         private void ComboSM3OutputFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label2.Text = $"¹şÏ£½á¹û({comboSM3DataFormat.SelectedItem}):";
+            //label2.Text = $"å“ˆå¸Œç»“æœ({comboSM3DataFormat.SelectedItem}):";
         }
 
 
         private void ComboSM3FileHashFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label4.Text = $"¹şÏ£½á¹û({comboSM3DataFormat.SelectedItem}):";
+            //label4.Text = $"å“ˆå¸Œç»“æœ({comboSM3DataFormat.SelectedItem}):";
         }
 
         private void ComboSM3VerifyDataFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label5.Text = $"Ô­Ê¼Êı¾İ({comboSM3DataFormat.SelectedItem}):";
+            //label5.Text = $"åŸå§‹æ•°æ®({comboSM3DataFormat.SelectedItem}):";
         }
         private void ComboSM3VerifyHashFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label6.Text = $"ÆÚÍû¹şÏ£({comboSM3DataFormat.SelectedItem}):";
+            //label6.Text = $"æœŸæœ›å“ˆå¸Œ({comboSM3DataFormat.SelectedItem}):";
         }
 
         private void ComboSM3HMACDataFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label7.Text = $"ÊäÈëÊı¾İ({comboSM3DataFormat.SelectedItem}):";
+            //label7.Text = $"è¾“å…¥æ•°æ®({comboSM3DataFormat.SelectedItem}):";
         }
 
         private void ComboSM3HMACOutputFormat_TabIndexChanged(object sender, EventArgs e)
         {
-            //label7.Text = $"HMAC½á¹û({comboSM3DataFormat.SelectedItem}):";
+            //label7.Text = $"HMACç»“æœ({comboSM3DataFormat.SelectedItem}):";
         }
     }
 }

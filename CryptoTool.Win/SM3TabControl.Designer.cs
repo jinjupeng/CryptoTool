@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class SM3TabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -133,7 +133,7 @@ namespace CryptoTool.Win
             groupBoxSM3Hash.Size = new Size(1254, 200);
             groupBoxSM3Hash.TabIndex = 0;
             groupBoxSM3Hash.TabStop = false;
-            groupBoxSM3Hash.Text = "SM3¹şÏ£¼ÆËã";
+            groupBoxSM3Hash.Text = "SM3å“ˆå¸Œè®¡ç®—";
             // 
             // tableLayoutSM3Hash
             // 
@@ -178,7 +178,7 @@ namespace CryptoTool.Win
             labelSM3DataFormat.Name = "labelSM3DataFormat";
             labelSM3DataFormat.Size = new Size(88, 20);
             labelSM3DataFormat.TabIndex = 0;
-            labelSM3DataFormat.Text = "ÊäÈë¸ñÊ½:";
+            labelSM3DataFormat.Text = "è¾“å…¥æ ¼å¼:";
             // 
             // comboSM3DataFormat
             // 
@@ -200,7 +200,7 @@ namespace CryptoTool.Win
             labelSM3OutputFormat.Name = "labelSM3OutputFormat";
             labelSM3OutputFormat.Size = new Size(88, 20);
             labelSM3OutputFormat.TabIndex = 2;
-            labelSM3OutputFormat.Text = "Êä³ö¸ñÊ½:";
+            labelSM3OutputFormat.Text = "è¾“å‡ºæ ¼å¼:";
             // 
             // comboSM3OutputFormat
             // 
@@ -221,7 +221,7 @@ namespace CryptoTool.Win
             btnSM3Hash.Name = "btnSM3Hash";
             btnSM3Hash.Size = new Size(103, 30);
             btnSM3Hash.TabIndex = 8;
-            btnSM3Hash.Text = "¼ÆËã¹şÏ£";
+            btnSM3Hash.Text = "è®¡ç®—å“ˆå¸Œ";
             btnSM3Hash.UseVisualStyleBackColor = true;
             btnSM3Hash.Click += btnSM3Hash_Click;
             // 
@@ -232,7 +232,7 @@ namespace CryptoTool.Win
             btnSM3Clear.Name = "btnSM3Clear";
             btnSM3Clear.Size = new Size(103, 30);
             btnSM3Clear.TabIndex = 9;
-            btnSM3Clear.Text = "Çå¿Õ";
+            btnSM3Clear.Text = "æ¸…ç©º";
             btnSM3Clear.UseVisualStyleBackColor = true;
             btnSM3Clear.Click += btnSM3Clear_Click;
             // 
@@ -245,7 +245,7 @@ namespace CryptoTool.Win
             label1.Name = "label1";
             label1.Size = new Size(1230, 20);
             label1.TabIndex = 4;
-            label1.Text = "ÊäÈëÊı¾İ:";
+            label1.Text = "è¾“å…¥æ•°æ®:";
             // 
             // textSM3Input
             // 
@@ -267,7 +267,7 @@ namespace CryptoTool.Win
             label2.Name = "label2";
             label2.Size = new Size(1230, 20);
             label2.TabIndex = 6;
-            label2.Text = "¹şÏ£½á¹û:";
+            label2.Text = "å“ˆå¸Œç»“æœ:";
             // 
             // textSM3Output
             // 
@@ -292,7 +292,7 @@ namespace CryptoTool.Win
             groupBoxSM3File.Size = new Size(1254, 160);
             groupBoxSM3File.TabIndex = 1;
             groupBoxSM3File.TabStop = false;
-            groupBoxSM3File.Text = "ÎÄ¼ş¹şÏ£¼ÆËã";
+            groupBoxSM3File.Text = "æ–‡ä»¶å“ˆå¸Œè®¡ç®—";
             // 
             // tableLayoutSM3File
             // 
@@ -333,7 +333,7 @@ namespace CryptoTool.Win
             labelSM3FileHashFormat.Name = "labelSM3FileHashFormat";
             labelSM3FileHashFormat.Size = new Size(88, 20);
             labelSM3FileHashFormat.TabIndex = 0;
-            labelSM3FileHashFormat.Text = "Êä³ö¸ñÊ½:";
+            labelSM3FileHashFormat.Text = "è¾“å‡ºæ ¼å¼:";
             // 
             // comboSM3FileHashFormat
             // 
@@ -356,7 +356,7 @@ namespace CryptoTool.Win
             label3.Name = "label3";
             label3.Size = new Size(1230, 20);
             label3.TabIndex = 2;
-            label3.Text = "ÎÄ¼şÂ·¾¶:";
+            label3.Text = "æ–‡ä»¶è·¯å¾„:";
             // 
             // panelSM3FilePath
             // 
@@ -385,7 +385,7 @@ namespace CryptoTool.Win
             btnSM3SelectFile.Name = "btnSM3SelectFile";
             btnSM3SelectFile.Size = new Size(130, 30);
             btnSM3SelectFile.TabIndex = 4;
-            btnSM3SelectFile.Text = "Ñ¡ÔñÎÄ¼ş";
+            btnSM3SelectFile.Text = "é€‰æ‹©æ–‡ä»¶";
             btnSM3SelectFile.UseVisualStyleBackColor = true;
             btnSM3SelectFile.Click += btnSM3SelectFile_Click;
             // 
@@ -398,7 +398,7 @@ namespace CryptoTool.Win
             label4.Name = "label4";
             label4.Size = new Size(1230, 20);
             label4.TabIndex = 5;
-            label4.Text = "¹şÏ£½á¹û:";
+            label4.Text = "å“ˆå¸Œç»“æœ:";
             // 
             // panelSM3FileHash
             // 
@@ -428,7 +428,7 @@ namespace CryptoTool.Win
             btnSM3ComputeFileHash.Name = "btnSM3ComputeFileHash";
             btnSM3ComputeFileHash.Size = new Size(130, 30);
             btnSM3ComputeFileHash.TabIndex = 7;
-            btnSM3ComputeFileHash.Text = "¼ÆËã¹şÏ£";
+            btnSM3ComputeFileHash.Text = "è®¡ç®—å“ˆå¸Œ";
             btnSM3ComputeFileHash.UseVisualStyleBackColor = true;
             btnSM3ComputeFileHash.Click += btnSM3ComputeFileHash_Click;
             // 
@@ -443,7 +443,7 @@ namespace CryptoTool.Win
             groupBoxSM3Verify.Size = new Size(1254, 200);
             groupBoxSM3Verify.TabIndex = 2;
             groupBoxSM3Verify.TabStop = false;
-            groupBoxSM3Verify.Text = "¹şÏ£ÖµÑéÖ¤";
+            groupBoxSM3Verify.Text = "å“ˆå¸Œå€¼éªŒè¯";
             // 
             // tableLayoutSM3Verify
             // 
@@ -487,7 +487,7 @@ namespace CryptoTool.Win
             labelSM3VerifyDataFormat.Name = "labelSM3VerifyDataFormat";
             labelSM3VerifyDataFormat.Size = new Size(103, 20);
             labelSM3VerifyDataFormat.TabIndex = 0;
-            labelSM3VerifyDataFormat.Text = "Êı¾İ¸ñÊ½:";
+            labelSM3VerifyDataFormat.Text = "æ•°æ®æ ¼å¼:";
             // 
             // comboSM3VerifyDataFormat
             // 
@@ -509,7 +509,7 @@ namespace CryptoTool.Win
             labelSM3VerifyHashFormat.Name = "labelSM3VerifyHashFormat";
             labelSM3VerifyHashFormat.Size = new Size(103, 20);
             labelSM3VerifyHashFormat.TabIndex = 2;
-            labelSM3VerifyHashFormat.Text = "¹şÏ£¸ñÊ½:";
+            labelSM3VerifyHashFormat.Text = "å“ˆå¸Œæ ¼å¼:";
             // 
             // comboSM3VerifyHashFormat
             // 
@@ -530,7 +530,7 @@ namespace CryptoTool.Win
             btnSM3Verify.Name = "btnSM3Verify";
             btnSM3Verify.Size = new Size(103, 30);
             btnSM3Verify.TabIndex = 8;
-            btnSM3Verify.Text = "ÑéÖ¤";
+            btnSM3Verify.Text = "éªŒè¯";
             btnSM3Verify.UseVisualStyleBackColor = true;
             btnSM3Verify.Click += btnSM3Verify_Click;
             // 
@@ -543,7 +543,7 @@ namespace CryptoTool.Win
             label5.Name = "label5";
             label5.Size = new Size(1230, 20);
             label5.TabIndex = 4;
-            label5.Text = "Ô­Ê¼Êı¾İ:";
+            label5.Text = "åŸå§‹æ•°æ®:";
             // 
             // textSM3VerifyData
             // 
@@ -565,7 +565,7 @@ namespace CryptoTool.Win
             label6.Name = "label6";
             label6.Size = new Size(1230, 20);
             label6.TabIndex = 6;
-            label6.Text = "ÆÚÍû¹şÏ£:";
+            label6.Text = "æœŸæœ›å“ˆå¸Œ:";
             // 
             // panelSM3VerifyHashResult
             // 
@@ -595,7 +595,7 @@ namespace CryptoTool.Win
             labelSM3VerifyResult.Name = "labelSM3VerifyResult";
             labelSM3VerifyResult.Size = new Size(88, 20);
             labelSM3VerifyResult.TabIndex = 9;
-            labelSM3VerifyResult.Text = "ÑéÖ¤½á¹û:";
+            labelSM3VerifyResult.Text = "éªŒè¯ç»“æœ:";
             // 
             // groupBoxSM3HMAC
             // 
@@ -608,7 +608,7 @@ namespace CryptoTool.Win
             groupBoxSM3HMAC.Size = new Size(1254, 242);
             groupBoxSM3HMAC.TabIndex = 3;
             groupBoxSM3HMAC.TabStop = false;
-            groupBoxSM3HMAC.Text = "HMAC-SM3¼ÆËã";
+            groupBoxSM3HMAC.Text = "HMAC-SM3è®¡ç®—";
             // 
             // tableLayoutSM3HMAC
             // 
@@ -656,7 +656,7 @@ namespace CryptoTool.Win
             labelSM3HMACDataFormat.Name = "labelSM3HMACDataFormat";
             labelSM3HMACDataFormat.Size = new Size(88, 20);
             labelSM3HMACDataFormat.TabIndex = 0;
-            labelSM3HMACDataFormat.Text = "Êı¾İ¸ñÊ½:";
+            labelSM3HMACDataFormat.Text = "æ•°æ®æ ¼å¼:";
             // 
             // comboSM3HMACDataFormat
             // 
@@ -678,7 +678,7 @@ namespace CryptoTool.Win
             labelSM3HMACOutputFormat.Name = "labelSM3HMACOutputFormat";
             labelSM3HMACOutputFormat.Size = new Size(88, 20);
             labelSM3HMACOutputFormat.TabIndex = 2;
-            labelSM3HMACOutputFormat.Text = "Êä³ö¸ñÊ½:";
+            labelSM3HMACOutputFormat.Text = "è¾“å‡ºæ ¼å¼:";
             // 
             // comboSM3HMACOutputFormat
             // 
@@ -699,7 +699,7 @@ namespace CryptoTool.Win
             btnSM3HMAC.Name = "btnSM3HMAC";
             btnSM3HMAC.Size = new Size(130, 30);
             btnSM3HMAC.TabIndex = 10;
-            btnSM3HMAC.Text = "¼ÆËãHMAC";
+            btnSM3HMAC.Text = "è®¡ç®—HMAC";
             btnSM3HMAC.UseVisualStyleBackColor = true;
             btnSM3HMAC.Click += btnSM3HMAC_Click;
             // 
@@ -712,7 +712,7 @@ namespace CryptoTool.Win
             label7.Name = "label7";
             label7.Size = new Size(1230, 20);
             label7.TabIndex = 4;
-            label7.Text = "ÊäÈëÊı¾İ:";
+            label7.Text = "è¾“å…¥æ•°æ®:";
             // 
             // textSM3HMACData
             // 
@@ -734,7 +734,7 @@ namespace CryptoTool.Win
             label8.Name = "label8";
             label8.Size = new Size(1230, 20);
             label8.TabIndex = 6;
-            label8.Text = "HMACÃÜÔ¿:";
+            label8.Text = "HMACå¯†é’¥:";
             // 
             // textSM3HMACKey
             // 
@@ -754,7 +754,7 @@ namespace CryptoTool.Win
             label9.Name = "label9";
             label9.Size = new Size(1230, 20);
             label9.TabIndex = 8;
-            label9.Text = "HMAC½á¹û:";
+            label9.Text = "HMACç»“æœ:";
             // 
             // textSM3HMACOutput
             // 

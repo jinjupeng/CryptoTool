@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class SM4TabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -100,7 +100,7 @@ namespace CryptoTool.Win
             groupBoxSM4Keys.Size = new Size(1254, 159);
             groupBoxSM4Keys.TabIndex = 0;
             groupBoxSM4Keys.TabStop = false;
-            groupBoxSM4Keys.Text = "SM4ÃÜÔ¿Éú³É";
+            groupBoxSM4Keys.Text = "SM4å¯†é’¥ç”Ÿæˆ";
             // 
             // tableLayoutSM4Keys
             // 
@@ -142,7 +142,7 @@ namespace CryptoTool.Win
             labelSM4KeyFormat.Name = "labelSM4KeyFormat";
             labelSM4KeyFormat.Size = new Size(73, 20);
             labelSM4KeyFormat.TabIndex = 9;
-            labelSM4KeyFormat.Text = "ÃÜÔ¿¸ñÊ½:";
+            labelSM4KeyFormat.Text = "å¯†é’¥æ ¼å¼:";
             // 
             // comboSM4KeyFormat
             // 
@@ -162,7 +162,7 @@ namespace CryptoTool.Win
             btnGenerateSM4Key.Name = "btnGenerateSM4Key";
             btnGenerateSM4Key.Size = new Size(103, 30);
             btnGenerateSM4Key.TabIndex = 0;
-            btnGenerateSM4Key.Text = "Éú³ÉÃÜÔ¿";
+            btnGenerateSM4Key.Text = "ç”Ÿæˆå¯†é’¥";
             btnGenerateSM4Key.UseVisualStyleBackColor = true;
             btnGenerateSM4Key.Click += btnGenerateSM4Key_Click;
             // 
@@ -175,7 +175,7 @@ namespace CryptoTool.Win
             label10.Name = "label10";
             label10.Size = new Size(1230, 20);
             label10.TabIndex = 3;
-            label10.Text = "SM4ÃÜÔ¿:";
+            label10.Text = "SM4å¯†é’¥:";
             // 
             // panelSM4Key
             // 
@@ -203,7 +203,7 @@ namespace CryptoTool.Win
             labelSM4IVFormat.Name = "labelSM4IVFormat";
             labelSM4IVFormat.Size = new Size(73, 20);
             labelSM4IVFormat.TabIndex = 11;
-            labelSM4IVFormat.Text = "ÏòÁ¿¸ñÊ½:";
+            labelSM4IVFormat.Text = "å‘é‡æ ¼å¼:";
             // 
             // comboSM4IVFormat
             // 
@@ -224,7 +224,7 @@ namespace CryptoTool.Win
             btnGenerateSM4IV.Name = "btnGenerateSM4IV";
             btnGenerateSM4IV.Size = new Size(103, 30);
             btnGenerateSM4IV.TabIndex = 1;
-            btnGenerateSM4IV.Text = "Éú³ÉÏòÁ¿";
+            btnGenerateSM4IV.Text = "ç”Ÿæˆå‘é‡";
             btnGenerateSM4IV.UseVisualStyleBackColor = true;
             btnGenerateSM4IV.Click += btnGenerateSM4IV_Click;
             // 
@@ -237,7 +237,7 @@ namespace CryptoTool.Win
             label11.Name = "label11";
             label11.Size = new Size(1230, 20);
             label11.TabIndex = 5;
-            label11.Text = "³õÊ¼ÏòÁ¿:";
+            label11.Text = "åˆå§‹å‘é‡:";
             // 
             // panelSM4IV
             // 
@@ -271,7 +271,7 @@ namespace CryptoTool.Win
             groupBoxSM4Encrypt.Size = new Size(1254, 309);
             groupBoxSM4Encrypt.TabIndex = 1;
             groupBoxSM4Encrypt.TabStop = false;
-            groupBoxSM4Encrypt.Text = "SM4¼ÓÃÜ½âÃÜ";
+            groupBoxSM4Encrypt.Text = "SM4åŠ å¯†è§£å¯†";
             // 
             // tableLayoutSM4Encrypt
             // 
@@ -320,7 +320,7 @@ namespace CryptoTool.Win
             label14.Name = "label14";
             label14.Size = new Size(73, 20);
             label14.TabIndex = 5;
-            label14.Text = "¼ÓÃÜÄ£Ê½:";
+            label14.Text = "åŠ å¯†æ¨¡å¼:";
             // 
             // comboSM4Mode
             // 
@@ -342,7 +342,7 @@ namespace CryptoTool.Win
             label15.Name = "label15";
             label15.Size = new Size(73, 20);
             label15.TabIndex = 7;
-            label15.Text = "Ìî³äÄ£Ê½:";
+            label15.Text = "å¡«å……æ¨¡å¼:";
             // 
             // comboSM4Padding
             // 
@@ -363,7 +363,7 @@ namespace CryptoTool.Win
             labelSM4PlaintextFormat.Name = "labelSM4PlaintextFormat";
             labelSM4PlaintextFormat.Size = new Size(73, 20);
             labelSM4PlaintextFormat.TabIndex = 11;
-            labelSM4PlaintextFormat.Text = "Ã÷ÎÄ¸ñÊ½:";
+            labelSM4PlaintextFormat.Text = "æ˜æ–‡æ ¼å¼:";
             // 
             // comboSM4PlaintextFormat
             // 
@@ -384,7 +384,7 @@ namespace CryptoTool.Win
             labelSM4CiphertextFormat.Name = "labelSM4CiphertextFormat";
             labelSM4CiphertextFormat.Size = new Size(73, 20);
             labelSM4CiphertextFormat.TabIndex = 9;
-            labelSM4CiphertextFormat.Text = "ÃÜÎÄ¸ñÊ½:";
+            labelSM4CiphertextFormat.Text = "å¯†æ–‡æ ¼å¼:";
             // 
             // comboSM4CiphertextFormat
             // 
@@ -404,7 +404,7 @@ namespace CryptoTool.Win
             btnSM4Encrypt.Name = "btnSM4Encrypt";
             btnSM4Encrypt.Size = new Size(103, 30);
             btnSM4Encrypt.TabIndex = 0;
-            btnSM4Encrypt.Text = "¼ÓÃÜ";
+            btnSM4Encrypt.Text = "åŠ å¯†";
             btnSM4Encrypt.UseVisualStyleBackColor = true;
             btnSM4Encrypt.Click += btnSM4Encrypt_Click;
             // 
@@ -415,7 +415,7 @@ namespace CryptoTool.Win
             btnSM4Decrypt.Name = "btnSM4Decrypt";
             btnSM4Decrypt.Size = new Size(103, 30);
             btnSM4Decrypt.TabIndex = 1;
-            btnSM4Decrypt.Text = "½âÃÜ";
+            btnSM4Decrypt.Text = "è§£å¯†";
             btnSM4Decrypt.UseVisualStyleBackColor = true;
             btnSM4Decrypt.Click += btnSM4Decrypt_Click;
             // 
@@ -428,7 +428,7 @@ namespace CryptoTool.Win
             label12.Name = "label12";
             label12.Size = new Size(1230, 20);
             label12.TabIndex = 3;
-            label12.Text = "Ã÷ÎÄ:";
+            label12.Text = "æ˜æ–‡:";
             // 
             // textSM4PlainText
             // 
@@ -450,7 +450,7 @@ namespace CryptoTool.Win
             label13.Name = "label13";
             label13.Size = new Size(1230, 20);
             label13.TabIndex = 5;
-            label13.Text = "ÃÜÎÄ:";
+            label13.Text = "å¯†æ–‡:";
             // 
             // textSM4CipherText
             // 
