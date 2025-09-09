@@ -70,18 +70,18 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # Install WiX toolset for MSI creation
+    # Install WiX toolset for MSI creation (using v4 for better compatibility)
     - name: Install WiX toolset
       shell: pwsh
       run: |
-        # Install WiX 5.0.0
-        dotnet tool install --global wix --version 5.0.0
+        # Install WiX v4 for better extension compatibility
+        dotnet tool install --global wix --version 4.0.5
         
         # Check WiX version
         $wixVersion = wix --version
         Write-Host "Installed WiX version: $wixVersion"
         
-        # Try to add UI extension (without version parameter for WiX 5.x)
+        # Try to add UI extension
         try {
           Write-Host "Attempting to add WiX UI extension..."
           $result = wix extension add WixToolset.UI.wixext 2>&1
@@ -376,55 +376,6 @@ jobs:
           }
         } catch {
           Write-Warning "Failed to create MSI package: $($_.Exception.Message)"
-          
-          # Try fallback without UI extension
-          if ($hasUI) {
-            Write-Host "Attempting fallback build without UI extension..."
-            try {
-              # Regenerate basic configuration
-              $absolutePath = (Resolve-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe").Path
-              $basicWxsContent = @"
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-          <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
-            <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
-            <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
-            <MediaTemplate EmbedCab="yes" />
-            <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
-              <ComponentGroupRef Id="ProductComponents" />
-            </Feature>
-            <StandardDirectory Id="ProgramFilesFolder">
-              <Directory Id="INSTALLFOLDER" Name="CryptoTool">
-                <Component Id="MainExecutable" Guid="*">
-                  <File Id="CryptoToolExe" Source="$absolutePath" KeyPath="yes">
-                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" />
-                    <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" />
-                  </File>
-                </Component>
-                <Component Id="ApplicationShortcuts" Guid="*">
-                  <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
-                  <RegistryValue Root="HKCU" Key="Software\jinjupeng\CryptoTool" Name="installed" Type="integer" Value="1" KeyPath="yes" />
-                </Component>
-              </Directory>
-            </StandardDirectory>
-            <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-              <ComponentRef Id="MainExecutable" />
-              <ComponentRef Id="ApplicationShortcuts" />
-            </ComponentGroup>
-            <Icon Id="CryptoTool.exe" SourceFile="$absolutePath" />
-          </Package>
-        </Wix>
-        "@
-              $basicWxsContent | Out-File -FilePath "./publish/installer/CryptoTool-Basic.wxs" -Encoding UTF8
-              wix build ./publish/installer/CryptoTool-Basic.wxs -o $msiPath
-              
-              if (Test-Path $msiPath) {
-                Write-Host "Fallback MSI package created successfully: $msiPath"
-              }
-            } catch {
-              Write-Warning "Fallback MSI creation also failed: $($_.Exception.Message)"
-            }
-          }
         }
       continue-on-error: true
 
