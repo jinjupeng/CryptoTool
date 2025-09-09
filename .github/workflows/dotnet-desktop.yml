@@ -234,73 +234,10 @@ jobs:
         $hasUI = $env:HAS_UI_EXTENSION -eq "true"
         Write-Host "UI Extension available: $hasUI"
         
-        if ($hasUI) {
-          # Create WiX configuration with UI
-          $wxsContent = @"
-        <?xml version="1.0" encoding="UTF-8"?>
-        <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
-             xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
-            <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
-            
-            <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
-            <MediaTemplate EmbedCab="yes" />
-            
-            <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
-              <ComponentGroupRef Id="ProductComponents" />
-            </Feature>
-            
-            <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-            <ui:WixUI Id="WixUI_InstallDir" />
-            
-            <StandardDirectory Id="ProgramFilesFolder">
-              <Directory Id="INSTALLFOLDER" Name="CryptoTool">
-                <Component Id="MainExecutable" Guid="*">
-                  <File Id="CryptoToolExe" Source="$absolutePath" KeyPath="yes">
-                    <Shortcut Id="ApplicationStartMenuShortcut" 
-                             Directory="ProgramMenuFolder" 
-                             Name="CryptoTool" 
-                             Description="CryptoTool 加解密工具" 
-                             WorkingDirectory="INSTALLFOLDER" 
-                             Icon="CryptoTool.exe" 
-                             IconIndex="0" />
-                    <Shortcut Id="ApplicationDesktopShortcut" 
-                             Directory="DesktopFolder" 
-                             Name="CryptoTool" 
-                             Description="CryptoTool 加解密工具" 
-                             WorkingDirectory="INSTALLFOLDER" 
-                             Icon="CryptoTool.exe" 
-                             IconIndex="0" />
-                  </File>
-                </Component>
-                
-                <Component Id="ApplicationShortcuts" Guid="*">
-                  <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
-                  <RegistryValue Root="HKCU" 
-                                Key="Software\jinjupeng\CryptoTool" 
-                                Name="installed" 
-                                Type="integer" 
-                                Value="1" 
-                                KeyPath="yes" />
-                </Component>
-              </Directory>
-            </StandardDirectory>
-            
-            <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-              <ComponentRef Id="MainExecutable" />
-              <ComponentRef Id="ApplicationShortcuts" />
-            </ComponentGroup>
-            
-            <Icon Id="CryptoTool.exe" SourceFile="$absolutePath" />
-          </Package>
-        </Wix>
-        "@
-        } else {
-          # Create basic WiX configuration without UI extension
-          $wxsContent = @"
+        $wxsContent = @"
         <?xml version="1.0" encoding="UTF-8"?>
         <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+          <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$Version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
             <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
             
             <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
@@ -315,22 +252,23 @@ jobs:
                 <Component Id="MainExecutable" Guid="*">
                   <File Id="CryptoToolExe" Source="$absolutePath" KeyPath="yes">
                     <Shortcut Id="ApplicationStartMenuShortcut" 
-                             Directory="ProgramMenuFolder" 
-                             Name="CryptoTool" 
-                             Description="CryptoTool 加解密工具" 
-                             WorkingDirectory="INSTALLFOLDER" 
-                             Icon="CryptoTool.exe" 
-                             IconIndex="0" />
+                            Directory="ProgramMenuFolder" 
+                            Name="CryptoTool" 
+                            Description="CryptoTool Application" 
+                            WorkingDirectory="INSTALLFOLDER" 
+                            Icon="CryptoTool.exe" 
+                            IconIndex="0" />
                     <Shortcut Id="ApplicationDesktopShortcut" 
-                             Directory="DesktopFolder" 
-                             Name="CryptoTool" 
-                             Description="CryptoTool 加解密工具" 
-                             WorkingDirectory="INSTALLFOLDER" 
-                             Icon="CryptoTool.exe" 
-                             IconIndex="0" />
+                            Directory="DesktopFolder" 
+                            Name="CryptoTool" 
+                            Description="CryptoTool Application" 
+                            WorkingDirectory="INSTALLFOLDER" 
+                            Icon="CryptoTool.exe" 
+                            IconIndex="0" />
                   </File>
                 </Component>
                 
+                <!-- Component for uninstall shortcut cleanup -->
                 <Component Id="ApplicationShortcuts" Guid="*">
                   <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
                   <RegistryValue Root="HKCU" 
@@ -352,7 +290,6 @@ jobs:
           </Package>
         </Wix>
         "@
-        }
         
         $wxsContent | Out-File -FilePath "./publish/installer/CryptoTool.wxs" -Encoding UTF8
         Write-Host "Created WiX configuration file in publish directory (UI: $hasUI)"
