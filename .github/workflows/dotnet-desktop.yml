@@ -70,12 +70,25 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    # Install WiX toolset for MSI creation
+    # Install WiX toolset for MSI creation with compatible versions
     - name: Install WiX toolset
       shell: pwsh
       run: |
+        # Install WiX 5.0.0 and compatible UI extension
         dotnet tool install --global wix --version 5.0.0
-        wix extension add WixToolset.UI.wixext
+        
+        # Check WiX version and try to add UI extension
+        $wixVersion = wix --version
+        Write-Host "Installed WiX version: $wixVersion"
+        
+        try {
+          # Try to install WiX 5.x compatible UI extension
+          wix extension add WixToolset.UI.wixext --version 5.0.2
+          Write-Host "WiX UI extension installed successfully"
+        } catch {
+          Write-Warning "Could not install WiX UI extension, continuing without custom UI"
+          echo "SKIP_UI_EXTENSION=true" >> $env:GITHUB_ENV
+        }
 
     # Restore dependencies
     - name: Restore dependencies
@@ -107,6 +120,13 @@ jobs:
         
         Write-Host "Updated project version to: $version"
 
+    # Create publish directory structure
+    - name: Create Publish Directory
+      shell: pwsh
+      run: |
+        New-Item -Path "./publish" -ItemType Directory -Force
+        Write-Host "Created publish directory"
+
     # Publish the WinForms application as single file (Self-contained)
     - name: Publish WinForms App (Self-contained)
       shell: pwsh
@@ -119,6 +139,8 @@ jobs:
           -p:PublishSingleFile=true `
           -p:PublishTrimmed=false `
           -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
           -p:Version="${{ env.VERSION }}" `
           -p:AssemblyVersion="${{ env.VERSION }}.0" `
           -p:FileVersion="${{ env.VERSION }}.0"
@@ -133,6 +155,8 @@ jobs:
           --self-contained false `
           --output ./publish/CryptoTool.Win-FrameworkDependent `
           -p:PublishSingleFile=true `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
           -p:Version="${{ env.VERSION }}" `
           -p:AssemblyVersion="${{ env.VERSION }}.0" `
           -p:FileVersion="${{ env.VERSION }}.0"
@@ -148,6 +172,8 @@ jobs:
           --output ./publish/CryptoTool.App `
           -p:PublishSingleFile=true `
           -p:PublishTrimmed=false `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
           -p:Version="${{ env.VERSION }}" `
           -p:AssemblyVersion="${{ env.VERSION }}.0" `
           -p:FileVersion="${{ env.VERSION }}.0"
@@ -160,12 +186,15 @@ jobs:
         
         if (Test-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe") {
           Rename-Item "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe" "CryptoTool-v$version-win-x64-SelfContained.exe"
+          Write-Host "Renamed self-contained executable"
         }
         if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe") {
           Rename-Item "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe" "CryptoTool-v$version-win-x64-FrameworkDependent.exe"
+          Write-Host "Renamed framework-dependent executable"
         }
         if (Test-Path "./publish/CryptoTool.App/CryptoTool.App.exe") {
           Rename-Item "./publish/CryptoTool.App/CryptoTool.App.exe" "CryptoTool.App-v$version-win-x64.exe"
+          Write-Host "Renamed console app executable"
         }
 
     # Create WiX source files for MSI packaging
@@ -173,60 +202,95 @@ jobs:
       shell: pwsh
       run: |
         $version = "${{ env.VERSION }}"
+        $absolutePath = (Resolve-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe").Path
+        
+        # Create installer directory in publish folder
+        New-Item -Path "./publish/installer" -ItemType Directory -Force
+        
+        # Create basic WiX configuration without UI extension
         $wxsContent = @"
         <?xml version="1.0" encoding="UTF-8"?>
         <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
-          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
-            <SummaryInformation Keywords="Installer" Description="CryptoTool Installer" Manufacturer="jinjupeng" />
+          <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+            <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
             
-            <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+            <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
             <MediaTemplate EmbedCab="yes" />
             
             <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
               <ComponentGroupRef Id="ProductComponents" />
             </Feature>
             
-            <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-            <UIRef Id="WixUI_InstallDir" />
-            
             <StandardDirectory Id="ProgramFilesFolder">
               <Directory Id="INSTALLFOLDER" Name="CryptoTool">
-                <Component Id="MainExecutable">
-                  <File Id="CryptoToolExe" Source="./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe" KeyPath="yes">
-                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
-                    <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+                <Component Id="MainExecutable" Guid="*">
+                  <File Id="CryptoToolExe" Source="$absolutePath" KeyPath="yes">
+                    <Shortcut Id="ApplicationStartMenuShortcut" 
+                             Directory="ProgramMenuFolder" 
+                             Name="CryptoTool" 
+                             Description="CryptoTool 加解密工具" 
+                             WorkingDirectory="INSTALLFOLDER" 
+                             Icon="CryptoTool.exe" 
+                             IconIndex="0" />
+                    <Shortcut Id="ApplicationDesktopShortcut" 
+                             Directory="DesktopFolder" 
+                             Name="CryptoTool" 
+                             Description="CryptoTool 加解密工具" 
+                             WorkingDirectory="INSTALLFOLDER" 
+                             Icon="CryptoTool.exe" 
+                             IconIndex="0" />
                   </File>
+                </Component>
+                
+                <Component Id="ApplicationShortcuts" Guid="*">
+                  <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
+                  <RegistryValue Root="HKCU" 
+                                Key="Software\jinjupeng\CryptoTool" 
+                                Name="installed" 
+                                Type="integer" 
+                                Value="1" 
+                                KeyPath="yes" />
                 </Component>
               </Directory>
             </StandardDirectory>
             
             <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
               <ComponentRef Id="MainExecutable" />
+              <ComponentRef Id="ApplicationShortcuts" />
             </ComponentGroup>
             
-            <Icon Id="CryptoTool.exe" SourceFile="./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe" />
+            <Icon Id="CryptoTool.exe" SourceFile="$absolutePath" />
           </Package>
         </Wix>
         "@
         
-        New-Item -Path "." -Name "installer" -ItemType Directory -Force
-        $wxsContent | Out-File -FilePath "./installer/CryptoTool.wxs" -Encoding UTF8
-        
-        Write-Host "Created WiX configuration file"
+        $wxsContent | Out-File -FilePath "./publish/installer/CryptoTool.wxs" -Encoding UTF8
+        Write-Host "Created WiX configuration file in publish directory"
 
     # Build MSI package
     - name: Build MSI Package
       shell: pwsh
       run: |
         $version = "${{ env.VERSION }}"
+        $msiPath = "./publish/CryptoTool-v$version-win-x64-Setup.msi"
         
-        # Build the MSI
-        wix build ./installer/CryptoTool.wxs -o "./CryptoTool-v$version-win-x64-Setup.msi"
-        
-        Write-Host "MSI package created successfully"
+        try {
+          # Build the MSI using basic configuration
+          wix build ./publish/installer/CryptoTool.wxs -o $msiPath
+          
+          if (Test-Path $msiPath) {
+            Write-Host "MSI package created successfully: $msiPath"
+            $fileSize = [math]::Round((Get-Item $msiPath).Length / 1MB, 2)
+            Write-Host "MSI package size: $fileSize MB"
+          } else {
+            Write-Warning "MSI package was not created"
+          }
+        } catch {
+          Write-Warning "Failed to create MSI package: $($_.Exception.Message)"
+        }
       continue-on-error: true
 
-    # Create ZIP packages for distribution
+    # Create ZIP packages for distribution in publish directory
     - name: Create ZIP packages
       shell: pwsh
       run: |
@@ -234,20 +298,49 @@ jobs:
         
         # Create ZIP for self-contained WinForms app
         if (Test-Path "./publish/CryptoTool.Win-SelfContained") {
-          Compress-Archive -Path "./publish/CryptoTool.Win-SelfContained/*" -DestinationPath "./CryptoTool-v$version-SelfContained-${{ matrix.configuration }}.zip"
+          $zipPath = "./publish/CryptoTool-v$version-SelfContained-${{ matrix.configuration }}.zip"
+          Compress-Archive -Path "./publish/CryptoTool.Win-SelfContained/*" -DestinationPath $zipPath
+          Write-Host "Created: $zipPath"
         }
         
         # Create ZIP for framework-dependent WinForms app
         if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent") {
-          Compress-Archive -Path "./publish/CryptoTool.Win-FrameworkDependent/*" -DestinationPath "./CryptoTool-v$version-FrameworkDependent-${{ matrix.configuration }}.zip"
+          $zipPath = "./publish/CryptoTool-v$version-FrameworkDependent-${{ matrix.configuration }}.zip"
+          Compress-Archive -Path "./publish/CryptoTool.Win-FrameworkDependent/*" -DestinationPath $zipPath
+          Write-Host "Created: $zipPath"
         }
         
         # Create ZIP for console app
         if (Test-Path "./publish/CryptoTool.App") {
-          Compress-Archive -Path "./publish/CryptoTool.App/*" -DestinationPath "./CryptoTool.App-v$version-${{ matrix.configuration }}.zip"
+          $zipPath = "./publish/CryptoTool.App-v$version-${{ matrix.configuration }}.zip"
+          Compress-Archive -Path "./publish/CryptoTool.App/*" -DestinationPath $zipPath
+          Write-Host "Created: $zipPath"
         }
 
-    # Upload executable files as artifacts
+    # List all files in publish directory
+    - name: List Publish Directory Contents
+      shell: pwsh
+      run: |
+        Write-Host "Contents of publish directory:"
+        Get-ChildItem "./publish" -Recurse | ForEach-Object {
+          $relativePath = $_.FullName.Substring((Get-Item "./publish").FullName.Length + 1)
+          if ($_.PSIsContainer) {
+            Write-Host "  [DIR]  $relativePath" -ForegroundColor Yellow
+          } else {
+            $size = [math]::Round($_.Length / 1KB, 1)
+            Write-Host "  [FILE] $relativePath ($size KB)" -ForegroundColor White
+          }
+        }
+
+    # Upload entire publish directory as artifacts
+    - name: Upload Complete Publish Directory
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoTool-Complete-${{ matrix.configuration }}-v${{ env.VERSION }}
+        path: ./publish/
+      if: always()
+
+    # Also upload individual components for backward compatibility
     - name: Upload Self-Contained Executable
       uses: actions/upload-artifact@v4
       with:
@@ -269,22 +362,6 @@ jobs:
         path: ./publish/CryptoTool.App/
       if: always()
 
-    # Upload MSI package
-    - name: Upload MSI Package
-      uses: actions/upload-artifact@v4
-      with:
-        name: CryptoTool-MSI-${{ matrix.configuration }}-v${{ env.VERSION }}
-        path: ./*.msi
-      if: always()
-
-    # Upload ZIP packages
-    - name: Upload ZIP packages
-      uses: actions/upload-artifact@v4
-      with:
-        name: CryptoTool-ZIP-${{ matrix.configuration }}-v${{ env.VERSION }}
-        path: ./*.zip
-      if: always()
-
   # Create release if this is a tag push
   create-release:
     needs: build
@@ -298,8 +375,8 @@ jobs:
     - name: Download artifacts (Release only)
       uses: actions/download-artifact@v4
       with:
-        pattern: "*Release*"
-        merge-multiple: true
+        name: CryptoTool-Complete-Release-v${{ needs.build.outputs.version }}
+        path: ./publish
         
     - name: Organize Release Files
       shell: pwsh
@@ -309,21 +386,30 @@ jobs:
         # Create release directory
         New-Item -Path "release" -ItemType Directory -Force
         
-        # Move files to release directory with proper naming
-        Get-ChildItem -Path "." -Filter "*.exe" | ForEach-Object {
-          Move-Item $_.FullName "release/"
+        # Move files from publish directory to release directory
+        Get-ChildItem -Path "./publish" -Filter "*.exe" -Recurse | ForEach-Object {
+          $destPath = "release/$($_.Name)"
+          Copy-Item $_.FullName $destPath
+          Write-Host "Copied: $($_.Name)"
         }
         
-        Get-ChildItem -Path "." -Filter "*.msi" | ForEach-Object {
-          Move-Item $_.FullName "release/"
+        Get-ChildItem -Path "./publish" -Filter "*.msi" -Recurse | ForEach-Object {
+          $destPath = "release/$($_.Name)"
+          Copy-Item $_.FullName $destPath
+          Write-Host "Copied: $($_.Name)"
         }
         
-        Get-ChildItem -Path "." -Filter "*.zip" | ForEach-Object {
-          Move-Item $_.FullName "release/"
+        Get-ChildItem -Path "./publish" -Filter "*.zip" -Recurse | ForEach-Object {
+          $destPath = "release/$($_.Name)"
+          Copy-Item $_.FullName $destPath
+          Write-Host "Copied: $($_.Name)"
         }
         
         Write-Host "Release files organized:"
-        Get-ChildItem "release/" | ForEach-Object { Write-Host "  $($_.Name)" }
+        Get-ChildItem "release/" | ForEach-Object { 
+          $size = [math]::Round($_.Length / 1MB, 2)
+          Write-Host "  $($_.Name) ($size MB)" 
+        }
         
     - name: Create Release
       uses: softprops/action-gh-release@v2

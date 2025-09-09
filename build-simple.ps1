@@ -29,6 +29,12 @@ if ([string]::IsNullOrEmpty($Version)) {
 
 Write-Host "Building CryptoTool MSI package version: $Version" -ForegroundColor Green
 
+# Create main publish directory
+$mainPublishPath = "./publish"
+if (!(Test-Path $mainPublishPath)) {
+    New-Item -Path $mainPublishPath -ItemType Directory -Force
+}
+
 # Check if WiX is installed
 try {
     $wixVersion = wix --version 2>$null
@@ -62,7 +68,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Publish the application
 Write-Host "Publishing application..." -ForegroundColor Yellow
-$publishPath = "./publish/CryptoTool.Win-SelfContained"
+$publishPath = "$mainPublishPath/CryptoTool.Win-SelfContained"
 
 # Remove existing publish directory
 if (Test-Path $publishPath) {
@@ -115,7 +121,7 @@ if (Test-Path $oldExe) {
 
 # Also publish framework-dependent version
 Write-Host "Publishing framework-dependent version..." -ForegroundColor Yellow
-$publishPathFx = "./publish/CryptoTool.Win-FrameworkDependent"
+$publishPathFx = "$mainPublishPath/CryptoTool.Win-FrameworkDependent"
 
 # Remove existing publish directory
 if (Test-Path $publishPathFx) {
@@ -145,11 +151,11 @@ if ($LASTEXITCODE -eq 0) {
     }
 }
 
-# Create ZIP packages
+# Create ZIP packages in publish directory
 Write-Host "Creating ZIP packages..." -ForegroundColor Yellow
 
-$zipSelfContained = "CryptoTool-v$Version-SelfContained-$Configuration.zip"
-$zipFrameworkDependent = "CryptoTool-v$Version-FrameworkDependent-$Configuration.zip"
+$zipSelfContained = "$mainPublishPath/CryptoTool-v$Version-SelfContained-$Configuration.zip"
+$zipFrameworkDependent = "$mainPublishPath/CryptoTool-v$Version-FrameworkDependent-$Configuration.zip"
 
 if (Test-Path $zipSelfContained) { Remove-Item $zipSelfContained -Force }
 if (Test-Path $zipFrameworkDependent) { Remove-Item $zipFrameworkDependent -Force }
@@ -164,13 +170,110 @@ if (Test-Path $publishPathFx) {
     Write-Host "Created ZIP: $zipFrameworkDependent" -ForegroundColor Green
 }
 
-# Skip MSI creation if WiX is not compatible
-if (!$createMsi) {
+# Create MSI package in publish directory (if WiX is available)
+if ($createMsi) {
+    Write-Host "Creating MSI package..." -ForegroundColor Yellow
+    
+    # Create installer directory inside publish
+    $installerDir = "$mainPublishPath/installer"
+    if (!(Test-Path $installerDir)) {
+        New-Item -Path $installerDir -ItemType Directory -Force
+    }
+
+    # Generate WiX source file
+    Write-Host "Generating WiX configuration..." -ForegroundColor Yellow
+
+    # Convert to absolute path for WiX
+    $absoluteExePath = (Get-Item $newExe).FullName
+
+    # Use a simple, reliable WiX configuration that works with WiX v4
+    $wxsContent = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="CryptoToolPackage" Name="CryptoTool" Language="1033" Version="$Version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+    <SummaryInformation Keywords="Installer" Description="CryptoTool Setup" Manufacturer="jinjupeng" />
+    
+    <MajorUpgrade DowngradeErrorMessage="A newer version of CryptoTool is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    
+    <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+    
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLFOLDER" Name="CryptoTool">
+        <Component Id="MainExecutable" Guid="*">
+          <File Id="CryptoToolExe" Source="$absoluteExePath" KeyPath="yes">
+            <Shortcut Id="ApplicationStartMenuShortcut" 
+                     Directory="ProgramMenuFolder" 
+                     Name="CryptoTool" 
+                     Description="CryptoTool Application" 
+                     WorkingDirectory="INSTALLFOLDER" 
+                     Icon="CryptoTool.exe" 
+                     IconIndex="0" />
+            <Shortcut Id="ApplicationDesktopShortcut" 
+                     Directory="DesktopFolder" 
+                     Name="CryptoTool" 
+                     Description="CryptoTool Application" 
+                     WorkingDirectory="INSTALLFOLDER" 
+                     Icon="CryptoTool.exe" 
+                     IconIndex="0" />
+          </File>
+        </Component>
+        
+        <!-- Component for uninstall shortcut cleanup -->
+        <Component Id="ApplicationShortcuts" Guid="*">
+          <RemoveFolder Id="INSTALLFOLDER" On="uninstall" />
+          <RegistryValue Root="HKCU" 
+                        Key="Software\jinjupeng\CryptoTool" 
+                        Name="installed" 
+                        Type="integer" 
+                        Value="1" 
+                        KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ApplicationShortcuts" />
+    </ComponentGroup>
+    
+    <Icon Id="CryptoTool.exe" SourceFile="$absoluteExePath" />
+  </Package>
+</Wix>
+"@
+
+    $wxsPath = "$installerDir\CryptoTool.wxs"
+    $wxsContent | Out-File -FilePath $wxsPath -Encoding UTF8
+    Write-Host "WiX configuration saved to: $wxsPath" -ForegroundColor Green
+
+    # Build MSI in publish directory
+    $msiPath = "$mainPublishPath\CryptoTool-v$Version-win-x64-Setup.msi"
+
+    # Remove existing MSI
+    if (Test-Path $msiPath) {
+        Remove-Item $msiPath -Force
+    }
+
+    try {
+        Write-Host "Building MSI package..." -ForegroundColor Yellow
+        
+        $wixResult = wix build $wxsPath -o $msiPath 2>&1
+        
+        if (Test-Path $msiPath) {
+            Write-Host "MSI package created successfully: $msiPath" -ForegroundColor Green
+        } else {
+            Write-Warning "MSI package creation failed"
+            Write-Host "WiX output: $wixResult" -ForegroundColor Gray
+        }
+    }
+    catch {
+        Write-Warning "Failed to create MSI package: $($_.Exception.Message)"
+    }
+} else {
     Write-Host ""
     Write-Host "MSI creation skipped due to WiX compatibility issues." -ForegroundColor Yellow
-    Write-Host "Executable and ZIP packages have been created successfully." -ForegroundColor Green
-} else {
-    Write-Host "MSI creation would be attempted here, but skipped for now." -ForegroundColor Yellow
 }
 
 # Show summary
@@ -178,17 +281,19 @@ Write-Host ""
 Write-Host "Build Summary:" -ForegroundColor Cyan
 Write-Host "  Version: $Version" -ForegroundColor White
 Write-Host "  Configuration: $Configuration" -ForegroundColor White
-Write-Host "  Self-contained executable: $newExe" -ForegroundColor White
-if (Test-Path $newExeFx) {
-    Write-Host "  Framework-dependent executable: $newExeFx" -ForegroundColor White
+Write-Host "  Output directory: $mainPublishPath" -ForegroundColor White
+Write-Host ""
+Write-Host "Created files:" -ForegroundColor Cyan
+
+# List all created files in publish directory
+if (Test-Path $mainPublishPath) {
+    Get-ChildItem $mainPublishPath -Recurse -File | ForEach-Object {
+        $relativePath = $_.FullName.Substring((Get-Item $mainPublishPath).FullName.Length + 1)
+        $fileSize = [math]::Round($_.Length / 1KB, 1)
+        Write-Host "  $relativePath ($fileSize KB)" -ForegroundColor White
+    }
 }
-Write-Host "  ZIP packages created" -ForegroundColor White
-
-$totalSize = 0
-if (Test-Path $newExe) { $totalSize += (Get-Item $newExe).Length }
-if (Test-Path $zipSelfContained) { $totalSize += (Get-Item $zipSelfContained).Length }
-
-Write-Host "  Total size: $([math]::Round($totalSize / 1MB, 2)) MB" -ForegroundColor White
 
 Write-Host ""
 Write-Host "Build process completed successfully!" -ForegroundColor Green
+Write-Host "All output files are located in the '$mainPublishPath' directory." -ForegroundColor Green
