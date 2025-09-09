@@ -106,6 +106,38 @@ jobs:
           Write-Host "Could not list extensions"
         }
 
+    # Update project versions if using git tag
+    - name: Update All Project Versions
+      if: steps.get-version.outputs.is-release == 'true'
+      shell: pwsh
+      run: |
+        $version = "${{ env.VERSION }}".Trim()
+        $assemblyVersion = "$version.0"
+        $fileVersion = "$version.0"
+        
+        $projects = @(
+          "CryptoTool.Win\CryptoTool.Win.csproj",
+          "CryptoTool.App\CryptoTool.App.csproj",
+          "CryptoTool.Common\CryptoTool.Common.csproj"
+        )
+        
+        foreach ($proj in $projects) {
+          Write-Host "Updating version in $proj..."
+          [xml]$xml = Get-Content $proj
+          
+          # Find the correct PropertyGroup (usually the first one)
+          $propertyGroup = $xml.Project.PropertyGroup | Select-Object -First 1
+          
+          $propertyGroup.Version = $version
+          $propertyGroup.AssemblyVersion = $assemblyVersion
+          $propertyGroup.FileVersion = $fileVersion
+          
+          $xml.Save($proj)
+          Write-Host "  Version set to $version"
+          Write-Host "  AssemblyVersion set to $assemblyVersion"
+          Write-Host "  FileVersion set to $fileVersion"
+        }
+
     # Restore dependencies
     - name: Restore dependencies
       run: dotnet restore ${{ env.Solution_Name }}
@@ -118,23 +150,6 @@ jobs:
     - name: Test
       run: dotnet test ${{ env.Solution_Name }} --no-build --configuration ${{ matrix.configuration }} --verbosity normal
       continue-on-error: true  # Continue even if no test projects are found
-
-    # Update project version if using git tag
-    - name: Update Project Version
-      if: steps.get-version.outputs.is-release == 'true'
-      shell: pwsh
-      run: |
-        $version = "${{ env.VERSION }}"
-        
-        # Update CryptoTool.Win project
-        $winCsproj = "CryptoTool.Win\CryptoTool.Win.csproj"
-        [xml]$xml = Get-Content $winCsproj
-        $xml.Project.PropertyGroup[0].Version = $version
-        $xml.Project.PropertyGroup[0].AssemblyVersion = "$version.0"
-        $xml.Project.PropertyGroup[0].FileVersion = "$version.0"
-        $xml.Save($winCsproj)
-        
-        Write-Host "Updated project version to: $version"
 
     # Create publish directory structure
     - name: Create Publish Directory
@@ -156,10 +171,7 @@ jobs:
           -p:PublishTrimmed=false `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:DebugType=None `
-          -p:DebugSymbols=false `
-          -p:Version="${{ env.VERSION }}" `
-          -p:AssemblyVersion="${{ env.VERSION }}.0" `
-          -p:FileVersion="${{ env.VERSION }}.0"
+          -p:DebugSymbols=false
 
     # Publish the WinForms application (Framework-dependent)
     - name: Publish WinForms App (Framework-dependent)
@@ -172,10 +184,7 @@ jobs:
           --output ./publish/CryptoTool.Win-FrameworkDependent `
           -p:PublishSingleFile=true `
           -p:DebugType=None `
-          -p:DebugSymbols=false `
-          -p:Version="${{ env.VERSION }}" `
-          -p:AssemblyVersion="${{ env.VERSION }}.0" `
-          -p:FileVersion="${{ env.VERSION }}.0"
+          -p:DebugSymbols=false
 
     # Publish the Console App
     - name: Publish Console App
@@ -189,16 +198,13 @@ jobs:
           -p:PublishSingleFile=true `
           -p:PublishTrimmed=false `
           -p:DebugType=None `
-          -p:DebugSymbols=false `
-          -p:Version="${{ env.VERSION }}" `
-          -p:AssemblyVersion="${{ env.VERSION }}.0" `
-          -p:FileVersion="${{ env.VERSION }}.0"
+          -p:DebugSymbols=false
 
     # Rename executables with version info
     - name: Rename executables
       shell: pwsh
       run: |
-        $version = "${{ env.VERSION }}"
+        $version = "${{ env.VERSION }}".Trim()
         
         if (Test-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe") {
           Rename-Item "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe" "CryptoTool-v$version-win-x64-SelfContained.exe"
@@ -217,7 +223,7 @@ jobs:
     - name: Create WiX Configuration
       shell: pwsh
       run: |
-        $version = "${{ env.VERSION }}"
+        $version = "${{ env.VERSION }}".Trim()
         $absolutePath = (Resolve-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe").Path
         
         # Create installer directory in publish folder
@@ -354,7 +360,7 @@ jobs:
     - name: Build MSI Package
       shell: pwsh
       run: |
-        $version = "${{ env.VERSION }}"
+        $version = "${{ env.VERSION }}".Trim()
         $msiPath = "./publish/CryptoTool-v$version-win-x64-Setup.msi"
         $hasUI = $env:HAS_UI_EXTENSION -eq "true"
         
@@ -383,7 +389,7 @@ jobs:
     - name: Create ZIP packages
       shell: pwsh
       run: |
-        $version = "${{ env.VERSION }}"
+        $version = "${{ env.VERSION }}".Trim()
         
         # Create ZIP for self-contained WinForms app
         if (Test-Path "./publish/CryptoTool.Win-SelfContained") {
@@ -429,33 +435,11 @@ jobs:
         path: ./publish/
       if: always()
 
-    # Also upload individual components for backward compatibility
-    - name: Upload Self-Contained Executable
-      uses: actions/upload-artifact@v4
-      with:
-        name: CryptoTool-SelfContained-${{ matrix.configuration }}-v${{ env.VERSION }}
-        path: ./publish/CryptoTool.Win-SelfContained/
-      if: always()
-
-    - name: Upload Framework-Dependent Executable  
-      uses: actions/upload-artifact@v4
-      with:
-        name: CryptoTool-FrameworkDependent-${{ matrix.configuration }}-v${{ env.VERSION }}
-        path: ./publish/CryptoTool.Win-FrameworkDependent/
-      if: always()
-
-    - name: Upload Console App
-      uses: actions/upload-artifact@v4
-      with:
-        name: CryptoTool-Console-${{ matrix.configuration }}-v${{ env.VERSION }}
-        path: ./publish/CryptoTool.App/
-      if: always()
-
   # Create release if this is a tag push
   create-release:
     needs: build
     runs-on: windows-latest
-    if: needs.build.outputs.is-release == 'true'
+    if: needs.build.outputs.is-release == 'true' && needs.build.result == 'success'
     
     steps:
     - name: Checkout
@@ -470,7 +454,7 @@ jobs:
     - name: Organize Release Files
       shell: pwsh
       run: |
-        $version = "${{ needs.build.outputs.version }}"
+        $version = "${{ needs.build.outputs.version }}".Trim()
         
         # Create release directory
         New-Item -Path "release" -ItemType Directory -Force
