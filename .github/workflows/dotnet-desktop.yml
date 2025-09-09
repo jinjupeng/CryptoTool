@@ -11,8 +11,13 @@ name: .NET Core Desktop
 on:
   push:
     branches: [ "master" ]
+    tags: [ "v*.*.*" ]
   pull_request:
     branches: [ "master" ]
+
+env:
+  Solution_Name: CryptoTool.sln
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   build:
@@ -22,8 +27,9 @@ jobs:
 
     runs-on: windows-latest
 
-    env:
-      Solution_Name: CryptoTool.sln
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+      is-release: ${{ steps.get-version.outputs.is-release }}
 
     steps:
     - name: Checkout
@@ -31,27 +37,79 @@ jobs:
       with:
         fetch-depth: 0
 
+    # Get version from git tag or csproj
+    - name: Get Version
+      id: get-version
+      shell: pwsh
+      run: |
+        $version = ""
+        $isRelease = "false"
+        
+        # Check if this is a tag push
+        if ($env:GITHUB_REF -like "refs/tags/v*") {
+          $version = $env:GITHUB_REF -replace "refs/tags/v", ""
+          $isRelease = "true"
+          Write-Host "Using git tag version: $version"
+        } else {
+          # Extract version from csproj file
+          [xml]$csproj = Get-Content "CryptoTool.Win\CryptoTool.Win.csproj"
+          $version = $csproj.Project.PropertyGroup.Version
+          if ([string]::IsNullOrEmpty($version)) {
+            $version = "1.0.0"
+          }
+          Write-Host "Using csproj version: $version"
+        }
+        
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        echo "is-release=$isRelease" >> $env:GITHUB_OUTPUT
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    # Install WiX toolset for MSI creation
+    - name: Install WiX toolset
+      shell: pwsh
+      run: |
+        dotnet tool install --global wix --version 5.0.0
+        wix extension add WixToolset.UI.wixext
 
     # Restore dependencies
     - name: Restore dependencies
-      run: dotnet restore $env:Solution_Name
+      run: dotnet restore ${{ env.Solution_Name }}
 
     # Build the solution
     - name: Build
-      run: dotnet build $env:Solution_Name --no-restore --configuration ${{ matrix.configuration }}
+      run: dotnet build ${{ env.Solution_Name }} --no-restore --configuration ${{ matrix.configuration }}
 
     # Run tests (if any test projects exist)
     - name: Test
-      run: dotnet test $env:Solution_Name --no-build --configuration ${{ matrix.configuration }} --verbosity normal
+      run: dotnet test ${{ env.Solution_Name }} --no-build --configuration ${{ matrix.configuration }} --verbosity normal
       continue-on-error: true  # Continue even if no test projects are found
 
-    # Publish the WinForms application as single file
+    # Update project version if using git tag
+    - name: Update Project Version
+      if: steps.get-version.outputs.is-release == 'true'
+      shell: pwsh
+      run: |
+        $version = "${{ env.VERSION }}"
+        
+        # Update CryptoTool.Win project
+        $winCsproj = "CryptoTool.Win\CryptoTool.Win.csproj"
+        [xml]$xml = Get-Content $winCsproj
+        $xml.Project.PropertyGroup[0].Version = $version
+        $xml.Project.PropertyGroup[0].AssemblyVersion = "$version.0"
+        $xml.Project.PropertyGroup[0].FileVersion = "$version.0"
+        $xml.Save($winCsproj)
+        
+        Write-Host "Updated project version to: $version"
+
+    # Publish the WinForms application as single file (Self-contained)
     - name: Publish WinForms App (Self-contained)
+      shell: pwsh
       run: |
         dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
           --configuration ${{ matrix.configuration }} `
@@ -60,20 +118,28 @@ jobs:
           --output ./publish/CryptoTool.Win-SelfContained `
           -p:PublishSingleFile=true `
           -p:PublishTrimmed=false `
-          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:Version="${{ env.VERSION }}" `
+          -p:AssemblyVersion="${{ env.VERSION }}.0" `
+          -p:FileVersion="${{ env.VERSION }}.0"
 
     # Publish the WinForms application (Framework-dependent)
     - name: Publish WinForms App (Framework-dependent)
+      shell: pwsh
       run: |
         dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
           --configuration ${{ matrix.configuration }} `
           --runtime win-x64 `
           --self-contained false `
           --output ./publish/CryptoTool.Win-FrameworkDependent `
-          -p:PublishSingleFile=true
+          -p:PublishSingleFile=true `
+          -p:Version="${{ env.VERSION }}" `
+          -p:AssemblyVersion="${{ env.VERSION }}.0" `
+          -p:FileVersion="${{ env.VERSION }}.0"
 
     # Publish the Console App
     - name: Publish Console App
+      shell: pwsh
       run: |
         dotnet publish CryptoTool.App\CryptoTool.App.csproj `
           --configuration ${{ matrix.configuration }} `
@@ -81,62 +147,141 @@ jobs:
           --self-contained true `
           --output ./publish/CryptoTool.App `
           -p:PublishSingleFile=true `
-          -p:PublishTrimmed=false
+          -p:PublishTrimmed=false `
+          -p:Version="${{ env.VERSION }}" `
+          -p:AssemblyVersion="${{ env.VERSION }}.0" `
+          -p:FileVersion="${{ env.VERSION }}.0"
 
     # Rename executables with version info
     - name: Rename executables
+      shell: pwsh
       run: |
-        $version = "1.0.0"
+        $version = "${{ env.VERSION }}"
+        
         if (Test-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe") {
-          Rename-Item "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe" "CryptoTool-$version-win-x64-SelfContained.exe"
+          Rename-Item "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe" "CryptoTool-v$version-win-x64-SelfContained.exe"
         }
         if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe") {
-          Rename-Item "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe" "CryptoTool-$version-win-x64-FrameworkDependent.exe"
+          Rename-Item "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe" "CryptoTool-v$version-win-x64-FrameworkDependent.exe"
         }
         if (Test-Path "./publish/CryptoTool.App/CryptoTool.App.exe") {
-          Rename-Item "./publish/CryptoTool.App/CryptoTool.App.exe" "CryptoTool.App-$version-win-x64.exe"
+          Rename-Item "./publish/CryptoTool.App/CryptoTool.App.exe" "CryptoTool.App-v$version-win-x64.exe"
         }
 
-    # Create ZIP packages for additional distribution
-    - name: Create ZIP packages
+    # Create WiX source files for MSI packaging
+    - name: Create WiX Configuration
+      shell: pwsh
       run: |
+        $version = "${{ env.VERSION }}"
+        $wxsContent = @"
+        <?xml version="1.0" encoding="UTF-8"?>
+        <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+          <Package Id="*" Name="CryptoTool" Language="1033" Version="$version" Manufacturer="jinjupeng" UpgradeCode="12345678-1234-1234-1234-123456789012">
+            <SummaryInformation Keywords="Installer" Description="CryptoTool Installer" Manufacturer="jinjupeng" />
+            
+            <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+            <MediaTemplate EmbedCab="yes" />
+            
+            <Feature Id="ProductFeature" Title="CryptoTool" Level="1">
+              <ComponentGroupRef Id="ProductComponents" />
+            </Feature>
+            
+            <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+            <UIRef Id="WixUI_InstallDir" />
+            
+            <StandardDirectory Id="ProgramFilesFolder">
+              <Directory Id="INSTALLFOLDER" Name="CryptoTool">
+                <Component Id="MainExecutable">
+                  <File Id="CryptoToolExe" Source="./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe" KeyPath="yes">
+                    <Shortcut Id="ApplicationStartMenuShortcut" Directory="ProgramMenuFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+                    <Shortcut Id="ApplicationDesktopShortcut" Directory="DesktopFolder" Name="CryptoTool" Description="CryptoTool 加解密工具" WorkingDirectory="INSTALLFOLDER" Icon="CryptoTool.exe" IconIndex="0" Advertise="yes" />
+                  </File>
+                </Component>
+              </Directory>
+            </StandardDirectory>
+            
+            <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+              <ComponentRef Id="MainExecutable" />
+            </ComponentGroup>
+            
+            <Icon Id="CryptoTool.exe" SourceFile="./publish/CryptoTool.Win-SelfContained/CryptoTool-v$version-win-x64-SelfContained.exe" />
+          </Package>
+        </Wix>
+        "@
+        
+        New-Item -Path "." -Name "installer" -ItemType Directory -Force
+        $wxsContent | Out-File -FilePath "./installer/CryptoTool.wxs" -Encoding UTF8
+        
+        Write-Host "Created WiX configuration file"
+
+    # Build MSI package
+    - name: Build MSI Package
+      shell: pwsh
+      run: |
+        $version = "${{ env.VERSION }}"
+        
+        # Build the MSI
+        wix build ./installer/CryptoTool.wxs -o "./CryptoTool-v$version-win-x64-Setup.msi"
+        
+        Write-Host "MSI package created successfully"
+      continue-on-error: true
+
+    # Create ZIP packages for distribution
+    - name: Create ZIP packages
+      shell: pwsh
+      run: |
+        $version = "${{ env.VERSION }}"
+        
         # Create ZIP for self-contained WinForms app
         if (Test-Path "./publish/CryptoTool.Win-SelfContained") {
-          Compress-Archive -Path "./publish/CryptoTool.Win-SelfContained/*" -DestinationPath "./CryptoTool-SelfContained-${{ matrix.configuration }}.zip"
+          Compress-Archive -Path "./publish/CryptoTool.Win-SelfContained/*" -DestinationPath "./CryptoTool-v$version-SelfContained-${{ matrix.configuration }}.zip"
         }
         
         # Create ZIP for framework-dependent WinForms app
         if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent") {
-          Compress-Archive -Path "./publish/CryptoTool.Win-FrameworkDependent/*" -DestinationPath "./CryptoTool-FrameworkDependent-${{ matrix.configuration }}.zip"
+          Compress-Archive -Path "./publish/CryptoTool.Win-FrameworkDependent/*" -DestinationPath "./CryptoTool-v$version-FrameworkDependent-${{ matrix.configuration }}.zip"
+        }
+        
+        # Create ZIP for console app
+        if (Test-Path "./publish/CryptoTool.App") {
+          Compress-Archive -Path "./publish/CryptoTool.App/*" -DestinationPath "./CryptoTool.App-v$version-${{ matrix.configuration }}.zip"
         }
 
     # Upload executable files as artifacts
     - name: Upload Self-Contained Executable
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-SelfContained-${{ matrix.configuration }}
+        name: CryptoTool-SelfContained-${{ matrix.configuration }}-v${{ env.VERSION }}
         path: ./publish/CryptoTool.Win-SelfContained/
       if: always()
 
     - name: Upload Framework-Dependent Executable  
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-FrameworkDependent-${{ matrix.configuration }}
+        name: CryptoTool-FrameworkDependent-${{ matrix.configuration }}-v${{ env.VERSION }}
         path: ./publish/CryptoTool.Win-FrameworkDependent/
       if: always()
 
     - name: Upload Console App
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-Console-${{ matrix.configuration }}
+        name: CryptoTool-Console-${{ matrix.configuration }}-v${{ env.VERSION }}
         path: ./publish/CryptoTool.App/
+      if: always()
+
+    # Upload MSI package
+    - name: Upload MSI Package
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoTool-MSI-${{ matrix.configuration }}-v${{ env.VERSION }}
+        path: ./*.msi
       if: always()
 
     # Upload ZIP packages
     - name: Upload ZIP packages
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-ZIP-${{ matrix.configuration }}
+        name: CryptoTool-ZIP-${{ matrix.configuration }}-v${{ env.VERSION }}
         path: ./*.zip
       if: always()
 
@@ -144,23 +289,69 @@ jobs:
   create-release:
     needs: build
     runs-on: windows-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: needs.build.outputs.is-release == 'true'
     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Download artifacts
+    - name: Download artifacts (Release only)
       uses: actions/download-artifact@v4
-      
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
       with:
-        files: |
-          CryptoTool-SelfContained-Release/CryptoTool-*.exe
-          CryptoTool-FrameworkDependent-Release/CryptoTool-*.exe  
-          CryptoTool-Console-Release/CryptoTool.App-*.exe
-          CryptoTool-ZIP-Release/*.zip
+        pattern: "*Release*"
+        merge-multiple: true
+        
+    - name: Organize Release Files
+      shell: pwsh
+      run: |
+        $version = "${{ needs.build.outputs.version }}"
+        
+        # Create release directory
+        New-Item -Path "release" -ItemType Directory -Force
+        
+        # Move files to release directory with proper naming
+        Get-ChildItem -Path "." -Filter "*.exe" | ForEach-Object {
+          Move-Item $_.FullName "release/"
+        }
+        
+        Get-ChildItem -Path "." -Filter "*.msi" | ForEach-Object {
+          Move-Item $_.FullName "release/"
+        }
+        
+        Get-ChildItem -Path "." -Filter "*.zip" | ForEach-Object {
+          Move-Item $_.FullName "release/"
+        }
+        
+        Write-Host "Release files organized:"
+        Get-ChildItem "release/" | ForEach-Object { Write-Host "  $($_.Name)" }
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: release/*
         generate_release_notes: true
+        name: "CryptoTool v${{ needs.build.outputs.version }}"
+        tag_name: "v${{ needs.build.outputs.version }}"
+        body: |
+          ## CryptoTool v${{ needs.build.outputs.version }}
+          
+          ### 下载说明 / Download Instructions
+          
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-SelfContained.exe**: 自包含可执行文件，无需安装.NET运行时
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-FrameworkDependent.exe**: 框架依赖可执行文件，需要.NET 8运行时
+          - **CryptoTool-v${{ needs.build.outputs.version }}-win-x64-Setup.msi**: Windows安装包，包含桌面和开始菜单快捷方式
+          - **CryptoTool.App-v${{ needs.build.outputs.version }}-win-x64.exe**: 控制台应用程序
+          - **ZIP文件**: 包含完整发布文件的压缩包
+          
+          ### 功能特性 / Features
+          - 支持RSA、SM2、SM3、SM4等多种加解密算法
+          - 提供Windows Forms图形界面和控制台应用
+          - 支持密钥格式转换和证书管理
+          
+          ### 系统要求 / System Requirements
+          - Windows 10/11 (x64)
+          - .NET 8.0 Runtime (仅框架依赖版本需要)
+        draft: false
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

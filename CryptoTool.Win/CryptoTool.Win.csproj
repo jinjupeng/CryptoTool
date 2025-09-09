@@ -8,9 +8,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
     <PackageIcon>三花猫.png</PackageIcon>
-    <Version>1.0.2</Version>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
+    <Version>1.0.3</Version>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
     <Copyright>Copyright © jinjupeng 2024</Copyright>
     <Product>CryptoTool 加解密工具</Product>
     <Description>一个功能强大的加解密工具，支持RSA、SM2、SM3、SM4等多种加解密算法</Description>
