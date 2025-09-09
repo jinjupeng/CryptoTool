@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace CryptoTool.Win
 {
     internal static class Program
@@ -8,9 +10,21 @@ namespace CryptoTool.Win
         [STAThread]
         static void Main()
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+            try
+            {
+                // Set console encoding to UTF-8 to handle Chinese characters
+                Console.OutputEncoding = Encoding.UTF8;
+                Console.InputEncoding = Encoding.UTF8;
+            }
+            catch
+            {
+                // Ignore if console encoding cannot be set in some environments
+            }
+            
+            // Initialize application configuration
             ApplicationConfiguration.Initialize();
+            
+            // Run main form
             Application.Run(new MainForm());
         }
     }

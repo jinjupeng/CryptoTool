@@ -35,6 +35,7 @@ namespace CryptoTool.Win
             tabSM2 = new TabPage();
             tabSM3 = new TabPage();
             tabMedicare = new TabPage();
+            tabAbout = new TabPage();
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             tabControl1.SuspendLayout();
@@ -49,6 +50,7 @@ namespace CryptoTool.Win
             tabControl1.Controls.Add(tabSM2);
             tabControl1.Controls.Add(tabSM3);
             tabControl1.Controls.Add(tabMedicare);
+            tabControl1.Controls.Add(tabAbout);
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Location = new Point(0, 0);
             tabControl1.Margin = new Padding(4);
@@ -123,6 +125,17 @@ namespace CryptoTool.Win
             tabMedicare.Text = "医保接口";
             tabMedicare.UseVisualStyleBackColor = true;
             // 
+            // tabAbout
+            // 
+            tabAbout.Location = new Point(4, 29);
+            tabAbout.Margin = new Padding(4);
+            tabAbout.Name = "tabAbout";
+            tabAbout.Padding = new Padding(3, 4, 3, 4);
+            tabAbout.Size = new Size(1278, 1022);
+            tabAbout.TabIndex = 6;
+            tabAbout.Text = "关于";
+            tabAbout.UseVisualStyleBackColor = true;
+            // 
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
@@ -168,6 +181,7 @@ namespace CryptoTool.Win
         private System.Windows.Forms.TabPage tabSM2;
         private TabPage tabSM3;
         private TabPage tabMedicare;
+        private TabPage tabAbout;
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel toolStripStatusLabel1;
     }

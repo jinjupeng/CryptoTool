@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-# This workflow will build a .NET project
+# This workflow will build a .NET project and create executable releases
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
 name: .NET Core Desktop
@@ -50,23 +50,117 @@ jobs:
       run: dotnet test $env:Solution_Name --no-build --configuration ${{ matrix.configuration }} --verbosity normal
       continue-on-error: true  # Continue even if no test projects are found
 
-    # Publish the WinForms application
-    - name: Publish WinForms App
-      run: dotnet publish CryptoTool.Win\CryptoTool.Win.csproj --configuration ${{ matrix.configuration }} --output ./publish/CryptoTool.Win --self-contained false
+    # Publish the WinForms application as single file
+    - name: Publish WinForms App (Self-contained)
+      run: |
+        dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
+          --configuration ${{ matrix.configuration }} `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ./publish/CryptoTool.Win-SelfContained `
+          -p:PublishSingleFile=true `
+          -p:PublishTrimmed=false `
+          -p:IncludeNativeLibrariesForSelfExtract=true
+
+    # Publish the WinForms application (Framework-dependent)
+    - name: Publish WinForms App (Framework-dependent)
+      run: |
+        dotnet publish CryptoTool.Win\CryptoTool.Win.csproj `
+          --configuration ${{ matrix.configuration }} `
+          --runtime win-x64 `
+          --self-contained false `
+          --output ./publish/CryptoTool.Win-FrameworkDependent `
+          -p:PublishSingleFile=true
 
     # Publish the Console App
     - name: Publish Console App
-      run: dotnet publish CryptoTool.App\CryptoTool.App.csproj --configuration ${{ matrix.configuration }} --output ./publish/CryptoTool.App --self-contained false
+      run: |
+        dotnet publish CryptoTool.App\CryptoTool.App.csproj `
+          --configuration ${{ matrix.configuration }} `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ./publish/CryptoTool.App `
+          -p:PublishSingleFile=true `
+          -p:PublishTrimmed=false
 
-    # Upload build artifacts
-    - name: Upload WinForms build artifacts
+    # Rename executables with version info
+    - name: Rename executables
+      run: |
+        $version = "1.0.0"
+        if (Test-Path "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe") {
+          Rename-Item "./publish/CryptoTool.Win-SelfContained/CryptoTool.Win.exe" "CryptoTool-$version-win-x64-SelfContained.exe"
+        }
+        if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe") {
+          Rename-Item "./publish/CryptoTool.Win-FrameworkDependent/CryptoTool.Win.exe" "CryptoTool-$version-win-x64-FrameworkDependent.exe"
+        }
+        if (Test-Path "./publish/CryptoTool.App/CryptoTool.App.exe") {
+          Rename-Item "./publish/CryptoTool.App/CryptoTool.App.exe" "CryptoTool.App-$version-win-x64.exe"
+        }
+
+    # Create ZIP packages for additional distribution
+    - name: Create ZIP packages
+      run: |
+        # Create ZIP for self-contained WinForms app
+        if (Test-Path "./publish/CryptoTool.Win-SelfContained") {
+          Compress-Archive -Path "./publish/CryptoTool.Win-SelfContained/*" -DestinationPath "./CryptoTool-SelfContained-${{ matrix.configuration }}.zip"
+        }
+        
+        # Create ZIP for framework-dependent WinForms app
+        if (Test-Path "./publish/CryptoTool.Win-FrameworkDependent") {
+          Compress-Archive -Path "./publish/CryptoTool.Win-FrameworkDependent/*" -DestinationPath "./CryptoTool-FrameworkDependent-${{ matrix.configuration }}.zip"
+        }
+
+    # Upload executable files as artifacts
+    - name: Upload Self-Contained Executable
       uses: actions/upload-artifact@v4
       with:
-        name: CryptoTool-WinForms-${{ matrix.configuration }}
-        path: ./publish/CryptoTool.Win
+        name: CryptoTool-SelfContained-${{ matrix.configuration }}
+        path: ./publish/CryptoTool.Win-SelfContained/
+      if: always()
 
-    - name: Upload Console App build artifacts
+    - name: Upload Framework-Dependent Executable  
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoTool-FrameworkDependent-${{ matrix.configuration }}
+        path: ./publish/CryptoTool.Win-FrameworkDependent/
+      if: always()
+
+    - name: Upload Console App
       uses: actions/upload-artifact@v4
       with:
         name: CryptoTool-Console-${{ matrix.configuration }}
-        path: ./publish/CryptoTool.App
+        path: ./publish/CryptoTool.App/
+      if: always()
+
+    # Upload ZIP packages
+    - name: Upload ZIP packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: CryptoTool-ZIP-${{ matrix.configuration }}
+        path: ./*.zip
+      if: always()
+
+  # Create release if this is a tag push
+  create-release:
+    needs: build
+    runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          CryptoTool-SelfContained-Release/CryptoTool-*.exe
+          CryptoTool-FrameworkDependent-Release/CryptoTool-*.exe  
+          CryptoTool-Console-Release/CryptoTool.App-*.exe
+          CryptoTool-ZIP-Release/*.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
