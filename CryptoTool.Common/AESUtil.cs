@@ -54,15 +54,27 @@ namespace CryptoTool.Common
         public enum AESPadding
         {
             /// <summary>
-            /// PKCS7填充
+            /// PKCS7填充（推荐）- 最常用的标准填充模式
             /// </summary>
             PKCS7,
             /// <summary>
-            /// 零填充
+            /// PKCS5填充 - 与PKCS7类似，但专门用于8字节块大小
+            /// </summary>
+            PKCS5,
+            /// <summary>
+            /// 零填充 - 使用零字节填充
             /// </summary>
             Zeros,
             /// <summary>
-            /// 无填充
+            /// ISO10126填充 - 使用随机字节填充，最后一字节表示填充长度
+            /// </summary>
+            ISO10126,
+            /// <summary>
+            /// ANSIX923填充 - 填充字节为零，最后一字节表示填充长度
+            /// </summary>
+            ANSIX923,
+            /// <summary>
+            /// 无填充 - 要求输入数据长度必须是块大小的整数倍
             /// </summary>
             None
         }
@@ -137,7 +149,7 @@ namespace CryptoTool.Common
         /// <param name="outputFormat">输出格式</param>
         /// <param name="iv">初始向量（可选，如果不提供则使用默认IV）</param>
         /// <returns>加密后的字符串</returns>
-        public static string EncryptByAES(string plaintext, string key, AESMode mode = AESMode.CBC, 
+        public static string EncryptByAES(string plaintext, string key, AESMode mode = AESMode.CBC,
             AESPadding padding = AESPadding.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
         {
             if (string.IsNullOrEmpty(plaintext))
@@ -151,7 +163,7 @@ namespace CryptoTool.Common
 
             byte[] encryptedBytes = EncryptByAES(plainBytes, keyBytes, ivBytes, mode, padding);
 
-            return outputFormat == OutputFormat.Base64 
+            return outputFormat == OutputFormat.Base64
                 ? Convert.ToBase64String(encryptedBytes)
                 : BitConverter.ToString(encryptedBytes).Replace("-", "");
         }
@@ -198,7 +210,7 @@ namespace CryptoTool.Common
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <returns>加密后的字节数组</returns>
-        public static byte[] EncryptByAES(byte[] data, byte[] key, byte[] iv, 
+        public static byte[] EncryptByAES(byte[] data, byte[] key, byte[] iv,
             AESMode mode = AESMode.CBC, AESPadding padding = AESPadding.PKCS7)
         {
             if (data == null || data.Length == 0)
@@ -212,15 +224,7 @@ namespace CryptoTool.Common
             {
                 using (var encryptor = aes.CreateEncryptor())
                 {
-                    using (var ms = new MemoryStream())
-                    {
-                        using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                        {
-                            cs.Write(data, 0, data.Length);
-                            cs.FlushFinalBlock();
-                            return ms.ToArray();
-                        }
-                    }
+                    return ProcessCrypto(data, encryptor, padding);
                 }
             }
         }
@@ -248,17 +252,7 @@ namespace CryptoTool.Common
             {
                 using (var decryptor = aes.CreateDecryptor())
                 {
-                    using (var ms = new MemoryStream(encryptedData))
-                    {
-                        using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
-                        {
-                            using (var resultMs = new MemoryStream())
-                            {
-                                cs.CopyTo(resultMs);
-                                return resultMs.ToArray();
-                            }
-                        }
-                    }
+                    return ProcessCrypto(encryptedData, decryptor, padding, false);
                 }
             }
         }
@@ -430,115 +424,163 @@ namespace CryptoTool.Common
 
         #endregion
 
-
-        #region 兼容性方法（保持向后兼容）
+        #region 自定义填充实现
 
         /// <summary>
-        /// AES加密（保持向后兼容）
+        /// 处理自定义填充的加密/解密
         /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用EncryptByAES(string, string, AESMode, AESPadding, OutputFormat, string)替代。")]
-        public static string EncryptByAES_Legacy(string input, string key)
+        /// <param name="data">数据</param>
+        /// <param name="cryptoTransform">加密转换器</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="isDecrypt">是否为解密操作</param>
+        /// <returns>处理后的数据</returns>
+        private static byte[] ProcessCrypto(byte[] data, ICryptoTransform cryptoTransform, AESPadding padding, bool isDecrypt = true)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key.Substring(0, Math.Min(32, key.Length)).PadRight(32, '0'));
-            using (var aesAlg = new AesCryptoServiceProvider())
+            // 对于标准的.NET支持的填充模式，使用标准流处理
+            if (padding == AESPadding.PKCS7 || padding == AESPadding.Zeros || padding == AESPadding.None)
             {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = AES_IV;
-
-                var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-                using (var msEncrypt = new MemoryStream())
+                using (var ms = new MemoryStream())
                 {
-                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    using (var cs = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
                     {
-                        using (var swEncrypt = new StreamWriter(csEncrypt))
-                        {
-                            swEncrypt.Write(input);
-                        }
-                        byte[] bytes = msEncrypt.ToArray();
-                        return BitConverter.ToString(bytes);
+                        cs.Write(data, 0, data.Length);
+                        cs.FlushFinalBlock();
+                        return ms.ToArray();
+                    }
+                }
+            }
+
+            // 对于自定义填充模式，需要手动处理
+            const int blockSize = 16; // AES块大小
+
+            if (isDecrypt)
+            {
+                // 解密时，先解密再去除填充
+                byte[] decryptedData;
+                using (var ms = new MemoryStream())
+                {
+                    using (var cs = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+                    {
+                        cs.Write(data, 0, data.Length);
+                        cs.FlushFinalBlock();
+                        decryptedData = ms.ToArray();
+                    }
+                }
+
+                return RemoveCustomPadding(decryptedData, padding);
+            }
+            else
+            {
+                // 加密时，先添加填充再加密
+                byte[] paddedData = AddCustomPadding(data, padding, blockSize);
+
+                using (var ms = new MemoryStream())
+                {
+                    using (var cs = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write))
+                    {
+                        cs.Write(paddedData, 0, paddedData.Length);
+                        cs.FlushFinalBlock();
+                        return ms.ToArray();
                     }
                 }
             }
         }
 
         /// <summary>
-        /// AES解密（保持向后兼容）
+        /// 添加自定义填充
         /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用DecryptByAES(string, string, AESMode, AESPadding, OutputFormat, string)替代。")]
-        public static string DecryptByAES_Legacy(string input, string key)
+        /// <param name="data">原始数据</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="blockSize">块大小</param>
+        /// <returns>填充后的数据</returns>
+        private static byte[] AddCustomPadding(byte[] data, AESPadding padding, int blockSize)
         {
-            string[] sInput = input.Split("-".ToCharArray());
-            byte[] inputBytes = new byte[sInput.Length];
-            for (int i = 0; i < sInput.Length; i++)
-            {
-                inputBytes[i] = byte.Parse(sInput[i], NumberStyles.HexNumber);
-            }
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key.Substring(0, Math.Min(32, key.Length)).PadRight(32, '0'));
-            using (var aesAlg = new AesCryptoServiceProvider())
-            {
-                aesAlg.Key = keyBytes;
-                aesAlg.IV = AES_IV;
+            int paddingLength = blockSize - (data.Length % blockSize);
+            if (paddingLength == blockSize) paddingLength = 0; // 数据长度已经是块大小的倍数
 
-                var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-                using (var msEncrypt = new MemoryStream(inputBytes))
-                {
-                    using (var csEncrypt = new CryptoStream(msEncrypt, decryptor, CryptoStreamMode.Read))
+            byte[] paddedData = new byte[data.Length + paddingLength];
+            Array.Copy(data, 0, paddedData, 0, data.Length);
+
+            switch (padding)
+            {
+                case AESPadding.PKCS5:
+                    // PKCS#5 填充：填充字节的值等于填充字节的数量
+                    for (int i = data.Length; i < paddedData.Length; i++)
                     {
-                        using (var srEncrypt = new StreamReader(csEncrypt))
+                        paddedData[i] = (byte)paddingLength;
+                    }
+                    break;
+
+                case AESPadding.ISO10126:
+                    // ISO 10126 填充：随机填充，最后一字节表示填充长度
+                    using (var rng = new RNGCryptoServiceProvider())
+                    {
+                        if (paddingLength > 0)
                         {
-                            return srEncrypt.ReadToEnd();
+                            byte[] randomBytes = new byte[paddingLength - 1];
+                            rng.GetBytes(randomBytes);
+                            Array.Copy(randomBytes, 0, paddedData, data.Length, paddingLength - 1);
+                            paddedData[paddedData.Length - 1] = (byte)paddingLength;
                         }
                     }
-                }
+                    break;
+
+                case AESPadding.ANSIX923:
+                    // ANSI X9.23 填充：填充字节为0，最后一字节表示填充长度
+                    if (paddingLength > 0)
+                    {
+                        // 前面的填充字节已经是0（新数组默认为0）
+                        paddedData[paddedData.Length - 1] = (byte)paddingLength;
+                    }
+                    break;
+
+                default:
+                    throw new NotSupportedException($"不支持的填充模式: {padding}");
             }
+
+            return paddedData;
         }
 
         /// <summary>
-        /// AES加密（字节数组，保持向后兼容）
+        /// 移除自定义填充
         /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用EncryptByAES(byte[], byte[], byte[], AESMode, AESPadding)替代。")]
-        public static byte[] EncryptByAES_Legacy(byte[] inputdata, byte[] key, byte[] iv)
+        /// <param name="data">填充后的数据</param>
+        /// <param name="padding">填充模式</param>
+        /// <returns>移除填充后的数据</returns>
+        private static byte[] RemoveCustomPadding(byte[] data, AESPadding padding)
         {
-            using (var aesAlg = new AesCryptoServiceProvider())
-            {
-                aesAlg.Key = key;
-                aesAlg.IV = iv;
+            if (data == null || data.Length == 0)
+                return data;
 
-                var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-                using (var msEncrypt = new MemoryStream())
-                {
-                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-                    {
-                        csEncrypt.Write(inputdata, 0, inputdata.Length);
-                        csEncrypt.FlushFinalBlock();
-                        return msEncrypt.ToArray();
-                    }
-                }
-            }
-        }
+            int paddingLength;
 
-        /// <summary>
-        /// AES解密（字节数组，保持向后兼容）
-        /// </summary>
-        [Obsolete("此方法为保持兼容性而保留，请使用DecryptByAES(byte[], byte[], byte[], AESMode, AESPadding)替代。")]
-        public static byte[] DecryptByAES_Legacy(byte[] inputBytes, byte[] key, byte[] iv)
-        {
-            using (var aes = new AesCryptoServiceProvider())
+            switch (padding)
             {
-                aes.Key = key;
-                aes.IV = iv;
-                using (var ms = new MemoryStream(inputBytes))
-                {
-                    using (var cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read))
+                case AESPadding.PKCS5:
+                    paddingLength = data[data.Length - 1];
+                    // 验证填充的正确性
+                    for (int i = data.Length - paddingLength; i < data.Length; i++)
                     {
-                        using (var reader = new StreamReader(cs))
-                        {
-                            string result = reader.ReadToEnd();
-                            return Encoding.UTF8.GetBytes(result);
-                        }
+                        if (data[i] != paddingLength)
+                            throw new CryptographicException("无效的PKCS#5填充");
                     }
-                }
+                    break;
+
+                case AESPadding.ISO10126:
+                case AESPadding.ANSIX923:
+                    paddingLength = data[data.Length - 1];
+                    break;
+
+                default:
+                    throw new NotSupportedException($"不支持的填充模式: {padding}");
             }
+
+            if (paddingLength == 0 || paddingLength > data.Length)
+                throw new CryptographicException($"无效的填充长度: {paddingLength}");
+
+            byte[] result = new byte[data.Length - paddingLength];
+            Array.Copy(data, 0, result, 0, result.Length);
+            return result;
         }
 
         #endregion
@@ -552,7 +594,7 @@ namespace CryptoTool.Common
         {
             var aes = Aes.Create();
             aes.Key = key;
-            
+
             // 设置加密模式
             try
             {
@@ -580,8 +622,12 @@ namespace CryptoTool.Common
             aes.Padding = padding switch
             {
                 AESPadding.PKCS7 => PaddingMode.PKCS7,
+                AESPadding.PKCS5 => PaddingMode.PKCS7, // .NET中PKCS5等同于PKCS7
                 AESPadding.Zeros => PaddingMode.Zeros,
                 AESPadding.None => PaddingMode.None,
+                // 自定义填充模式设置为None，由我们手动处理
+                AESPadding.ISO10126 => PaddingMode.None,
+                AESPadding.ANSIX923 => PaddingMode.None,
                 _ => PaddingMode.PKCS7
             };
 
@@ -597,7 +643,7 @@ namespace CryptoTool.Common
         /// <summary>
         /// 处理密钥，确保长度正确
         /// </summary>
-        private static byte[] ProcessKey(string key)
+        public static byte[] ProcessKey(string key)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException("密钥不能为空", nameof(key));
@@ -635,7 +681,7 @@ namespace CryptoTool.Common
         /// <summary>
         /// 处理初始向量，确保长度为16字节
         /// </summary>
-        private static byte[] ProcessIV(string iv)
+        public static byte[] ProcessIV(string iv)
         {
             if (string.IsNullOrEmpty(iv))
                 return AES_IV;
@@ -665,7 +711,7 @@ namespace CryptoTool.Common
         {
             // 移除连字符
             hex = hex.Replace("-", "");
-            
+
             if (hex.Length % 2 != 0)
                 throw new ArgumentException("十六进制字符串长度必须为偶数", nameof(hex));
 
@@ -691,13 +737,51 @@ namespace CryptoTool.Common
         public static string GetKeyStrengthDescription(byte[] key)
         {
             if (key == null) return "无效密钥";
-            
+
             return key.Length switch
             {
                 16 => "AES-128（标准强度）",
                 24 => "AES-192（高强度）",
                 32 => "AES-256（最高强度）",
                 _ => $"非标准密钥长度（{key.Length * 8}位）"
+            };
+        }
+
+        /// <summary>
+        /// 获取填充模式描述
+        /// </summary>
+        /// <param name="padding">填充模式</param>
+        /// <returns>填充模式描述</returns>
+        public static string GetPaddingDescription(AESPadding padding)
+        {
+            return padding switch
+            {
+                AESPadding.PKCS7 => "PKCS#7 - 标准填充模式（推荐）",
+                AESPadding.PKCS5 => "PKCS#5 - 与PKCS#7相同，用于8字节块",
+                AESPadding.Zeros => "零填充 - 使用零字节填充",
+                AESPadding.ISO10126 => "ISO 10126 - 随机填充，最后字节为长度",
+                AESPadding.ANSIX923 => "ANSI X9.23 - 零填充，最后字节为长度",
+                AESPadding.None => "无填充 - 数据长度必须是块大小倍数",
+                _ => "未知填充模式"
+            };
+        }
+
+        /// <summary>
+        /// 验证填充模式是否受支持
+        /// </summary>
+        /// <param name="padding">填充模式</param>
+        /// <returns>是否支持</returns>
+        public static bool IsPaddingSupportedNatively(AESPadding padding)
+        {
+            return padding switch
+            {
+                AESPadding.PKCS7 => true,
+                AESPadding.PKCS5 => true, // 在.NET中等同于PKCS7
+                AESPadding.Zeros => true,
+                AESPadding.None => true,
+                AESPadding.ISO10126 => false, // 需要自定义实现
+                AESPadding.ANSIX923 => false, // 需要自定义实现
+                _ => false
             };
         }
 

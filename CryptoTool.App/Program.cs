@@ -25,6 +25,7 @@ namespace CryptoTool.App
             //SM3Test();
             //SM4Test();
         }
+        #region 医保测试
 
         public static void MedicareTest()
         {
@@ -102,6 +103,9 @@ namespace CryptoTool.App
 
             Console.WriteLine("--------------医保MedicareUtil测试完成---------------\n");
         }
+
+        #endregion
+
         public static void AliyunCSBTest()
         {
             Console.WriteLine("--------------阿里云CSB签名测试---------------");
@@ -120,6 +124,441 @@ namespace CryptoTool.App
             Console.WriteLine($"生成的签名: {signature}");
             Console.WriteLine("--------------阿里云CSB签名测试完成---------------");
         }
+
+
+        #region AES测试
+
+        /// <summary>
+        /// AES算法全面测试
+        /// </summary>
+        public static void AESTest()
+        {
+            Console.WriteLine("--------------AES算法全面测试---------------");
+
+            try
+            {
+                // 1. 基础加解密测试
+                TestBasicAESFunctionality();
+
+                // 2. 不同加密模式测试
+                TestAESModes();
+
+                // 3. 不同填充模式测试
+                TestAESPaddingModes();
+
+                // 4. 不同密钥长度测试
+                TestAESKeySizes();
+
+                // 5. 文件加密测试
+                TestAESFileEncryption();
+
+                // 6. 流式加密测试
+                TestAESStreamEncryption();
+
+                // 7. 密钥生成测试
+                TestAESKeyGeneration();
+
+                // 8. 性能测试
+                TestAESPerformance();
+
+                Console.WriteLine("\nAES算法全面测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES测试过程中发生异常: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES基础功能
+        /// </summary>
+        public static void TestBasicAESFunctionality()
+        {
+            Console.WriteLine("\n--- AES基础功能测试 ---");
+
+            try
+            {
+                string plaintext = "Hello, AES加密测试！这是一个中文测试字符串。";
+                string key = "MySecretKey123456789012345678901234"; // 32字节密钥
+
+                Console.WriteLine($"原始文本: {plaintext}");
+                Console.WriteLine($"密钥: {key}");
+
+                // 测试默认参数加密
+                string encrypted = AESUtil.EncryptByAES(plaintext, key);
+                Console.WriteLine($"加密结果(Base64): {encrypted}");
+
+                // 测试默认参数解密
+                string decrypted = AESUtil.DecryptByAES(encrypted, key);
+                Console.WriteLine($"解密结果: {decrypted}");
+
+                // 验证加解密一致性
+                bool isMatch = plaintext == decrypted;
+                Console.WriteLine($"加解密一致性验证: {(isMatch ? "通过" : "失败")}");
+
+                // 测试十六进制输出格式
+                string encryptedHex = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Hex);
+                Console.WriteLine($"加密结果(Hex): {encryptedHex}");
+
+                string decryptedFromHex = AESUtil.DecryptByAES(encryptedHex, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Hex);
+                Console.WriteLine($"从Hex解密结果: {decryptedFromHex}");
+
+                bool hexMatch = plaintext == decryptedFromHex;
+                Console.WriteLine($"Hex格式加解密一致性验证: {(hexMatch ? "通过" : "失败")}");
+
+                Console.WriteLine("AES基础功能测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES基础功能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES不同加密模式
+        /// </summary>
+        public static void TestAESModes()
+        {
+            Console.WriteLine("\n--- AES加密模式测试 ---");
+
+            try
+            {
+                string plaintext = "测试不同AES加密模式";
+                string key = "TestKey1234567890123456789012345"; // 32字节密钥
+                string iv = "TestIV1234567890"; // 16字节IV
+
+                var modes = new[]
+                {
+                    AESUtil.AESMode.ECB,
+                    AESUtil.AESMode.CBC,
+                    AESUtil.AESMode.CFB
+                };
+
+                foreach (var mode in modes)
+                {
+                    try
+                    {
+                        Console.WriteLine($"\n测试 {mode} 模式:");
+
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64,
+                            mode == AESUtil.AESMode.ECB ? null : iv);
+                        Console.WriteLine($"  加密结果: {encrypted}");
+
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64,
+                            mode == AESUtil.AESMode.ECB ? null : iv);
+                        Console.WriteLine($"  解密结果: {decrypted}");
+
+                        bool isMatch = plaintext == decrypted;
+                        Console.WriteLine($"  验证结果: {(isMatch ? "通过" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {mode} 模式测试失败: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine("AES加密模式测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES加密模式测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES不同填充模式
+        /// </summary>
+        public static void TestAESPaddingModes()
+        {
+            Console.WriteLine("\n--- AES填充模式测试 ---");
+
+            try
+            {
+                string plaintext = "测试AES填充模式";
+                string key = "TestKey1234567890123456789012345";
+                string iv = "TestIV1234567890";
+
+                var paddings = new[]
+                {
+                    AESUtil.AESPadding.PKCS7,
+                    AESUtil.AESPadding.Zeros,
+                    AESUtil.AESPadding.None
+                };
+
+                foreach (var padding in paddings)
+                {
+                    try
+                    {
+                        Console.WriteLine($"\n测试 {padding} 填充:");
+
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+                        Console.WriteLine($"  加密结果: {encrypted}");
+
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+                        Console.WriteLine($"  解密结果: {decrypted}");
+
+                        bool isMatch = plaintext == decrypted;
+                        Console.WriteLine($"  验证结果: {(isMatch ? "通过" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {padding} 填充测试失败: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine("AES填充模式测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES填充模式测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES不同密钥长度
+        /// </summary>
+        public static void TestAESKeySizes()
+        {
+            Console.WriteLine("\n--- AES密钥长度测试 ---");
+
+            try
+            {
+                string plaintext = "测试AES不同密钥长度";
+                string iv = "TestIV1234567890";
+
+                var keySizes = new[]
+                {
+                    AESUtil.AESKeySize.Aes128,
+                    AESUtil.AESKeySize.Aes192,
+                    AESUtil.AESKeySize.Aes256
+                };
+
+                foreach (var keySize in keySizes)
+                {
+                    try
+                    {
+                        Console.WriteLine($"\n测试 {keySize} 密钥:");
+
+                        // 生成指定长度的密钥
+                        string key = AESUtil.GenerateKey(keySize);
+                        Console.WriteLine($"  生成密钥: {key}");
+
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                        Console.WriteLine($"  加密结果: {encrypted}");
+
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                        Console.WriteLine($"  解密结果: {decrypted}");
+
+                        bool isMatch = plaintext == decrypted;
+                        Console.WriteLine($"  验证结果: {(isMatch ? "通过" : "失败")}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  {keySize} 密钥测试失败: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine("AES密钥长度测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES密钥长度测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES文件加密
+        /// </summary>
+        public static void TestAESFileEncryption()
+        {
+            Console.WriteLine("\n--- AES文件加密测试 ---");
+
+            try
+            {
+                string testContent = "这是一个AES文件加密测试内容。\n包含中文和英文。\nThis is a test file for AES encryption.";
+                string testFilePath = "test_aes_encrypt.txt";
+                string encryptedFilePath = "test_aes_encrypted.aes";
+                string decryptedFilePath = "test_aes_decrypted.txt";
+                string key = "FileEncryptionKey1234567890123456789012345";
+                string iv = "FileEncryptionIV1234567890";
+
+                // 创建测试文件
+                File.WriteAllText(testFilePath, testContent, Encoding.UTF8);
+                Console.WriteLine($"创建测试文件: {testFilePath}");
+
+                // 加密文件
+                AESUtil.EncryptFile(testFilePath, encryptedFilePath, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                Console.WriteLine($"文件加密完成: {encryptedFilePath}");
+
+                // 解密文件
+                AESUtil.DecryptFile(encryptedFilePath, decryptedFilePath, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+                Console.WriteLine($"文件解密完成: {decryptedFilePath}");
+
+                // 验证文件内容
+                string decryptedContent = File.ReadAllText(decryptedFilePath, Encoding.UTF8);
+                bool isMatch = testContent == decryptedContent;
+                Console.WriteLine($"文件加解密验证: {(isMatch ? "通过" : "失败")}");
+
+                // 清理测试文件
+                File.Delete(testFilePath);
+                File.Delete(encryptedFilePath);
+                File.Delete(decryptedFilePath);
+                Console.WriteLine("测试文件已清理");
+
+                Console.WriteLine("AES文件加密测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES文件加密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES流式加密
+        /// </summary>
+        public static void TestAESStreamEncryption()
+        {
+            Console.WriteLine("\n--- AES流式加密测试 ---");
+
+            try
+            {
+                string testContent = "AES流式加密测试内容。\nStream encryption test content.";
+                string key = "StreamEncryptionKey1234567890123456789012345";
+                string iv = "StreamEncryptionIV1234567890";
+
+                // 测试流式加密
+                using (var inputStream = new MemoryStream(Encoding.UTF8.GetBytes(testContent)))
+                using (var outputStream = new MemoryStream())
+                {
+                    AESUtil.EncryptStream(inputStream, outputStream, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+
+                    byte[] encryptedData = outputStream.ToArray();
+                    Console.WriteLine($"流式加密完成，数据长度: {encryptedData.Length}");
+
+                    // 测试流式解密
+                    using (var encryptedStream = new MemoryStream(encryptedData))
+                    using (var decryptedStream = new MemoryStream())
+                    {
+                        AESUtil.DecryptStream(encryptedStream, decryptedStream, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, iv);
+
+                        string decryptedContent = Encoding.UTF8.GetString(decryptedStream.ToArray());
+                        Console.WriteLine($"流式解密完成: {decryptedContent}");
+
+                        bool isMatch = testContent == decryptedContent;
+                        Console.WriteLine($"流式加解密验证: {(isMatch ? "通过" : "失败")}");
+                    }
+                }
+
+                Console.WriteLine("AES流式加密测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES流式加密测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES密钥生成
+        /// </summary>
+        public static void TestAESKeyGeneration()
+        {
+            Console.WriteLine("\n--- AES密钥生成测试 ---");
+
+            try
+            {
+                // 测试不同长度的密钥生成
+                var keySizes = new[]
+                {
+                    AESUtil.AESKeySize.Aes128,
+                    AESUtil.AESKeySize.Aes192,
+                    AESUtil.AESKeySize.Aes256
+                };
+
+                foreach (var keySize in keySizes)
+                {
+                    string key = AESUtil.GenerateKey(keySize);
+                    byte[] keyBytes = Convert.FromBase64String(key);
+
+                    Console.WriteLine($"{keySize} 密钥: {key}");
+                    Console.WriteLine($"密钥长度: {keyBytes.Length * 8} 位");
+                    Console.WriteLine($"密钥强度: {AESUtil.GetKeyStrengthDescription(keyBytes)}");
+                }
+
+                // 测试IV生成
+                string iv = AESUtil.GenerateIV();
+                byte[] ivBytes = Convert.FromBase64String(iv);
+                Console.WriteLine($"\n生成的IV: {iv}");
+                Console.WriteLine($"IV长度: {ivBytes.Length} 字节");
+
+                // 测试密钥处理
+                string testKey = "TestKey";
+                byte[] processedKey = AESUtil.ProcessKey(testKey);
+                Console.WriteLine($"\n原始密钥: {testKey}");
+                Console.WriteLine($"处理后密钥长度: {processedKey.Length * 8} 位");
+                Console.WriteLine($"密钥强度: {AESUtil.GetKeyStrengthDescription(processedKey)}");
+
+                Console.WriteLine("AES密钥生成测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES密钥生成测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试AES性能
+        /// </summary>
+        public static void TestAESPerformance()
+        {
+            Console.WriteLine("\n--- AES性能测试 ---");
+
+            try
+            {
+                string plaintext = "AES性能测试数据。".PadRight(1024, 'X'); // 1KB数据
+                string key = "PerformanceTestKey1234567890123456789012345";
+                string iv = "PerformanceTestIV1234567890";
+
+                int iterations = 1000;
+                Console.WriteLine($"测试数据大小: {plaintext.Length} 字节");
+                Console.WriteLine($"测试迭代次数: {iterations}");
+
+                // 加密性能测试
+                var encryptStartTime = DateTime.Now;
+                for (int i = 0; i < iterations; i++)
+                {
+                    AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                }
+                var encryptEndTime = DateTime.Now;
+                var encryptDuration = encryptEndTime - encryptStartTime;
+
+                Console.WriteLine($"加密总耗时: {encryptDuration.TotalMilliseconds:F2} ms");
+                Console.WriteLine($"平均加密时间: {encryptDuration.TotalMilliseconds / iterations:F4} ms/次");
+                Console.WriteLine($"加密吞吐量: {plaintext.Length * iterations / encryptDuration.TotalSeconds / 1024:F2} KB/s");
+
+                // 解密性能测试
+                string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+
+                var decryptStartTime = DateTime.Now;
+                for (int i = 0; i < iterations; i++)
+                {
+                    AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                }
+                var decryptEndTime = DateTime.Now;
+                var decryptDuration = decryptEndTime - decryptStartTime;
+
+                Console.WriteLine($"解密总耗时: {decryptDuration.TotalMilliseconds:F2} ms");
+                Console.WriteLine($"平均解密时间: {decryptDuration.TotalMilliseconds / iterations:F4} ms/次");
+                Console.WriteLine($"解密吞吐量: {plaintext.Length * iterations / decryptDuration.TotalSeconds / 1024:F2} KB/s");
+
+                Console.WriteLine("AES性能测试完成！");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"AES性能测试失败: {ex.Message}");
+            }
+        }
+
+        #endregion
 
         #region DES测试
 

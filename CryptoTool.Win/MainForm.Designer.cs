@@ -37,6 +37,7 @@ namespace CryptoTool.Win
             tabControl1 = new TabControl();
             tabRSA = new TabPage();
             tabRSAConvert = new TabPage();
+            tabAES = new TabPage();
             tabSM4 = new TabPage();
             tabSM2 = new TabPage();
             tabSM3 = new TabPage();
@@ -52,6 +53,7 @@ namespace CryptoTool.Win
             // 
             tabControl1.Controls.Add(tabRSA);
             tabControl1.Controls.Add(tabRSAConvert);
+            tabControl1.Controls.Add(tabAES);
             tabControl1.Controls.Add(tabSM4);
             tabControl1.Controls.Add(tabSM2);
             tabControl1.Controls.Add(tabSM3);
@@ -86,6 +88,17 @@ namespace CryptoTool.Win
             tabRSAConvert.TabIndex = 5;
             tabRSAConvert.Text = "RSA格式转换";
             tabRSAConvert.UseVisualStyleBackColor = true;
+            // 
+            // tabAES
+            // 
+            tabAES.Location = new Point(4, 29);
+            tabAES.Margin = new Padding(4);
+            tabAES.Name = "tabAES";
+            tabAES.Padding = new Padding(4);
+            tabAES.Size = new Size(1278, 1022);
+            tabAES.TabIndex = 6;
+            tabAES.Text = "AES算法";
+            tabAES.UseVisualStyleBackColor = true;
             // 
             // tabSM4
             // 
@@ -138,7 +151,7 @@ namespace CryptoTool.Win
             tabAbout.Name = "tabAbout";
             tabAbout.Padding = new Padding(3, 4, 3, 4);
             tabAbout.Size = new Size(1278, 1022);
-            tabAbout.TabIndex = 6;
+            tabAbout.TabIndex = 7;
             tabAbout.Text = "关于";
             tabAbout.UseVisualStyleBackColor = true;
             // 
@@ -183,6 +196,7 @@ namespace CryptoTool.Win
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabRSA;
         private System.Windows.Forms.TabPage tabRSAConvert;
+        private System.Windows.Forms.TabPage tabAES;
         private System.Windows.Forms.TabPage tabSM4;
         private System.Windows.Forms.TabPage tabSM2;
         private TabPage tabSM3;
