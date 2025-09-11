@@ -14,6 +14,7 @@ namespace CryptoTool.Win
         private RSATabControl rsaTabControl;
         private RSAConvertTabControl rsaConvertTabControl;
         private AESTabControl aesTabControl;
+        private DESTabControl desTabControl;
         private SM4TabControl sm4TabControl;
         private SM2TabControl sm2TabControl;
         private SM3TabControl sm3TabControl;
@@ -43,6 +44,7 @@ namespace CryptoTool.Win
             rsaTabControl = new RSATabControl();
             rsaConvertTabControl = new RSAConvertTabControl();
             aesTabControl = new AESTabControl();
+            desTabControl = new DESTabControl();
             sm4TabControl = new SM4TabControl();
             sm2TabControl = new SM2TabControl();
             sm3TabControl = new SM3TabControl();
@@ -53,6 +55,7 @@ namespace CryptoTool.Win
             rsaTabControl.Dock = DockStyle.Fill;
             rsaConvertTabControl.Dock = DockStyle.Fill;
             aesTabControl.Dock = DockStyle.Fill;
+            desTabControl.Dock = DockStyle.Fill;
             sm4TabControl.Dock = DockStyle.Fill;
             sm2TabControl.Dock = DockStyle.Fill;
             sm3TabControl.Dock = DockStyle.Fill;
@@ -68,6 +71,9 @@ namespace CryptoTool.Win
 
             tabAES.Controls.Clear();
             tabAES.Controls.Add(aesTabControl);
+
+            tabDES.Controls.Clear();
+            tabDES.Controls.Add(desTabControl);
 
             tabSM4.Controls.Clear();
             tabSM4.Controls.Add(sm4TabControl);
@@ -88,6 +94,7 @@ namespace CryptoTool.Win
             rsaTabControl.StatusChanged += SetStatus;
             rsaConvertTabControl.StatusChanged += SetStatus;
             aesTabControl.StatusChanged += SetStatus;
+            desTabControl.StatusChanged += SetStatus;
             sm4TabControl.StatusChanged += SetStatus;
             sm2TabControl.StatusChanged += SetStatus;
             sm3TabControl.StatusChanged += SetStatus;

@@ -51,9 +51,21 @@ namespace CryptoTool.Common
             /// </summary>
             PKCS7,
             /// <summary>
+            /// PKCS5填充 - 与PKCS7类似，但专门用于8字节块大小
+            /// </summary>
+            PKCS5,
+            /// <summary>
             /// 零填充
             /// </summary>
             Zeros,
+            /// <summary>
+            /// ISO10126填充 - 使用随机字节填充，最后一字节表示填充长度
+            /// </summary>
+            ISO10126,
+            /// <summary>
+            /// ANSIX923填充 - 填充字节为零，最后一字节表示填充长度
+            /// </summary>
+            ANSIX923,
             /// <summary>
             /// 无填充
             /// </summary>
@@ -613,7 +625,10 @@ namespace CryptoTool.Common
             return padding switch
             {
                 DESPadding.PKCS7 => PaddingMode.PKCS7,
+                DESPadding.PKCS5 => PaddingMode.PKCS7, // .NET中PKCS5等同于PKCS7
                 DESPadding.Zeros => PaddingMode.Zeros,
+                DESPadding.ISO10126 => PaddingMode.ISO10126,
+                DESPadding.ANSIX923 => PaddingMode.ANSIX923,
                 DESPadding.None => PaddingMode.None,
                 _ => PaddingMode.PKCS7
             };
