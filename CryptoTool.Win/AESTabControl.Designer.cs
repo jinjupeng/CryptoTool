@@ -3,14 +3,14 @@ namespace CryptoTool.Win
     partial class AESTabControl : UserControl
     {
         /// <summary> 
-        /// ±ØĞèµÄÉè¼ÆÆ÷±äÁ¿¡£
+        /// å¿…éœ€çš„è®¾è®¡å™¨å˜é‡ã€‚
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary> 
-        /// ÇåÀíËùÓĞÕıÔÚÊ¹ÓÃµÄ×ÊÔ´¡£
+        /// æ¸…ç†æ‰€æœ‰æ­£åœ¨ä½¿ç”¨çš„èµ„æºã€‚
         /// </summary>
-        /// <param name="disposing">Èç¹ûÓ¦ÊÍ·ÅÍĞ¹Ü×ÊÔ´£¬Îª true£»·ñÔòÎª false¡£</param>
+        /// <param name="disposing">å¦‚æœåº”é‡Šæ”¾æ‰˜ç®¡èµ„æºï¼Œä¸º trueï¼›å¦åˆ™ä¸º falseã€‚</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,11 +20,11 @@ namespace CryptoTool.Win
             base.Dispose(disposing);
         }
 
-        #region ×é¼şÉè¼ÆÆ÷Éú³ÉµÄ´úÂë
+        #region ç»„ä»¶è®¾è®¡å™¨ç”Ÿæˆçš„ä»£ç 
 
         /// <summary> 
-        /// Éè¼ÆÆ÷Ö§³ÖËùĞèµÄ·½·¨ - ²»ÒªĞŞ¸Ä
-        /// Ê¹ÓÃ´úÂë±à¼­Æ÷ĞŞ¸Ä´Ë·½·¨µÄÄÚÈİ¡£
+        /// è®¾è®¡å™¨æ”¯æŒæ‰€éœ€çš„æ–¹æ³• - ä¸è¦ä¿®æ”¹
+        /// ä½¿ç”¨ä»£ç ç¼–è¾‘å™¨ä¿®æ”¹æ­¤æ–¹æ³•çš„å†…å®¹ã€‚
         /// </summary>
         private void InitializeComponent()
         {
@@ -106,7 +106,7 @@ namespace CryptoTool.Win
             groupBoxAESKeys.Size = new Size(1254, 194);
             groupBoxAESKeys.TabIndex = 0;
             groupBoxAESKeys.TabStop = false;
-            groupBoxAESKeys.Text = "AESÃÜÔ¿Éú³É";
+            groupBoxAESKeys.Text = "AESå¯†é’¥ç”Ÿæˆ";
             // 
             // tableLayoutAESKeys
             // 
@@ -152,13 +152,13 @@ namespace CryptoTool.Win
             labelAESKeySize.Name = "labelAESKeySize";
             labelAESKeySize.Size = new Size(73, 20);
             labelAESKeySize.TabIndex = 9;
-            labelAESKeySize.Text = "ÃÜÔ¿³¤¶È:";
+            labelAESKeySize.Text = "å¯†é’¥é•¿åº¦:";
             // 
             // comboAESKeySize
             // 
             comboAESKeySize.DropDownStyle = ComboBoxStyle.DropDownList;
             comboAESKeySize.FormattingEnabled = true;
-            comboAESKeySize.Items.AddRange(new object[] { "Aes128", "Aes192", "Aes256" });
+            comboAESKeySize.Items.AddRange(new object[] { "AES128", "AES192", "AES256" });
             comboAESKeySize.Location = new Point(80, 4);
             comboAESKeySize.Margin = new Padding(4);
             comboAESKeySize.Name = "comboAESKeySize";
@@ -173,7 +173,7 @@ namespace CryptoTool.Win
             labelAESKeyFormat.Name = "labelAESKeyFormat";
             labelAESKeyFormat.Size = new Size(73, 20);
             labelAESKeyFormat.TabIndex = 11;
-            labelAESKeyFormat.Text = "ÃÜÔ¿¸ñÊ½:";
+            labelAESKeyFormat.Text = "å¯†é’¥æ ¼å¼:";
             // 
             // comboAESKeyFormat
             // 
@@ -193,7 +193,7 @@ namespace CryptoTool.Win
             btnGenerateAESKey.Name = "btnGenerateAESKey";
             btnGenerateAESKey.Size = new Size(103, 30);
             btnGenerateAESKey.TabIndex = 0;
-            btnGenerateAESKey.Text = "Éú³ÉÃÜÔ¿";
+            btnGenerateAESKey.Text = "ç”Ÿæˆå¯†é’¥";
             btnGenerateAESKey.UseVisualStyleBackColor = true;
             btnGenerateAESKey.Click += btnGenerateAESKey_Click;
             // 
@@ -206,7 +206,7 @@ namespace CryptoTool.Win
             labelAESKey.Name = "labelAESKey";
             labelAESKey.Size = new Size(1230, 20);
             labelAESKey.TabIndex = 3;
-            labelAESKey.Text = "AESÃÜÔ¿:";
+            labelAESKey.Text = "AESå¯†é’¥:";
             // 
             // panelAESKey
             // 
@@ -245,7 +245,7 @@ namespace CryptoTool.Win
             labelAESIVFormat.Name = "labelAESIVFormat";
             labelAESIVFormat.Size = new Size(73, 20);
             labelAESIVFormat.TabIndex = 11;
-            labelAESIVFormat.Text = "ÏòÁ¿¸ñÊ½:";
+            labelAESIVFormat.Text = "å‘é‡æ ¼å¼:";
             // 
             // comboAESIVFormat
             // 
@@ -265,7 +265,7 @@ namespace CryptoTool.Win
             btnGenerateAESIV.Name = "btnGenerateAESIV";
             btnGenerateAESIV.Size = new Size(103, 30);
             btnGenerateAESIV.TabIndex = 1;
-            btnGenerateAESIV.Text = "Éú³ÉÏòÁ¿";
+            btnGenerateAESIV.Text = "ç”Ÿæˆå‘é‡";
             btnGenerateAESIV.UseVisualStyleBackColor = true;
             btnGenerateAESIV.Click += btnGenerateAESIV_Click;
             // 
@@ -278,7 +278,7 @@ namespace CryptoTool.Win
             labelAESIV.Name = "labelAESIV";
             labelAESIV.Size = new Size(1230, 20);
             labelAESIV.TabIndex = 5;
-            labelAESIV.Text = "³õÊ¼ÏòÁ¿:";
+            labelAESIV.Text = "åˆå§‹å‘é‡:";
             // 
             // panelAESIV
             // 
@@ -309,7 +309,7 @@ namespace CryptoTool.Win
             groupBoxAESEncrypt.Size = new Size(1254, 374);
             groupBoxAESEncrypt.TabIndex = 1;
             groupBoxAESEncrypt.TabStop = false;
-            groupBoxAESEncrypt.Text = "AES¼ÓÃÜ½âÃÜ";
+            groupBoxAESEncrypt.Text = "AESåŠ å¯†è§£å¯†";
             // 
             // tableLayoutAESEncrypt
             // 
@@ -360,7 +360,7 @@ namespace CryptoTool.Win
             labelAESMode.Name = "labelAESMode";
             labelAESMode.Size = new Size(73, 20);
             labelAESMode.TabIndex = 5;
-            labelAESMode.Text = "¼ÓÃÜÄ£Ê½:";
+            labelAESMode.Text = "åŠ å¯†æ¨¡å¼:";
             // 
             // comboAESMode
             // 
@@ -382,13 +382,13 @@ namespace CryptoTool.Win
             labelAESPadding.Name = "labelAESPadding";
             labelAESPadding.Size = new Size(73, 20);
             labelAESPadding.TabIndex = 7;
-            labelAESPadding.Text = "Ìî³äÄ£Ê½:";
+            labelAESPadding.Text = "å¡«å……æ¨¡å¼:";
             // 
             // comboAESPadding
             // 
             comboAESPadding.DropDownStyle = ComboBoxStyle.DropDownList;
             comboAESPadding.FormattingEnabled = true;
-            comboAESPadding.Items.AddRange(new object[] { "PKCS7", "Zeros", "None" });
+            comboAESPadding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "Zeros", "ISO10126", "ANSIX923", "None" });
             comboAESPadding.Location = new Point(300, 4);
             comboAESPadding.Margin = new Padding(4);
             comboAESPadding.Name = "comboAESPadding";
@@ -403,7 +403,7 @@ namespace CryptoTool.Win
             labelAESPlaintextFormat.Name = "labelAESPlaintextFormat";
             labelAESPlaintextFormat.Size = new Size(73, 20);
             labelAESPlaintextFormat.TabIndex = 11;
-            labelAESPlaintextFormat.Text = "Ã÷ÎÄ¸ñÊ½:";
+            labelAESPlaintextFormat.Text = "æ˜æ–‡æ ¼å¼:";
             // 
             // comboAESPlaintextFormat
             // 
@@ -424,7 +424,7 @@ namespace CryptoTool.Win
             labelAESCiphertextFormat.Name = "labelAESCiphertextFormat";
             labelAESCiphertextFormat.Size = new Size(73, 20);
             labelAESCiphertextFormat.TabIndex = 9;
-            labelAESCiphertextFormat.Text = "ÃÜÎÄ¸ñÊ½:";
+            labelAESCiphertextFormat.Text = "å¯†æ–‡æ ¼å¼:";
             // 
             // comboAESCiphertextFormat
             // 
@@ -444,7 +444,7 @@ namespace CryptoTool.Win
             btnAESEncrypt.Name = "btnAESEncrypt";
             btnAESEncrypt.Size = new Size(80, 30);
             btnAESEncrypt.TabIndex = 0;
-            btnAESEncrypt.Text = "¼ÓÃÜ";
+            btnAESEncrypt.Text = "åŠ å¯†";
             btnAESEncrypt.UseVisualStyleBackColor = true;
             btnAESEncrypt.Click += btnAESEncrypt_Click;
             // 
@@ -455,7 +455,7 @@ namespace CryptoTool.Win
             btnAESDecrypt.Name = "btnAESDecrypt";
             btnAESDecrypt.Size = new Size(80, 30);
             btnAESDecrypt.TabIndex = 1;
-            btnAESDecrypt.Text = "½âÃÜ";
+            btnAESDecrypt.Text = "è§£å¯†";
             btnAESDecrypt.UseVisualStyleBackColor = true;
             btnAESDecrypt.Click += btnAESDecrypt_Click;
             // 
@@ -466,7 +466,7 @@ namespace CryptoTool.Win
             btnEncryptFile.Name = "btnEncryptFile";
             btnEncryptFile.Size = new Size(80, 30);
             btnEncryptFile.TabIndex = 2;
-            btnEncryptFile.Text = "¼ÓÃÜÎÄ¼ş";
+            btnEncryptFile.Text = "åŠ å¯†æ–‡ä»¶";
             btnEncryptFile.UseVisualStyleBackColor = true;
             btnEncryptFile.Click += btnEncryptFile_Click;
             // 
@@ -477,7 +477,7 @@ namespace CryptoTool.Win
             btnDecryptFile.Name = "btnDecryptFile";
             btnDecryptFile.Size = new Size(80, 30);
             btnDecryptFile.TabIndex = 3;
-            btnDecryptFile.Text = "½âÃÜÎÄ¼ş";
+            btnDecryptFile.Text = "è§£å¯†æ–‡ä»¶";
             btnDecryptFile.UseVisualStyleBackColor = true;
             btnDecryptFile.Click += btnDecryptFile_Click;
             // 
@@ -490,7 +490,7 @@ namespace CryptoTool.Win
             labelPlaintext.Name = "labelPlaintext";
             labelPlaintext.Size = new Size(1230, 20);
             labelPlaintext.TabIndex = 3;
-            labelPlaintext.Text = "Ã÷ÎÄ:";
+            labelPlaintext.Text = "æ˜æ–‡:";
             // 
             // textAESPlainText
             // 
@@ -512,7 +512,7 @@ namespace CryptoTool.Win
             labelCiphertext.Name = "labelCiphertext";
             labelCiphertext.Size = new Size(1230, 20);
             labelCiphertext.TabIndex = 5;
-            labelCiphertext.Text = "ÃÜÎÄ:";
+            labelCiphertext.Text = "å¯†æ–‡:";
             // 
             // textAESCipherText
             // 

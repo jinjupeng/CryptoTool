@@ -96,7 +96,7 @@ namespace CryptoTool.Win
 
             try
             {
-                var rateLimit = await _gitHubClient.Miscellaneous.GetRateLimits();
+                var rateLimit = await _gitHubClient.RateLimit.GetRateLimits();
                 var core = rateLimit.Resources.Core;
                 return (core.Remaining, core.Limit, core.Reset);
             }
@@ -595,7 +595,7 @@ namespace CryptoTool.Win
         /// <summary>
         /// 处理MSI安装包更新
         /// </summary>
-        private async Task HandleMsiUpdate(string downloadPath, Release release, ReleaseAsset asset)
+        private Task HandleMsiUpdate(string downloadPath, Release release, ReleaseAsset asset)
         {
             var result = MessageBox.Show(
                 $"MSI安装包已下载完成，是否立即安装？\n\n版本: {release.TagName}\n文件: {asset.Name}\n\n点击\"是\"将启动安装程序。",
@@ -620,12 +620,13 @@ namespace CryptoTool.Win
                 textUpdateStatus.Text = $"MSI安装包已下载到: {downloadPath}";
                 SetStatus("MSI安装包下载完成，用户选择稍后安装");
             }
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// 处理ZIP压缩包更新
         /// </summary>
-        private async Task HandleZipUpdate(string downloadPath, Release release, ReleaseAsset asset)
+        private Task HandleZipUpdate(string downloadPath, Release release, ReleaseAsset asset)
         {
             var result = MessageBox.Show(
                 $"程序压缩包已下载完成。\n\n版本: {release.TagName}\n文件: {asset.Name}\n\n请手动解压并替换程序文件。\n\n是否打开下载文件夹？",
@@ -646,6 +647,7 @@ namespace CryptoTool.Win
 
             textUpdateStatus.Text = $"ZIP压缩包已下载到: {downloadPath}";
             SetStatus("ZIP压缩包下载完成");
+            return Task.CompletedTask;
         }
 
         /// <summary>

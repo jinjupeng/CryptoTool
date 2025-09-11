@@ -19,7 +19,7 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            comboAESMode.SelectedIndex = 1; // CBC
+            comboAESMode.SelectedIndex = 0; // CBC
             comboAESPadding.SelectedIndex = 0; // PKCS7
             comboAESKeyFormat.SelectedIndex = 0; // Base64
             comboAESIVFormat.SelectedIndex = 0; // Base64
@@ -33,25 +33,25 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region AES¹¦ÄÜ
+        #region AESåŠŸèƒ½
 
         private void btnGenerateAESKey_Click(object sender, EventArgs e)
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉAESÃÜÔ¿...");
+                SetStatus("æ­£åœ¨ç”ŸæˆAESå¯†é’¥...");
 
                 string keySizeText = comboAESKeySize.SelectedItem.ToString();
                 AESUtil.AESKeySize keySize = (AESUtil.AESKeySize)Enum.Parse(typeof(AESUtil.AESKeySize), keySizeText);
 
                 string key = AESUtil.GenerateKey(keySize);
                 textAESKey.Text = key;
-                SetStatus($"AESÃÜÔ¿Éú³ÉÍê³É - {keySizeText}Î»");
+                SetStatus($"AESå¯†é’¥ç”Ÿæˆå®Œæˆ - {keySizeText}ä½");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉAESÃÜÔ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉAESÃÜÔ¿Ê§°Ü");
+                MessageBox.Show($"ç”ŸæˆAESå¯†é’¥å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆAESå¯†é’¥å¤±è´¥");
             }
         }
 
@@ -59,16 +59,16 @@ namespace CryptoTool.Win
         {
             try
             {
-                SetStatus("ÕıÔÚÉú³ÉAES³õÊ¼ÏòÁ¿...");
+                SetStatus("æ­£åœ¨ç”ŸæˆAESåˆå§‹å‘é‡...");
 
                 string iv = AESUtil.GenerateIV();
                 textAESIV.Text = iv;
-                SetStatus("AES³õÊ¼ÏòÁ¿Éú³ÉÍê³É");
+                SetStatus("AESåˆå§‹å‘é‡ç”Ÿæˆå®Œæˆ");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Éú³ÉAES³õÊ¼ÏòÁ¿Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Éú³ÉAES³õÊ¼ÏòÁ¿Ê§°Ü");
+                MessageBox.Show($"ç”ŸæˆAESåˆå§‹å‘é‡å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ç”ŸæˆAESåˆå§‹å‘é‡å¤±è´¥");
             }
         }
 
@@ -78,24 +78,24 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textAESPlainText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃ÷ÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥æ˜æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textAESKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëAESÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥AESå¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 string mode = comboAESMode.SelectedItem.ToString();
                 if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                 {
-                    MessageBox.Show($"{mode}Ä£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÉú³É»òÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"{mode}æ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞAES¼ÓÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒAESåŠ å¯†...");
 
                 string modeText = comboAESMode.SelectedItem.ToString();
                 string paddingText = comboAESPadding.SelectedItem.ToString();
@@ -111,12 +111,12 @@ namespace CryptoTool.Win
                 string cipherText = AESUtil.EncryptByAES(plaintext, textAESKey.Text, aesMode, aesPadding, outputFormat, iv);
                 textAESCipherText.Text = cipherText;
 
-                SetStatus($"AES¼ÓÃÜÍê³É - Ê¹ÓÃ{modeText}Ä£Ê½£¬Êä³ö{outputFormatText}¸ñÊ½");
+                SetStatus($"AESåŠ å¯†å®Œæˆ - ä½¿ç”¨{modeText}æ¨¡å¼ï¼Œè¾“å‡º{outputFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"AES¼ÓÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("AES¼ÓÃÜÊ§°Ü");
+                MessageBox.Show($"AESåŠ å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("AESåŠ å¯†å¤±è´¥");
             }
         }
 
@@ -126,24 +126,24 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textAESCipherText.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÃÜÎÄ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·è¾“å…¥å¯†æ–‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textAESKey.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëAESÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥AESå¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 string mode = comboAESMode.SelectedItem.ToString();
                 if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                 {
-                    MessageBox.Show($"{mode}Ä£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÉú³É»òÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"{mode}æ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕıÔÚ½øĞĞAES½âÃÜ...");
+                SetStatus("æ­£åœ¨è¿›è¡ŒAESè§£å¯†...");
 
                 string modeText = comboAESMode.SelectedItem.ToString();
                 string paddingText = comboAESPadding.SelectedItem.ToString();
@@ -158,18 +158,18 @@ namespace CryptoTool.Win
                 string plainText = AESUtil.DecryptByAES(textAESCipherText.Text, textAESKey.Text, aesMode, aesPadding, inputFormat, iv);
                 SetPlaintextFromFormat(plainText);
 
-                SetStatus($"AES½âÃÜÍê³É - Ê¹ÓÃ{modeText}Ä£Ê½£¬ÊäÈë{outputFormatText}¸ñÊ½");
+                SetStatus($"AESè§£å¯†å®Œæˆ - ä½¿ç”¨{modeText}æ¨¡å¼ï¼Œè¾“å…¥{outputFormatText}æ ¼å¼");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"AES½âÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("AES½âÃÜÊ§°Ü");
+                MessageBox.Show($"AESè§£å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("AESè§£å¯†å¤±è´¥");
             }
         }
 
         private void comboAESMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // µ±Ñ¡ÔñECBÄ£Ê½Ê±£¬½ûÓÃ³õÊ¼ÏòÁ¿Ïà¹Ø¿Ø¼ş
+            // å½“é€‰æ‹©ECBæ¨¡å¼æ—¶ï¼Œç¦ç”¨åˆå§‹å‘é‡ç›¸å…³æ§ä»¶
             bool needsIV = comboAESMode.SelectedItem.ToString() != "ECB";
             textAESIV.Enabled = needsIV;
             btnGenerateAESIV.Enabled = needsIV;
@@ -184,7 +184,7 @@ namespace CryptoTool.Win
 
         #endregion
 
-        #region ÎÄ¼ş²Ù×÷
+        #region æ–‡ä»¶æ“ä½œ
 
         private void btnEncryptFile_Click(object sender, EventArgs e)
         {
@@ -192,16 +192,16 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openDialog = new OpenFileDialog())
                 {
-                    openDialog.Title = "Ñ¡ÔñÒª¼ÓÃÜµÄÎÄ¼ş";
-                    openDialog.Filter = "ËùÓĞÎÄ¼ş|*.*";
+                    openDialog.Title = "é€‰æ‹©è¦åŠ å¯†çš„æ–‡ä»¶";
+                    openDialog.Filter = "æ‰€æœ‰æ–‡ä»¶|*.*";
                     
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
                     using (SaveFileDialog saveDialog = new SaveFileDialog())
                     {
-                        saveDialog.Title = "±£´æ¼ÓÃÜÎÄ¼ş";
-                        saveDialog.Filter = "¼ÓÃÜÎÄ¼ş|*.enc|ËùÓĞÎÄ¼ş|*.*";
+                        saveDialog.Title = "ä¿å­˜åŠ å¯†æ–‡ä»¶";
+                        saveDialog.Filter = "åŠ å¯†æ–‡ä»¶|*.enc|æ‰€æœ‰æ–‡ä»¶|*.*";
                         saveDialog.FileName = Path.GetFileNameWithoutExtension(openDialog.FileName) + ".enc";
                         
                         if (saveDialog.ShowDialog() != DialogResult.OK)
@@ -209,18 +209,18 @@ namespace CryptoTool.Win
 
                         if (string.IsNullOrEmpty(textAESKey.Text))
                         {
-                            MessageBox.Show("ÇëÏÈÉú³É»òÊäÈëAESÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("è¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥AESå¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
 
                         string mode = comboAESMode.SelectedItem.ToString();
                         if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                         {
-                            MessageBox.Show($"{mode}Ä£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÉú³É»òÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show($"{mode}æ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆç”Ÿæˆæˆ–è¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
 
-                        SetStatus("ÕıÔÚ¼ÓÃÜÎÄ¼ş...");
+                        SetStatus("æ­£åœ¨åŠ å¯†æ–‡ä»¶...");
 
                         string modeText = comboAESMode.SelectedItem.ToString();
                         string paddingText = comboAESPadding.SelectedItem.ToString();
@@ -232,15 +232,15 @@ namespace CryptoTool.Win
 
                         AESUtil.EncryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
 
-                        SetStatus($"ÎÄ¼ş¼ÓÃÜÍê³É£º{saveDialog.FileName}");
-                        MessageBox.Show("ÎÄ¼ş¼ÓÃÜÍê³É£¡", "³É¹¦", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SetStatus($"æ–‡ä»¶åŠ å¯†å®Œæˆï¼š{saveDialog.FileName}");
+                        MessageBox.Show("æ–‡ä»¶åŠ å¯†å®Œæˆï¼", "æˆåŠŸ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ÎÄ¼ş¼ÓÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("ÎÄ¼ş¼ÓÃÜÊ§°Ü");
+                MessageBox.Show($"æ–‡ä»¶åŠ å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("æ–‡ä»¶åŠ å¯†å¤±è´¥");
             }
         }
 
@@ -250,16 +250,16 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openDialog = new OpenFileDialog())
                 {
-                    openDialog.Title = "Ñ¡ÔñÒª½âÃÜµÄÎÄ¼ş";
-                    openDialog.Filter = "¼ÓÃÜÎÄ¼ş|*.enc|ËùÓĞÎÄ¼ş|*.*";
+                    openDialog.Title = "é€‰æ‹©è¦è§£å¯†çš„æ–‡ä»¶";
+                    openDialog.Filter = "åŠ å¯†æ–‡ä»¶|*.enc|æ‰€æœ‰æ–‡ä»¶|*.*";
                     
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
                     using (SaveFileDialog saveDialog = new SaveFileDialog())
                     {
-                        saveDialog.Title = "±£´æ½âÃÜÎÄ¼ş";
-                        saveDialog.Filter = "ËùÓĞÎÄ¼ş|*.*";
+                        saveDialog.Title = "ä¿å­˜è§£å¯†æ–‡ä»¶";
+                        saveDialog.Filter = "æ‰€æœ‰æ–‡ä»¶|*.*";
                         string originalName = Path.GetFileNameWithoutExtension(openDialog.FileName);
                         if (originalName.EndsWith(".enc"))
                             originalName = originalName.Substring(0, originalName.Length - 4);
@@ -270,18 +270,18 @@ namespace CryptoTool.Win
 
                         if (string.IsNullOrEmpty(textAESKey.Text))
                         {
-                            MessageBox.Show("ÇëÏÈÊäÈëAESÃÜÔ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show("è¯·å…ˆè¾“å…¥AESå¯†é’¥ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
 
                         string mode = comboAESMode.SelectedItem.ToString();
                         if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                         {
-                            MessageBox.Show($"{mode}Ä£Ê½ĞèÒª³õÊ¼ÏòÁ¿£¬ÇëÏÈÊäÈë³õÊ¼ÏòÁ¿£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            MessageBox.Show($"{mode}æ¨¡å¼éœ€è¦åˆå§‹å‘é‡ï¼Œè¯·å…ˆè¾“å…¥åˆå§‹å‘é‡ï¼", "æç¤º", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                             return;
                         }
 
-                        SetStatus("ÕıÔÚ½âÃÜÎÄ¼ş...");
+                        SetStatus("æ­£åœ¨è§£å¯†æ–‡ä»¶...");
 
                         string modeText = comboAESMode.SelectedItem.ToString();
                         string paddingText = comboAESPadding.SelectedItem.ToString();
@@ -293,32 +293,32 @@ namespace CryptoTool.Win
 
                         AESUtil.DecryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
 
-                        SetStatus($"ÎÄ¼ş½âÃÜÍê³É£º{saveDialog.FileName}");
-                        MessageBox.Show("ÎÄ¼ş½âÃÜÍê³É£¡", "³É¹¦", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        SetStatus($"æ–‡ä»¶è§£å¯†å®Œæˆï¼š{saveDialog.FileName}");
+                        MessageBox.Show("æ–‡ä»¶è§£å¯†å®Œæˆï¼", "æˆåŠŸ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ÎÄ¼ş½âÃÜÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("ÎÄ¼ş½âÃÜÊ§°Ü");
+                MessageBox.Show($"æ–‡ä»¶è§£å¯†å¤±è´¥ï¼š{ex.Message}", "é”™è¯¯", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("æ–‡ä»¶è§£å¯†å¤±è´¥");
             }
         }
 
         #endregion
 
-        #region ¸¨Öú·½·¨
+        #region è¾…åŠ©æ–¹æ³•
 
         private string GetPlaintextFromFormat()
         {
             string plaintextFormat = comboAESPlaintextFormat.SelectedItem.ToString();
             string plaintext = textAESPlainText.Text;
 
-            // Èç¹ûÊÇText¸ñÊ½£¬Ö±½Ó·µ»Ø
+            // å¦‚æœæ˜¯Textæ ¼å¼ï¼Œç›´æ¥è¿”å›
             if (plaintextFormat == "Text")
                 return plaintext;
 
-            // ÆäËû¸ñÊ½ÔİÊ±Ö±½Ó·µ»Ø£¬ºóĞø¿ÉÒÔÀ©Õ¹¸ñÊ½×ª»»¹¦ÄÜ
+            // å…¶ä»–æ ¼å¼æš‚æ—¶ç›´æ¥è¿”å›ï¼Œåç»­å¯ä»¥æ‰©å±•æ ¼å¼è½¬æ¢åŠŸèƒ½
             return plaintext;
         }
 
@@ -326,7 +326,7 @@ namespace CryptoTool.Win
         {
             string plaintextFormat = comboAESPlaintextFormat.SelectedItem.ToString();
 
-            // ¸ù¾İ¸ñÊ½ÉèÖÃÏÔÊ¾ÄÚÈİ
+            // æ ¹æ®æ ¼å¼è®¾ç½®æ˜¾ç¤ºå†…å®¹
             if (plaintextFormat == "Text")
             {
                 textAESPlainText.Text = decryptedText;
@@ -340,7 +340,7 @@ namespace CryptoTool.Win
                 }
                 catch
                 {
-                    textAESPlainText.Text = decryptedText; // Èç¹û×ª»»Ê§°Ü£¬Ö±½ÓÏÔÊ¾
+                    textAESPlainText.Text = decryptedText; // å¦‚æœè½¬æ¢å¤±è´¥ï¼Œç›´æ¥æ˜¾ç¤º
                 }
             }
             else if (plaintextFormat == "Hex")
@@ -352,7 +352,7 @@ namespace CryptoTool.Win
                 }
                 catch
                 {
-                    textAESPlainText.Text = decryptedText; // Èç¹û×ª»»Ê§°Ü£¬Ö±½ÓÏÔÊ¾
+                    textAESPlainText.Text = decryptedText; // å¦‚æœè½¬æ¢å¤±è´¥ï¼Œç›´æ¥æ˜¾ç¤º
                 }
             }
             else

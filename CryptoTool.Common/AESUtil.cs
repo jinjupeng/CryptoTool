@@ -87,15 +87,15 @@ namespace CryptoTool.Common
             /// <summary>
             /// 128位密钥
             /// </summary>
-            Aes128 = 128,
+            AES128 = 128,
             /// <summary>
             /// 192位密钥
             /// </summary>
-            Aes192 = 192,
+            AES192 = 192,
             /// <summary>
             /// 256位密钥
             /// </summary>
-            Aes256 = 256
+            AES256 = 256
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace CryptoTool.Common
         /// </summary>
         /// <param name="keySize">密钥长度</param>
         /// <returns>Base64编码的密钥</returns>
-        public static string GenerateKey(AESKeySize keySize = AESKeySize.Aes256)
+        public static string GenerateKey(AESKeySize keySize = AESKeySize.AES256)
         {
             byte[] key = new byte[(int)keySize / 8];
             using (var rng = new RNGCryptoServiceProvider())
