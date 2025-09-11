@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace CryptoTool.Common
     /// </summary>
     public static class DESUtil
     {
+        // 定义可读字符集：大小写字母、数字以及特殊符号
+        private const string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{}|;:,.<>?";
+
         #region 枚举定义
 
         /// <summary>
@@ -87,6 +91,25 @@ namespace CryptoTool.Common
             Hex
         }
 
+        /// <summary>
+        /// 输入格式
+        /// </summary>
+        public enum InputFormat
+        {
+            /// <summary>
+            /// Base64编码
+            /// </summary>
+            Base64,
+            /// <summary>
+            /// 16进制字符串
+            /// </summary>
+            Hex,
+            /// <summary>
+            /// 普通字符串
+            /// </summary>
+            UTF8
+        }
+
         #endregion
 
         #region 字符串DES加解密
@@ -100,7 +123,7 @@ namespace CryptoTool.Common
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         public static string EncryptByDES(string input, string key)
         {
-            return EncryptByDES(input, key, DESMode.CBC, DESPadding.PKCS7, OutputFormat.Base64);
+            return EncryptByDES(input, key, InputFormat.UTF8, DESMode.CBC, DESPadding.PKCS7, OutputFormat.Base64);
         }
 
         /// <summary>
@@ -108,29 +131,30 @@ namespace CryptoTool.Common
         /// </summary>
         /// <param name="input">待加密的字符串</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="outputFormat">输出格式</param>
         /// <param name="iv">初始化向量（8字节），ECB模式时可为null</param>
         /// <returns>加密结果</returns>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
-        public static string EncryptByDES(string input, string key, DESMode mode = DESMode.CBC, 
+        public static string EncryptByDES(string input, string key, InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, 
             DESPadding padding = DESPadding.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("待加密字符串不能为空", nameof(input));
             
-            ValidateKey(key);
+            ValidateKey(key, keyFormat);
 
             byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] keyBytes = GetBytes(key, keyFormat);
             byte[] ivBytes = null;
 
             if (mode != DESMode.ECB)
             {
                 if (string.IsNullOrEmpty(iv))
                     iv = key; // 默认使用密钥作为IV
-                ivBytes = Encoding.UTF8.GetBytes(iv);
+                ivBytes = GetBytes(iv, keyFormat);
                 ValidateIV(ivBytes);
             }
 
@@ -150,7 +174,7 @@ namespace CryptoTool.Common
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         public static string DecryptByDES(string input, string key)
         {
-            return DecryptByDES(input, key, DESMode.CBC, DESPadding.PKCS7, OutputFormat.Base64);
+            return DecryptByDES(input, key, InputFormat.UTF8, DESMode.CBC, DESPadding.PKCS7, OutputFormat.Base64);
         }
 
         /// <summary>
@@ -158,32 +182,33 @@ namespace CryptoTool.Common
         /// </summary>
         /// <param name="input">待解密的字符串</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="inputFormat">输入格式</param>
         /// <param name="iv">初始化向量（8字节），ECB模式时可为null</param>
         /// <returns>解密后的字符串</returns>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
-        public static string DecryptByDES(string input, string key, DESMode mode = DESMode.CBC,
+        public static string DecryptByDES(string input, string key, InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC,
             DESPadding padding = DESPadding.PKCS7, OutputFormat inputFormat = OutputFormat.Base64, string iv = null)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("待解密字符串不能为空", nameof(input));
 
-            ValidateKey(key);
+            ValidateKey(key, keyFormat);
 
             byte[] inputBytes = inputFormat == OutputFormat.Base64
                 ? Convert.FromBase64String(input)
                 : ConvertFromHexString(input);
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] keyBytes = GetBytes(key, keyFormat);
             byte[] ivBytes = null;
 
             if (mode != DESMode.ECB)
             {
                 if (string.IsNullOrEmpty(iv))
                     iv = key; // 默认使用密钥作为IV
-                ivBytes = Encoding.UTF8.GetBytes(iv);
+                ivBytes = GetBytes(iv, keyFormat);
                 ValidateIV(ivBytes);
             }
 
@@ -285,13 +310,14 @@ namespace CryptoTool.Common
         /// <param name="inputFilePath">源文件路径</param>
         /// <param name="outputFilePath">加密后文件路径</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量，ECB模式时可为null</param>
         /// <exception cref="FileNotFoundException">文件不存在时抛出</exception>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         public static void EncryptFile(string inputFilePath, string outputFilePath, string key,
-            DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
+            InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
         {
             if (string.IsNullOrEmpty(inputFilePath))
                 throw new ArgumentException("源文件路径不能为空", nameof(inputFilePath));
@@ -302,16 +328,16 @@ namespace CryptoTool.Common
             if (!File.Exists(inputFilePath))
                 throw new FileNotFoundException($"源文件不存在: {inputFilePath}");
 
-            ValidateKey(key);
+            ValidateKey(key, keyFormat);
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] keyBytes = GetBytes(key, keyFormat);
             byte[] ivBytes = null;
 
             if (mode != DESMode.ECB)
             {
                 if (string.IsNullOrEmpty(iv))
                     iv = key;
-                ivBytes = Encoding.UTF8.GetBytes(iv);
+                ivBytes = GetBytes(iv, keyFormat);
                 ValidateIV(ivBytes);
             }
 
@@ -328,13 +354,14 @@ namespace CryptoTool.Common
         /// <param name="inputFilePath">加密文件路径</param>
         /// <param name="outputFilePath">解密后文件路径</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量，ECB模式时可为null</param>
         /// <exception cref="FileNotFoundException">文件不存在时抛出</exception>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         public static void DecryptFile(string inputFilePath, string outputFilePath, string key,
-            DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
+            InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
         {
             if (string.IsNullOrEmpty(inputFilePath))
                 throw new ArgumentException("源文件路径不能为空", nameof(inputFilePath));
@@ -345,16 +372,16 @@ namespace CryptoTool.Common
             if (!File.Exists(inputFilePath))
                 throw new FileNotFoundException($"源文件不存在: {inputFilePath}");
 
-            ValidateKey(key);
+            ValidateKey(key, keyFormat);
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] keyBytes = GetBytes(key, keyFormat);
             byte[] ivBytes = null;
 
             if (mode != DESMode.ECB)
             {
                 if (string.IsNullOrEmpty(iv))
                     iv = key;
-                ivBytes = Encoding.UTF8.GetBytes(iv);
+                ivBytes = GetBytes(iv, keyFormat);
                 ValidateIV(ivBytes);
             }
 
@@ -458,14 +485,15 @@ namespace CryptoTool.Common
         /// <param name="inputFilePath">源文件路径</param>
         /// <param name="outputFilePath">加密后文件路径</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量，ECB模式时可为null</param>
         /// <returns>异步任务</returns>
         public static async Task EncryptFileAsync(string inputFilePath, string outputFilePath, string key,
-            DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
+            InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
         {
-            await Task.Run(() => EncryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
+            await Task.Run(() => EncryptFile(inputFilePath, outputFilePath, key, keyFormat, mode, padding, iv));
         }
 
         /// <summary>
@@ -474,14 +502,15 @@ namespace CryptoTool.Common
         /// <param name="inputFilePath">加密文件路径</param>
         /// <param name="outputFilePath">解密后文件路径</param>
         /// <param name="key">密钥（8字节）</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量，ECB模式时可为null</param>
         /// <returns>异步任务</returns>
         public static async Task DecryptFileAsync(string inputFilePath, string outputFilePath, string key,
-            DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
+            InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, string iv = null)
         {
-            await Task.Run(() => DecryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
+            await Task.Run(() => DecryptFile(inputFilePath, outputFilePath, key, keyFormat, mode, padding, iv));
         }
 
         #endregion
@@ -493,17 +522,30 @@ namespace CryptoTool.Common
         /// </summary>
         /// <param name="format">输出格式</param>
         /// <returns>DES密钥</returns>
-        public static string GenerateKey(OutputFormat format = OutputFormat.Base64)
+        public static string GenerateKey(InputFormat format = InputFormat.Base64)
         {
             byte[] keyBytes = new byte[8];
             using (var generator = RandomNumberGenerator.Create())
             {
                 generator.GetBytes(keyBytes);
             }
-
-            return format == OutputFormat.Base64
-                ? Convert.ToBase64String(keyBytes)
-                : ConvertToHexString(keyBytes);
+            string keyString = string.Empty;
+            switch (format)
+            {
+                case InputFormat.Base64:
+                    keyString = Convert.ToBase64String(keyBytes);
+                    break;
+                case InputFormat.Hex:
+                    keyString = ConvertToHexString(keyBytes);
+                    break;
+                case InputFormat.UTF8:
+                    keyString = GenerateRandomString(8);
+                    break;
+                default:
+                    keyString = Convert.ToBase64String(keyBytes);
+                    break;
+            }
+            return keyString;
         }
 
         /// <summary>
@@ -511,7 +553,7 @@ namespace CryptoTool.Common
         /// </summary>
         /// <param name="format">输出格式</param>
         /// <returns>DES初始化向量</returns>
-        public static string GenerateIV(OutputFormat format = OutputFormat.Base64)
+        public static string GenerateIV(InputFormat format = InputFormat.Base64)
         {
             byte[] ivBytes = new byte[8];
             using (var generator = RandomNumberGenerator.Create())
@@ -519,9 +561,47 @@ namespace CryptoTool.Common
                 generator.GetBytes(ivBytes);
             }
 
-            return format == OutputFormat.Base64
-                ? Convert.ToBase64String(ivBytes)
-                : ConvertToHexString(ivBytes);
+            string ivString = string.Empty;
+            switch (format)
+            {
+                case InputFormat.Base64:
+                    ivString = Convert.ToBase64String(ivBytes);
+                    break;
+                case InputFormat.Hex:
+                    ivString = ConvertToHexString(ivBytes);
+                    break;
+                case InputFormat.UTF8:
+                    ivString = GenerateRandomString(8);
+                    break;
+                default:
+                    ivString = Convert.ToBase64String(ivBytes);
+                    break;
+            }
+            return ivString;
+        }
+
+        /// <summary>
+        /// 生成指定长度的可读字符串（包含字母、数字和特殊符号）
+        /// </summary>
+        /// <param name="length">字符串长度</param>
+        /// <returns>可读字符串</returns>
+        private static string GenerateRandomString(int length)
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                var result = new StringBuilder(length);
+                var buffer = new byte[4]; // 用于生成随机数
+
+                for (int i = 0; i < length; i++)
+                {
+                    rng.GetBytes(buffer);
+                    var randomValue = BitConverter.ToUInt32(buffer, 0);
+                    var charIndex = randomValue % charset.Length;
+                    result.Append(charset[(int)charIndex]);
+                }
+
+                return result.ToString();
+            }
         }
 
         #endregion
@@ -534,18 +614,19 @@ namespace CryptoTool.Common
         /// <param name="originalText">原始文本</param>
         /// <param name="encryptedText">加密文本</param>
         /// <param name="key">密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="inputFormat">输入格式</param>
         /// <param name="iv">初始化向量</param>
         /// <returns>验证结果</returns>
         public static bool VerifyDES(string originalText, string encryptedText, string key,
-            DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, 
+            InputFormat keyFormat = InputFormat.UTF8, DESMode mode = DESMode.CBC, DESPadding padding = DESPadding.PKCS7, 
             OutputFormat inputFormat = OutputFormat.Base64, string iv = null)
         {
             try
             {
-                string decryptedText = DecryptByDES(encryptedText, key, mode, padding, inputFormat, iv);
+                string decryptedText = DecryptByDES(encryptedText, key, keyFormat, mode, padding, inputFormat, iv);
                 return string.Equals(originalText, decryptedText, StringComparison.Ordinal);
             }
             catch
@@ -563,12 +644,13 @@ namespace CryptoTool.Common
         /// 验证密钥有效性
         /// </summary>
         /// <param name="key">密钥字符串</param>
-        private static void ValidateKey(string key)
+        /// <param name="format">密钥格式</param>
+        private static void ValidateKey(string key, InputFormat format)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException("密钥不能为空", nameof(key));
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(key);
+            byte[] keyBytes = GetBytes(key, format);
             ValidateKey(keyBytes);
         }
 
@@ -596,6 +678,26 @@ namespace CryptoTool.Common
 
             if (ivBytes.Length != 8)
                 throw new ArgumentException("DES初始化向量必须为8字节", nameof(ivBytes));
+        }
+
+        /// <summary>
+        /// 从字符串获取字节数组
+        /// </summary>
+        /// <param name="str">输入字符串</param>
+        /// <param name="format">输入格式</param>
+        /// <returns>字节数组</returns>
+        private static byte[] GetBytes(string str, InputFormat format)
+        {
+            switch (format)
+            {
+                case InputFormat.Base64:
+                    return Convert.FromBase64String(str);
+                case InputFormat.Hex:
+                    return ConvertFromHexString(str);
+                case InputFormat.UTF8:
+                default:
+                    return Encoding.UTF8.GetBytes(str);
+            }
         }
 
         /// <summary>

@@ -34,6 +34,7 @@ namespace CryptoTool.Win
             panelDESKeyControls = new Panel();
             labelDESKeyFormat = new Label();
             comboDESKeyFormat = new ComboBox();
+            btnConvertDESKey = new Button();
             btnGenerateDESKey = new Button();
             labelDESKey = new Label();
             panelDESKey = new Panel();
@@ -41,6 +42,7 @@ namespace CryptoTool.Win
             panelDESIVControls = new Panel();
             labelDESIVFormat = new Label();
             comboDESIVFormat = new ComboBox();
+            btnConvertDESIV = new Button();
             btnGenerateDESIV = new Button();
             labelDESIV = new Label();
             panelDESIV = new Panel();
@@ -131,6 +133,7 @@ namespace CryptoTool.Win
             // 
             // panelDESKeyControls
             // 
+            panelDESKeyControls.Controls.Add(btnConvertDESKey);
             panelDESKeyControls.Controls.Add(btnGenerateDESKey);
             panelDESKeyControls.Controls.Add(comboDESKeyFormat);
             panelDESKeyControls.Controls.Add(labelDESKeyFormat);
@@ -154,16 +157,27 @@ namespace CryptoTool.Win
             // 
             comboDESKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDESKeyFormat.FormattingEnabled = true;
-            comboDESKeyFormat.Items.AddRange(new object[] { "Base64", "Hex" });
+            comboDESKeyFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
             comboDESKeyFormat.Location = new Point(80, 4);
             comboDESKeyFormat.Margin = new Padding(4);
             comboDESKeyFormat.Name = "comboDESKeyFormat";
             comboDESKeyFormat.Size = new Size(127, 28);
             comboDESKeyFormat.TabIndex = 10;
             // 
+            // btnConvertDESKey
+            // 
+            btnConvertDESKey.Location = new Point(220, 2);
+            btnConvertDESKey.Margin = new Padding(4);
+            btnConvertDESKey.Name = "btnConvertDESKey";
+            btnConvertDESKey.Size = new Size(80, 30);
+            btnConvertDESKey.TabIndex = 1;
+            btnConvertDESKey.Text = "转换格式";
+            btnConvertDESKey.UseVisualStyleBackColor = true;
+            btnConvertDESKey.Click += btnConvertDESKey_Click;
+            // 
             // btnGenerateDESKey
             // 
-            btnGenerateDESKey.Location = new Point(220, 2);
+            btnGenerateDESKey.Location = new Point(310, 2);
             btnGenerateDESKey.Margin = new Padding(4);
             btnGenerateDESKey.Name = "btnGenerateDESKey";
             btnGenerateDESKey.Size = new Size(103, 30);
@@ -203,6 +217,7 @@ namespace CryptoTool.Win
             // 
             // panelDESIVControls
             // 
+            panelDESIVControls.Controls.Add(btnConvertDESIV);
             panelDESIVControls.Controls.Add(btnGenerateDESIV);
             panelDESIVControls.Controls.Add(comboDESIVFormat);
             panelDESIVControls.Controls.Add(labelDESIVFormat);
@@ -226,16 +241,27 @@ namespace CryptoTool.Win
             // 
             comboDESIVFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDESIVFormat.FormattingEnabled = true;
-            comboDESIVFormat.Items.AddRange(new object[] { "Base64", "Hex" });
+            comboDESIVFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
             comboDESIVFormat.Location = new Point(80, 4);
             comboDESIVFormat.Margin = new Padding(4);
             comboDESIVFormat.Name = "comboDESIVFormat";
             comboDESIVFormat.Size = new Size(127, 28);
             comboDESIVFormat.TabIndex = 10;
             // 
+            // btnConvertDESIV
+            // 
+            btnConvertDESIV.Location = new Point(220, 2);
+            btnConvertDESIV.Margin = new Padding(4);
+            btnConvertDESIV.Name = "btnConvertDESIV";
+            btnConvertDESIV.Size = new Size(80, 30);
+            btnConvertDESIV.TabIndex = 2;
+            btnConvertDESIV.Text = "转换格式";
+            btnConvertDESIV.UseVisualStyleBackColor = true;
+            btnConvertDESIV.Click += btnConvertDESIV_Click;
+            // 
             // btnGenerateDESIV
             // 
-            btnGenerateDESIV.Location = new Point(220, 2);
+            btnGenerateDESIV.Location = new Point(310, 2);
             btnGenerateDESIV.Margin = new Padding(4);
             btnGenerateDESIV.Name = "btnGenerateDESIV";
             btnGenerateDESIV.Size = new Size(103, 30);
@@ -384,7 +410,7 @@ namespace CryptoTool.Win
             // 
             comboDESPlaintextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDESPlaintextFormat.FormattingEnabled = true;
-            comboDESPlaintextFormat.Items.AddRange(new object[] { "Text", "Base64", "Hex" });
+            comboDESPlaintextFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
             comboDESPlaintextFormat.Location = new Point(520, 4);
             comboDESPlaintextFormat.Margin = new Padding(4);
             comboDESPlaintextFormat.Name = "comboDESPlaintextFormat";
@@ -536,6 +562,7 @@ namespace CryptoTool.Win
         private Panel panelDESKeyControls;
         private Label labelDESKeyFormat;
         private ComboBox comboDESKeyFormat;
+        private Button btnConvertDESKey;
         private Button btnGenerateDESKey;
         private Label labelDESKey;
         private Panel panelDESKey;
@@ -543,6 +570,7 @@ namespace CryptoTool.Win
         private Panel panelDESIVControls;
         private Label labelDESIVFormat;
         private ComboBox comboDESIVFormat;
+        private Button btnConvertDESIV;
         private Button btnGenerateDESIV;
         private Label labelDESIV;
         private Panel panelDESIV;

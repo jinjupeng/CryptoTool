@@ -328,9 +328,9 @@ namespace CryptoTool.App
 
                 var keySizes = new[]
                 {
-                    AESUtil.AESKeySize.Aes128,
-                    AESUtil.AESKeySize.Aes192,
-                    AESUtil.AESKeySize.Aes256
+                    AESUtil.AESKeySize.AES128,
+                    AESUtil.AESKeySize.AES192,
+                    AESUtil.AESKeySize.AES256
                 };
 
                 foreach (var keySize in keySizes)
@@ -469,9 +469,9 @@ namespace CryptoTool.App
                 // 测试不同长度的密钥生成
                 var keySizes = new[]
                 {
-                    AESUtil.AESKeySize.Aes128,
-                    AESUtil.AESKeySize.Aes192,
-                    AESUtil.AESKeySize.Aes256
+                    AESUtil.AESKeySize.AES128,
+                    AESUtil.AESKeySize.AES192,
+                    AESUtil.AESKeySize.AES256
                 };
 
                 foreach (var keySize in keySizes)
@@ -695,15 +695,15 @@ namespace CryptoTool.App
                 DESUtil.DESMode.CFB,
                 DESUtil.DESMode.OFB
             };
-
+            DESUtil.InputFormat inputFormat = DESUtil.InputFormat.UTF8;
             foreach (var mode in modes)
             {
                 try
                 {
                     string currentIv = mode == DESUtil.DESMode.ECB ? null : iv;
 
-                    string encrypted = DESUtil.EncryptByDES(plaintext, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
-                    string decrypted = DESUtil.DecryptByDES(encrypted, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                    string encrypted = DESUtil.EncryptByDES(plaintext, key, inputFormat, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, inputFormat, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
 
                     bool success = plaintext == decrypted;
                     Console.WriteLine($"{mode} 模式测试: {(success ? "成功" : "失败")}");
@@ -750,8 +750,8 @@ namespace CryptoTool.App
                         ? "12345678" // 8字节对齐
                         : plaintext;
 
-                    string encrypted = DESUtil.EncryptByDES(testText, key, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
-                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
+                    string encrypted = DESUtil.EncryptByDES(testText, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, padding, DESUtil.OutputFormat.Base64, iv);
 
                     bool success = false;
                     switch (padding)
@@ -803,8 +803,8 @@ namespace CryptoTool.App
             {
                 try
                 {
-                    string encrypted = DESUtil.EncryptByDES(plaintext, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
-                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                    string encrypted = DESUtil.EncryptByDES(plaintext, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                    string decrypted = DESUtil.DecryptByDES(encrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
 
                     bool success = plaintext == decrypted;
                     Console.WriteLine($"{format} 格式测试: {(success ? "成功" : "失败")}");
@@ -863,14 +863,14 @@ namespace CryptoTool.App
 
                     // 加密文件
                     var startTime = DateTime.Now;
-                    DESUtil.EncryptFile(originalFile, encryptedFile, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    DESUtil.EncryptFile(originalFile, encryptedFile, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
                     var encryptTime = DateTime.Now - startTime;
                     Console.WriteLine($"文件加密完成，耗时: {encryptTime.TotalMilliseconds:F2} ms");
                     Console.WriteLine($"加密文件大小: {new FileInfo(encryptedFile).Length} 字节");
 
                     // 解密文件
                     startTime = DateTime.Now;
-                    DESUtil.DecryptFile(encryptedFile, decryptedFile, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    DESUtil.DecryptFile(encryptedFile, decryptedFile, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
                     var decryptTime = DateTime.Now - startTime;
                     Console.WriteLine($"文件解密完成，耗时: {decryptTime.TotalMilliseconds:F2} ms");
 
@@ -911,11 +911,11 @@ namespace CryptoTool.App
                     Console.WriteLine($"创建大文件: {new FileInfo(largeFile).Length:N0} 字节");
 
                     var largeStartTime = DateTime.Now;
-                    DESUtil.EncryptFile(largeFile, largeEncrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    DESUtil.EncryptFile(largeFile, largeEncrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
                     var largeEncryptTime = DateTime.Now - largeStartTime;
 
                     largeStartTime = DateTime.Now;
-                    DESUtil.DecryptFile(largeEncrypted, largeDecrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
+                    DESUtil.DecryptFile(largeEncrypted, largeDecrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, iv);
                     var largeDecryptTime = DateTime.Now - largeStartTime;
 
                     string largeDecryptedContent = File.ReadAllText(largeDecrypted);
@@ -1048,9 +1048,9 @@ namespace CryptoTool.App
             try
             {
                 // 测试密钥生成
-                string key1 = DESUtil.GenerateKey(DESUtil.OutputFormat.Base64);
-                string key2 = DESUtil.GenerateKey(DESUtil.OutputFormat.Base64);
-                string hexKey = DESUtil.GenerateKey(DESUtil.OutputFormat.Hex);
+                string key1 = DESUtil.GenerateKey(DESUtil.InputFormat.Base64);
+                string key2 = DESUtil.GenerateKey(DESUtil.InputFormat.Base64);
+                string hexKey = DESUtil.GenerateKey(DESUtil.InputFormat.Hex);
 
                 Console.WriteLine($"Base64密钥1: {key1}");
                 Console.WriteLine($"Base64密钥2: {key2}");
@@ -1078,9 +1078,9 @@ namespace CryptoTool.App
                 Console.WriteLine($"密钥随机性验证: {(randomness ? "成功" : "失败")}");
 
                 // 测试IV生成
-                string iv1 = DESUtil.GenerateIV(DESUtil.OutputFormat.Base64);
-                string iv2 = DESUtil.GenerateIV(DESUtil.OutputFormat.Base64);
-                string hexIV = DESUtil.GenerateIV(DESUtil.OutputFormat.Hex);
+                string iv1 = DESUtil.GenerateIV(DESUtil.InputFormat.Base64);
+                string iv2 = DESUtil.GenerateIV(DESUtil.InputFormat.Base64);
+                string hexIV = DESUtil.GenerateIV(DESUtil.InputFormat.Hex);
 
                 Console.WriteLine($"Base64 IV1: {iv1}");
                 Console.WriteLine($"Base64 IV2: {iv2}");
@@ -1148,20 +1148,20 @@ namespace CryptoTool.App
                 string iv = "verifyiv"; // 8字节IV
 
                 // 测试正确验证
-                string encrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
-                bool correctVerify = DESUtil.VerifyDES(originalText, encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                string encrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                bool correctVerify = DESUtil.VerifyDES(originalText, encrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
                 Console.WriteLine($"正确验证测试: {(correctVerify ? "成功" : "失败")}");
 
                 // 测试错误的原文验证
-                bool wrongOriginal = DESUtil.VerifyDES("错误的原文", encrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                bool wrongOriginal = DESUtil.VerifyDES("错误的原文", encrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
                 Console.WriteLine($"错误原文验证: {(!wrongOriginal ? "成功" : "失败")}");
 
                 // 测试错误的密钥验证
-                bool wrongKey = DESUtil.VerifyDES(originalText, encrypted, "wrongkey", DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                bool wrongKey = DESUtil.VerifyDES(originalText, encrypted, "wrongkey", DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
                 Console.WriteLine($"错误密钥验证: {(!wrongKey ? "成功" : "失败")}");
 
                 // 测试错误的密文验证
-                bool wrongCipher = DESUtil.VerifyDES(originalText, "错误的密文", key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
+                bool wrongCipher = DESUtil.VerifyDES(originalText, "错误的密文", key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, iv);
                 Console.WriteLine($"错误密文验证: {(!wrongCipher ? "成功" : "失败")}");
 
                 // 测试不同模式的验证
@@ -1171,8 +1171,8 @@ namespace CryptoTool.App
                     try
                     {
                         string currentIv = mode == DESUtil.DESMode.ECB ? null : iv;
-                        string modeEncrypted = DESUtil.EncryptByDES(originalText, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
-                        bool modeVerify = DESUtil.VerifyDES(originalText, modeEncrypted, key, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                        string modeEncrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.InputFormat.UTF8, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
+                        bool modeVerify = DESUtil.VerifyDES(originalText, modeEncrypted, key, DESUtil.InputFormat.UTF8, mode, DESUtil.DESPadding.PKCS7, DESUtil.OutputFormat.Base64, currentIv);
                         Console.WriteLine($"{mode}模式验证: {(modeVerify ? "成功" : "失败")}");
                     }
                     catch (Exception ex)
@@ -1187,8 +1187,8 @@ namespace CryptoTool.App
                 {
                     try
                     {
-                        string formatEncrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
-                        bool formatVerify = DESUtil.VerifyDES(originalText, formatEncrypted, key, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                        string formatEncrypted = DESUtil.EncryptByDES(originalText, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
+                        bool formatVerify = DESUtil.VerifyDES(originalText, formatEncrypted, key, DESUtil.InputFormat.UTF8, DESUtil.DESMode.CBC, DESUtil.DESPadding.PKCS7, format, iv);
                         Console.WriteLine($"{format}格式验证: {(formatVerify ? "成功" : "失败")}");
                     }
                     catch (Exception ex)
