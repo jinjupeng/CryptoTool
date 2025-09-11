@@ -197,10 +197,10 @@ namespace CryptoTool.App
                 Console.WriteLine($"加解密一致性验证: {(isMatch ? "通过" : "失败")}");
 
                 // 测试十六进制输出格式
-                string encryptedHex = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Hex);
+                string encryptedHex = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Hex);
                 Console.WriteLine($"加密结果(Hex): {encryptedHex}");
 
-                string decryptedFromHex = AESUtil.DecryptByAES(encryptedHex, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Hex);
+                string decryptedFromHex = AESUtil.DecryptByAES(encryptedHex, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Hex);
                 Console.WriteLine($"从Hex解密结果: {decryptedFromHex}");
 
                 bool hexMatch = plaintext == decryptedFromHex;
@@ -240,11 +240,11 @@ namespace CryptoTool.App
                     {
                         Console.WriteLine($"\n测试 {mode} 模式:");
 
-                        string encrypted = AESUtil.EncryptByAES(plaintext, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64,
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64,
                             mode == AESUtil.AESMode.ECB ? null : iv);
                         Console.WriteLine($"  加密结果: {encrypted}");
 
-                        string decrypted = AESUtil.DecryptByAES(encrypted, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64,
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, mode, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64,
                             mode == AESUtil.AESMode.ECB ? null : iv);
                         Console.WriteLine($"  解密结果: {decrypted}");
 
@@ -291,10 +291,10 @@ namespace CryptoTool.App
                     {
                         Console.WriteLine($"\n测试 {padding} 填充:");
 
-                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, padding, AESUtil.AESFormatType.Base64, iv);
                         Console.WriteLine($"  加密结果: {encrypted}");
 
-                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, padding, AESUtil.OutputFormat.Base64, iv);
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, padding, AESUtil.AESFormatType.Base64, iv);
                         Console.WriteLine($"  解密结果: {decrypted}");
 
                         bool isMatch = plaintext == decrypted;
@@ -343,10 +343,10 @@ namespace CryptoTool.App
                         string key = AESUtil.GenerateKey(keySize);
                         Console.WriteLine($"  生成密钥: {key}");
 
-                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                        string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64, iv);
                         Console.WriteLine($"  加密结果: {encrypted}");
 
-                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                        string decrypted = AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64, iv);
                         Console.WriteLine($"  解密结果: {decrypted}");
 
                         bool isMatch = plaintext == decrypted;
@@ -526,7 +526,7 @@ namespace CryptoTool.App
                 var encryptStartTime = DateTime.Now;
                 for (int i = 0; i < iterations; i++)
                 {
-                    AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                    AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64, iv);
                 }
                 var encryptEndTime = DateTime.Now;
                 var encryptDuration = encryptEndTime - encryptStartTime;
@@ -536,12 +536,12 @@ namespace CryptoTool.App
                 Console.WriteLine($"加密吞吐量: {plaintext.Length * iterations / encryptDuration.TotalSeconds / 1024:F2} KB/s");
 
                 // 解密性能测试
-                string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                string encrypted = AESUtil.EncryptByAES(plaintext, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64, iv);
 
                 var decryptStartTime = DateTime.Now;
                 for (int i = 0; i < iterations; i++)
                 {
-                    AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.OutputFormat.Base64, iv);
+                    AESUtil.DecryptByAES(encrypted, key, AESUtil.AESMode.CBC, AESUtil.AESPadding.PKCS7, AESUtil.AESFormatType.Base64, iv);
                 }
                 var decryptEndTime = DateTime.Now;
                 var decryptDuration = decryptEndTime - decryptStartTime;
