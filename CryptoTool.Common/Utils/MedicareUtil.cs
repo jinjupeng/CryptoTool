@@ -114,7 +114,7 @@ namespace CryptoTool.Common.Utils
             // 3) 使用派生密钥加密jStr，得到Base64，再转Hex大写
             string base64 = SM4Provider.EncryptEcb(jStr, derived16);
             byte[] cipherBytes = Convert.FromBase64String(base64);
-            string encHex = SM4Provider.BytesToHex(cipherBytes);
+            string encHex = CryptoCommonUtil.ConvertToHexString(cipherBytes, true);
             return encHex;
         }
 
@@ -133,7 +133,7 @@ namespace CryptoTool.Common.Utils
             if (string.IsNullOrEmpty(appSecret)) throw new ArgumentNullException(nameof(appSecret));
 
             string derived16 = GetSm4Key16(appId, appSecret);
-            byte[] cipherBytes = SM4Provider.HexToBytes(encDataHex);
+            byte[] cipherBytes = CryptoCommonUtil.ConvertFromHexString(encDataHex);
             string base64 = Convert.ToBase64String(cipherBytes);
             string jStr = SM4Provider.DecryptEcb(base64, derived16);
             return jStr;

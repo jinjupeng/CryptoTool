@@ -459,7 +459,7 @@ namespace CryptoTool.Win
 
             // 将Base64结果转换为字节数组，再转换为Hex字符串，取前16个字符（8字节）作为最终的SM4密钥
             byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
-            string hexResult = SM4Provider.BytesToHex(encryptedBytes);
+            string hexResult = CryptoCommonUtil.ConvertToHexString(encryptedBytes, true);
 
             // 取前16个字符作为最终的SM4密钥（Hex格式，实际对应8字节）
             // 但SM4需要16字节密钥，所以取前32个字符（对应16字节）

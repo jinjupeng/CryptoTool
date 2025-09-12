@@ -289,31 +289,4 @@ namespace CryptoTool.Common.Enums
         /// </summary>
         NoPadding
     }
-
-    /// <summary>
-    /// 操作类型枚举
-    /// </summary>
-    public enum OperationType
-    {
-        /// <summary>
-        /// 加密操作
-        /// </summary>
-        Encrypt,
-        /// <summary>
-        /// 解密操作
-        /// </summary>
-        Decrypt,
-        /// <summary>
-        /// 签名操作
-        /// </summary>
-        Sign,
-        /// <summary>
-        /// 验签操作
-        /// </summary>
-        Verify,
-        /// <summary>
-        /// 哈希计算
-        /// </summary>
-        Hash
-    }
 }

@@ -1,6 +1,5 @@
 ﻿using CryptoTool.Common.Common;
 using CryptoTool.Common.Enums;
-using CryptoTool.Common.Utils;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
@@ -107,7 +106,7 @@ namespace CryptoTool.Common.Providers.GM
         /// <summary>
         /// 获取BouncyCastle填充
         /// </summary>
-        private static IBlockCipherPadding GetPadding(CryptoPaddingMode padding)
+        private IBlockCipherPadding GetPadding(CryptoPaddingMode padding)
         {
             return padding switch
             {
@@ -145,26 +144,6 @@ namespace CryptoTool.Common.Providers.GM
         {
             var sm4 = new SM4Provider();
             return sm4.Decrypt(ciphertext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7, InputFormat.Base64);
-        }
-
-        /// <summary>
-        /// 字节数组转十六进制字符串
-        /// </summary>
-        /// <param name="bytes">字节数组</param>
-        /// <returns>十六进制字符串</returns>
-        public static string BytesToHex(byte[] bytes)
-        {
-            return CryptoCommonUtil.ConvertToHexString(bytes, true);
-        }
-
-        /// <summary>
-        /// 十六进制字符串转字节数组
-        /// </summary>
-        /// <param name="hex">十六进制字符串</param>
-        /// <returns>字节数组</returns>
-        public static byte[] HexToBytes(string hex)
-        {
-            return CryptoCommonUtil.ConvertFromHexString(hex);
         }
 
         #endregion
