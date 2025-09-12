@@ -11,53 +11,7 @@ namespace CryptoTool.Common.Utils
     /// </summary>
     public static class CryptoCommonUtil
     {
-        #region 格式转换方法
-
-        /// <summary>
-        /// 将字符串转换为字节数组
-        /// </summary>
-        /// <param name="str">输入字符串</param>
-        /// <param name="format">输入格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>字节数组</returns>
-        public static byte[] StringToBytes(string str, InputFormat format, Encoding encoding = null)
-        {
-            if (string.IsNullOrEmpty(str))
-                throw new ArgumentException("输入字符串不能为空", nameof(str));
-
-            encoding = encoding ?? Encoding.UTF8;
-
-            return format switch
-            {
-                InputFormat.UTF8 => encoding.GetBytes(str),
-                InputFormat.Base64 => Convert.FromBase64String(str),
-                InputFormat.Hex => ConvertFromHexString(str),
-                _ => throw new ArgumentException($"不支持的输入格式: {format}")
-            };
-        }
-
-        /// <summary>
-        /// 将字节数组转换为字符串
-        /// </summary>
-        /// <param name="bytes">字节数组</param>
-        /// <param name="format">输出格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>字符串</returns>
-        public static string BytesToString(byte[] bytes, OutputFormat format, Encoding encoding = null)
-        {
-            if (bytes == null || bytes.Length == 0)
-                throw new ArgumentException("字节数组不能为空", nameof(bytes));
-
-            encoding = encoding ?? Encoding.UTF8;
-
-            return format switch
-            {
-                OutputFormat.UTF8 => encoding.GetString(bytes),
-                OutputFormat.Base64 => Convert.ToBase64String(bytes),
-                OutputFormat.Hex => ConvertToHexString(bytes),
-                _ => throw new ArgumentException($"不支持的输出格式: {format}")
-            };
-        }
+        #region 基础字节数组转换方法
 
         /// <summary>
         /// 十六进制字符串转字节数组
@@ -112,15 +66,15 @@ namespace CryptoTool.Common.Utils
         /// </summary>
         /// <param name="key">密钥字符串</param>
         /// <param name="keySize">期望的密钥长度（字节）</param>
-        /// <param name="format">密钥格式</param>
         /// <param name="encoding">字符编码</param>
         /// <returns>处理后的密钥字节数组</returns>
-        public static byte[] ProcessKey(string key, int keySize, InputFormat format = InputFormat.UTF8, Encoding encoding = null)
+        public static byte[] ProcessKey(string key, int keySize, Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(key))
                 throw new ArgumentException("密钥不能为空", nameof(key));
 
-            byte[] keyBytes = StringToBytes(key, format, encoding);
+            encoding = encoding ?? Encoding.UTF8;
+            byte[] keyBytes = encoding.GetBytes(key);
 
             // 调整密钥长度
             if (keyBytes.Length < keySize)
@@ -142,10 +96,9 @@ namespace CryptoTool.Common.Utils
         /// </summary>
         /// <param name="iv">初始化向量字符串</param>
         /// <param name="ivSize">期望的IV长度（字节）</param>
-        /// <param name="format">IV格式</param>
         /// <param name="encoding">字符编码</param>
         /// <returns>处理后的IV字节数组</returns>
-        public static byte[] ProcessIV(string iv, int ivSize, InputFormat format = InputFormat.UTF8, Encoding encoding = null)
+        public static byte[] ProcessIV(string iv, int ivSize, Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(iv))
             {
@@ -158,7 +111,8 @@ namespace CryptoTool.Common.Utils
                 return randomIV;
             }
 
-            byte[] ivBytes = StringToBytes(iv, format, encoding);
+            encoding = encoding ?? Encoding.UTF8;
+            byte[] ivBytes = encoding.GetBytes(iv);
             Array.Resize(ref ivBytes, ivSize);
             return ivBytes;
         }
@@ -240,39 +194,6 @@ namespace CryptoTool.Common.Utils
                 return false;
 
             return ivBytes.Length == expectedLength;
-        }
-
-        /// <summary>
-        /// 验证字符串格式
-        /// </summary>
-        /// <param name="str">字符串</param>
-        /// <param name="format">格式</param>
-        /// <returns>是否有效</returns>
-        public static bool ValidateStringFormat(string str, InputFormat format)
-        {
-            if (string.IsNullOrEmpty(str))
-                return false;
-
-            try
-            {
-                switch (format)
-                {
-                    case InputFormat.Base64:
-                        Convert.FromBase64String(str);
-                        return true;
-                    case InputFormat.Hex:
-                        ConvertFromHexString(str);
-                        return true;
-                    case InputFormat.UTF8:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         #endregion

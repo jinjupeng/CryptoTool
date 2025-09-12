@@ -1,5 +1,4 @@
 using CryptoTool.Common.Providers;
-using CryptoTool.Common.Enums;
 using CryptoTool.Common.Utils;
 using System.Text;
 
@@ -54,14 +53,7 @@ namespace CryptoTool.Win
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
                 
                 var md5Provider = new MD5Provider();
-                OutputFormat outputFormatEnum = outputFormat switch
-                {
-                    "Hex" => OutputFormat.Hex,
-                    "Base64" => OutputFormat.Base64,
-                    _ => OutputFormat.Hex
-                };
-                
-                string result = md5Provider.ComputeHash(dataBytes, outputFormatEnum);
+                string result = md5Provider.ComputeHashWithFormat(dataBytes, outputFormat);
 
                 textMD5Output.Text = result;
                 SetStatus($"MD5哈希计算完毕 - 输入格式：{dataFormat}，输出格式：{outputFormat}");
@@ -122,14 +114,7 @@ namespace CryptoTool.Win
                 string outputFormat = comboMD5FileHashFormat.SelectedItem?.ToString() ?? "Hex";
                 
                 var md5Provider = new MD5Provider();
-                OutputFormat outputFormatEnum = outputFormat switch
-                {
-                    "Hex" => OutputFormat.Hex,
-                    "Base64" => OutputFormat.Base64,
-                    _ => OutputFormat.Hex
-                };
-
-                string result = md5Provider.ComputeFileHash(textMD5FilePath.Text, outputFormatEnum);
+                string result = md5Provider.ComputeFileHashWithFormat(textMD5FilePath.Text, outputFormat);
 
                 textMD5FileHash.Text = result;
                 SetStatus($"文件MD5哈希计算完成 - 输出格式：{outputFormat}");
@@ -171,14 +156,7 @@ namespace CryptoTool.Win
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
                 
                 var md5Provider = new MD5Provider();
-                InputFormat hashFormatEnum = hashFormat switch
-                {
-                    "Hex" => InputFormat.Hex,
-                    "Base64" => InputFormat.Base64,
-                    _ => InputFormat.Hex
-                };
-
-                bool isValid = md5Provider.VerifyHash(dataBytes, expectedHash, hashFormatEnum);
+                bool isValid = md5Provider.VerifyHashWithFormat(dataBytes, expectedHash, hashFormat);
 
                 labelMD5VerifyResult.Text = isValid ? "验证通过" : "验证失败";
                 labelMD5VerifyResult.ForeColor = isValid ? Color.Green : Color.Red;

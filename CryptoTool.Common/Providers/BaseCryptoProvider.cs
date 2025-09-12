@@ -13,7 +13,7 @@ namespace CryptoTool.Common.Common
     /// <summary>
     /// 基础加密提供者抽象类
     /// 提供了对称加密算法的通用实现，包括字符串、字节数组、文件和流的加密解密操作
-    /// 支持多种加密模式、填充方式和输出格式
+    /// 支持多种加密模式、填充方式，不涉及具体的格式转换逻辑
     /// </summary>
     public abstract class BaseCryptoProvider : ICryptoProvider
     {
@@ -108,24 +108,23 @@ namespace CryptoTool.Common.Common
 
         /// <summary>
         /// 加密字符串
-        /// 将UTF-8编码的明文字符串加密为指定格式的密文字符串
+        /// 将UTF-8编码的明文字符串加密，返回Base64编码的密文字符串
         /// </summary>
         /// <param name="plaintext">待加密的明文字符串</param>
         /// <param name="key">加密密钥（字符串格式）</param>
         /// <param name="mode">加密模式，默认为CBC</param>
         /// <param name="padding">填充模式，默认为PKCS7</param>
-        /// <param name="outputFormat">输出格式，默认为Base64</param>
         /// <param name="iv">初始化向量（字符串格式），为空时自动生成</param>
-        /// <returns>加密后的密文字符串</returns>
+        /// <returns>加密后的密文字符串（Base64编码）</returns>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         /// <exception cref="CryptographicException">加密操作失败时抛出</exception>
         /// <example>
         /// <code>
-        /// string encrypted = provider.Encrypt("Hello World", "myKey123", CryptoMode.CBC, CryptoPaddingMode.PKCS7, OutputFormat.Base64);
+        /// string encrypted = provider.Encrypt("Hello World", "myKey123", CryptoMode.CBC, CryptoPaddingMode.PKCS7);
         /// </code>
         /// </example>
         public virtual string Encrypt(string plaintext, string key, CryptoMode mode = CryptoMode.CBC,
-            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
             // 参数验证
             ValidateEncryptStringParameters(plaintext, key);
@@ -140,8 +139,8 @@ namespace CryptoTool.Common.Common
                 // 执行加密
                 byte[] encryptedBytes = Encrypt(plainBytes, keyBytes, mode, padding, ivBytes);
                 
-                // 转换输出格式
-                return CryptoCommonUtil.BytesToString(encryptedBytes, outputFormat);
+                // 转换为Base64输出
+                return Convert.ToBase64String(encryptedBytes);
             }
             catch (Exception ex) when (!(ex is ArgumentException))
             {
@@ -151,24 +150,23 @@ namespace CryptoTool.Common.Common
 
         /// <summary>
         /// 解密字符串
-        /// 将指定格式的密文字符串解密为UTF-8编码的明文字符串
+        /// 将Base64编码的密文字符串解密为UTF-8编码的明文字符串
         /// </summary>
-        /// <param name="ciphertext">待解密的密文字符串</param>
+        /// <param name="ciphertext">待解密的密文字符串（Base64编码）</param>
         /// <param name="key">解密密钥（字符串格式）</param>
         /// <param name="mode">加密模式，默认为CBC</param>
         /// <param name="padding">填充模式，默认为PKCS7</param>
-        /// <param name="inputFormat">输入格式，默认为Base64</param>
         /// <param name="iv">初始化向量（字符串格式），ECB模式下可为空</param>
         /// <returns>解密后的明文字符串</returns>
         /// <exception cref="ArgumentException">参数无效时抛出</exception>
         /// <exception cref="CryptographicException">解密操作失败时抛出</exception>
         /// <example>
         /// <code>
-        /// string decrypted = provider.Decrypt(encrypted, "myKey123", CryptoMode.CBC, CryptoPaddingMode.PKCS7, InputFormat.Base64, "myIV");
+        /// string decrypted = provider.Decrypt(encrypted, "myKey123", CryptoMode.CBC, CryptoPaddingMode.PKCS7, "myIV");
         /// </code>
         /// </example>
         public virtual string Decrypt(string ciphertext, string key, CryptoMode mode = CryptoMode.CBC,
-            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null)
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
             // 参数验证
             ValidateDecryptStringParameters(ciphertext, key, iv, mode);
@@ -176,7 +174,7 @@ namespace CryptoTool.Common.Common
             try
             {
                 // 字符串转字节数组
-                byte[] cipherBytes = CryptoCommonUtil.StringToBytes(ciphertext, inputFormat);
+                byte[] cipherBytes = Convert.FromBase64String(ciphertext);
                 byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, KeySize);
                 byte[] ivBytes = CryptoCommonUtil.ProcessIV(iv, IVSize);
 
@@ -421,39 +419,37 @@ namespace CryptoTool.Common.Common
         /// 根据指定的密钥长度生成加密强度的随机密钥
         /// </summary>
         /// <param name="keySize">密钥长度枚举值，默认为256位</param>
-        /// <param name="format">输出格式，默认为Base64</param>
-        /// <returns>生成的密钥字符串</returns>
+        /// <returns>生成的密钥字符串（Base64格式）</returns>
         /// <exception cref="ArgumentException">密钥长度不受支持时抛出</exception>
         /// <example>
         /// <code>
-        /// string key = provider.GenerateKey(KeySize.Key256, OutputFormat.Hex);
+        /// string key = provider.GenerateKey(KeySize.Key256);
         /// </code>
         /// </example>
-        public virtual string GenerateKey(Enums.KeySize keySize = Enums.KeySize.Key256, OutputFormat format = OutputFormat.Base64)
+        public virtual string GenerateKey(Enums.KeySize keySize = Enums.KeySize.Key256)
         {
             int actualKeySize = (int)keySize / 8;
             if (actualKeySize != this.KeySize)
                 throw new ArgumentException($"不支持的密钥长度: {keySize}（{actualKeySize}字节），当前算法支持{this.KeySize}字节（{this.KeySize * 8}位）");
 
             byte[] keyBytes = CryptoCommonUtil.GenerateRandomBytes(this.KeySize);
-            return CryptoCommonUtil.BytesToString(keyBytes, format);
+            return Convert.ToBase64String(keyBytes);
         }
 
         /// <summary>
         /// 生成适用于当前算法的随机初始化向量
         /// 为非ECB模式的加密操作生成安全的随机初始化向量
         /// </summary>
-        /// <param name="format">输出格式，默认为Base64</param>
-        /// <returns>生成的初始化向量字符串</returns>
+        /// <returns>生成的初始化向量字符串（Base64格式）</returns>
         /// <example>
         /// <code>
-        /// string iv = provider.GenerateIV(OutputFormat.Hex);
+        /// string iv = provider.GenerateIV();
         /// </code>
         /// </example>
-        public virtual string GenerateIV(OutputFormat format = OutputFormat.Base64)
+        public virtual string GenerateIV()
         {
             byte[] ivBytes = CryptoCommonUtil.GenerateRandomBytes(IVSize);
-            return CryptoCommonUtil.BytesToString(ivBytes, format);
+            return Convert.ToBase64String(ivBytes);
         }
 
         /// <summary>
@@ -461,21 +457,20 @@ namespace CryptoTool.Common.Common
         /// 检查密钥格式和长度是否符合当前算法的要求
         /// </summary>
         /// <param name="key">待验证的密钥字符串</param>
-        /// <param name="format">密钥的格式，默认为UTF8</param>
         /// <returns>true表示密钥有效，false表示无效</returns>
         /// <example>
         /// <code>
-        /// bool isValid = provider.ValidateKey("myKey123", InputFormat.UTF8);
+        /// bool isValid = provider.ValidateKey("myKey123");
         /// </code>
         /// </example>
-        public virtual bool ValidateKey(string key, InputFormat format = InputFormat.UTF8)
+        public virtual bool ValidateKey(string key)
         {
             try
             {
-                if (!CryptoCommonUtil.ValidateStringFormat(key, format))
+                if (string.IsNullOrEmpty(key))
                     return false;
 
-                byte[] keyBytes = CryptoCommonUtil.StringToBytes(key, format);
+                byte[] keyBytes = Encoding.UTF8.GetBytes(key);
                 return CryptoCommonUtil.ValidateKeyLength(keyBytes, KeySize, AlgorithmType);
             }
             catch

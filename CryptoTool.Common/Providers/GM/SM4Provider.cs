@@ -39,7 +39,6 @@ namespace CryptoTool.Common.Providers.GM
 
         #endregion
 
-
         #region 抽象方法实现
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace CryptoTool.Common.Providers.GM
         public static string EncryptEcb(string plaintext, string key)
         {
             var sm4 = new SM4Provider();
-            return sm4.Encrypt(plaintext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7, OutputFormat.Base64);
+            return sm4.Encrypt(plaintext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7);
         }
 
         /// <summary>
@@ -143,9 +142,77 @@ namespace CryptoTool.Common.Providers.GM
         public static string DecryptEcb(string ciphertext, string key)
         {
             var sm4 = new SM4Provider();
-            return sm4.Decrypt(ciphertext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7, InputFormat.Base64);
+            return sm4.Decrypt(ciphertext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7);
+        }
+
+        /// <summary>
+        /// CBC模式加密字符串
+        /// </summary>
+        /// <param name="plaintext">明文</param>
+        /// <param name="key">密钥（16字节）</param>
+        /// <param name="iv">初始化向量（16字节）</param>
+        /// <returns>Base64编码的密文</returns>
+        public static string EncryptCbc(string plaintext, string key, string iv)
+        {
+            var sm4 = new SM4Provider();
+            return sm4.Encrypt(plaintext, key, CryptoMode.CBC, CryptoPaddingMode.PKCS7, iv);
+        }
+
+        /// <summary>
+        /// CBC模式解密字符串
+        /// </summary>
+        /// <param name="ciphertext">Base64编码的密文</param>
+        /// <param name="key">密钥（16字节）</param>
+        /// <param name="iv">初始化向量（16字节）</param>
+        /// <returns>明文</returns>
+        public static string DecryptCbc(string ciphertext, string key, string iv)
+        {
+            var sm4 = new SM4Provider();
+            return sm4.Decrypt(ciphertext, key, CryptoMode.CBC, CryptoPaddingMode.PKCS7, iv);
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// BouncyCastle到.NET CryptoTransform的适配器
+    /// </summary>
+    internal class BouncyCastleCryptoTransform : ICryptoTransform
+    {
+        private readonly IBufferedCipher _cipher;
+
+        public BouncyCastleCryptoTransform(IBufferedCipher cipher)
+        {
+            _cipher = cipher;
+        }
+
+        public bool CanReuseTransform => false;
+        public bool CanTransformMultipleBlocks => true;
+        public int InputBlockSize => _cipher.GetBlockSize();
+        public int OutputBlockSize => _cipher.GetBlockSize();
+
+        public int TransformBlock(byte[] inputBuffer, int inputOffset, int inputCount, byte[] outputBuffer, int outputOffset)
+        {
+            byte[] output = _cipher.ProcessBytes(inputBuffer, inputOffset, inputCount);
+            Array.Copy(output, 0, outputBuffer, outputOffset, output.Length);
+            return output.Length;
+        }
+
+        public byte[] TransformFinalBlock(byte[] inputBuffer, int inputOffset, int inputCount)
+        {
+            byte[] partialOutput = _cipher.ProcessBytes(inputBuffer, inputOffset, inputCount);
+            byte[] finalOutput = _cipher.DoFinal();
+            
+            byte[] result = new byte[partialOutput.Length + finalOutput.Length];
+            Array.Copy(partialOutput, 0, result, 0, partialOutput.Length);
+            Array.Copy(finalOutput, 0, result, partialOutput.Length, finalOutput.Length);
+            
+            return result;
+        }
+
+        public void Dispose()
+        {
+            // BouncyCastle cipher不需要显式释放
+        }
     }
 }

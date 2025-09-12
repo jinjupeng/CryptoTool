@@ -38,27 +38,20 @@ namespace CryptoTool.Common.Providers.GM
         public AlgorithmType AlgorithmType => AlgorithmType.SM3;
 
         /// <summary>
-        /// 计算字符串哈希值
+        /// 计算字符串哈希值（接口实现）
         /// </summary>
         /// <param name="data">待计算数据</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        public string ComputeHash(string data, OutputFormat outputFormat = OutputFormat.Hex)
+        /// <returns>哈希值（十六进制）</returns>
+        public string ComputeHash(string data)
         {
-            if (string.IsNullOrEmpty(data))
-                throw new ArgumentException("数据不能为空", nameof(data));
-
-            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-            return ComputeHash(dataBytes, outputFormat);
+            return ComputeHashWithFormat(data, "Hex");
         }
 
         /// <summary>
-        /// 计算字节数组哈希值
+        /// 计算字节数组哈希值（接口实现）
         /// </summary>
         /// <param name="data">待计算数据</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        public string ComputeHash(byte[] data, OutputFormat outputFormat = OutputFormat.Hex)
+        public byte[] ComputeHash(byte[] data)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -69,8 +62,93 @@ namespace CryptoTool.Common.Providers.GM
             byte[] hash = new byte[digest.GetDigestSize()];
             digest.DoFinal(hash, 0);
 
-            return CryptoCommonUtil.BytesToString(hash, outputFormat);
+            return hash;
         }
+
+        /// <summary>
+        /// 计算文件哈希值（接口实现）
+        /// </summary>
+        /// <param name="filePath">文件路径</param>
+        /// <returns>哈希值（十六进制）</returns>
+        public string ComputeFileHash(string filePath)
+        {
+            return ComputeFileHashWithFormat(filePath, "Hex");
+        }
+
+        /// <summary>
+        /// 计算流哈希值（接口实现）
+        /// </summary>
+        /// <param name="stream">流</param>
+        /// <returns>哈希值（十六进制）</returns>
+        public string ComputeStreamHash(Stream stream)
+        {
+            return ComputeStreamHashWithFormat(stream, "Hex");
+        }
+
+        /// <summary>
+        /// 验证字符串哈希值（接口实现）
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="expectedHash">期望的哈希值</param>
+        /// <returns>是否匹配</returns>
+        public bool VerifyHash(string data, string expectedHash)
+        {
+            return VerifyHashWithFormat(data, expectedHash, "Hex");
+        }
+
+        /// <summary>
+        /// 验证字节数组哈希值（接口实现）
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="expectedHash">期望的哈希值</param>
+        /// <returns>是否匹配</returns>
+        public bool VerifyHash(byte[] data, string expectedHash)
+        {
+            return VerifyHashWithFormat(data, expectedHash, "Hex");
+        }
+
+        #endregion
+
+        #region 扩展方法
+
+        /// <summary>
+        /// 计算字符串哈希值
+        /// </summary>
+        /// <param name="data">待计算数据</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <returns>哈希值</returns>
+        public string ComputeHashWithFormat(string data, string outputFormat = "Hex")
+        {
+            if (string.IsNullOrEmpty(data))
+                throw new ArgumentException("数据不能为空", nameof(data));
+
+            byte[] dataBytes = Encoding.UTF8.GetBytes(data);
+            byte[] hash = ComputeHash(dataBytes);
+
+            return outputFormat?.ToLowerInvariant() switch
+            {
+                "base64" => Convert.ToBase64String(hash),
+                _ => CryptoCommonUtil.ConvertToHexString(hash, true)
+            };
+        }
+
+        /// <summary>
+        /// 计算字符串哈希值
+        /// </summary>
+        /// <param name="data">待计算数据</param>
+        /// <param name="outputFormat">输出格式</param>
+        /// <returns>哈希值</returns>
+        public string ComputeHashWithFormat(byte[] dataBytes, string outputFormat = "Hex")
+        {
+            byte[] hash = ComputeHash(dataBytes);
+
+            return outputFormat?.ToLowerInvariant() switch
+            {
+                "base64" => Convert.ToBase64String(hash),
+                _ => CryptoCommonUtil.ConvertToHexString(hash, true)
+            };
+        }
+
 
         /// <summary>
         /// 计算文件哈希值
@@ -78,7 +156,7 @@ namespace CryptoTool.Common.Providers.GM
         /// <param name="filePath">文件路径</param>
         /// <param name="outputFormat">输出格式</param>
         /// <returns>哈希值</returns>
-        public string ComputeFileHash(string filePath, OutputFormat outputFormat = OutputFormat.Hex)
+        public string ComputeFileHashWithFormat(string filePath, string outputFormat = "Hex")
         {
             if (string.IsNullOrEmpty(filePath))
                 throw new ArgumentException("文件路径不能为空", nameof(filePath));
@@ -88,7 +166,7 @@ namespace CryptoTool.Common.Providers.GM
 
             using (var fileStream = File.OpenRead(filePath))
             {
-                return ComputeStreamHash(fileStream, outputFormat);
+                return ComputeStreamHashWithFormat(fileStream, outputFormat);
             }
         }
 
@@ -98,7 +176,7 @@ namespace CryptoTool.Common.Providers.GM
         /// <param name="stream">流</param>
         /// <param name="outputFormat">输出格式</param>
         /// <returns>哈希值</returns>
-        public string ComputeStreamHash(Stream stream, OutputFormat outputFormat = OutputFormat.Hex)
+        public string ComputeStreamHashWithFormat(Stream stream, string outputFormat = "Hex")
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -115,7 +193,11 @@ namespace CryptoTool.Common.Providers.GM
             byte[] hash = new byte[digest.GetDigestSize()];
             digest.DoFinal(hash, 0);
 
-            return CryptoCommonUtil.BytesToString(hash, outputFormat);
+            return outputFormat?.ToLowerInvariant() switch
+            {
+                "base64" => Convert.ToBase64String(hash),
+                _ => CryptoCommonUtil.ConvertToHexString(hash, true)
+            };
         }
 
         /// <summary>
@@ -125,12 +207,12 @@ namespace CryptoTool.Common.Providers.GM
         /// <param name="expectedHash">期望的哈希值</param>
         /// <param name="inputFormat">输入格式</param>
         /// <returns>是否匹配</returns>
-        public bool VerifyHash(string data, string expectedHash, InputFormat inputFormat = InputFormat.Hex)
+        public bool VerifyHashWithFormat(string data, string expectedHash, string inputFormat = "Hex")
         {
             if (string.IsNullOrEmpty(data) || string.IsNullOrEmpty(expectedHash))
                 return false;
 
-            string computedHash = ComputeHash(data, OutputFormat.Hex);
+            string computedHash = ComputeHashWithFormat(data, inputFormat);
             return string.Equals(computedHash, expectedHash, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -141,12 +223,30 @@ namespace CryptoTool.Common.Providers.GM
         /// <param name="expectedHash">期望的哈希值</param>
         /// <param name="inputFormat">输入格式</param>
         /// <returns>是否匹配</returns>
-        public bool VerifyHash(byte[] data, string expectedHash, InputFormat inputFormat = InputFormat.Hex)
+        public bool VerifyHashWithFormat(byte[] data, string expectedHash, string inputFormat = "Hex")
         {
             if (data == null || data.Length == 0 || string.IsNullOrEmpty(expectedHash))
                 return false;
 
-            string computedHash = ComputeHash(data, OutputFormat.Hex);
+            string computedHash = ComputeHashWithFormat(data, inputFormat);
+            return string.Equals(computedHash, expectedHash, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// 验证字节数组哈希值
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="expectedBytes">期望的哈希值</param>
+        /// <returns>是否匹配</returns>
+        public bool VerifyHashWithFormat(byte[] data, byte[] expectedBytes)
+        {
+            if (data == null || data.Length == 0)
+                throw new ArgumentException("原始数据不能为空", nameof(data));
+            if (expectedBytes == null || expectedBytes.Length == 0)
+                throw new ArgumentException("期望的哈希值不能为空", nameof(expectedBytes));
+
+            string computedHash = ComputeHashWithFormat(data, "Hex");
+            string expectedHash = CryptoCommonUtil.ConvertToHexString(expectedBytes, true);
             return string.Equals(computedHash, expectedHash, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -157,11 +257,11 @@ namespace CryptoTool.Common.Providers.GM
         /// <summary>
         /// 计算HMAC-SM3
         /// </summary>
-        /// <param name="data">待计算数据</param>
-        /// <param name="key">密钥</param>
-        /// <param name="outputFormat">输出格式</param>
+        /// <param name="data">待计算数据(UTF-8)</param>
+        /// <param name="key">密钥(UTF-8)</param>
+        /// <param name="outputFormat">输出格式（默认是Hex）</param>
         /// <returns>HMAC值</returns>
-        public string ComputeHMac(string data, string key, OutputFormat outputFormat = OutputFormat.Hex)
+        public string ComputeHMac(string data, string key, string outputFormat = "Hex")
         {
             if (string.IsNullOrEmpty(data))
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -179,9 +279,26 @@ namespace CryptoTool.Common.Providers.GM
         /// </summary>
         /// <param name="data">待计算数据</param>
         /// <param name="key">密钥</param>
-        /// <param name="outputFormat">输出格式</param>
+        /// <param name="outputFormat">输出格式(默认是Hex)</param>
         /// <returns>HMAC值</returns>
-        public string ComputeHMac(byte[] data, byte[] key, OutputFormat outputFormat = OutputFormat.Hex)
+        public string ComputeHMac(byte[] data, byte[] key, string outputFormat = "Hex")
+        {
+            byte[] result = ComputeHMac(data, key);
+
+            return outputFormat?.ToLowerInvariant() switch
+            {
+                "base64" => Convert.ToBase64String(result),
+                _ => CryptoCommonUtil.ConvertToHexString(result, true)
+            };
+        }
+
+        /// <summary>
+        /// 计算HMAC-SM3
+        /// </summary>
+        /// <param name="data">待计算数据</param>
+        /// <param name="key">密钥</param>
+        /// <returns>HMAC值</returns>
+        public byte[] ComputeHMac(byte[] data, byte[] key)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -198,16 +315,7 @@ namespace CryptoTool.Common.Providers.GM
             byte[] result = new byte[hmac.GetMacSize()];
             hmac.DoFinal(result, 0);
 
-            return CryptoCommonUtil.BytesToString(result, outputFormat);
-        }
-
-        /// <summary>
-        /// 创建SM3摘要器
-        /// </summary>
-        /// <returns>SM3摘要器</returns>
-        public SM3Digest CreateDigest()
-        {
-            return new SM3Digest();
+            return result;
         }
 
         #endregion

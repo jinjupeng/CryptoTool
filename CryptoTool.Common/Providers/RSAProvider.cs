@@ -30,37 +30,269 @@ namespace CryptoTool.Common.Providers
         public AlgorithmType AlgorithmType => AlgorithmType.RSA;
 
         /// <summary>
-        /// 加密字符串
+        /// 生成密钥对（接口方法）- 返回PEM格式
         /// </summary>
-        /// <param name="plainText">明文</param>
-        /// <param name="publicKey">公钥</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>密文</returns>
-        public string Encrypt(string plainText, string publicKey, OutputFormat outputFormat = OutputFormat.Base64, Encoding encoding = null)
+        /// <param name="keySize">密钥长度</param>
+        /// <returns>密钥对（公钥，私钥）PEM格式</returns>
+        public (string PublicKey, string PrivateKey) GenerateKeyPair(KeySize keySize = KeySize.Key2048)
         {
-            if (string.IsNullOrEmpty(plainText))
-                throw new ArgumentException("明文不能为空", nameof(plainText));
+            return GenerateKeyPair(keySize, KeyFormat.PEM);
+        }
+
+        /// <summary>
+        /// 生成密钥对 - 指定输出格式
+        /// </summary>
+        /// <param name="keySize">密钥长度</param>
+        /// <param name="format">密钥格式</param>
+        /// <returns>密钥对（指定格式）</returns>
+        public (string PublicKey, string PrivateKey) GenerateKeyPair(KeySize keySize, KeyFormat format)
+        {
+            var keyPair = GenerateKeyPairInternal((int)keySize);
+            var publicKey = (RsaKeyParameters)keyPair.Public;
+            var privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
+
+            var publicKeyString = GeneratePublicKeyString(publicKey, format);
+            var privateKeyString = GeneratePrivateKeyString(privateKey, format);
+
+            return (publicKeyString, privateKeyString);
+        }
+
+        /// <summary>
+        /// 使用公钥加密（接口方法）- 返回Base64格式
+        /// </summary>
+        public string EncryptWithPublicKey(string plaintext, string publicKey)
+        {
+            return EncryptWithPublicKey(plaintext, publicKey, RSAPadding.PKCS1, null);
+        }
+
+        /// <summary>
+        /// 使用公钥加密 - 指定编码和填充方式
+        /// </summary>
+        /// <param name="plaintext">明文</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="padding">填充方式（RSA专用）</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>密文（Base64格式）</returns>
+        public string EncryptWithPublicKey(string plaintext, string publicKey, RSAPadding padding, Encoding encoding = null)
+        {
+            if (string.IsNullOrEmpty(plaintext))
+                throw new ArgumentException("明文不能为空", nameof(plaintext));
 
             if (string.IsNullOrEmpty(publicKey))
                 throw new ArgumentException("公钥不能为空", nameof(publicKey));
 
             encoding = encoding ?? Encoding.UTF8;
-            var plainTextBytes = encoding.GetBytes(plainText);
-            var cipherTextBytes = Encrypt(plainTextBytes, publicKey);
+            var plainTextBytes = encoding.GetBytes(plaintext);
+            var cipherTextBytes = EncryptWithPublicKey(plainTextBytes, publicKey, padding);
 
-            return CryptoCommonUtil.BytesToString(cipherTextBytes, outputFormat);
+            return Convert.ToBase64String(cipherTextBytes);
         }
 
         /// <summary>
-        /// 解密字符串
+        /// 使用公钥加密字节数组
         /// </summary>
-        /// <param name="cipherText">密文</param>
+        /// <param name="data">待加密数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="padding">填充方式（RSA专用）</param>
+        /// <returns>密文字节数组</returns>
+        public byte[] EncryptWithPublicKey(byte[] data, string publicKey, RSAPadding padding = RSAPadding.PKCS1)
+        {
+            if (data == null || data.Length == 0)
+                throw new ArgumentException("数据不能为空", nameof(data));
+
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            var rsaPublicKey = ParsePublicKeyFromPem(publicKey);
+            return EncryptWithPublicKey(data, rsaPublicKey, padding);
+        }
+
+        /// <summary>
+        /// 使用私钥解密（接口方法）- 输入Base64格式
+        /// </summary>
+        public string DecryptWithPrivateKey(string ciphertext, string privateKey)
+        {
+            return DecryptWithPrivateKey(ciphertext, privateKey, RSAPadding.PKCS1, null);
+        }
+
+        /// <summary>
+        /// 使用私钥解密 - 指定编码和填充方式
+        /// </summary>
+        /// <param name="ciphertext">密文（Base64格式）</param>
         /// <param name="privateKey">私钥</param>
-        /// <param name="inputFormat">输入格式</param>
+        /// <param name="padding">填充方式（RSA专用）</param>
         /// <param name="encoding">字符编码</param>
         /// <returns>明文</returns>
-        public string Decrypt(string cipherText, string privateKey, InputFormat inputFormat = InputFormat.Base64, Encoding encoding = null)
+        public string DecryptWithPrivateKey(string ciphertext, string privateKey, RSAPadding padding, Encoding encoding = null)
+        {
+            if (string.IsNullOrEmpty(ciphertext))
+                throw new ArgumentException("密文不能为空", nameof(ciphertext));
+
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            encoding = encoding ?? Encoding.UTF8;
+            var cipherTextBytes = Convert.FromBase64String(ciphertext);
+            var plainTextBytes = DecryptWithPrivateKey(cipherTextBytes, privateKey, padding);
+
+            return encoding.GetString(plainTextBytes);
+        }
+
+        /// <summary>
+        /// 使用私钥解密字节数组
+        /// </summary>
+        /// <param name="data">密文字节数组</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="padding">填充方式（RSA专用）</param>
+        /// <returns>明文字节数组</returns>
+        public byte[] DecryptWithPrivateKey(byte[] data, string privateKey, RSAPadding padding = RSAPadding.PKCS1)
+        {
+            if (data == null || data.Length == 0)
+                throw new ArgumentException("数据不能为空", nameof(data));
+
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            var rsaPrivateKey = ParsePrivateKeyFromPem(privateKey);
+            return DecryptWithPrivateKey(data, rsaPrivateKey, padding);
+        }
+
+        /// <summary>
+        /// 签名（接口方法）- 返回Base64格式
+        /// </summary>
+        public string Sign(string data, string privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        {
+            return Sign(data, privateKey, algorithm, null);
+        }
+
+        /// <summary>
+        /// 签名 - 指定编码方式
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>签名（Base64格式）</returns>
+        public string Sign(string data, string privateKey, SignatureAlgorithm algorithm, Encoding encoding)
+        {
+            if (string.IsNullOrEmpty(data))
+                throw new ArgumentException("数据不能为空", nameof(data));
+
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            encoding = encoding ?? Encoding.UTF8;
+            var dataBytes = encoding.GetBytes(data);
+            var signatureBytes = Sign(dataBytes, privateKey, algorithm);
+
+            return Convert.ToBase64String(signatureBytes);
+        }
+
+        /// <summary>
+        /// 签名字节数组
+        /// </summary>
+        /// <param name="data">待签名数据字节数组</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <returns>签名字节数组</returns>
+        public byte[] Sign(byte[] data, string privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        {
+            if (data == null || data.Length == 0)
+                throw new ArgumentException("待签名数据不能为空", nameof(data));
+
+            if (string.IsNullOrEmpty(privateKey))
+                throw new ArgumentException("私钥不能为空", nameof(privateKey));
+
+            var rsaPrivateKey = ParsePrivateKeyFromPem(privateKey);
+            return SignBytes(data, rsaPrivateKey, algorithm);
+        }
+
+        /// <summary>
+        /// 验签（接口方法）- 输入Base64格式签名
+        /// </summary>
+        public bool Verify(string data, string signature, string publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        {
+            return Verify(data, signature, publicKey, algorithm, null);
+        }
+
+        /// <summary>
+        /// 验签 - 指定编码方式
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名（Base64格式）</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>验签结果</returns>
+        public bool Verify(string data, string signature, string publicKey, SignatureAlgorithm algorithm, Encoding encoding)
+        {
+            if (string.IsNullOrEmpty(data) || string.IsNullOrEmpty(signature))
+                return false;
+
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            encoding = encoding ?? Encoding.UTF8;
+            var dataBytes = encoding.GetBytes(data);
+            var signatureBytes = Convert.FromBase64String(signature);
+
+            return Verify(dataBytes, signatureBytes, publicKey, algorithm);
+        }
+
+        /// <summary>
+        /// 验签字节数组
+        /// </summary>
+        /// <param name="data">原始数据字节数组</param>
+        /// <param name="signature">签名字节数组</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="algorithm">签名算法</param>
+        /// <returns>验签结果</returns>
+        public bool Verify(byte[] data, byte[] signature, string publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        {
+            if (data == null || signature == null || data.Length == 0 || signature.Length == 0)
+                return false;
+
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            var rsaPublicKey = ParsePublicKeyFromPem(publicKey);
+            return VerifyBytes(data, signature, rsaPublicKey, algorithm);
+        }
+
+        #endregion
+
+        #region 基础加解密方法
+
+        /// <summary>
+        /// 加密字符串 - 基础方法
+        /// </summary>
+        /// <param name="plaintext">明文</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>密文（Base64格式）</returns>
+        public string EncryptBasic(string plaintext, string publicKey, Encoding encoding = null)
+        {
+            if (string.IsNullOrEmpty(plaintext))
+                throw new ArgumentException("明文不能为空", nameof(plaintext));
+
+            if (string.IsNullOrEmpty(publicKey))
+                throw new ArgumentException("公钥不能为空", nameof(publicKey));
+
+            encoding = encoding ?? Encoding.UTF8;
+            var plainTextBytes = encoding.GetBytes(plaintext);
+            var cipherTextBytes = EncryptBytes(plainTextBytes, publicKey);
+
+            return Convert.ToBase64String(cipherTextBytes);
+        }
+
+        /// <summary>
+        /// 解密字符串 - 基础方法
+        /// </summary>
+        /// <param name="cipherText">密文（Base64格式）</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="encoding">字符编码</param>
+        /// <returns>明文</returns>
+        public string DecryptBasic(string cipherText, string privateKey, Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(cipherText))
                 throw new ArgumentException("密文不能为空", nameof(cipherText));
@@ -69,8 +301,8 @@ namespace CryptoTool.Common.Providers
                 throw new ArgumentException("私钥不能为空", nameof(privateKey));
 
             encoding = encoding ?? Encoding.UTF8;
-            var cipherTextBytes = CryptoCommonUtil.StringToBytes(cipherText, inputFormat);
-            var plainTextBytes = Decrypt(cipherTextBytes, privateKey);
+            var cipherTextBytes = Convert.FromBase64String(cipherText);
+            var plainTextBytes = DecryptBytes(cipherTextBytes, privateKey);
 
             return encoding.GetString(plainTextBytes);
         }
@@ -81,7 +313,7 @@ namespace CryptoTool.Common.Providers
         /// <param name="data">待加密数据</param>
         /// <param name="publicKey">公钥</param>
         /// <returns>密文</returns>
-        public byte[] Encrypt(byte[] data, string publicKey)
+        public byte[] EncryptBytes(byte[] data, string publicKey)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -90,7 +322,7 @@ namespace CryptoTool.Common.Providers
                 throw new ArgumentException("公钥不能为空", nameof(publicKey));
 
             var rsaPublicKey = ParsePublicKeyFromPem(publicKey);
-            return Encrypt(data, rsaPublicKey, RSAPadding.PKCS1);
+            return EncryptWithPublicKey(data, rsaPublicKey, RSAPadding.PKCS1);
         }
 
         /// <summary>
@@ -99,7 +331,7 @@ namespace CryptoTool.Common.Providers
         /// <param name="data">待解密数据</param>
         /// <param name="privateKey">私钥</param>
         /// <returns>明文</returns>
-        public byte[] Decrypt(byte[] data, string privateKey)
+        public byte[] DecryptBytes(byte[] data, string privateKey)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -108,18 +340,17 @@ namespace CryptoTool.Common.Providers
                 throw new ArgumentException("私钥不能为空", nameof(privateKey));
 
             var rsaPrivateKey = ParsePrivateKeyFromPem(privateKey);
-            return Decrypt(data, rsaPrivateKey, RSAPadding.PKCS1);
+            return DecryptWithPrivateKey(data, rsaPrivateKey, RSAPadding.PKCS1);
         }
 
         /// <summary>
-        /// 签名（基础方法）
+        /// 签名（基础方法）- 返回Base64格式
         /// </summary>
         /// <param name="data">待签名数据</param>
         /// <param name="privateKey">私钥</param>
-        /// <param name="outputFormat">输出格式</param>
         /// <param name="encoding">字符编码</param>
-        /// <returns>签名</returns>
-        public string SignBasic(string data, string privateKey, OutputFormat outputFormat = OutputFormat.Base64, Encoding encoding = null)
+        /// <returns>签名（Base64格式）</returns>
+        public string SignBasic(string data, string privateKey, Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(data))
                 throw new ArgumentException("数据不能为空", nameof(data));
@@ -130,21 +361,20 @@ namespace CryptoTool.Common.Providers
             encoding = encoding ?? Encoding.UTF8;
             var dataBytes = encoding.GetBytes(data);
             var rsaPrivateKey = ParsePrivateKeyFromPem(privateKey);
-            var signatureBytes = Sign(dataBytes, rsaPrivateKey, SignatureAlgorithm.SHA256withRSA);
+            var signatureBytes = SignBytes(dataBytes, rsaPrivateKey, SignatureAlgorithm.SHA256withRSA);
 
-            return CryptoCommonUtil.BytesToString(signatureBytes, outputFormat);
+            return Convert.ToBase64String(signatureBytes);
         }
 
         /// <summary>
-        /// 验证签名（基础方法）
+        /// 验证签名（基础方法）- 输入Base64格式签名
         /// </summary>
         /// <param name="data">原始数据</param>
-        /// <param name="signature">签名</param>
+        /// <param name="signature">签名（Base64格式）</param>
         /// <param name="publicKey">公钥</param>
-        /// <param name="inputFormat">输入格式</param>
         /// <param name="encoding">字符编码</param>
         /// <returns>验证结果</returns>
-        public bool VerifyBasic(string data, string signature, string publicKey, InputFormat inputFormat = InputFormat.Base64, Encoding encoding = null)
+        public bool VerifyBasic(string data, string signature, string publicKey, Encoding encoding = null)
         {
             if (string.IsNullOrEmpty(data) || string.IsNullOrEmpty(signature))
                 return false;
@@ -154,195 +384,22 @@ namespace CryptoTool.Common.Providers
 
             encoding = encoding ?? Encoding.UTF8;
             var dataBytes = encoding.GetBytes(data);
-            var signatureBytes = CryptoCommonUtil.StringToBytes(signature, inputFormat);
+            var signatureBytes = Convert.FromBase64String(signature);
             var rsaPublicKey = ParsePublicKeyFromPem(publicKey);
 
-            return Verify(dataBytes, signatureBytes, rsaPublicKey, SignatureAlgorithm.SHA256withRSA);
-        }
-
-        /// <summary>
-        /// 生成密钥对（接口方法）
-        /// </summary>
-        /// <param name="keySize">密钥长度</param>
-        /// <returns>密钥对（公钥，私钥）</returns>
-        public (string PublicKey, string PrivateKey) GenerateKeyPair(KeySize keySize = KeySize.Key2048)
-        {
-            var keyPair = GenerateKeyPairInternal(keySize, OutputFormat.PEM);
-            return (keyPair.publicKey, keyPair.privateKey);
-        }
-
-        /// <summary>
-        /// 生成密钥对（内部方法）
-        /// </summary>
-        /// <param name="keySize">密钥长度</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>密钥对（公钥，私钥）</returns>
-        public (string publicKey, string privateKey) GenerateKeyPairInternal(KeySize keySize = KeySize.Key2048, OutputFormat outputFormat = OutputFormat.PEM)
-        {
-            var keyPair = GenerateKeyPair((int)keySize);
-            var publicKey = (RsaKeyParameters)keyPair.Public;
-            var privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
-
-            var publicKeyString = GeneratePublicKeyString(publicKey, KeyFormat.PEM);
-            var privateKeyString = GeneratePrivateKeyString(privateKey, KeyFormat.PEM);
-
-            return (publicKeyString, privateKeyString);
+            return VerifyBytes(dataBytes, signatureBytes, rsaPublicKey, SignatureAlgorithm.SHA256withRSA);
         }
 
         #endregion
 
-        /// <summary>
-        /// 使用公钥加密（接口方法）
-        /// </summary>
-        public string EncryptWithPublicKey(string plaintext, string publicKey, OutputFormat outputFormat = OutputFormat.Base64)
-        {
-            return Encrypt(plaintext, publicKey, outputFormat);
-        }
-
-        /// <summary>
-        /// 使用私钥解密（接口方法）
-        /// </summary>
-        public string DecryptWithPrivateKey(string ciphertext, string privateKey, InputFormat inputFormat = InputFormat.Base64)
-        {
-            return Decrypt(ciphertext, privateKey, inputFormat);
-        }
-
-        /// <summary>
-        /// 签名（接口方法）
-        /// </summary>
-        public string Sign(string data, string privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA, OutputFormat outputFormat = OutputFormat.Base64)
-        {
-            return SignBasic(data, privateKey, outputFormat);
-        }
-
-        /// <summary>
-        /// 验签（接口方法）
-        /// </summary>
-        public bool Verify(string data, string signature, string publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA, InputFormat inputFormat = InputFormat.Base64)
-        {
-            return VerifyBasic(data, signature, publicKey, inputFormat);
-        }
-
-        /// <summary>
-        /// 加密字符串（ICryptoProvider接口实现）
-        /// </summary>
-        public string Encrypt(string plaintext, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
-        {
-            return Encrypt(plaintext, key, outputFormat);
-        }
-
-        /// <summary>
-        /// 解密字符串（ICryptoProvider接口实现）
-        /// </summary>
-        public string Decrypt(string ciphertext, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null)
-        {
-            return Decrypt(ciphertext, key, inputFormat);
-        }
-
-        /// <summary>
-        /// 加密字节数组（ICryptoProvider接口实现）
-        /// </summary>
-        public byte[] Encrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
-        {
-            // RSA不支持字节数组密钥，需要转换
-            string keyString = Convert.ToBase64String(key);
-            return Encrypt(data, keyString);
-        }
-
-        /// <summary>
-        /// 解密字节数组（ICryptoProvider接口实现）
-        /// </summary>
-        public byte[] Decrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
-        {
-            // RSA不支持字节数组密钥，需要转换
-            string keyString = Convert.ToBase64String(key);
-            return Decrypt(data, keyString);
-        }
-
-        /// <summary>
-        /// 加密文件（ICryptoProvider接口实现）
-        /// </summary>
-        public void EncryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            throw new NotSupportedException("RSA不支持文件加密，请使用对称加密算法");
-        }
-
-        /// <summary>
-        /// 解密文件（ICryptoProvider接口实现）
-        /// </summary>
-        public void DecryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            throw new NotSupportedException("RSA不支持文件解密，请使用对称加密算法");
-        }
-
-        /// <summary>
-        /// 异步加密文件（ICryptoProvider接口实现）
-        /// </summary>
-        public async Task EncryptFileAsync(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            await Task.Run(() => EncryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
-        }
-
-        /// <summary>
-        /// 异步解密文件（ICryptoProvider接口实现）
-        /// </summary>
-        public async Task DecryptFileAsync(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            await Task.Run(() => DecryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
-        }
-
-        /// <summary>
-        /// 生成密钥（ICryptoProvider接口实现）
-        /// </summary>
-        public string GenerateKey(KeySize keySize = KeySize.Key256, OutputFormat format = OutputFormat.Base64)
-        {
-            var keyPair = GenerateKeyPairInternal(keySize, format);
-            return keyPair.privateKey;
-        }
-
-        /// <summary>
-        /// 生成初始化向量（ICryptoProvider接口实现）
-        /// </summary>
-        public string GenerateIV(OutputFormat format = OutputFormat.Base64)
-        {
-            throw new NotSupportedException("RSA不需要初始化向量");
-        }
-
-        /// <summary>
-        /// 验证密钥有效性（ICryptoProvider接口实现）
-        /// </summary>
-        public bool ValidateKey(string key, InputFormat format = InputFormat.UTF8)
-        {
-            try
-            {
-                if (format == InputFormat.UTF8)
-                {
-                    // 尝试解析PEM格式
-                    ParsePrivateKeyFromPem(key);
-                    return true;
-                }
-                else
-                {
-                    // 尝试解析Base64格式
-                    byte[] keyBytes = Convert.FromBase64String(key);
-                    return keyBytes.Length > 0;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-
         #region 密钥生成
 
         /// <summary>
-        /// 生成RSA密钥对
+        /// 生成RSA密钥对（内部方法）
         /// </summary>
         /// <param name="keySize">密钥长度（1024、2048、4096）</param>
         /// <returns>密钥对</returns>
-        public static AsymmetricCipherKeyPair GenerateKeyPair(int keySize = 2048)
+        public static AsymmetricCipherKeyPair GenerateKeyPairInternal(int keySize = 2048)
         {
             if (keySize != 1024 && keySize != 2048 && keySize != 4096)
                 throw new ArgumentException("密钥长度只支持1024、2048、4096位");
@@ -460,7 +517,7 @@ namespace CryptoTool.Common.Providers
         {
             var base64Key = PublicKeyToBase64(publicKey);
             var keyBytes = Convert.FromBase64String(base64Key);
-            return BitConverter.ToString(keyBytes).Replace("-", "");
+            return CryptoCommonUtil.ConvertToHexString(keyBytes);
         }
 
         /// <summary>
@@ -472,7 +529,7 @@ namespace CryptoTool.Common.Providers
         {
             var base64Key = PrivateKeyToBase64(privateKey);
             var keyBytes = Convert.FromBase64String(base64Key);
-            return BitConverter.ToString(keyBytes).Replace("-", "");
+            return CryptoCommonUtil.ConvertToHexString(keyBytes);
         }
 
         #endregion
@@ -543,33 +600,7 @@ namespace CryptoTool.Common.Providers
 
         #endregion
 
-        #region 加解密
-
-        /// <summary>
-        /// RSA加密
-        /// </summary>
-        /// <param name="plaintext">明文</param>
-        /// <param name="publicKey">公钥</param>
-        /// <param name="padding">填充方式</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>密文</returns>
-        public static string Encrypt(string plaintext, RsaKeyParameters publicKey, RSAPadding padding = RSAPadding.PKCS1, KeyFormat outputFormat = KeyFormat.Base64, Encoding encoding = null)
-        {
-            if (string.IsNullOrEmpty(plaintext))
-                throw new ArgumentException("明文不能为空");
-
-            encoding = encoding ?? Encoding.UTF8;
-            var plaintextBytes = encoding.GetBytes(plaintext);
-            var ciphertextBytes = Encrypt(plaintextBytes, publicKey, padding);
-
-            return outputFormat switch
-            {
-                KeyFormat.Base64 => Convert.ToBase64String(ciphertextBytes),
-                KeyFormat.Hex => BitConverter.ToString(ciphertextBytes).Replace("-", ""),
-                _ => throw new ArgumentException($"不支持的输出格式[{outputFormat}]")
-            };
-        }
+        #region 加解密核心方法
 
         /// <summary>
         /// RSA加密（字节数组）
@@ -578,7 +609,7 @@ namespace CryptoTool.Common.Providers
         /// <param name="publicKey">公钥</param>
         /// <param name="padding">填充方式</param>
         /// <returns>密文字节数组</returns>
-        public static byte[] Encrypt(byte[] plaintext, RsaKeyParameters publicKey, RSAPadding padding = RSAPadding.PKCS1)
+        public static byte[] EncryptWithPublicKey(byte[] plaintext, RsaKeyParameters publicKey, RSAPadding padding = RSAPadding.PKCS1)
         {
             if (plaintext == null || plaintext.Length == 0)
                 throw new ArgumentException("明文不能为空");
@@ -589,40 +620,13 @@ namespace CryptoTool.Common.Providers
         }
 
         /// <summary>
-        /// RSA解密
-        /// </summary>
-        /// <param name="ciphertext">密文</param>
-        /// <param name="privateKey">私钥</param>
-        /// <param name="padding">填充方式</param>
-        /// <param name="inputFormat">输入格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>明文</returns>
-        public static string Decrypt(string ciphertext, RsaPrivateCrtKeyParameters privateKey, RSAPadding padding = RSAPadding.PKCS1, KeyFormat inputFormat = KeyFormat.Base64, Encoding encoding = null)
-        {
-            if (string.IsNullOrEmpty(ciphertext))
-                throw new ArgumentException("密文不能为空");
-
-            encoding = encoding ?? Encoding.UTF8;
-
-            byte[] ciphertextBytes = inputFormat switch
-            {
-                KeyFormat.Base64 => Convert.FromBase64String(ciphertext),
-                KeyFormat.Hex => CryptoCommonUtil.ConvertFromHexString(ciphertext),
-                _ => throw new ArgumentException($"不支持的输入格式{inputFormat}")
-            };
-
-            var plaintextBytes = Decrypt(ciphertextBytes, privateKey, padding);
-            return encoding.GetString(plaintextBytes);
-        }
-
-        /// <summary>
         /// RSA解密（字节数组）
         /// </summary>
         /// <param name="ciphertext">密文字节数组</param>
         /// <param name="privateKey">私钥</param>
         /// <param name="padding">填充方式</param>
         /// <returns>明文字节数组</returns>
-        public static byte[] Decrypt(byte[] ciphertext, RsaPrivateCrtKeyParameters privateKey, RSAPadding padding = RSAPadding.PKCS1)
+        public static byte[] DecryptWithPrivateKey(byte[] ciphertext, RsaPrivateCrtKeyParameters privateKey, RSAPadding padding = RSAPadding.PKCS1)
         {
             if (ciphertext == null || ciphertext.Length == 0)
                 throw new ArgumentException("密文不能为空");
@@ -634,33 +638,7 @@ namespace CryptoTool.Common.Providers
 
         #endregion
 
-        #region 签名与验签
-
-        /// <summary>
-        /// RSA签名
-        /// </summary>
-        /// <param name="data">待签名数据</param>
-        /// <param name="privateKey">私钥</param>
-        /// <param name="algorithm">签名算法</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>签名</returns>
-        public static string Sign(string data, RsaPrivateCrtKeyParameters privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA, KeyFormat outputFormat = KeyFormat.Base64, Encoding encoding = null)
-        {
-            if (string.IsNullOrEmpty(data))
-                throw new ArgumentException("待签名数据不能为空");
-
-            encoding = encoding ?? Encoding.UTF8;
-            var dataBytes = encoding.GetBytes(data);
-            var signatureBytes = Sign(dataBytes, privateKey, algorithm);
-
-            return outputFormat switch
-            {
-                KeyFormat.Base64 => Convert.ToBase64String(signatureBytes),
-                KeyFormat.Hex => BitConverter.ToString(signatureBytes).Replace("-", ""),
-                _ => throw new ArgumentException($"不支持的输出格式[{outputFormat}]")
-            };
-        }
+        #region 签名与验签核心方法
 
         /// <summary>
         /// RSA签名（字节数组）
@@ -669,7 +647,7 @@ namespace CryptoTool.Common.Providers
         /// <param name="privateKey">私钥</param>
         /// <param name="algorithm">签名算法</param>
         /// <returns>签名字节数组</returns>
-        public static byte[] Sign(byte[] data, RsaPrivateCrtKeyParameters privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        public static byte[] SignBytes(byte[] data, RsaPrivateCrtKeyParameters privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
         {
             if (data == null || data.Length == 0)
                 throw new ArgumentException("待签名数据不能为空");
@@ -682,34 +660,6 @@ namespace CryptoTool.Common.Providers
         }
 
         /// <summary>
-        /// RSA验签
-        /// </summary>
-        /// <param name="data">原始数据</param>
-        /// <param name="signature">签名</param>
-        /// <param name="publicKey">公钥</param>
-        /// <param name="algorithm">签名算法</param>
-        /// <param name="inputFormat">输入格式</param>
-        /// <param name="encoding">字符编码</param>
-        /// <returns>验签结果</returns>
-        public static bool Verify(string data, string signature, RsaKeyParameters publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA, KeyFormat inputFormat = KeyFormat.Base64, Encoding encoding = null)
-        {
-            if (string.IsNullOrEmpty(data) || string.IsNullOrEmpty(signature))
-                return false;
-
-            encoding = encoding ?? Encoding.UTF8;
-            var dataBytes = encoding.GetBytes(data);
-
-            byte[] signatureBytes = inputFormat switch
-            {
-                KeyFormat.Base64 => Convert.FromBase64String(signature),
-                KeyFormat.Hex => CryptoCommonUtil.ConvertFromHexString(signature),
-                _ => throw new ArgumentException($"不支持的输入格式[{inputFormat}]")
-            };
-
-            return Verify(dataBytes, signatureBytes, publicKey, algorithm);
-        }
-
-        /// <summary>
         /// RSA验签（字节数组）
         /// </summary>
         /// <param name="data">原始数据字节数组</param>
@@ -717,7 +667,7 @@ namespace CryptoTool.Common.Providers
         /// <param name="publicKey">公钥</param>
         /// <param name="algorithm">签名算法</param>
         /// <returns>验签结果</returns>
-        public static bool Verify(byte[] data, byte[] signature, RsaKeyParameters publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
+        public static bool VerifyBytes(byte[] data, byte[] signature, RsaKeyParameters publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SHA256withRSA)
         {
             if (data == null || signature == null || data.Length == 0 || signature.Length == 0)
                 return false;

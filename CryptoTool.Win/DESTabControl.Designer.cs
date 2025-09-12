@@ -32,18 +32,18 @@ namespace CryptoTool.Win
             groupBoxDESKeys = new GroupBox();
             tableLayoutDESKeys = new TableLayoutPanel();
             panelDESKeyControls = new Panel();
-            labelDESKeyFormat = new Label();
-            comboDESKeyFormat = new ComboBox();
             btnConvertDESKey = new Button();
             btnGenerateDESKey = new Button();
+            comboDESKeyFormat = new ComboBox();
+            labelDESKeyFormat = new Label();
             labelDESKey = new Label();
             panelDESKey = new Panel();
             textDESKey = new TextBox();
             panelDESIVControls = new Panel();
-            labelDESIVFormat = new Label();
-            comboDESIVFormat = new ComboBox();
             btnConvertDESIV = new Button();
             btnGenerateDESIV = new Button();
+            comboDESIVFormat = new ComboBox();
+            labelDESIVFormat = new Label();
             labelDESIV = new Label();
             panelDESIV = new Panel();
             textDESIV = new TextBox();
@@ -86,24 +86,22 @@ namespace CryptoTool.Win
             mainTableLayout.Controls.Add(groupBoxDESEncrypt, 0, 1);
             mainTableLayout.Dock = DockStyle.Fill;
             mainTableLayout.Location = new Point(0, 0);
-            mainTableLayout.Margin = new Padding(4);
             mainTableLayout.Name = "mainTableLayout";
-            mainTableLayout.Padding = new Padding(8);
+            mainTableLayout.Padding = new Padding(6, 7, 6, 7);
             mainTableLayout.RowCount = 2;
             mainTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
             mainTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 65F));
-            mainTableLayout.Size = new Size(1278, 600);
+            mainTableLayout.Size = new Size(994, 510);
             mainTableLayout.TabIndex = 0;
             // 
             // groupBoxDESKeys
             // 
             groupBoxDESKeys.Controls.Add(tableLayoutDESKeys);
             groupBoxDESKeys.Dock = DockStyle.Fill;
-            groupBoxDESKeys.Location = new Point(12, 12);
-            groupBoxDESKeys.Margin = new Padding(4);
+            groupBoxDESKeys.Location = new Point(9, 10);
             groupBoxDESKeys.Name = "groupBoxDESKeys";
-            groupBoxDESKeys.Padding = new Padding(8);
-            groupBoxDESKeys.Size = new Size(1254, 194);
+            groupBoxDESKeys.Padding = new Padding(6, 7, 6, 7);
+            groupBoxDESKeys.Size = new Size(976, 167);
             groupBoxDESKeys.TabIndex = 0;
             groupBoxDESKeys.TabStop = false;
             groupBoxDESKeys.Text = "DES密钥生成";
@@ -119,16 +117,17 @@ namespace CryptoTool.Win
             tableLayoutDESKeys.Controls.Add(labelDESIV, 0, 4);
             tableLayoutDESKeys.Controls.Add(panelDESIV, 0, 5);
             tableLayoutDESKeys.Dock = DockStyle.Fill;
-            tableLayoutDESKeys.Location = new Point(8, 28);
+            tableLayoutDESKeys.Location = new Point(6, 23);
+            tableLayoutDESKeys.Margin = new Padding(2, 3, 2, 3);
             tableLayoutDESKeys.Name = "tableLayoutDESKeys";
             tableLayoutDESKeys.RowCount = 6;
-            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
+            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
+            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
+            tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutDESKeys.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutDESKeys.Size = new Size(1238, 158);
+            tableLayoutDESKeys.Size = new Size(964, 137);
             tableLayoutDESKeys.TabIndex = 0;
             // 
             // panelDESKeyControls
@@ -138,38 +137,17 @@ namespace CryptoTool.Win
             panelDESKeyControls.Controls.Add(comboDESKeyFormat);
             panelDESKeyControls.Controls.Add(labelDESKeyFormat);
             panelDESKeyControls.Dock = DockStyle.Fill;
-            panelDESKeyControls.Location = new Point(3, 3);
+            panelDESKeyControls.Location = new Point(2, 3);
+            panelDESKeyControls.Margin = new Padding(2, 3, 2, 3);
             panelDESKeyControls.Name = "panelDESKeyControls";
-            panelDESKeyControls.Size = new Size(1232, 34);
+            panelDESKeyControls.Size = new Size(960, 28);
             panelDESKeyControls.TabIndex = 0;
-            // 
-            // labelDESKeyFormat
-            // 
-            labelDESKeyFormat.AutoSize = true;
-            labelDESKeyFormat.Location = new Point(0, 8);
-            labelDESKeyFormat.Margin = new Padding(4, 0, 4, 0);
-            labelDESKeyFormat.Name = "labelDESKeyFormat";
-            labelDESKeyFormat.Size = new Size(73, 20);
-            labelDESKeyFormat.TabIndex = 11;
-            labelDESKeyFormat.Text = "密钥格式:";
-            // 
-            // comboDESKeyFormat
-            // 
-            comboDESKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDESKeyFormat.FormattingEnabled = true;
-            comboDESKeyFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
-            comboDESKeyFormat.Location = new Point(80, 4);
-            comboDESKeyFormat.Margin = new Padding(4);
-            comboDESKeyFormat.Name = "comboDESKeyFormat";
-            comboDESKeyFormat.Size = new Size(127, 28);
-            comboDESKeyFormat.TabIndex = 10;
             // 
             // btnConvertDESKey
             // 
-            btnConvertDESKey.Location = new Point(220, 2);
-            btnConvertDESKey.Margin = new Padding(4);
+            btnConvertDESKey.Location = new Point(171, 2);
             btnConvertDESKey.Name = "btnConvertDESKey";
-            btnConvertDESKey.Size = new Size(80, 30);
+            btnConvertDESKey.Size = new Size(62, 26);
             btnConvertDESKey.TabIndex = 1;
             btnConvertDESKey.Text = "转换格式";
             btnConvertDESKey.UseVisualStyleBackColor = true;
@@ -177,23 +155,40 @@ namespace CryptoTool.Win
             // 
             // btnGenerateDESKey
             // 
-            btnGenerateDESKey.Location = new Point(310, 2);
-            btnGenerateDESKey.Margin = new Padding(4);
+            btnGenerateDESKey.Location = new Point(241, 2);
             btnGenerateDESKey.Name = "btnGenerateDESKey";
-            btnGenerateDESKey.Size = new Size(103, 30);
+            btnGenerateDESKey.Size = new Size(80, 26);
             btnGenerateDESKey.TabIndex = 0;
             btnGenerateDESKey.Text = "生成密钥";
             btnGenerateDESKey.UseVisualStyleBackColor = true;
             btnGenerateDESKey.Click += btnGenerateDESKey_Click;
             // 
+            // comboDESKeyFormat
+            // 
+            comboDESKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDESKeyFormat.FormattingEnabled = true;
+            comboDESKeyFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
+            comboDESKeyFormat.Location = new Point(62, 3);
+            comboDESKeyFormat.Name = "comboDESKeyFormat";
+            comboDESKeyFormat.Size = new Size(100, 25);
+            comboDESKeyFormat.TabIndex = 10;
+            // 
+            // labelDESKeyFormat
+            // 
+            labelDESKeyFormat.AutoSize = true;
+            labelDESKeyFormat.Location = new Point(0, 7);
+            labelDESKeyFormat.Name = "labelDESKeyFormat";
+            labelDESKeyFormat.Size = new Size(59, 17);
+            labelDESKeyFormat.TabIndex = 11;
+            labelDESKeyFormat.Text = "密钥格式:";
+            // 
             // labelDESKey
             // 
             labelDESKey.AutoSize = true;
             labelDESKey.Dock = DockStyle.Bottom;
-            labelDESKey.Location = new Point(4, 45);
-            labelDESKey.Margin = new Padding(4, 0, 4, 0);
+            labelDESKey.Location = new Point(3, 38);
             labelDESKey.Name = "labelDESKey";
-            labelDESKey.Size = new Size(1230, 20);
+            labelDESKey.Size = new Size(958, 17);
             labelDESKey.TabIndex = 3;
             labelDESKey.Text = "DES密钥:";
             // 
@@ -201,18 +196,18 @@ namespace CryptoTool.Win
             // 
             panelDESKey.Controls.Add(textDESKey);
             panelDESKey.Dock = DockStyle.Fill;
-            panelDESKey.Location = new Point(3, 68);
+            panelDESKey.Location = new Point(2, 58);
+            panelDESKey.Margin = new Padding(2, 3, 2, 3);
             panelDESKey.Name = "panelDESKey";
-            panelDESKey.Size = new Size(1232, 29);
+            panelDESKey.Size = new Size(960, 24);
             panelDESKey.TabIndex = 4;
             // 
             // textDESKey
             // 
             textDESKey.Dock = DockStyle.Fill;
             textDESKey.Location = new Point(0, 0);
-            textDESKey.Margin = new Padding(4);
             textDESKey.Name = "textDESKey";
-            textDESKey.Size = new Size(1232, 27);
+            textDESKey.Size = new Size(960, 23);
             textDESKey.TabIndex = 2;
             // 
             // panelDESIVControls
@@ -222,38 +217,17 @@ namespace CryptoTool.Win
             panelDESIVControls.Controls.Add(comboDESIVFormat);
             panelDESIVControls.Controls.Add(labelDESIVFormat);
             panelDESIVControls.Dock = DockStyle.Fill;
-            panelDESIVControls.Location = new Point(3, 103);
+            panelDESIVControls.Location = new Point(2, 88);
+            panelDESIVControls.Margin = new Padding(2, 3, 2, 3);
             panelDESIVControls.Name = "panelDESIVControls";
-            panelDESIVControls.Size = new Size(1232, 34);
+            panelDESIVControls.Size = new Size(960, 28);
             panelDESIVControls.TabIndex = 1;
-            // 
-            // labelDESIVFormat
-            // 
-            labelDESIVFormat.AutoSize = true;
-            labelDESIVFormat.Location = new Point(0, 8);
-            labelDESIVFormat.Margin = new Padding(4, 0, 4, 0);
-            labelDESIVFormat.Name = "labelDESIVFormat";
-            labelDESIVFormat.Size = new Size(73, 20);
-            labelDESIVFormat.TabIndex = 11;
-            labelDESIVFormat.Text = "向量格式:";
-            // 
-            // comboDESIVFormat
-            // 
-            comboDESIVFormat.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDESIVFormat.FormattingEnabled = true;
-            comboDESIVFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
-            comboDESIVFormat.Location = new Point(80, 4);
-            comboDESIVFormat.Margin = new Padding(4);
-            comboDESIVFormat.Name = "comboDESIVFormat";
-            comboDESIVFormat.Size = new Size(127, 28);
-            comboDESIVFormat.TabIndex = 10;
             // 
             // btnConvertDESIV
             // 
-            btnConvertDESIV.Location = new Point(220, 2);
-            btnConvertDESIV.Margin = new Padding(4);
+            btnConvertDESIV.Location = new Point(171, 2);
             btnConvertDESIV.Name = "btnConvertDESIV";
-            btnConvertDESIV.Size = new Size(80, 30);
+            btnConvertDESIV.Size = new Size(62, 26);
             btnConvertDESIV.TabIndex = 2;
             btnConvertDESIV.Text = "转换格式";
             btnConvertDESIV.UseVisualStyleBackColor = true;
@@ -261,23 +235,40 @@ namespace CryptoTool.Win
             // 
             // btnGenerateDESIV
             // 
-            btnGenerateDESIV.Location = new Point(310, 2);
-            btnGenerateDESIV.Margin = new Padding(4);
+            btnGenerateDESIV.Location = new Point(241, 2);
             btnGenerateDESIV.Name = "btnGenerateDESIV";
-            btnGenerateDESIV.Size = new Size(103, 30);
+            btnGenerateDESIV.Size = new Size(80, 26);
             btnGenerateDESIV.TabIndex = 1;
             btnGenerateDESIV.Text = "生成向量";
             btnGenerateDESIV.UseVisualStyleBackColor = true;
             btnGenerateDESIV.Click += btnGenerateDESIV_Click;
             // 
+            // comboDESIVFormat
+            // 
+            comboDESIVFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDESIVFormat.FormattingEnabled = true;
+            comboDESIVFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
+            comboDESIVFormat.Location = new Point(62, 3);
+            comboDESIVFormat.Name = "comboDESIVFormat";
+            comboDESIVFormat.Size = new Size(100, 25);
+            comboDESIVFormat.TabIndex = 10;
+            // 
+            // labelDESIVFormat
+            // 
+            labelDESIVFormat.AutoSize = true;
+            labelDESIVFormat.Location = new Point(0, 7);
+            labelDESIVFormat.Name = "labelDESIVFormat";
+            labelDESIVFormat.Size = new Size(59, 17);
+            labelDESIVFormat.TabIndex = 11;
+            labelDESIVFormat.Text = "向量格式:";
+            // 
             // labelDESIV
             // 
             labelDESIV.AutoSize = true;
             labelDESIV.Dock = DockStyle.Bottom;
-            labelDESIV.Location = new Point(4, 145);
-            labelDESIV.Margin = new Padding(4, 0, 4, 0);
+            labelDESIV.Location = new Point(3, 123);
             labelDESIV.Name = "labelDESIV";
-            labelDESIV.Size = new Size(1230, 20);
+            labelDESIV.Size = new Size(958, 17);
             labelDESIV.TabIndex = 5;
             labelDESIV.Text = "初始向量:";
             // 
@@ -285,29 +276,28 @@ namespace CryptoTool.Win
             // 
             panelDESIV.Controls.Add(textDESIV);
             panelDESIV.Dock = DockStyle.Fill;
-            panelDESIV.Location = new Point(3, 168);
+            panelDESIV.Location = new Point(2, 143);
+            panelDESIV.Margin = new Padding(2, 3, 2, 3);
             panelDESIV.Name = "panelDESIV";
-            panelDESIV.Size = new Size(1232, 1);
+            panelDESIV.Size = new Size(960, 1);
             panelDESIV.TabIndex = 6;
             // 
             // textDESIV
             // 
             textDESIV.Dock = DockStyle.Fill;
             textDESIV.Location = new Point(0, 0);
-            textDESIV.Margin = new Padding(4);
             textDESIV.Name = "textDESIV";
-            textDESIV.Size = new Size(1232, 27);
+            textDESIV.Size = new Size(960, 23);
             textDESIV.TabIndex = 4;
             // 
             // groupBoxDESEncrypt
             // 
             groupBoxDESEncrypt.Controls.Add(tableLayoutDESEncrypt);
             groupBoxDESEncrypt.Dock = DockStyle.Fill;
-            groupBoxDESEncrypt.Location = new Point(12, 214);
-            groupBoxDESEncrypt.Margin = new Padding(4);
+            groupBoxDESEncrypt.Location = new Point(9, 183);
             groupBoxDESEncrypt.Name = "groupBoxDESEncrypt";
-            groupBoxDESEncrypt.Padding = new Padding(8);
-            groupBoxDESEncrypt.Size = new Size(1254, 374);
+            groupBoxDESEncrypt.Padding = new Padding(6, 7, 6, 7);
+            groupBoxDESEncrypt.Size = new Size(976, 317);
             groupBoxDESEncrypt.TabIndex = 1;
             groupBoxDESEncrypt.TabStop = false;
             groupBoxDESEncrypt.Text = "DES加密解密";
@@ -322,15 +312,16 @@ namespace CryptoTool.Win
             tableLayoutDESEncrypt.Controls.Add(labelCiphertext, 0, 3);
             tableLayoutDESEncrypt.Controls.Add(textDESCipherText, 0, 4);
             tableLayoutDESEncrypt.Dock = DockStyle.Fill;
-            tableLayoutDESEncrypt.Location = new Point(8, 28);
+            tableLayoutDESEncrypt.Location = new Point(6, 23);
+            tableLayoutDESEncrypt.Margin = new Padding(2, 3, 2, 3);
             tableLayoutDESEncrypt.Name = "tableLayoutDESEncrypt";
             tableLayoutDESEncrypt.RowCount = 5;
-            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
-            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
+            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutDESEncrypt.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutDESEncrypt.Size = new Size(1238, 338);
+            tableLayoutDESEncrypt.Size = new Size(964, 287);
             tableLayoutDESEncrypt.TabIndex = 0;
             // 
             // panelDESEncryptControls
@@ -348,192 +339,176 @@ namespace CryptoTool.Win
             panelDESEncryptControls.Controls.Add(comboDESMode);
             panelDESEncryptControls.Controls.Add(labelDESMode);
             panelDESEncryptControls.Dock = DockStyle.Fill;
-            panelDESEncryptControls.Location = new Point(3, 3);
+            panelDESEncryptControls.Location = new Point(2, 3);
+            panelDESEncryptControls.Margin = new Padding(2, 3, 2, 3);
             panelDESEncryptControls.Name = "panelDESEncryptControls";
-            panelDESEncryptControls.Size = new Size(1232, 74);
+            panelDESEncryptControls.Size = new Size(960, 62);
             panelDESEncryptControls.TabIndex = 0;
             // 
-            // labelDESMode
+            // btnDecryptFile
             // 
-            labelDESMode.AutoSize = true;
-            labelDESMode.Location = new Point(0, 8);
-            labelDESMode.Margin = new Padding(4, 0, 4, 0);
-            labelDESMode.Name = "labelDESMode";
-            labelDESMode.Size = new Size(73, 20);
-            labelDESMode.TabIndex = 5;
-            labelDESMode.Text = "加密模式:";
+            btnDecryptFile.Location = new Point(773, 33);
+            btnDecryptFile.Name = "btnDecryptFile";
+            btnDecryptFile.Size = new Size(74, 26);
+            btnDecryptFile.TabIndex = 3;
+            btnDecryptFile.Text = "解密文件";
+            btnDecryptFile.UseVisualStyleBackColor = true;
+            btnDecryptFile.Click += btnDecryptFile_Click;
             // 
-            // comboDESMode
+            // btnEncryptFile
             // 
-            comboDESMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDESMode.FormattingEnabled = true;
-            comboDESMode.Items.AddRange(new object[] { "ECB", "CBC", "CFB", "OFB" });
-            comboDESMode.Location = new Point(80, 4);
-            comboDESMode.Margin = new Padding(4);
-            comboDESMode.Name = "comboDESMode";
-            comboDESMode.Size = new Size(127, 28);
-            comboDESMode.TabIndex = 4;
-            comboDESMode.SelectedIndexChanged += comboDESMode_SelectedIndexChanged;
+            btnEncryptFile.Location = new Point(684, 34);
+            btnEncryptFile.Name = "btnEncryptFile";
+            btnEncryptFile.Size = new Size(76, 26);
+            btnEncryptFile.TabIndex = 2;
+            btnEncryptFile.Text = "加密文件";
+            btnEncryptFile.UseVisualStyleBackColor = true;
+            btnEncryptFile.Click += btnEncryptFile_Click;
             // 
-            // labelDESPadding
+            // btnDESDecrypt
             // 
-            labelDESPadding.AutoSize = true;
-            labelDESPadding.Location = new Point(220, 8);
-            labelDESPadding.Margin = new Padding(4, 0, 4, 0);
-            labelDESPadding.Name = "labelDESPadding";
-            labelDESPadding.Size = new Size(73, 20);
-            labelDESPadding.TabIndex = 7;
-            labelDESPadding.Text = "填充模式:";
+            btnDESDecrypt.Location = new Point(773, 1);
+            btnDESDecrypt.Name = "btnDESDecrypt";
+            btnDESDecrypt.Size = new Size(74, 26);
+            btnDESDecrypt.TabIndex = 1;
+            btnDESDecrypt.Text = "解密";
+            btnDESDecrypt.UseVisualStyleBackColor = true;
+            btnDESDecrypt.Click += btnDESDecrypt_Click;
             // 
-            // comboDESPadding
+            // btnDESEncrypt
             // 
-            comboDESPadding.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDESPadding.FormattingEnabled = true;
-            comboDESPadding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "Zeros", "ISO10126", "ANSIX923", "None" });
-            comboDESPadding.Location = new Point(300, 4);
-            comboDESPadding.Margin = new Padding(4);
-            comboDESPadding.Name = "comboDESPadding";
-            comboDESPadding.Size = new Size(127, 28);
-            comboDESPadding.TabIndex = 6;
-            // 
-            // labelDESPlaintextFormat
-            // 
-            labelDESPlaintextFormat.AutoSize = true;
-            labelDESPlaintextFormat.Location = new Point(440, 8);
-            labelDESPlaintextFormat.Margin = new Padding(4, 0, 4, 0);
-            labelDESPlaintextFormat.Name = "labelDESPlaintextFormat";
-            labelDESPlaintextFormat.Size = new Size(73, 20);
-            labelDESPlaintextFormat.TabIndex = 11;
-            labelDESPlaintextFormat.Text = "明文格式:";
-            // 
-            // comboDESPlaintextFormat
-            // 
-            comboDESPlaintextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboDESPlaintextFormat.FormattingEnabled = true;
-            comboDESPlaintextFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
-            comboDESPlaintextFormat.Location = new Point(520, 4);
-            comboDESPlaintextFormat.Margin = new Padding(4);
-            comboDESPlaintextFormat.Name = "comboDESPlaintextFormat";
-            comboDESPlaintextFormat.Size = new Size(127, 28);
-            comboDESPlaintextFormat.TabIndex = 10;
-            // 
-            // labelDESCiphertextFormat
-            // 
-            labelDESCiphertextFormat.AutoSize = true;
-            labelDESCiphertextFormat.Location = new Point(660, 8);
-            labelDESCiphertextFormat.Margin = new Padding(4, 0, 4, 0);
-            labelDESCiphertextFormat.Name = "labelDESCiphertextFormat";
-            labelDESCiphertextFormat.Size = new Size(73, 20);
-            labelDESCiphertextFormat.TabIndex = 9;
-            labelDESCiphertextFormat.Text = "密文格式:";
+            btnDESEncrypt.Location = new Point(684, 2);
+            btnDESEncrypt.Name = "btnDESEncrypt";
+            btnDESEncrypt.Size = new Size(76, 26);
+            btnDESEncrypt.TabIndex = 0;
+            btnDESEncrypt.Text = "加密";
+            btnDESEncrypt.UseVisualStyleBackColor = true;
+            btnDESEncrypt.Click += btnDESEncrypt_Click;
             // 
             // comboDESCiphertextFormat
             // 
             comboDESCiphertextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboDESCiphertextFormat.FormattingEnabled = true;
             comboDESCiphertextFormat.Items.AddRange(new object[] { "Base64", "Hex" });
-            comboDESCiphertextFormat.Location = new Point(740, 4);
-            comboDESCiphertextFormat.Margin = new Padding(4);
+            comboDESCiphertextFormat.Location = new Point(576, 3);
             comboDESCiphertextFormat.Name = "comboDESCiphertextFormat";
-            comboDESCiphertextFormat.Size = new Size(127, 28);
+            comboDESCiphertextFormat.Size = new Size(100, 25);
             comboDESCiphertextFormat.TabIndex = 8;
             // 
-            // btnDESEncrypt
+            // labelDESCiphertextFormat
             // 
-            btnDESEncrypt.Location = new Point(880, 2);
-            btnDESEncrypt.Margin = new Padding(4);
-            btnDESEncrypt.Name = "btnDESEncrypt";
-            btnDESEncrypt.Size = new Size(80, 30);
-            btnDESEncrypt.TabIndex = 0;
-            btnDESEncrypt.Text = "加密";
-            btnDESEncrypt.UseVisualStyleBackColor = true;
-            btnDESEncrypt.Click += btnDESEncrypt_Click;
+            labelDESCiphertextFormat.AutoSize = true;
+            labelDESCiphertextFormat.Location = new Point(513, 7);
+            labelDESCiphertextFormat.Name = "labelDESCiphertextFormat";
+            labelDESCiphertextFormat.Size = new Size(59, 17);
+            labelDESCiphertextFormat.TabIndex = 9;
+            labelDESCiphertextFormat.Text = "密文格式:";
             // 
-            // btnDESDecrypt
+            // comboDESPlaintextFormat
             // 
-            btnDESDecrypt.Location = new Point(970, 2);
-            btnDESDecrypt.Margin = new Padding(4);
-            btnDESDecrypt.Name = "btnDESDecrypt";
-            btnDESDecrypt.Size = new Size(80, 30);
-            btnDESDecrypt.TabIndex = 1;
-            btnDESDecrypt.Text = "解密";
-            btnDESDecrypt.UseVisualStyleBackColor = true;
-            btnDESDecrypt.Click += btnDESDecrypt_Click;
+            comboDESPlaintextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDESPlaintextFormat.FormattingEnabled = true;
+            comboDESPlaintextFormat.Items.AddRange(new object[] { "UTF8", "Base64", "Hex" });
+            comboDESPlaintextFormat.Location = new Point(404, 3);
+            comboDESPlaintextFormat.Name = "comboDESPlaintextFormat";
+            comboDESPlaintextFormat.Size = new Size(100, 25);
+            comboDESPlaintextFormat.TabIndex = 10;
             // 
-            // btnEncryptFile
+            // labelDESPlaintextFormat
             // 
-            btnEncryptFile.Location = new Point(880, 40);
-            btnEncryptFile.Margin = new Padding(4);
-            btnEncryptFile.Name = "btnEncryptFile";
-            btnEncryptFile.Size = new Size(80, 30);
-            btnEncryptFile.TabIndex = 2;
-            btnEncryptFile.Text = "加密文件";
-            btnEncryptFile.UseVisualStyleBackColor = true;
-            btnEncryptFile.Click += btnEncryptFile_Click;
+            labelDESPlaintextFormat.AutoSize = true;
+            labelDESPlaintextFormat.Location = new Point(342, 7);
+            labelDESPlaintextFormat.Name = "labelDESPlaintextFormat";
+            labelDESPlaintextFormat.Size = new Size(59, 17);
+            labelDESPlaintextFormat.TabIndex = 11;
+            labelDESPlaintextFormat.Text = "明文格式:";
             // 
-            // btnDecryptFile
+            // comboDESPadding
             // 
-            btnDecryptFile.Location = new Point(970, 40);
-            btnDecryptFile.Margin = new Padding(4);
-            btnDecryptFile.Name = "btnDecryptFile";
-            btnDecryptFile.Size = new Size(80, 30);
-            btnDecryptFile.TabIndex = 3;
-            btnDecryptFile.Text = "解密文件";
-            btnDecryptFile.UseVisualStyleBackColor = true;
-            btnDecryptFile.Click += btnDecryptFile_Click;
+            comboDESPadding.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDESPadding.FormattingEnabled = true;
+            comboDESPadding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "Zeros", "ISO10126", "ANSIX923", "None" });
+            comboDESPadding.Location = new Point(233, 3);
+            comboDESPadding.Name = "comboDESPadding";
+            comboDESPadding.Size = new Size(100, 25);
+            comboDESPadding.TabIndex = 6;
+            // 
+            // labelDESPadding
+            // 
+            labelDESPadding.AutoSize = true;
+            labelDESPadding.Location = new Point(171, 7);
+            labelDESPadding.Name = "labelDESPadding";
+            labelDESPadding.Size = new Size(59, 17);
+            labelDESPadding.TabIndex = 7;
+            labelDESPadding.Text = "填充模式:";
+            // 
+            // comboDESMode
+            // 
+            comboDESMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboDESMode.FormattingEnabled = true;
+            comboDESMode.Items.AddRange(new object[] { "ECB", "CBC", "CFB", "OFB" });
+            comboDESMode.Location = new Point(62, 3);
+            comboDESMode.Name = "comboDESMode";
+            comboDESMode.Size = new Size(100, 25);
+            comboDESMode.TabIndex = 4;
+            comboDESMode.SelectedIndexChanged += comboDESMode_SelectedIndexChanged;
+            // 
+            // labelDESMode
+            // 
+            labelDESMode.AutoSize = true;
+            labelDESMode.Location = new Point(0, 7);
+            labelDESMode.Name = "labelDESMode";
+            labelDESMode.Size = new Size(59, 17);
+            labelDESMode.TabIndex = 5;
+            labelDESMode.Text = "加密模式:";
             // 
             // labelPlaintext
             // 
             labelPlaintext.AutoSize = true;
             labelPlaintext.Dock = DockStyle.Bottom;
-            labelPlaintext.Location = new Point(4, 85);
-            labelPlaintext.Margin = new Padding(4, 0, 4, 0);
+            labelPlaintext.Location = new Point(3, 72);
             labelPlaintext.Name = "labelPlaintext";
-            labelPlaintext.Size = new Size(1230, 20);
+            labelPlaintext.Size = new Size(958, 17);
             labelPlaintext.TabIndex = 3;
             labelPlaintext.Text = "明文:";
             // 
             // textDESPlainText
             // 
             textDESPlainText.Dock = DockStyle.Fill;
-            textDESPlainText.Location = new Point(4, 109);
-            textDESPlainText.Margin = new Padding(4);
+            textDESPlainText.Location = new Point(3, 92);
             textDESPlainText.Multiline = true;
             textDESPlainText.Name = "textDESPlainText";
             textDESPlainText.ScrollBars = ScrollBars.Both;
-            textDESPlainText.Size = new Size(1230, 96);
+            textDESPlainText.Size = new Size(958, 82);
             textDESPlainText.TabIndex = 2;
             // 
             // labelCiphertext
             // 
             labelCiphertext.AutoSize = true;
             labelCiphertext.Dock = DockStyle.Bottom;
-            labelCiphertext.Location = new Point(4, 234);
-            labelCiphertext.Margin = new Padding(4, 0, 4, 0);
+            labelCiphertext.Location = new Point(3, 181);
             labelCiphertext.Name = "labelCiphertext";
-            labelCiphertext.Size = new Size(1230, 20);
+            labelCiphertext.Size = new Size(958, 17);
             labelCiphertext.TabIndex = 5;
             labelCiphertext.Text = "密文:";
             // 
             // textDESCipherText
             // 
             textDESCipherText.Dock = DockStyle.Fill;
-            textDESCipherText.Location = new Point(4, 258);
-            textDESCipherText.Margin = new Padding(4);
+            textDESCipherText.Location = new Point(3, 201);
             textDESCipherText.Multiline = true;
             textDESCipherText.Name = "textDESCipherText";
             textDESCipherText.ScrollBars = ScrollBars.Both;
-            textDESCipherText.Size = new Size(1230, 96);
+            textDESCipherText.Size = new Size(958, 83);
             textDESCipherText.TabIndex = 3;
             // 
             // DESTabControl
             // 
-            AutoScaleDimensions = new SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(mainTableLayout);
-            Margin = new Padding(4);
             Name = "DESTabControl";
-            Size = new Size(1278, 600);
+            Size = new Size(994, 510);
             mainTableLayout.ResumeLayout(false);
             groupBoxDESKeys.ResumeLayout(false);
             tableLayoutDESKeys.ResumeLayout(false);

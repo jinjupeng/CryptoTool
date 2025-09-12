@@ -41,18 +41,23 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成RSA密钥对...");
 
-                int keySize = int.Parse(comboRSAKeySize.SelectedItem.ToString());
-                RSAKeyType rsaKeyFormat = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
-                KeyFormat rsaOutputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
+                string keySizeStr = comboRSAKeySize.SelectedItem.ToString();
+                int keySize = int.Parse(keySizeStr);
+                
+                // 转换为KeySize枚举
+                KeySize keySizeEnum = keySize switch
+                {
+                    1024 => KeySize.Key1024,
+                    2048 => KeySize.Key2048,
+                    4096 => KeySize.Key4096,
+                    _ => KeySize.Key2048
+                };
 
-                var keyPair = RSAProvider.GenerateKeyPair(keySize);
-                var publicKey = (RsaKeyParameters)keyPair.Public;
-                var privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
-                string genPublicKey = RSAProvider.GeneratePublicKeyString(publicKey, rsaOutputFormat);
-                string genPrivateKey = RSAProvider.GeneratePrivateKeyString(privateKey, rsaOutputFormat);
-
-                textRSAPublicKey.Text = genPublicKey;
-                textRSAPrivateKey.Text = genPrivateKey;
+                var rsaProvider = new RSAProvider();
+                var keyPair = rsaProvider.GenerateKeyPair(keySizeEnum);
+                
+                textRSAPublicKey.Text = keyPair.PublicKey;
+                textRSAPrivateKey.Text = keyPair.PrivateKey;
 
                 SetStatus($"RSA密钥对生成完成 - {keySize}位 {comboRSAKeyFormat.SelectedItem}格式");
             }
@@ -169,14 +174,8 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA加密...");
 
-                // 使用CryptoUIHelper解析枚举
-                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
-                RSAPadding paddingFormat = CryptoUIHelper.ParseRSAPadding(comboRSAKeyPadding.SelectedItem.ToString());
-                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboRSAEncryptOutputFormat.SelectedItem.ToString());
-                KeyFormat inputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
-
-                var publicKey = RSAProvider.ParsePublicKeyFromPem(textRSAPublicKey.Text);
-                string cipherText = RSAProvider.Encrypt(textRSAPlainText.Text, publicKey, paddingFormat, KeyFormat.Base64);
+                var rsaProvider = new RSAProvider();
+                string cipherText = rsaProvider.EncryptWithPublicKey(textRSAPlainText.Text, textRSAPublicKey.Text);
                 textRSACipherText.Text = cipherText;
 
                 SetStatus($"RSA加密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输出{comboRSAEncryptOutputFormat.SelectedItem}格式");
@@ -206,19 +205,11 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA解密...");
 
-                string paddingText = comboRSAKeyPadding.SelectedItem.ToString();
-
-                // 使用CryptoUIHelper解析枚举
-                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
-                RSAPadding paddingFormat = CryptoUIHelper.ParseRSAPadding(paddingText);
-                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboRSAEncryptOutputFormat.SelectedItem.ToString());
-                KeyFormat keyInputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
-
-                var privateKey = RSAProvider.ParsePrivateKeyFromPem(textRSAPrivateKey.Text);
-                string plainText = RSAProvider.Decrypt(textRSACipherText.Text, privateKey, paddingFormat, KeyFormat.Base64);
+                var rsaProvider = new RSAProvider();
+                string plainText = rsaProvider.DecryptWithPrivateKey(textRSACipherText.Text, textRSAPrivateKey.Text);
                 textRSAPlainText.Text = plainText;
 
-                SetStatus($"RSA解密完成 - 使用{paddingText}填充，输入{comboRSAEncryptOutputFormat.SelectedItem}格式");
+                SetStatus($"RSA解密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输入{comboRSAEncryptOutputFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -245,14 +236,8 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA签名...");
 
-                // 使用CryptoUIHelper解析枚举
-                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
-                SignatureAlgorithm signAlgmFormat = CryptoUIHelper.ParseSignatureAlgorithm(comboRSASignAlgmFormat.SelectedIndex);
-                OutputFormat signOutputFormat = CryptoUIHelper.ParseOutputFormat(comboRSASignOutputFormat.SelectedItem.ToString());
-                KeyFormat inputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
-
-                var privateKey = RSAProvider.ParsePrivateKeyFromPem(textRSAPrivateKey.Text);
-                string signature = RSAProvider.Sign(textRSASignData.Text, privateKey, signAlgmFormat, KeyFormat.Base64);
+                var rsaProvider = new RSAProvider();
+                string signature = rsaProvider.Sign(textRSASignData.Text, textRSAPrivateKey.Text);
                 textRSASignature.Text = signature;
 
                 SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormat.SelectedItem}算法，输出{comboRSASignOutputFormat.SelectedItem}格式");
@@ -312,12 +297,8 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA验签...");
 
-                // 使用CryptoUIHelper解析枚举
-                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
-                SignatureAlgorithm signAlgmFormat = CryptoUIHelper.ParseSignatureAlgorithm(comboRSASignAlgmFormat.SelectedIndex);
-
-                var publicKey = RSAProvider.ParsePublicKeyFromPem(textRSAPublicKey.Text);
-                bool isValid = RSAProvider.Verify(verifyData, verifySignature, publicKey, signAlgmFormat, KeyFormat.Base64);
+                var rsaProvider = new RSAProvider();
+                bool isValid = rsaProvider.Verify(verifyData, verifySignature, textRSAPublicKey.Text);
 
                 labelRSAVerifyResult.Text = isValid ? "验证通过" : "验证失败";
                 labelRSAVerifyResult.ForeColor = isValid ? Color.Green : Color.Red;

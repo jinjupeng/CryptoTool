@@ -32,18 +32,18 @@ namespace CryptoTool.Win
             groupBoxAESKeys = new GroupBox();
             tableLayoutAESKeys = new TableLayoutPanel();
             panelAESKeyControls = new Panel();
-            labelAESKeySize = new Label();
-            comboAESKeySize = new ComboBox();
-            labelAESKeyFormat = new Label();
-            comboAESKeyFormat = new ComboBox();
             btnGenerateAESKey = new Button();
+            comboAESKeyFormat = new ComboBox();
+            labelAESKeyFormat = new Label();
+            comboAESKeySize = new ComboBox();
+            labelAESKeySize = new Label();
             labelAESKey = new Label();
             panelAESKey = new Panel();
             textAESKey = new TextBox();
             panelAESIVControls = new Panel();
-            labelAESIVFormat = new Label();
-            comboAESIVFormat = new ComboBox();
             btnGenerateAESIV = new Button();
+            comboAESIVFormat = new ComboBox();
+            labelAESIVFormat = new Label();
             labelAESIV = new Label();
             panelAESIV = new Panel();
             textAESIV = new TextBox();
@@ -86,24 +86,22 @@ namespace CryptoTool.Win
             mainTableLayout.Controls.Add(groupBoxAESEncrypt, 0, 1);
             mainTableLayout.Dock = DockStyle.Fill;
             mainTableLayout.Location = new Point(0, 0);
-            mainTableLayout.Margin = new Padding(4);
             mainTableLayout.Name = "mainTableLayout";
-            mainTableLayout.Padding = new Padding(8);
+            mainTableLayout.Padding = new Padding(6, 7, 6, 7);
             mainTableLayout.RowCount = 2;
             mainTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
             mainTableLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 65F));
-            mainTableLayout.Size = new Size(1278, 600);
+            mainTableLayout.Size = new Size(994, 510);
             mainTableLayout.TabIndex = 0;
             // 
             // groupBoxAESKeys
             // 
             groupBoxAESKeys.Controls.Add(tableLayoutAESKeys);
             groupBoxAESKeys.Dock = DockStyle.Fill;
-            groupBoxAESKeys.Location = new Point(12, 12);
-            groupBoxAESKeys.Margin = new Padding(4);
+            groupBoxAESKeys.Location = new Point(9, 10);
             groupBoxAESKeys.Name = "groupBoxAESKeys";
-            groupBoxAESKeys.Padding = new Padding(8);
-            groupBoxAESKeys.Size = new Size(1254, 194);
+            groupBoxAESKeys.Padding = new Padding(6, 7, 6, 7);
+            groupBoxAESKeys.Size = new Size(976, 167);
             groupBoxAESKeys.TabIndex = 0;
             groupBoxAESKeys.TabStop = false;
             groupBoxAESKeys.Text = "AES密钥生成";
@@ -119,16 +117,17 @@ namespace CryptoTool.Win
             tableLayoutAESKeys.Controls.Add(labelAESIV, 0, 4);
             tableLayoutAESKeys.Controls.Add(panelAESIV, 0, 5);
             tableLayoutAESKeys.Dock = DockStyle.Fill;
-            tableLayoutAESKeys.Location = new Point(8, 28);
+            tableLayoutAESKeys.Location = new Point(6, 23);
+            tableLayoutAESKeys.Margin = new Padding(2, 3, 2, 3);
             tableLayoutAESKeys.Name = "tableLayoutAESKeys";
             tableLayoutAESKeys.RowCount = 6;
-            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
-            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 35F));
-            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
-            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
+            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
+            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 34F));
+            tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutAESKeys.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tableLayoutAESKeys.Size = new Size(1238, 158);
+            tableLayoutAESKeys.Size = new Size(964, 137);
             tableLayoutAESKeys.TabIndex = 0;
             // 
             // panelAESKeyControls
@@ -139,72 +138,67 @@ namespace CryptoTool.Win
             panelAESKeyControls.Controls.Add(comboAESKeySize);
             panelAESKeyControls.Controls.Add(labelAESKeySize);
             panelAESKeyControls.Dock = DockStyle.Fill;
-            panelAESKeyControls.Location = new Point(3, 3);
+            panelAESKeyControls.Location = new Point(2, 3);
+            panelAESKeyControls.Margin = new Padding(2, 3, 2, 3);
             panelAESKeyControls.Name = "panelAESKeyControls";
-            panelAESKeyControls.Size = new Size(1232, 34);
+            panelAESKeyControls.Size = new Size(960, 28);
             panelAESKeyControls.TabIndex = 0;
             // 
-            // labelAESKeySize
+            // btnGenerateAESKey
             // 
-            labelAESKeySize.AutoSize = true;
-            labelAESKeySize.Location = new Point(0, 8);
-            labelAESKeySize.Margin = new Padding(4, 0, 4, 0);
-            labelAESKeySize.Name = "labelAESKeySize";
-            labelAESKeySize.Size = new Size(73, 20);
-            labelAESKeySize.TabIndex = 9;
-            labelAESKeySize.Text = "密钥长度:";
-            // 
-            // comboAESKeySize
-            // 
-            comboAESKeySize.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboAESKeySize.FormattingEnabled = true;
-            comboAESKeySize.Items.AddRange(new object[] { "AES128", "AES192", "AES256" });
-            comboAESKeySize.Location = new Point(80, 4);
-            comboAESKeySize.Margin = new Padding(4);
-            comboAESKeySize.Name = "comboAESKeySize";
-            comboAESKeySize.Size = new Size(127, 28);
-            comboAESKeySize.TabIndex = 8;
-            // 
-            // labelAESKeyFormat
-            // 
-            labelAESKeyFormat.AutoSize = true;
-            labelAESKeyFormat.Location = new Point(220, 8);
-            labelAESKeyFormat.Margin = new Padding(4, 0, 4, 0);
-            labelAESKeyFormat.Name = "labelAESKeyFormat";
-            labelAESKeyFormat.Size = new Size(73, 20);
-            labelAESKeyFormat.TabIndex = 11;
-            labelAESKeyFormat.Text = "密钥格式:";
+            btnGenerateAESKey.Location = new Point(342, 2);
+            btnGenerateAESKey.Name = "btnGenerateAESKey";
+            btnGenerateAESKey.Size = new Size(80, 26);
+            btnGenerateAESKey.TabIndex = 0;
+            btnGenerateAESKey.Text = "生成密钥";
+            btnGenerateAESKey.UseVisualStyleBackColor = true;
+            btnGenerateAESKey.Click += btnGenerateAESKey_Click;
             // 
             // comboAESKeyFormat
             // 
             comboAESKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboAESKeyFormat.FormattingEnabled = true;
             comboAESKeyFormat.Items.AddRange(new object[] { "Base64", "Hex" });
-            comboAESKeyFormat.Location = new Point(300, 4);
-            comboAESKeyFormat.Margin = new Padding(4);
+            comboAESKeyFormat.Location = new Point(233, 3);
             comboAESKeyFormat.Name = "comboAESKeyFormat";
-            comboAESKeyFormat.Size = new Size(127, 28);
+            comboAESKeyFormat.Size = new Size(100, 25);
             comboAESKeyFormat.TabIndex = 10;
             // 
-            // btnGenerateAESKey
+            // labelAESKeyFormat
             // 
-            btnGenerateAESKey.Location = new Point(440, 2);
-            btnGenerateAESKey.Margin = new Padding(4);
-            btnGenerateAESKey.Name = "btnGenerateAESKey";
-            btnGenerateAESKey.Size = new Size(103, 30);
-            btnGenerateAESKey.TabIndex = 0;
-            btnGenerateAESKey.Text = "生成密钥";
-            btnGenerateAESKey.UseVisualStyleBackColor = true;
-            btnGenerateAESKey.Click += btnGenerateAESKey_Click;
+            labelAESKeyFormat.AutoSize = true;
+            labelAESKeyFormat.Location = new Point(171, 7);
+            labelAESKeyFormat.Name = "labelAESKeyFormat";
+            labelAESKeyFormat.Size = new Size(59, 17);
+            labelAESKeyFormat.TabIndex = 11;
+            labelAESKeyFormat.Text = "密钥格式:";
+            // 
+            // comboAESKeySize
+            // 
+            comboAESKeySize.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboAESKeySize.FormattingEnabled = true;
+            comboAESKeySize.Items.AddRange(new object[] { "AES128", "AES192", "AES256" });
+            comboAESKeySize.Location = new Point(62, 3);
+            comboAESKeySize.Name = "comboAESKeySize";
+            comboAESKeySize.Size = new Size(100, 25);
+            comboAESKeySize.TabIndex = 8;
+            // 
+            // labelAESKeySize
+            // 
+            labelAESKeySize.AutoSize = true;
+            labelAESKeySize.Location = new Point(0, 7);
+            labelAESKeySize.Name = "labelAESKeySize";
+            labelAESKeySize.Size = new Size(59, 17);
+            labelAESKeySize.TabIndex = 9;
+            labelAESKeySize.Text = "密钥长度:";
             // 
             // labelAESKey
             // 
             labelAESKey.AutoSize = true;
             labelAESKey.Dock = DockStyle.Bottom;
-            labelAESKey.Location = new Point(4, 45);
-            labelAESKey.Margin = new Padding(4, 0, 4, 0);
+            labelAESKey.Location = new Point(3, 38);
             labelAESKey.Name = "labelAESKey";
-            labelAESKey.Size = new Size(1230, 20);
+            labelAESKey.Size = new Size(958, 17);
             labelAESKey.TabIndex = 3;
             labelAESKey.Text = "AES密钥:";
             // 
@@ -212,18 +206,18 @@ namespace CryptoTool.Win
             // 
             panelAESKey.Controls.Add(textAESKey);
             panelAESKey.Dock = DockStyle.Fill;
-            panelAESKey.Location = new Point(3, 68);
+            panelAESKey.Location = new Point(2, 58);
+            panelAESKey.Margin = new Padding(2, 3, 2, 3);
             panelAESKey.Name = "panelAESKey";
-            panelAESKey.Size = new Size(1232, 29);
+            panelAESKey.Size = new Size(960, 24);
             panelAESKey.TabIndex = 4;
             // 
             // textAESKey
             // 
             textAESKey.Dock = DockStyle.Fill;
             textAESKey.Location = new Point(0, 0);
-            textAESKey.Margin = new Padding(4);
             textAESKey.Name = "textAESKey";
-            textAESKey.Size = new Size(1232, 27);
+            textAESKey.Size = new Size(960, 23);
             textAESKey.TabIndex = 2;
             // 
             // panelAESIVControls
@@ -232,51 +226,48 @@ namespace CryptoTool.Win
             panelAESIVControls.Controls.Add(comboAESIVFormat);
             panelAESIVControls.Controls.Add(labelAESIVFormat);
             panelAESIVControls.Dock = DockStyle.Fill;
-            panelAESIVControls.Location = new Point(3, 103);
+            panelAESIVControls.Location = new Point(2, 88);
+            panelAESIVControls.Margin = new Padding(2, 3, 2, 3);
             panelAESIVControls.Name = "panelAESIVControls";
-            panelAESIVControls.Size = new Size(1232, 34);
+            panelAESIVControls.Size = new Size(960, 28);
             panelAESIVControls.TabIndex = 1;
             // 
-            // labelAESIVFormat
+            // btnGenerateAESIV
             // 
-            labelAESIVFormat.AutoSize = true;
-            labelAESIVFormat.Location = new Point(0, 8);
-            labelAESIVFormat.Margin = new Padding(4, 0, 4, 0);
-            labelAESIVFormat.Name = "labelAESIVFormat";
-            labelAESIVFormat.Size = new Size(73, 20);
-            labelAESIVFormat.TabIndex = 11;
-            labelAESIVFormat.Text = "向量格式:";
+            btnGenerateAESIV.Location = new Point(171, 2);
+            btnGenerateAESIV.Name = "btnGenerateAESIV";
+            btnGenerateAESIV.Size = new Size(80, 26);
+            btnGenerateAESIV.TabIndex = 1;
+            btnGenerateAESIV.Text = "生成向量";
+            btnGenerateAESIV.UseVisualStyleBackColor = true;
+            btnGenerateAESIV.Click += btnGenerateAESIV_Click;
             // 
             // comboAESIVFormat
             // 
             comboAESIVFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboAESIVFormat.FormattingEnabled = true;
             comboAESIVFormat.Items.AddRange(new object[] { "Base64", "Hex" });
-            comboAESIVFormat.Location = new Point(80, 4);
-            comboAESIVFormat.Margin = new Padding(4);
+            comboAESIVFormat.Location = new Point(62, 3);
             comboAESIVFormat.Name = "comboAESIVFormat";
-            comboAESIVFormat.Size = new Size(127, 28);
+            comboAESIVFormat.Size = new Size(100, 25);
             comboAESIVFormat.TabIndex = 10;
             // 
-            // btnGenerateAESIV
+            // labelAESIVFormat
             // 
-            btnGenerateAESIV.Location = new Point(220, 2);
-            btnGenerateAESIV.Margin = new Padding(4);
-            btnGenerateAESIV.Name = "btnGenerateAESIV";
-            btnGenerateAESIV.Size = new Size(103, 30);
-            btnGenerateAESIV.TabIndex = 1;
-            btnGenerateAESIV.Text = "生成向量";
-            btnGenerateAESIV.UseVisualStyleBackColor = true;
-            btnGenerateAESIV.Click += btnGenerateAESIV_Click;
+            labelAESIVFormat.AutoSize = true;
+            labelAESIVFormat.Location = new Point(0, 7);
+            labelAESIVFormat.Name = "labelAESIVFormat";
+            labelAESIVFormat.Size = new Size(59, 17);
+            labelAESIVFormat.TabIndex = 11;
+            labelAESIVFormat.Text = "向量格式:";
             // 
             // labelAESIV
             // 
             labelAESIV.AutoSize = true;
             labelAESIV.Dock = DockStyle.Bottom;
-            labelAESIV.Location = new Point(4, 145);
-            labelAESIV.Margin = new Padding(4, 0, 4, 0);
+            labelAESIV.Location = new Point(3, 123);
             labelAESIV.Name = "labelAESIV";
-            labelAESIV.Size = new Size(1230, 20);
+            labelAESIV.Size = new Size(958, 17);
             labelAESIV.TabIndex = 5;
             labelAESIV.Text = "初始向量:";
             // 
@@ -284,29 +275,28 @@ namespace CryptoTool.Win
             // 
             panelAESIV.Controls.Add(textAESIV);
             panelAESIV.Dock = DockStyle.Fill;
-            panelAESIV.Location = new Point(3, 168);
+            panelAESIV.Location = new Point(2, 143);
+            panelAESIV.Margin = new Padding(2, 3, 2, 3);
             panelAESIV.Name = "panelAESIV";
-            panelAESIV.Size = new Size(1232, 1);
+            panelAESIV.Size = new Size(960, 1);
             panelAESIV.TabIndex = 6;
             // 
             // textAESIV
             // 
             textAESIV.Dock = DockStyle.Fill;
             textAESIV.Location = new Point(0, 0);
-            textAESIV.Margin = new Padding(4);
             textAESIV.Name = "textAESIV";
-            textAESIV.Size = new Size(1232, 27);
+            textAESIV.Size = new Size(960, 23);
             textAESIV.TabIndex = 4;
             // 
             // groupBoxAESEncrypt
             // 
             groupBoxAESEncrypt.Controls.Add(tableLayoutAESEncrypt);
             groupBoxAESEncrypt.Dock = DockStyle.Fill;
-            groupBoxAESEncrypt.Location = new Point(12, 214);
-            groupBoxAESEncrypt.Margin = new Padding(4);
+            groupBoxAESEncrypt.Location = new Point(9, 183);
             groupBoxAESEncrypt.Name = "groupBoxAESEncrypt";
-            groupBoxAESEncrypt.Padding = new Padding(8);
-            groupBoxAESEncrypt.Size = new Size(1254, 374);
+            groupBoxAESEncrypt.Padding = new Padding(6, 7, 6, 7);
+            groupBoxAESEncrypt.Size = new Size(976, 317);
             groupBoxAESEncrypt.TabIndex = 1;
             groupBoxAESEncrypt.TabStop = false;
             groupBoxAESEncrypt.Text = "AES加密解密";
@@ -321,15 +311,16 @@ namespace CryptoTool.Win
             tableLayoutAESEncrypt.Controls.Add(labelCiphertext, 0, 3);
             tableLayoutAESEncrypt.Controls.Add(textAESCipherText, 0, 4);
             tableLayoutAESEncrypt.Dock = DockStyle.Fill;
-            tableLayoutAESEncrypt.Location = new Point(8, 28);
+            tableLayoutAESEncrypt.Location = new Point(6, 23);
+            tableLayoutAESEncrypt.Margin = new Padding(2, 3, 2, 3);
             tableLayoutAESEncrypt.Name = "tableLayoutAESEncrypt";
             tableLayoutAESEncrypt.RowCount = 5;
-            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F));
-            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 68F));
+            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 25F));
+            tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Absolute, 21F));
             tableLayoutAESEncrypt.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutAESEncrypt.Size = new Size(1238, 338);
+            tableLayoutAESEncrypt.Size = new Size(964, 287);
             tableLayoutAESEncrypt.TabIndex = 0;
             // 
             // panelAESEncryptControls
@@ -347,192 +338,176 @@ namespace CryptoTool.Win
             panelAESEncryptControls.Controls.Add(comboAESMode);
             panelAESEncryptControls.Controls.Add(labelAESMode);
             panelAESEncryptControls.Dock = DockStyle.Fill;
-            panelAESEncryptControls.Location = new Point(3, 3);
+            panelAESEncryptControls.Location = new Point(2, 3);
+            panelAESEncryptControls.Margin = new Padding(2, 3, 2, 3);
             panelAESEncryptControls.Name = "panelAESEncryptControls";
-            panelAESEncryptControls.Size = new Size(1232, 74);
+            panelAESEncryptControls.Size = new Size(960, 62);
             panelAESEncryptControls.TabIndex = 0;
             // 
-            // labelAESMode
+            // btnDecryptFile
             // 
-            labelAESMode.AutoSize = true;
-            labelAESMode.Location = new Point(0, 8);
-            labelAESMode.Margin = new Padding(4, 0, 4, 0);
-            labelAESMode.Name = "labelAESMode";
-            labelAESMode.Size = new Size(73, 20);
-            labelAESMode.TabIndex = 5;
-            labelAESMode.Text = "加密模式:";
+            btnDecryptFile.Location = new Point(778, 33);
+            btnDecryptFile.Name = "btnDecryptFile";
+            btnDecryptFile.Size = new Size(75, 26);
+            btnDecryptFile.TabIndex = 3;
+            btnDecryptFile.Text = "解密文件";
+            btnDecryptFile.UseVisualStyleBackColor = true;
+            btnDecryptFile.Click += btnDecryptFile_Click;
             // 
-            // comboAESMode
+            // btnEncryptFile
             // 
-            comboAESMode.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboAESMode.FormattingEnabled = true;
-            comboAESMode.Items.AddRange(new object[] { "ECB", "CBC", "CFB", "OFB" });
-            comboAESMode.Location = new Point(80, 4);
-            comboAESMode.Margin = new Padding(4);
-            comboAESMode.Name = "comboAESMode";
-            comboAESMode.Size = new Size(127, 28);
-            comboAESMode.TabIndex = 4;
-            comboAESMode.SelectedIndexChanged += comboAESMode_SelectedIndexChanged;
+            btnEncryptFile.Location = new Point(684, 34);
+            btnEncryptFile.Name = "btnEncryptFile";
+            btnEncryptFile.Size = new Size(72, 26);
+            btnEncryptFile.TabIndex = 2;
+            btnEncryptFile.Text = "加密文件";
+            btnEncryptFile.UseVisualStyleBackColor = true;
+            btnEncryptFile.Click += btnEncryptFile_Click;
             // 
-            // labelAESPadding
+            // btnAESDecrypt
             // 
-            labelAESPadding.AutoSize = true;
-            labelAESPadding.Location = new Point(220, 8);
-            labelAESPadding.Margin = new Padding(4, 0, 4, 0);
-            labelAESPadding.Name = "labelAESPadding";
-            labelAESPadding.Size = new Size(73, 20);
-            labelAESPadding.TabIndex = 7;
-            labelAESPadding.Text = "填充模式:";
+            btnAESDecrypt.Location = new Point(778, 2);
+            btnAESDecrypt.Name = "btnAESDecrypt";
+            btnAESDecrypt.Size = new Size(75, 26);
+            btnAESDecrypt.TabIndex = 1;
+            btnAESDecrypt.Text = "解密";
+            btnAESDecrypt.UseVisualStyleBackColor = true;
+            btnAESDecrypt.Click += btnAESDecrypt_Click;
             // 
-            // comboAESPadding
+            // btnAESEncrypt
             // 
-            comboAESPadding.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboAESPadding.FormattingEnabled = true;
-            comboAESPadding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "Zeros", "ISO10126", "ANSIX923", "None" });
-            comboAESPadding.Location = new Point(300, 4);
-            comboAESPadding.Margin = new Padding(4);
-            comboAESPadding.Name = "comboAESPadding";
-            comboAESPadding.Size = new Size(127, 28);
-            comboAESPadding.TabIndex = 6;
-            // 
-            // labelAESPlaintextFormat
-            // 
-            labelAESPlaintextFormat.AutoSize = true;
-            labelAESPlaintextFormat.Location = new Point(440, 8);
-            labelAESPlaintextFormat.Margin = new Padding(4, 0, 4, 0);
-            labelAESPlaintextFormat.Name = "labelAESPlaintextFormat";
-            labelAESPlaintextFormat.Size = new Size(73, 20);
-            labelAESPlaintextFormat.TabIndex = 11;
-            labelAESPlaintextFormat.Text = "明文格式:";
-            // 
-            // comboAESPlaintextFormat
-            // 
-            comboAESPlaintextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboAESPlaintextFormat.FormattingEnabled = true;
-            comboAESPlaintextFormat.Items.AddRange(new object[] { "Text", "Base64", "Hex" });
-            comboAESPlaintextFormat.Location = new Point(520, 4);
-            comboAESPlaintextFormat.Margin = new Padding(4);
-            comboAESPlaintextFormat.Name = "comboAESPlaintextFormat";
-            comboAESPlaintextFormat.Size = new Size(127, 28);
-            comboAESPlaintextFormat.TabIndex = 10;
-            // 
-            // labelAESCiphertextFormat
-            // 
-            labelAESCiphertextFormat.AutoSize = true;
-            labelAESCiphertextFormat.Location = new Point(660, 8);
-            labelAESCiphertextFormat.Margin = new Padding(4, 0, 4, 0);
-            labelAESCiphertextFormat.Name = "labelAESCiphertextFormat";
-            labelAESCiphertextFormat.Size = new Size(73, 20);
-            labelAESCiphertextFormat.TabIndex = 9;
-            labelAESCiphertextFormat.Text = "密文格式:";
+            btnAESEncrypt.Location = new Point(684, 2);
+            btnAESEncrypt.Name = "btnAESEncrypt";
+            btnAESEncrypt.Size = new Size(72, 26);
+            btnAESEncrypt.TabIndex = 0;
+            btnAESEncrypt.Text = "加密";
+            btnAESEncrypt.UseVisualStyleBackColor = true;
+            btnAESEncrypt.Click += btnAESEncrypt_Click;
             // 
             // comboAESCiphertextFormat
             // 
             comboAESCiphertextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboAESCiphertextFormat.FormattingEnabled = true;
             comboAESCiphertextFormat.Items.AddRange(new object[] { "Base64", "Hex" });
-            comboAESCiphertextFormat.Location = new Point(740, 4);
-            comboAESCiphertextFormat.Margin = new Padding(4);
+            comboAESCiphertextFormat.Location = new Point(576, 3);
             comboAESCiphertextFormat.Name = "comboAESCiphertextFormat";
-            comboAESCiphertextFormat.Size = new Size(127, 28);
+            comboAESCiphertextFormat.Size = new Size(100, 25);
             comboAESCiphertextFormat.TabIndex = 8;
             // 
-            // btnAESEncrypt
+            // labelAESCiphertextFormat
             // 
-            btnAESEncrypt.Location = new Point(880, 2);
-            btnAESEncrypt.Margin = new Padding(4);
-            btnAESEncrypt.Name = "btnAESEncrypt";
-            btnAESEncrypt.Size = new Size(80, 30);
-            btnAESEncrypt.TabIndex = 0;
-            btnAESEncrypt.Text = "加密";
-            btnAESEncrypt.UseVisualStyleBackColor = true;
-            btnAESEncrypt.Click += btnAESEncrypt_Click;
+            labelAESCiphertextFormat.AutoSize = true;
+            labelAESCiphertextFormat.Location = new Point(513, 7);
+            labelAESCiphertextFormat.Name = "labelAESCiphertextFormat";
+            labelAESCiphertextFormat.Size = new Size(59, 17);
+            labelAESCiphertextFormat.TabIndex = 9;
+            labelAESCiphertextFormat.Text = "密文格式:";
             // 
-            // btnAESDecrypt
+            // comboAESPlaintextFormat
             // 
-            btnAESDecrypt.Location = new Point(970, 2);
-            btnAESDecrypt.Margin = new Padding(4);
-            btnAESDecrypt.Name = "btnAESDecrypt";
-            btnAESDecrypt.Size = new Size(80, 30);
-            btnAESDecrypt.TabIndex = 1;
-            btnAESDecrypt.Text = "解密";
-            btnAESDecrypt.UseVisualStyleBackColor = true;
-            btnAESDecrypt.Click += btnAESDecrypt_Click;
+            comboAESPlaintextFormat.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboAESPlaintextFormat.FormattingEnabled = true;
+            comboAESPlaintextFormat.Items.AddRange(new object[] { "Text", "Base64", "Hex" });
+            comboAESPlaintextFormat.Location = new Point(404, 3);
+            comboAESPlaintextFormat.Name = "comboAESPlaintextFormat";
+            comboAESPlaintextFormat.Size = new Size(100, 25);
+            comboAESPlaintextFormat.TabIndex = 10;
             // 
-            // btnEncryptFile
+            // labelAESPlaintextFormat
             // 
-            btnEncryptFile.Location = new Point(880, 40);
-            btnEncryptFile.Margin = new Padding(4);
-            btnEncryptFile.Name = "btnEncryptFile";
-            btnEncryptFile.Size = new Size(80, 30);
-            btnEncryptFile.TabIndex = 2;
-            btnEncryptFile.Text = "加密文件";
-            btnEncryptFile.UseVisualStyleBackColor = true;
-            btnEncryptFile.Click += btnEncryptFile_Click;
+            labelAESPlaintextFormat.AutoSize = true;
+            labelAESPlaintextFormat.Location = new Point(342, 7);
+            labelAESPlaintextFormat.Name = "labelAESPlaintextFormat";
+            labelAESPlaintextFormat.Size = new Size(59, 17);
+            labelAESPlaintextFormat.TabIndex = 11;
+            labelAESPlaintextFormat.Text = "明文格式:";
             // 
-            // btnDecryptFile
+            // comboAESPadding
             // 
-            btnDecryptFile.Location = new Point(970, 40);
-            btnDecryptFile.Margin = new Padding(4);
-            btnDecryptFile.Name = "btnDecryptFile";
-            btnDecryptFile.Size = new Size(80, 30);
-            btnDecryptFile.TabIndex = 3;
-            btnDecryptFile.Text = "解密文件";
-            btnDecryptFile.UseVisualStyleBackColor = true;
-            btnDecryptFile.Click += btnDecryptFile_Click;
+            comboAESPadding.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboAESPadding.FormattingEnabled = true;
+            comboAESPadding.Items.AddRange(new object[] { "PKCS7", "PKCS5", "Zeros", "ISO10126", "ANSIX923", "None" });
+            comboAESPadding.Location = new Point(233, 3);
+            comboAESPadding.Name = "comboAESPadding";
+            comboAESPadding.Size = new Size(100, 25);
+            comboAESPadding.TabIndex = 6;
+            // 
+            // labelAESPadding
+            // 
+            labelAESPadding.AutoSize = true;
+            labelAESPadding.Location = new Point(171, 7);
+            labelAESPadding.Name = "labelAESPadding";
+            labelAESPadding.Size = new Size(59, 17);
+            labelAESPadding.TabIndex = 7;
+            labelAESPadding.Text = "填充模式:";
+            // 
+            // comboAESMode
+            // 
+            comboAESMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboAESMode.FormattingEnabled = true;
+            comboAESMode.Items.AddRange(new object[] { "ECB", "CBC", "CFB", "OFB" });
+            comboAESMode.Location = new Point(62, 3);
+            comboAESMode.Name = "comboAESMode";
+            comboAESMode.Size = new Size(100, 25);
+            comboAESMode.TabIndex = 4;
+            comboAESMode.SelectedIndexChanged += comboAESMode_SelectedIndexChanged;
+            // 
+            // labelAESMode
+            // 
+            labelAESMode.AutoSize = true;
+            labelAESMode.Location = new Point(0, 7);
+            labelAESMode.Name = "labelAESMode";
+            labelAESMode.Size = new Size(59, 17);
+            labelAESMode.TabIndex = 5;
+            labelAESMode.Text = "加密模式:";
             // 
             // labelPlaintext
             // 
             labelPlaintext.AutoSize = true;
             labelPlaintext.Dock = DockStyle.Bottom;
-            labelPlaintext.Location = new Point(4, 85);
-            labelPlaintext.Margin = new Padding(4, 0, 4, 0);
+            labelPlaintext.Location = new Point(3, 72);
             labelPlaintext.Name = "labelPlaintext";
-            labelPlaintext.Size = new Size(1230, 20);
+            labelPlaintext.Size = new Size(958, 17);
             labelPlaintext.TabIndex = 3;
             labelPlaintext.Text = "明文:";
             // 
             // textAESPlainText
             // 
             textAESPlainText.Dock = DockStyle.Fill;
-            textAESPlainText.Location = new Point(4, 109);
-            textAESPlainText.Margin = new Padding(4);
+            textAESPlainText.Location = new Point(3, 92);
             textAESPlainText.Multiline = true;
             textAESPlainText.Name = "textAESPlainText";
             textAESPlainText.ScrollBars = ScrollBars.Both;
-            textAESPlainText.Size = new Size(1230, 96);
+            textAESPlainText.Size = new Size(958, 82);
             textAESPlainText.TabIndex = 2;
             // 
             // labelCiphertext
             // 
             labelCiphertext.AutoSize = true;
             labelCiphertext.Dock = DockStyle.Bottom;
-            labelCiphertext.Location = new Point(4, 234);
-            labelCiphertext.Margin = new Padding(4, 0, 4, 0);
+            labelCiphertext.Location = new Point(3, 181);
             labelCiphertext.Name = "labelCiphertext";
-            labelCiphertext.Size = new Size(1230, 20);
+            labelCiphertext.Size = new Size(958, 17);
             labelCiphertext.TabIndex = 5;
             labelCiphertext.Text = "密文:";
             // 
             // textAESCipherText
             // 
             textAESCipherText.Dock = DockStyle.Fill;
-            textAESCipherText.Location = new Point(4, 258);
-            textAESCipherText.Margin = new Padding(4);
+            textAESCipherText.Location = new Point(3, 201);
             textAESCipherText.Multiline = true;
             textAESCipherText.Name = "textAESCipherText";
             textAESCipherText.ScrollBars = ScrollBars.Both;
-            textAESCipherText.Size = new Size(1230, 96);
+            textAESCipherText.Size = new Size(958, 83);
             textAESCipherText.TabIndex = 3;
             // 
             // AESTabControl
             // 
-            AutoScaleDimensions = new SizeF(9F, 20F);
+            AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(mainTableLayout);
-            Margin = new Padding(4);
             Name = "AESTabControl";
-            Size = new Size(1278, 600);
+            Size = new Size(994, 510);
             mainTableLayout.ResumeLayout(false);
             groupBoxAESKeys.ResumeLayout(false);
             tableLayoutAESKeys.ResumeLayout(false);

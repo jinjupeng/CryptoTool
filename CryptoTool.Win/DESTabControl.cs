@@ -38,13 +38,17 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES密钥...");
 
-                string keyFormat = comboDESKeyFormat.SelectedItem?.ToString() ?? "";
-                OutputFormat format = CryptoUIHelper.ParseOutputFormat(keyFormat);
+                UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
 
                 var provider = new DESProvider();
-                string key = provider.GenerateKey(KeySize.Key64, format);
+                string keyBase64 = provider.GenerateKey(KeySize.Key64);
+                
+                // 转换为用户指定的格式
+                byte[] keyBytes = Convert.FromBase64String(keyBase64);
+                string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
+                
                 textDESKey.Text = key;
-                SetStatus($"DES密钥生成完成 - {keyFormat}格式");
+                SetStatus($"DES密钥生成完成 - {comboDESKeyFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -59,13 +63,17 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES初始向量...");
 
-                string ivFormat = comboDESIVFormat.SelectedItem?.ToString() ?? "";
-                OutputFormat format = CryptoUIHelper.ParseOutputFormat(ivFormat);
+                UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                 var provider = new DESProvider();
-                string iv = provider.GenerateIV(format);
+                string ivBase64 = provider.GenerateIV();
+                
+                // 转换为用户指定的格式
+                byte[] ivBytes = Convert.FromBase64String(ivBase64);
+                string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
+                
                 textDESIV.Text = iv;
-                SetStatus($"DES初始向量生成完成 - {ivFormat}格式");
+                SetStatus($"DES初始向量生成完成 - {comboDESIVFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -99,19 +107,30 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行DES加密...");
 
-                // 使用CryptoUIHelper解析枚举
-                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                // 解析参数
+                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
-                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                string plaintext = GetPlaintextFromFormat();
-                string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                // 处理输入数据
+                string plaintext = GetPlaintextFromFormat(plaintextFormat);
+                string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
 
+                // 执行加密
                 var provider = new DESProvider();
-                string cipherText = provider.Encrypt(plaintext, textDESKey.Text, desMode, desPadding, outputFormat, iv);
+                string cipherTextBase64 = provider.Encrypt(plaintext, keyForProvider, desMode, desPadding, ivForProvider);
+                
+                // 转换输出格式
+                byte[] cipherBytes = Convert.FromBase64String(cipherTextBase64);
+                string cipherText = FormatConversionHelper.BytesToString(cipherBytes, outputFormat);
+                
                 textDESCipherText.Text = cipherText;
 
-                SetStatus($"DES加密完成 - 使用{comboDESMode.SelectedItem}模式，输出{comboDESCiphertextFormat.SelectedItem}格式");
+                SetStatus($"DES加密完成 - 使用{mode}模式，输出{comboDESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -145,18 +164,27 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行DES解密...");
 
-                // 使用CryptoUIHelper解析枚举
-                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                // 解析参数
+                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
-                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
 
-                string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                // 处理输入数据
+                string cipherTextForProvider = ConvertToProviderFormat(textDESCipherText.Text, ciphertextFormat);
+                string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
 
+                // 执行解密
                 var provider = new DESProvider();
-                string plainText = provider.Decrypt(textDESCipherText.Text, textDESKey.Text, desMode, desPadding, inputFormat, iv);
-                SetPlaintextFromFormat(plainText);
+                string plainText = provider.Decrypt(cipherTextForProvider, keyForProvider, desMode, desPadding, ivForProvider);
+                
+                // 设置解密结果
+                SetPlaintextFromFormat(plainText, plaintextFormat);
 
-                SetStatus($"DES解密完成 - 使用{comboDESMode.SelectedItem}模式，输入{comboDESCiphertextFormat.SelectedItem}格式");
+                SetStatus($"DES解密完成 - 使用{mode}模式，输入{comboDESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -199,7 +227,10 @@ namespace CryptoTool.Win
                 else if (currentFormat == "Base64") newFormat = "Hex";
                 else newFormat = "UTF8";
 
-                string convertedKey = ConvertKeyFormat(textDESKey.Text, currentFormat, newFormat);
+                UIInputFormat fromFormat = FormatConversionHelper.ParseInputFormat(currentFormat);
+                UIOutputFormat toFormat = FormatConversionHelper.ParseOutputFormat(newFormat);
+
+                string convertedKey = FormatConversionHelper.ConvertStringFormat(textDESKey.Text, fromFormat, toFormat);
                 textDESKey.Text = convertedKey;
                 comboDESKeyFormat.SelectedItem = newFormat;
 
@@ -230,7 +261,10 @@ namespace CryptoTool.Win
                 else if (currentFormat == "Base64") newFormat = "Hex";
                 else newFormat = "UTF8";
 
-                string convertedIV = ConvertIVFormat(textDESIV.Text, currentFormat, newFormat);
+                UIInputFormat fromFormat = FormatConversionHelper.ParseInputFormat(currentFormat);
+                UIOutputFormat toFormat = FormatConversionHelper.ParseOutputFormat(newFormat);
+
+                string convertedIV = FormatConversionHelper.ConvertStringFormat(textDESIV.Text, fromFormat, toFormat);
                 textDESIV.Text = convertedIV;
                 comboDESIVFormat.SelectedItem = newFormat;
 
@@ -283,14 +317,18 @@ namespace CryptoTool.Win
 
                         SetStatus("正在加密文件...");
 
-                        // 使用CryptoUIHelper解析枚举
-                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "0");
-                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "0");
+                        // 解析参数
+                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode ?? "");
+                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
-                        string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                        // 处理输入数据
+                        string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
+                        string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
 
                         var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
-                        desProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, desMode, desPadding, iv);
+                        desProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, desMode, desPadding, ivForProvider);
 
                         SetStatus($"文件加密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件加密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -343,14 +381,18 @@ namespace CryptoTool.Win
 
                         SetStatus("正在解密文件...");
 
-                        // 使用CryptoUIHelper解析枚举
-                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                        // 解析参数
+                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode ?? "");
                         CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
-                        string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                        // 处理输入数据
+                        string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
+                        string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
 
                         var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
-                        desProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, desMode, desPadding, iv);
+                        desProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, desMode, desPadding, ivForProvider);
 
                         SetStatus($"文件解密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件解密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -368,203 +410,70 @@ namespace CryptoTool.Win
 
         #region 辅助方法
 
-        private string GetPlaintextFromFormat()
+        /// <summary>
+        /// 根据格式获取明文内容
+        /// </summary>
+        private string GetPlaintextFromFormat(UIInputFormat format)
         {
-            string? plaintextFormat = comboDESPlaintextFormat.SelectedItem?.ToString();
             string plaintext = textDESPlainText.Text;
 
-            // 如果是Text格式，直接返回
-            if (plaintextFormat == "UTF8")
+            // 如果是UTF8格式，直接返回
+            if (format == UIInputFormat.UTF8)
                 return plaintext;
 
-            // 其他格式暂时直接返回，后续可以扩展格式转换功能
-            return plaintext;
-        }
-
-        /// <summary>
-        /// 转换密钥格式
-        /// </summary>
-        /// <param name="key">原始密钥</param>
-        /// <param name="fromFormat">源格式</param>
-        /// <param name="toFormat">目标格式</param>
-        /// <returns>转换后的密钥</returns>
-        private string ConvertKeyFormat(string key, string fromFormat, string toFormat)
-        {
-            if (string.IsNullOrEmpty(key) || fromFormat == toFormat)
-                return key;
-
+            // 其他格式需要先转换为字节数组再转换为UTF8字符串
             try
             {
-                // 先解码为字节数组
-                byte[] keyBytes = GetKeyBytesFromFormat(key, fromFormat);
-
-                // 再编码为目标格式
-                return EncodeKeyBytes(keyBytes, toFormat);
+                byte[] bytes = FormatConversionHelper.StringToBytes(plaintext, format);
+                return Encoding.UTF8.GetString(bytes);
             }
-            catch (Exception ex)
+            catch
             {
-                throw new InvalidOperationException($"密钥格式转换失败：{ex.Message}", ex);
+                // 如果转换失败，直接返回原文本
+                return plaintext;
             }
         }
 
         /// <summary>
-        /// 转换IV格式
+        /// 根据格式设置明文内容
         /// </summary>
-        /// <param name="iv">原始IV</param>
-        /// <param name="fromFormat">源格式</param>
-        /// <param name="toFormat">目标格式</param>
-        /// <returns>转换后的IV</returns>
-        private string ConvertIVFormat(string iv, string fromFormat, string toFormat)
+        private void SetPlaintextFromFormat(string decryptedText, UIOutputFormat format)
         {
-            if (string.IsNullOrEmpty(iv) || fromFormat == toFormat)
-                return iv;
-
-            try
-            {
-                // 先解码为字节数组
-                byte[] ivBytes = GetIVBytesFromFormat(iv, fromFormat);
-
-                // 再编码为目标格式
-                return EncodeIVBytes(ivBytes, toFormat);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"IV格式转换失败：{ex.Message}", ex);
-            }
-        }
-
-        /// <summary>
-        /// 从指定格式获取密钥字节数组
-        /// </summary>
-        private byte[] GetKeyBytesFromFormat(string key, string format)
-        {
-            switch (format)
-            {
-                case "Base64":
-                    return Convert.FromBase64String(key);
-                case "Hex":
-                    return ConvertFromHexString(key);
-                case "UTF8":
-                default:
-                    return Encoding.UTF8.GetBytes(key);
-            }
-        }
-
-        /// <summary>
-        /// 从指定格式获取IV字节数组
-        /// </summary>
-        private byte[] GetIVBytesFromFormat(string iv, string format)
-        {
-            switch (format)
-            {
-                case "Base64":
-                    return Convert.FromBase64String(iv);
-                case "Hex":
-                    return ConvertFromHexString(iv);
-                case "UTF8":
-                default:
-                    return Encoding.UTF8.GetBytes(iv);
-            }
-        }
-
-        /// <summary>
-        /// 将密钥字节数组编码为指定格式
-        /// </summary>
-        private string EncodeKeyBytes(byte[] keyBytes, string format)
-        {
-            switch (format)
-            {
-                case "Base64":
-                    return Convert.ToBase64String(keyBytes);
-                case "Hex":
-                    return ConvertToHexString(keyBytes);
-                case "UTF8":
-                default:
-                    return Encoding.UTF8.GetString(keyBytes);
-            }
-        }
-
-        /// <summary>
-        /// 将IV字节数组编码为指定格式
-        /// </summary>
-        private string EncodeIVBytes(byte[] ivBytes, string format)
-        {
-            switch (format)
-            {
-                case "Base64":
-                    return Convert.ToBase64String(ivBytes);
-                case "Hex":
-                    return ConvertToHexString(ivBytes);
-                case "UTF8":
-                default:
-                    return Encoding.UTF8.GetString(ivBytes);
-            }
-        }
-
-        /// <summary>
-        /// 将字节数组转换为16进制字符串
-        /// </summary>
-        private string ConvertToHexString(byte[] bytes)
-        {
-            return BitConverter.ToString(bytes).Replace("-", "").ToLower();
-        }
-
-        /// <summary>
-        /// 将16进制字符串转换为字节数组
-        /// </summary>
-        private byte[] ConvertFromHexString(string hexString)
-        {
-            if (string.IsNullOrEmpty(hexString))
-                throw new ArgumentException("16进制字符串不能为空", nameof(hexString));
-
-            if (hexString.Length % 2 != 0)
-                throw new ArgumentException("16进制字符串长度必须为偶数", nameof(hexString));
-
-            byte[] result = new byte[hexString.Length / 2];
-            for (int i = 0; i < result.Length; i++)
-            {
-                result[i] = Convert.ToByte(hexString.Substring(i * 2, 2), 16);
-            }
-
-            return result;
-        }
-
-        private void SetPlaintextFromFormat(string decryptedText)
-        {
-            string? plaintextFormat = comboDESPlaintextFormat.SelectedItem?.ToString();
-
-            // 根据格式设置显示内容
-            if (plaintextFormat == "UTF8")
+            if (format == UIOutputFormat.UTF8)
             {
                 textDESPlainText.Text = decryptedText;
-            }
-            else if (plaintextFormat == "Base64")
-            {
-                try
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
-                    textDESPlainText.Text = Convert.ToBase64String(bytes);
-                }
-                catch
-                {
-                    textDESPlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
-            }
-            else if (plaintextFormat == "Hex")
-            {
-                try
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
-                    textDESPlainText.Text = BitConverter.ToString(bytes).Replace("-", "");
-                }
-                catch
-                {
-                    textDESPlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
             }
             else
             {
-                textDESPlainText.Text = decryptedText;
+                try
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
+                    textDESPlainText.Text = FormatConversionHelper.BytesToString(bytes, format);
+                }
+                catch
+                {
+                    textDESPlainText.Text = decryptedText; // 如果转换失败，直接显示
+                }
+            }
+        }
+
+        /// <summary>
+        /// 将UI格式的数据转换为Provider需要的格式（UTF8字符串）
+        /// </summary>
+        private string ConvertToProviderFormat(string input, UIInputFormat format)
+        {
+            if (format == UIInputFormat.UTF8)
+                return input;
+
+            try
+            {
+                byte[] bytes = FormatConversionHelper.StringToBytes(input, format);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // 如果转换失败，直接返回原始输入
+                return input;
             }
         }
 

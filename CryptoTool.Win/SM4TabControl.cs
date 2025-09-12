@@ -1,6 +1,7 @@
 using CryptoTool.Common.Providers.GM;
 using CryptoTool.Common.Enums;
 using CryptoTool.Win.Helpers;
+using System.Text;
 
 namespace CryptoTool.Win
 {
@@ -43,13 +44,17 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4密钥...");
 
-                string formatText = comboSM4KeyFormat.SelectedItem?.ToString() ?? "";
-                OutputFormat format = CryptoUIHelper.ParseOutputFormat(formatText);
+                UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
 
                 var provider = new SM4Provider();
-                string key = provider.GenerateKey(KeySize.Key128, format);
+                string keyBase64 = provider.GenerateKey(KeySize.Key128);
+                
+                // 转换为用户指定的格式
+                byte[] keyBytes = Convert.FromBase64String(keyBase64);
+                string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
+                
                 textSM4Key.Text = key;
-                SetStatus($"SM4密钥生成完成 - {formatText}格式");
+                SetStatus($"SM4密钥生成完成 - {comboSM4KeyFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -64,13 +69,17 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4初始向量...");
 
-                string formatText = comboSM4IVFormat.SelectedItem?.ToString() ?? "";
-                OutputFormat format = CryptoUIHelper.ParseOutputFormat(formatText);
+                UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
 
                 var provider = new SM4Provider();
-                string iv = provider.GenerateIV(format);
+                string ivBase64 = provider.GenerateIV();
+                
+                // 转换为用户指定的格式
+                byte[] ivBytes = Convert.FromBase64String(ivBase64);
+                string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
+                
                 textSM4IV.Text = iv;
-                SetStatus($"SM4初始向量生成完成 - {formatText}格式");
+                SetStatus($"SM4初始向量生成完成 - {comboSM4IVFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -104,16 +113,27 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM4加密...");
 
-                // 使用CryptoUIHelper解析枚举
+                // 解析参数
                 CryptoMode cryptoMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode paddingMode = CryptoUIHelper.ParsePaddingMode(comboSM4Padding.SelectedItem?.ToString() ?? "");
-                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                string plaintext = GetPlaintextFromFormat();
-                string? iv = string.IsNullOrEmpty(textSM4IV.Text) ? null : textSM4IV.Text;
+                // 处理输入数据
+                string plaintext = GetPlaintextFromFormat(plaintextFormat);
+                string keyForProvider = ConvertToProviderFormat(textSM4Key.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textSM4IV.Text) ? null : ConvertToProviderFormat(textSM4IV.Text, ivFormat);
 
+                // 执行加密
                 var provider = new SM4Provider();
-                string cipherText = provider.Encrypt(plaintext, textSM4Key.Text, cryptoMode, paddingMode, outputFormat, iv);
+                string cipherTextBase64 = provider.Encrypt(plaintext, keyForProvider, cryptoMode, paddingMode, ivForProvider);
+                
+                // 转换输出格式
+                byte[] cipherBytes = Convert.FromBase64String(cipherTextBase64);
+                string cipherText = FormatConversionHelper.BytesToString(cipherBytes, outputFormat);
+                
                 textSM4CipherText.Text = cipherText;
 
                 SetStatus($"SM4加密完成 - 使用{mode}模式，输出{comboSM4CiphertextFormat.SelectedItem}格式");
@@ -150,16 +170,25 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM4解密...");
 
-                // 使用CryptoUIHelper解析枚举
+                // 解析参数
                 CryptoMode cryptoMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode paddingMode = CryptoUIHelper.ParsePaddingMode(comboSM4Padding.SelectedItem?.ToString() ?? "");
-                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
 
-                string? iv = string.IsNullOrEmpty(textSM4IV.Text) ? null : textSM4IV.Text;
+                // 处理输入数据
+                string cipherTextForProvider = ConvertToProviderFormat(textSM4CipherText.Text, ciphertextFormat);
+                string keyForProvider = ConvertToProviderFormat(textSM4Key.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textSM4IV.Text) ? null : ConvertToProviderFormat(textSM4IV.Text, ivFormat);
 
+                // 执行解密
                 var provider = new SM4Provider();
-                string plainText = provider.Decrypt(textSM4CipherText.Text, textSM4Key.Text, cryptoMode, paddingMode, inputFormat, iv);
-                SetPlaintextFromFormat(plainText);
+                string plainText = provider.Decrypt(cipherTextForProvider, keyForProvider, cryptoMode, paddingMode, ivForProvider);
+                
+                // 设置解密结果
+                SetPlaintextFromFormat(plainText, plaintextFormat);
 
                 SetStatus($"SM4解密完成 - 使用{mode}模式，输入{comboSM4CiphertextFormat.SelectedItem}格式");
             }
@@ -204,55 +233,70 @@ namespace CryptoTool.Win
 
         #region 辅助方法
 
-        private string GetPlaintextFromFormat()
+        /// <summary>
+        /// 根据格式获取明文内容
+        /// </summary>
+        private string GetPlaintextFromFormat(UIInputFormat format)
         {
-            string? plaintextFormat = comboSM4PlaintextFormat.SelectedItem?.ToString();
             string plaintext = textSM4PlainText.Text;
 
-            // 如果是Text格式，直接返回
-            if (plaintextFormat == "Text")
+            // 如果是UTF8格式，直接返回
+            if (format == UIInputFormat.UTF8)
                 return plaintext;
 
-            // 其他格式暂时直接返回，后续可以扩展格式转换功能
-            return plaintext;
+            // 其他格式需要先转换为字节数组再转换为UTF8字符串
+            try
+            {
+                byte[] bytes = FormatConversionHelper.StringToBytes(plaintext, format);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // 如果转换失败，直接返回原文本
+                return plaintext;
+            }
         }
 
-        private void SetPlaintextFromFormat(string decryptedText)
+        /// <summary>
+        /// 根据格式设置明文内容
+        /// </summary>
+        private void SetPlaintextFromFormat(string decryptedText, UIOutputFormat format)
         {
-            string? plaintextFormat = comboSM4PlaintextFormat.SelectedItem?.ToString();
-
-            // 根据格式设置显示内容
-            if (plaintextFormat == "Text")
+            if (format == UIOutputFormat.UTF8)
             {
                 textSM4PlainText.Text = decryptedText;
-            }
-            else if (plaintextFormat == "Base64")
-            {
-                try
-                {
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(decryptedText);
-                    textSM4PlainText.Text = Convert.ToBase64String(bytes);
-                }
-                catch
-                {
-                    textSM4PlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
-            }
-            else if (plaintextFormat == "Hex")
-            {
-                try
-                {
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(decryptedText);
-                    textSM4PlainText.Text = BitConverter.ToString(bytes).Replace("-", "");
-                }
-                catch
-                {
-                    textSM4PlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
             }
             else
             {
-                textSM4PlainText.Text = decryptedText;
+                try
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
+                    textSM4PlainText.Text = FormatConversionHelper.BytesToString(bytes, format);
+                }
+                catch
+                {
+                    textSM4PlainText.Text = decryptedText; // 如果转换失败，直接显示
+                }
+            }
+        }
+
+        /// <summary>
+        /// 将UI格式的数据转换为Provider需要的格式（UTF8字符串）
+        /// </summary>
+        private string ConvertToProviderFormat(string input, UIInputFormat format)
+        {
+            if (format == UIInputFormat.UTF8)
+                return input;
+
+            try
+            {
+                byte[] bytes = FormatConversionHelper.StringToBytes(input, format);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // 如果转换失败，直接返回原始输入
+                return input;
             }
         }
 

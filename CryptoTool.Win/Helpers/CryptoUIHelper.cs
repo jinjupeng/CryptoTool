@@ -1,16 +1,17 @@
 using CryptoTool.Common.Enums;
 using CryptoTool.Common.Providers;
 using CryptoTool.Common.Providers.GM;
+using CryptoTool.Win.Helpers;
 
 namespace CryptoTool.Win.Helpers
 {
     /// <summary>
-    /// UI操作的帮助类，统一枚举映射
+    /// UI辅助的帮助类，统一枚举映射
     /// </summary>
     public static class CryptoUIHelper
     {
         /// <summary>
-        /// 将UI字符串转换为CryptoMode
+        /// 从UI字符串转换为CryptoMode
         /// </summary>
         public static CryptoMode ParseCryptoMode(string modeText)
         {
@@ -25,7 +26,7 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为CryptoPaddingMode
+        /// 从UI字符串转换为CryptoPaddingMode
         /// </summary>
         public static CryptoPaddingMode ParsePaddingMode(string paddingText)
         {
@@ -40,35 +41,23 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为OutputFormat
+        /// 从UI字符串转换为UIOutputFormat
         /// </summary>
-        public static OutputFormat ParseOutputFormat(string formatText)
+        public static UIOutputFormat ParseOutputFormat(string formatText)
         {
-            return formatText switch
-            {
-                "Base64" => OutputFormat.Base64,
-                "Hex" => OutputFormat.Hex,
-                "UTF8" => OutputFormat.UTF8,
-                _ => OutputFormat.Base64
-            };
+            return FormatConversionHelper.ParseOutputFormat(formatText);
         }
 
         /// <summary>
-        /// 将UI字符串转换为InputFormat
+        /// 从UI字符串转换为UIInputFormat
         /// </summary>
-        public static InputFormat ParseInputFormat(string formatText)
+        public static UIInputFormat ParseInputFormat(string formatText)
         {
-            return formatText switch
-            {
-                "Base64" => InputFormat.Base64,
-                "Hex" => InputFormat.Hex,
-                "UTF8" => InputFormat.UTF8,
-                _ => InputFormat.Base64
-            };
+            return FormatConversionHelper.ParseInputFormat(formatText);
         }
 
         /// <summary>
-        /// 将UI字符串转换为KeySize
+        /// 从UI字符串转换为KeySize
         /// </summary>
         public static KeySize ParseKeySize(string keySizeText)
         {
@@ -83,7 +72,7 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为RSAKeyType
+        /// 从UI字符串转换为RSAKeyType
         /// </summary>
         public static RSAKeyType ParseRSAKeyType(int index)
         {
@@ -96,7 +85,7 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为KeyFormat
+        /// 从UI字符串转换为KeyFormat
         /// </summary>
         public static KeyFormat ParseKeyFormat(int index)
         {
@@ -110,7 +99,7 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为RSAPadding
+        /// 从UI字符串转换为RSAPadding
         /// </summary>
         public static RSAPadding ParseRSAPadding(string paddingText)
         {
@@ -124,7 +113,7 @@ namespace CryptoTool.Win.Helpers
         }
 
         /// <summary>
-        /// 将UI字符串转换为SignatureAlgorithm
+        /// 从UI字符串转换为SignatureAlgorithm
         /// </summary>
         public static SignatureAlgorithm ParseSignatureAlgorithm(int index)
         {

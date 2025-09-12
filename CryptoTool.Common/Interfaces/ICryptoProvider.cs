@@ -14,30 +14,28 @@ namespace CryptoTool.Common.Interfaces
         AlgorithmType AlgorithmType { get; }
 
         /// <summary>
-        /// 加密字符串
+        /// 加密字符串 - 基础版本，只处理核心加密逻辑
         /// </summary>
         /// <param name="plaintext">明文</param>
         /// <param name="key">密钥</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
-        /// <param name="outputFormat">输出格式</param>
         /// <param name="iv">初始化向量</param>
-        /// <returns>密文</returns>
+        /// <returns>密文字节数组的Base64编码</returns>
         string Encrypt(string plaintext, string key, CryptoMode mode = CryptoMode.CBC,
-            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null);
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null);
 
         /// <summary>
-        /// 解密字符串
+        /// 解密字符串 - 基础版本，只处理核心解密逻辑
         /// </summary>
-        /// <param name="ciphertext">密文</param>
+        /// <param name="ciphertext">密文（Base64编码）</param>
         /// <param name="key">密钥</param>
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
-        /// <param name="inputFormat">输入格式</param>
         /// <param name="iv">初始化向量</param>
         /// <returns>明文</returns>
         string Decrypt(string ciphertext, string key, CryptoMode mode = CryptoMode.CBC,
-            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null);
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null);
 
         /// <summary>
         /// 加密字节数组
@@ -114,27 +112,23 @@ namespace CryptoTool.Common.Interfaces
             CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null);
 
         /// <summary>
-        /// 生成密钥
+        /// 生成密钥 - 返回Base64格式
         /// </summary>
         /// <param name="keySize">密钥长度</param>
-        /// <param name="format">输出格式</param>
-        /// <returns>密钥字符串</returns>
-        string GenerateKey(KeySize keySize = KeySize.Key256, OutputFormat format = OutputFormat.Base64);
+        /// <returns>密钥字符串（Base64格式）</returns>
+        string GenerateKey(KeySize keySize = KeySize.Key256);
 
         /// <summary>
-        /// 生成初始化向量
+        /// 生成初始化向量 - 返回Base64格式
         /// </summary>
-        /// <param name="format">输出格式</param>
-        /// <returns>初始化向量字符串</returns>
-        string GenerateIV(OutputFormat format = OutputFormat.Base64);
+        /// <returns>初始化向量字符串（Base64格式）</returns>
+        string GenerateIV();
 
         /// <summary>
         /// 验证密钥有效性
         /// </summary>
         /// <param name="key">密钥</param>
-        /// <param name="format">密钥格式</param>
         /// <returns>是否有效</returns>
-        bool ValidateKey(string key, InputFormat format = InputFormat.UTF8);
+        bool ValidateKey(string key);
     }
-
 }

@@ -42,11 +42,17 @@ namespace CryptoTool.Win
 
                 string keySizeText = comboAESKeySize.SelectedItem?.ToString() ?? "";
                 KeySize keySize = CryptoUIHelper.ParseKeySize(keySizeText);
+                UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboAESKeyFormat.SelectedItem?.ToString() ?? "");
 
                 var aesProvider = new AESProvider();
-                string key = aesProvider.GenerateKey(keySize);
+                string keyBase64 = aesProvider.GenerateKey(keySize);
+                
+                // 转换为用户指定的格式
+                byte[] keyBytes = Convert.FromBase64String(keyBase64);
+                string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
+                
                 textAESKey.Text = key;
-                SetStatus($"AES密钥生成完成 - {keySizeText}位");
+                SetStatus($"AES密钥生成完成 - {keySizeText}位，{comboAESKeyFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -61,10 +67,17 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成AES初始向量...");
 
+                UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboAESIVFormat.SelectedItem?.ToString() ?? "");
+
                 var aesProvider = new AESProvider();
-                string iv = aesProvider.GenerateIV();
+                string ivBase64 = aesProvider.GenerateIV();
+                
+                // 转换为用户指定的格式
+                byte[] ivBytes = Convert.FromBase64String(ivBase64);
+                string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
+                
                 textAESIV.Text = iv;
-                SetStatus("AES初始向量生成完成");
+                SetStatus($"AES初始向量生成完成 - {comboAESIVFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -98,18 +111,30 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行AES加密...");
 
-                // 使用CryptoUIHelper解析枚举
-                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                // 解析参数
+                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
-                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboAESPlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboAESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboAESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                string plaintext = GetPlaintextFromFormat();
-                string? iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
+                // 处理输入数据
+                string plaintext = GetPlaintextFromFormat(plaintextFormat);
+                string keyForProvider = ConvertToProviderFormat(textAESKey.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textAESIV.Text) ? null : ConvertToProviderFormat(textAESIV.Text, ivFormat);
+
+                // 执行加密
                 var provider = CryptoFactory.CreateCryptoProvider(AlgorithmType.AES);
-                string cipherText = provider.Encrypt(plaintext, textAESKey.Text, aesMode, aesPadding, outputFormat, iv);
+                string cipherTextBase64 = provider.Encrypt(plaintext, keyForProvider, aesMode, aesPadding, ivForProvider);
+                
+                // 转换输出格式
+                byte[] cipherBytes = Convert.FromBase64String(cipherTextBase64);
+                string cipherText = FormatConversionHelper.BytesToString(cipherBytes, outputFormat);
+                
                 textAESCipherText.Text = cipherText;
 
-                SetStatus($"AES加密完成 - 使用{comboAESMode.SelectedItem}模式，输出{comboAESCiphertextFormat.SelectedItem}格式");
+                SetStatus($"AES加密完成 - 使用{mode}模式，输出{comboAESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -143,18 +168,27 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行AES解密...");
 
-                // 使用CryptoUIHelper解析枚举
-                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                // 解析参数
+                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(mode);
                 CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
-                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboAESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboAESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboAESPlaintextFormat.SelectedItem?.ToString() ?? "");
 
-                string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
+                // 处理输入数据
+                string cipherTextForProvider = ConvertToProviderFormat(textAESCipherText.Text, ciphertextFormat);
+                string keyForProvider = ConvertToProviderFormat(textAESKey.Text, keyFormat);
+                string ivForProvider = string.IsNullOrEmpty(textAESIV.Text) ? "" : ConvertToProviderFormat(textAESIV.Text, ivFormat);
 
+                // 执行解密
                 var provider = CryptoFactory.CreateCryptoProvider(AlgorithmType.AES);
-                string plainText = provider.Decrypt(textAESCipherText.Text, textAESKey.Text, aesMode, aesPadding, inputFormat, iv);
-                SetPlaintextFromFormat(plainText);
+                string plainText = provider.Decrypt(cipherTextForProvider, keyForProvider, aesMode, aesPadding, ivForProvider);
+                
+                // 设置解密结果
+                SetPlaintextFromFormat(plainText, plaintextFormat);
 
-                SetStatus($"AES解密完成 - 使用{comboAESMode.SelectedItem}模式，输入{comboAESCiphertextFormat.SelectedItem}格式");
+                SetStatus($"AES解密完成 - 使用{mode}模式，输入{comboAESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -218,14 +252,18 @@ namespace CryptoTool.Win
 
                         SetStatus("正在加密文件...");
 
-                        // 使用CryptoUIHelper解析枚举
-                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                        // 解析参数
+                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(mode);
                         CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboAESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboAESIVFormat.SelectedItem?.ToString() ?? "");
 
-                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
+                        // 处理输入数据
+                        string keyForProvider = ConvertToProviderFormat(textAESKey.Text, keyFormat);
+                        string ivForProvider = string.IsNullOrEmpty(textAESIV.Text) ? "" : ConvertToProviderFormat(textAESIV.Text, ivFormat);
 
                         var aesProvider = new AESProvider();
-                        aesProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
+                        aesProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, aesMode, aesPadding, ivForProvider);
 
                         SetStatus($"文件加密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件加密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -278,14 +316,18 @@ namespace CryptoTool.Win
 
                         SetStatus("正在解密文件...");
 
-                        // 使用CryptoUIHelper解析枚举
-                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                        // 解析参数
+                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(mode);
                         CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboAESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboAESIVFormat.SelectedItem?.ToString() ?? "");
 
-                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
+                        // 处理输入数据
+                        string keyForProvider = ConvertToProviderFormat(textAESKey.Text, keyFormat);
+                        string ivForProvider = string.IsNullOrEmpty(textAESIV.Text) ? "" : ConvertToProviderFormat(textAESIV.Text, ivFormat);
 
                         var aesProvider = new AESProvider();
-                        aesProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
+                        aesProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, aesMode, aesPadding, ivForProvider);
 
                         SetStatus($"文件解密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件解密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -303,55 +345,70 @@ namespace CryptoTool.Win
 
         #region 辅助方法
 
-        private string GetPlaintextFromFormat()
+        /// <summary>
+        /// 根据格式获取明文内容
+        /// </summary>
+        private string GetPlaintextFromFormat(UIInputFormat format)
         {
-            string plaintextFormat = comboAESPlaintextFormat.SelectedItem?.ToString() ?? "";
             string plaintext = textAESPlainText.Text;
 
-            // 如果是Text格式，直接返回
-            if (plaintextFormat == "Text")
+            // 如果是UTF8格式，直接返回
+            if (format == UIInputFormat.UTF8)
                 return plaintext;
 
-            // 其他格式暂时直接返回，后续可以扩展格式转换功能
-            return plaintext;
+            // 其他格式需要先转换为字节数组再转换为UTF8字符串
+            try
+            {
+                byte[] bytes = FormatConversionHelper.StringToBytes(plaintext, format);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // 如果转换失败，直接返回原文本
+                return plaintext;
+            }
         }
 
-        private void SetPlaintextFromFormat(string decryptedText)
+        /// <summary>
+        /// 根据格式设置明文内容
+        /// </summary>
+        private void SetPlaintextFromFormat(string decryptedText, UIOutputFormat format)
         {
-            string plaintextFormat = comboAESPlaintextFormat.SelectedItem?.ToString() ?? "";
-
-            // 根据格式设置显示内容
-            if (plaintextFormat == "Text")
+            if (format == UIOutputFormat.UTF8)
             {
                 textAESPlainText.Text = decryptedText;
-            }
-            else if (plaintextFormat == "Base64")
-            {
-                try
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
-                    textAESPlainText.Text = Convert.ToBase64String(bytes);
-                }
-                catch
-                {
-                    textAESPlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
-            }
-            else if (plaintextFormat == "Hex")
-            {
-                try
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
-                    textAESPlainText.Text = BitConverter.ToString(bytes).Replace("-", "");
-                }
-                catch
-                {
-                    textAESPlainText.Text = decryptedText; // 如果转换失败，直接显示
-                }
             }
             else
             {
-                textAESPlainText.Text = decryptedText;
+                try
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(decryptedText);
+                    textAESPlainText.Text = FormatConversionHelper.BytesToString(bytes, format);
+                }
+                catch
+                {
+                    textAESPlainText.Text = decryptedText; // 如果转换失败，直接显示
+                }
+            }
+        }
+
+        /// <summary>
+        /// 将UI格式的数据转换为Provider需要的格式（UTF8字符串）
+        /// </summary>
+        private string ConvertToProviderFormat(string input, UIInputFormat format)
+        {
+            if (format == UIInputFormat.UTF8)
+                return input;
+
+            try
+            {
+                byte[] bytes = FormatConversionHelper.StringToBytes(input, format);
+                return Encoding.UTF8.GetString(bytes);
+            }
+            catch
+            {
+                // 如果转换失败，直接返回原始输入
+                return input;
             }
         }
 

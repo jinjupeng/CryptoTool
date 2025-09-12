@@ -45,101 +45,6 @@ namespace CryptoTool.Common.Providers
 
         #endregion
 
-        #region 静态方法
-
-        /// <summary>
-        /// 生成AES密钥
-        /// </summary>
-        /// <param name="keySize">密钥长度</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>密钥字符串</returns>
-        public override string GenerateKey(KeySize keySize = Enums.KeySize.Key256, OutputFormat outputFormat = OutputFormat.Base64)
-        {
-            int actualKeySize = (int)keySize / 8;
-            byte[] keyBytes = CryptoCommonUtil.GenerateRandomBytes(actualKeySize);
-            return CryptoCommonUtil.BytesToString(keyBytes, outputFormat);
-        }
-
-        /// <summary>
-        /// 生成AES IV
-        /// </summary>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>IV字符串</returns>
-        public override string GenerateIV(OutputFormat outputFormat = OutputFormat.Base64)
-        {
-            byte[] ivBytes = CryptoCommonUtil.GenerateRandomBytes(16);
-            return CryptoCommonUtil.BytesToString(ivBytes, outputFormat);
-        }
-
-        /// <summary>
-        /// 加密文件
-        /// </summary>
-        /// <param name="inputFilePath">输入文件路径</param>
-        /// <param name="outputFilePath">输出文件路径</param>
-        /// <param name="key">密钥</param>
-        /// <param name="mode">加密模式</param>
-        /// <param name="padding">填充模式</param>
-        /// <param name="iv">初始化向量</param>
-        public override void EncryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, 32);
-            byte[] ivBytes = string.IsNullOrEmpty(iv) ? CryptoCommonUtil.GenerateRandomBytes(16) :
-                CryptoCommonUtil.ProcessIV(iv, 16);
-
-            using (var aes = Aes.Create())
-            {
-                aes.Key = keyBytes;
-                aes.Mode = ConvertCipherMode(mode);
-                aes.Padding = ConvertPaddingMode(padding);
-                if (mode != CryptoMode.ECB) aes.IV = ivBytes;
-
-                using (var inputStream = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read))
-                using (var outputStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write))
-                using (var encryptor = aes.CreateEncryptor())
-                using (var cryptoStream = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write))
-                {
-                    inputStream.CopyTo(cryptoStream);
-                    cryptoStream.FlushFinalBlock();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 解密文件
-        /// </summary>
-        /// <param name="inputFilePath">输入文件路径</param>
-        /// <param name="outputFilePath">输出文件路径</param>
-        /// <param name="key">密钥</param>
-        /// <param name="mode">加密模式</param>
-        /// <param name="padding">填充模式</param>
-        /// <param name="iv">初始化向量</param>
-        public override void DecryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
-        {
-            if (string.IsNullOrEmpty(iv))
-                throw new ArgumentException("解密时必须提供IV");
-
-            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, 32);
-            byte[] ivBytes = CryptoCommonUtil.ProcessIV(iv, 16);
-
-            using (var aes = Aes.Create())
-            {
-                aes.Key = keyBytes;
-                aes.Mode = ConvertCipherMode(mode);
-                aes.Padding = ConvertPaddingMode(padding);
-                if (mode != CryptoMode.ECB) aes.IV = ivBytes;
-
-                using (var inputStream = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read))
-                using (var outputStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write))
-                using (var decryptor = aes.CreateDecryptor())
-                using (var cryptoStream = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read))
-                {
-                    cryptoStream.CopyTo(outputStream);
-                }
-            }
-        }
-
-        #endregion
-
         #region 抽象方法实现
 
         /// <summary>
@@ -191,6 +96,132 @@ namespace CryptoTool.Common.Providers
                 CryptoPaddingMode.ISO10126 => PaddingMode.None,
                 CryptoPaddingMode.ANSIX923 => PaddingMode.None,
                 _ => PaddingMode.PKCS7
+            };
+        }
+
+        #endregion
+
+        #region 静态兼容方法 - 保持向后兼容
+
+        /// <summary>
+        /// AES加密（CBC模式，PKCS7填充）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <returns>Base64编码的密文</returns>
+        public static string EncryptByAES(string plainText, string key)
+        {
+            var provider = new AESProvider();
+            return provider.Encrypt(plainText, key, CryptoMode.CBC, CryptoPaddingMode.PKCS7);
+        }
+
+        /// <summary>
+        /// AES解密（CBC模式，PKCS7填充）
+        /// </summary>
+        /// <param name="cipherText">Base64编码的密文</param>
+        /// <param name="key">密钥</param>
+        /// <returns>明文</returns>
+        public static string DecryptByAES(string cipherText, string key)
+        {
+            var provider = new AESProvider();
+            return provider.Decrypt(cipherText, key, CryptoMode.CBC, CryptoPaddingMode.PKCS7);
+        }
+
+        /// <summary>
+        /// AES加密（指定模式和填充）
+        /// </summary>
+        /// <param name="plainText">明文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="mode">加密模式</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="iv">初始化向量</param>
+        /// <returns>Base64编码的密文</returns>
+        public static string EncryptByAES(string plainText, string key, string mode, string padding, string iv = null)
+        {
+            var provider = new AESProvider();
+            var cryptoMode = ParseMode(mode);
+            var paddingMode = ParsePadding(padding);
+            return provider.Encrypt(plainText, key, cryptoMode, paddingMode, iv);
+        }
+
+        /// <summary>
+        /// AES解密（指定模式和填充）
+        /// </summary>
+        /// <param name="cipherText">Base64编码的密文</param>
+        /// <param name="key">密钥</param>
+        /// <param name="mode">加密模式</param>
+        /// <param name="padding">填充模式</param>
+        /// <param name="iv">初始化向量</param>
+        /// <returns>明文</returns>
+        public static string DecryptByAES(string cipherText, string key, string mode, string padding, string iv = null)
+        {
+            var provider = new AESProvider();
+            var cryptoMode = ParseMode(mode);
+            var paddingMode = ParsePadding(padding);
+            return provider.Decrypt(cipherText, key, cryptoMode, paddingMode, iv);
+        }
+
+        /// <summary>
+        /// 生成AES密钥
+        /// </summary>
+        /// <param name="keySize">密钥长度</param>
+        /// <returns>Base64编码的密钥</returns>
+        public static string GenerateAESKey(int keySize = 256)
+        {
+            var provider = new AESProvider();
+            var keySizeEnum = keySize switch
+            {
+                128 => Enums.KeySize.Key128,
+                192 => Enums.KeySize.Key192,
+                256 => Enums.KeySize.Key256,
+                _ => Enums.KeySize.Key256
+            };
+            return provider.GenerateKey(keySizeEnum);
+        }
+
+        /// <summary>
+        /// 生成AES初始化向量
+        /// </summary>
+        /// <returns>Base64编码的IV</returns>
+        public static string GenerateAESIV()
+        {
+            var provider = new AESProvider();
+            return provider.GenerateIV();
+        }
+
+        #endregion
+
+        #region 私有辅助方法
+
+        /// <summary>
+        /// 解析加密模式
+        /// </summary>
+        private static CryptoMode ParseMode(string mode)
+        {
+            return mode?.ToUpperInvariant() switch
+            {
+                "ECB" => CryptoMode.ECB,
+                "CBC" => CryptoMode.CBC,
+                "CFB" => CryptoMode.CFB,
+                "OFB" => CryptoMode.OFB,
+                _ => CryptoMode.CBC
+            };
+        }
+
+        /// <summary>
+        /// 解析填充模式
+        /// </summary>
+        private static CryptoPaddingMode ParsePadding(string padding)
+        {
+            return padding?.ToUpperInvariant() switch
+            {
+                "PKCS7" => CryptoPaddingMode.PKCS7,
+                "PKCS5" => CryptoPaddingMode.PKCS5,
+                "ZEROS" => CryptoPaddingMode.Zeros,
+                "NONE" => CryptoPaddingMode.None,
+                "ISO10126" => CryptoPaddingMode.ISO10126,
+                "ANSIX923" => CryptoPaddingMode.ANSIX923,
+                _ => CryptoPaddingMode.PKCS7
             };
         }
 

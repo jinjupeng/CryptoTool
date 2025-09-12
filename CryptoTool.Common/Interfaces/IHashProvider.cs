@@ -15,53 +15,47 @@ namespace CryptoTool.Common.Interfaces
         AlgorithmType AlgorithmType { get; }
 
         /// <summary>
-        /// 计算哈希值
+        /// 计算哈希值 - 返回十六进制格式
         /// </summary>
         /// <param name="data">待计算数据</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        string ComputeHash(string data, OutputFormat outputFormat = OutputFormat.Hex);
+        /// <returns>哈希值（十六进制格式）</returns>
+        string ComputeHash(string data);
 
         /// <summary>
-        /// 计算字节数组哈希值
+        /// 计算字节数组哈希值 - 返回十六进制格式
         /// </summary>
         /// <param name="data">待计算数据</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        string ComputeHash(byte[] data, OutputFormat outputFormat = OutputFormat.Hex);
+        /// <returns>哈希值（十六进制格式）</returns>
+        byte[] ComputeHash(byte[] data);
 
         /// <summary>
-        /// 计算文件哈希值
+        /// 计算文件哈希值 - 返回十六进制格式
         /// </summary>
         /// <param name="filePath">文件路径</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        string ComputeFileHash(string filePath, OutputFormat outputFormat = OutputFormat.Hex);
+        /// <returns>哈希值（十六进制格式）</returns>
+        string ComputeFileHash(string filePath);
 
         /// <summary>
-        /// 计算流哈希值
+        /// 计算流哈希值 - 返回十六进制格式
         /// </summary>
         /// <param name="stream">流</param>
-        /// <param name="outputFormat">输出格式</param>
-        /// <returns>哈希值</returns>
-        string ComputeStreamHash(Stream stream, OutputFormat outputFormat = OutputFormat.Hex);
+        /// <returns>哈希值（十六进制格式）</returns>
+        string ComputeStreamHash(Stream stream);
 
         /// <summary>
         /// 验证哈希值
         /// </summary>
         /// <param name="data">原始数据</param>
-        /// <param name="expectedHash">期望的哈希值</param>
-        /// <param name="inputFormat">输入格式</param>
+        /// <param name="expectedHash">期望的哈希值（十六进制格式）</param>
         /// <returns>是否匹配</returns>
-        bool VerifyHash(string data, string expectedHash, InputFormat inputFormat = InputFormat.Hex);
+        bool VerifyHash(string data, string expectedHash);
 
         /// <summary>
         /// 验证字节数组哈希值
         /// </summary>
         /// <param name="data">原始数据</param>
-        /// <param name="expectedHash">期望的哈希值</param>
-        /// <param name="inputFormat">输入格式</param>
+        /// <param name="expectedHash">期望的哈希值（十六进制格式）</param>
         /// <returns>是否匹配</returns>
-        bool VerifyHash(byte[] data, string expectedHash, InputFormat inputFormat = InputFormat.Hex);
+        bool VerifyHash(byte[] data, string expectedHash);
     }
 }

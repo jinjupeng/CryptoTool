@@ -2,6 +2,7 @@ using CryptoTool.Common.Providers.GM;
 using CryptoTool.Common.Enums;
 using CryptoTool.Common.Utils;
 using System.Text;
+using CryptoTool.Win.Helpers;
 
 namespace CryptoTool.Win
 {
@@ -52,20 +53,13 @@ namespace CryptoTool.Win
                 SetStatus("正在计算SM3哈希...");
 
                 string inputData = textSM3Input.Text;
-                string dataFormat = comboSM3DataFormat.SelectedItem.ToString();
-                string outputFormat = comboSM3OutputFormat.SelectedItem.ToString();
+                string dataFormat = comboSM3DataFormat.SelectedItem?.ToString() ?? "";
+                string outputFormat = comboSM3OutputFormat.SelectedItem?.ToString() ?? "";
 
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
                 
                 var sm3Provider = new SM3Provider();
-                OutputFormat outputFormatEnum = outputFormat switch
-                {
-                    "Hex" => OutputFormat.Hex,
-                    "Base64" => OutputFormat.Base64,
-                    _ => OutputFormat.Hex
-                };
-                
-                string result = sm3Provider.ComputeHash(dataBytes, outputFormatEnum);
+                string result = sm3Provider.ComputeHashWithFormat(dataBytes, outputFormat);
 
                 textSM3Output.Text = result;
                 SetStatus($"SM3哈希计算完毕 - 输入格式：{dataFormat}，输出格式：{outputFormat}");
@@ -123,17 +117,10 @@ namespace CryptoTool.Win
 
                 SetStatus("正在计算文件SM3哈希...");
 
-                string outputFormat = comboSM3FileHashFormat.SelectedItem.ToString();
+                string outputFormat = comboSM3FileHashFormat.SelectedItem?.ToString() ?? "";
                 
                 var sm3Provider = new SM3Provider();
-                OutputFormat outputFormatEnum = outputFormat switch
-                {
-                    "Hex" => OutputFormat.Hex,
-                    "Base64" => OutputFormat.Base64,
-                    _ => OutputFormat.Hex
-                };
-
-                string result = sm3Provider.ComputeFileHash(textSM3FilePath.Text, outputFormatEnum);
+                string result = sm3Provider.ComputeHashWithFormat(textSM3FilePath.Text, outputFormat);
 
                 // 假设控件名称应该是textSM3FileHash而不是textSM3FileHashResult
                 if (FindControlByName("textSM3FileHash") != null)
@@ -179,20 +166,13 @@ namespace CryptoTool.Win
 
                 string data = textSM3VerifyData.Text;
                 string expectedHash = textSM3VerifyHash.Text;
-                string dataFormat = comboSM3VerifyDataFormat.SelectedItem.ToString();
-                string hashFormat = comboSM3VerifyHashFormat.SelectedItem.ToString();
+                string dataFormat = comboSM3VerifyDataFormat.SelectedItem?.ToString() ?? "";
+                string hashFormat = comboSM3VerifyHashFormat.SelectedItem?.ToString() ?? "";
 
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
                 
                 var sm3Provider = new SM3Provider();
-                InputFormat hashFormatEnum = hashFormat switch
-                {
-                    "Hex" => InputFormat.Hex,
-                    "Base64" => InputFormat.Base64,
-                    _ => InputFormat.Hex
-                };
-
-                bool isValid = sm3Provider.VerifyHash(dataBytes, expectedHash, hashFormatEnum);
+                bool isValid = sm3Provider.VerifyHashWithFormat(dataBytes, expectedHash, hashFormat);
 
                 labelSM3VerifyResult.Text = isValid ? "验证通过" : "验证失败";
                 labelSM3VerifyResult.ForeColor = isValid ? Color.Green : Color.Red;
@@ -232,21 +212,14 @@ namespace CryptoTool.Win
 
                 string data = textSM3HMACData.Text;
                 string key = textSM3HMACKey.Text;
-                string dataFormat = comboSM3HMACDataFormat.SelectedItem.ToString();
-                string outputFormat = comboSM3HMACOutputFormat.SelectedItem.ToString();
+                string dataFormat = comboSM3HMACDataFormat.SelectedItem?.ToString() ?? "";
+                string outputFormat = comboSM3HMACOutputFormat.SelectedItem?.ToString() ?? "";
 
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
                 byte[] keyBytes = Encoding.UTF8.GetBytes(key);
 
                 var sm3Provider = new SM3Provider();
-                OutputFormat outputFormatEnum = outputFormat switch
-                {
-                    "Hex" => OutputFormat.Hex,
-                    "Base64" => OutputFormat.Base64,
-                    _ => OutputFormat.Hex
-                };
-
-                string result = sm3Provider.ComputeHMac(dataBytes, keyBytes, outputFormatEnum);
+                string result = sm3Provider.ComputeHMac(dataBytes, keyBytes, outputFormat);
 
                 // 假设控件名称应该是textSM3HMAC而不是textSM3HMACResult
                 if (FindControlByName("textSM3HMAC") != null)
