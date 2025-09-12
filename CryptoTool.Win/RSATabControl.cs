@@ -1,6 +1,8 @@
-using CryptoTool.Common;
-using System.Text;
+using CryptoTool.Common.Providers;
+using CryptoTool.Common.Enums;
+using CryptoTool.Win.Helpers;
 using Org.BouncyCastle.Crypto.Parameters;
+using System.Text;
 
 namespace CryptoTool.Win
 {
@@ -40,16 +42,14 @@ namespace CryptoTool.Win
                 SetStatus("正在生成RSA密钥对...");
 
                 int keySize = int.Parse(comboRSAKeySize.SelectedItem.ToString());
-                string formatText = comboRSAKeyFormat.SelectedIndex.ToString();
-                string outputFormat = comboRSAKeyOutputFormat.SelectedIndex.ToString();
-                RSAUtil.RSAKeyType rsaKeyFormat = (RSAUtil.RSAKeyType)Enum.Parse(typeof(RSAUtil.RSAKeyType), formatText);
-                RSAUtil.RSAKeyFormat rsaOutputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), outputFormat);
+                RSAKeyType rsaKeyFormat = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
+                KeyFormat rsaOutputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
 
-                var keyPair = RSAUtil.GenerateKeyPair(keySize);
+                var keyPair = RSAProvider.GenerateKeyPair(keySize);
                 var publicKey = (RsaKeyParameters)keyPair.Public;
                 var privateKey = (RsaPrivateCrtKeyParameters)keyPair.Private;
-                string genPublicKey = RSAUtil.GeneratePublicKeyString(publicKey, rsaOutputFormat, rsaKeyFormat);
-                string genPrivateKey = RSAUtil.GeneratePrivateKeyString(privateKey, rsaOutputFormat, rsaKeyFormat);
+                string genPublicKey = RSAProvider.GeneratePublicKeyString(publicKey, rsaOutputFormat);
+                string genPrivateKey = RSAProvider.GeneratePrivateKeyString(privateKey, rsaOutputFormat);
 
                 textRSAPublicKey.Text = genPublicKey;
                 textRSAPrivateKey.Text = genPrivateKey;
@@ -69,65 +69,41 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Filter = "密钥文件 (*.txt;*.key;*.xml)|*.txt;*.key;*.xml|所有文件 (*.*)|*.*";
+                    openFileDialog.Filter = "密钥文件 (*.pem;*.key;*.txt)|*.pem;*.key;*.txt|所有文件 (*.*)|*.*";
                     openFileDialog.Title = "导入RSA密钥文件";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         string content = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
+                        string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-                        // 尝试解析文件内容
-                        if (content.Contains("<RSAKeyValue>") || content.Contains("-----BEGIN"))
+                        if (lines.Length >= 2)
                         {
-                            // 如果是XML格式或PEM格式，将公钥和私钥分别存储在一个文件中
-                            // 或者按特定格式分割
-                            string[] parts = content.Split(new string[] { "-----END", "</RSAKeyValue>" }, StringSplitOptions.RemoveEmptyEntries);
-
-                            if (parts.Length >= 2)
+                            textRSAPublicKey.Text = lines[0].Trim();
+                            textRSAPrivateKey.Text = lines[1].Trim();
+                        }
+                        else if (lines.Length == 1)
+                        {
+                            string keyContent = lines[0].Trim();
+                            if (keyContent.Contains("PRIVATE"))
                             {
-                                textRSAPublicKey.Text = parts[0].Trim() + (content.Contains("-----END") ? "-----END PUBLIC KEY-----" : "</RSAKeyValue>");
-                                textRSAPrivateKey.Text = parts[1].Trim();
+                                textRSAPrivateKey.Text = keyContent;
                             }
                             else
                             {
-                                // 如果只有一个密钥，判断是公钥还是私钥
-                                if (content.Contains("PRIVATE") || content.Contains("<D>"))
-                                {
-                                    textRSAPrivateKey.Text = content.Trim();
-                                }
-                                else
-                                {
-                                    textRSAPublicKey.Text = content.Trim();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // 简单格式：每行一个密钥
-                            string[] lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-
-                            if (lines.Length >= 2)
-                            {
-                                textRSAPublicKey.Text = lines[0].Trim();
-                                textRSAPrivateKey.Text = lines[1].Trim();
-                            }
-                            else if (lines.Length == 1)
-                            {
-                                // 如果只有一行，先清空然后设置
-                                textRSAPublicKey.Text = "";
-                                textRSAPrivateKey.Text = "";
-                                textRSAPublicKey.Text = lines[0].Trim();
+                                textRSAPublicKey.Text = keyContent;
                             }
                         }
 
-                        SetStatus("RSA密钥导入成功");
+                        SetStatus("RSA密钥文件导入完成");
+                        MessageBox.Show("RSA密钥文件导入完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导入RSA密钥失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("导入RSA密钥失败");
+                MessageBox.Show($"导入RSA密钥文件失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("导入RSA密钥文件失败");
             }
         }
 
@@ -137,42 +113,41 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textRSAPublicKey.Text) && string.IsNullOrEmpty(textRSAPrivateKey.Text))
                 {
-                    MessageBox.Show("请先生成或输入RSA密钥！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("没有可导出的密钥！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    saveFileDialog.Filter = "密钥文件 (*.txt)|*.txt|XML文件 (*.xml)|*.xml|所有文件 (*.*)|*.*";
+                    saveFileDialog.Filter = "密钥文件 (*.txt)|*.txt|所有文件 (*.*)|*.*";
                     saveFileDialog.Title = "导出RSA密钥文件";
-                    saveFileDialog.FileName = "rsa_keys.txt";
+                    saveFileDialog.FileName = "rsa_keypair.txt";
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         StringBuilder content = new StringBuilder();
-
                         if (!string.IsNullOrEmpty(textRSAPublicKey.Text))
                         {
-                            content.AppendLine("公钥：");
+                            content.AppendLine("# RSA公钥");
                             content.AppendLine(textRSAPublicKey.Text);
                             content.AppendLine();
                         }
-
                         if (!string.IsNullOrEmpty(textRSAPrivateKey.Text))
                         {
-                            content.AppendLine("私钥：");
+                            content.AppendLine("# RSA私钥");
                             content.AppendLine(textRSAPrivateKey.Text);
                         }
 
                         File.WriteAllText(saveFileDialog.FileName, content.ToString(), Encoding.UTF8);
-                        SetStatus("RSA密钥导出成功");
+                        SetStatus("RSA密钥文件导出完成");
+                        MessageBox.Show("RSA密钥文件导出完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出RSA密钥失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("导出RSA密钥失败");
+                MessageBox.Show($"导出RSA密钥文件失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("导出RSA密钥文件失败");
             }
         }
 
@@ -182,7 +157,7 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textRSAPlainText.Text))
                 {
-                    MessageBox.Show("请输入明文！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入要加密的明文！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -194,17 +169,17 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA加密...");
 
-                // 输入
-                RSAUtil.RSAKeyType rsaKeyType = (RSAUtil.RSAKeyType)Enum.Parse(typeof(RSAUtil.RSAKeyType), comboRSAKeyFormat.SelectedIndex.ToString());
-                RSAUtil.RSAPadding paddingFormat = (RSAUtil.RSAPadding)Enum.Parse(typeof(RSAUtil.RSAPadding), comboRSAKeyPadding.SelectedItem.ToString());
-                // 密文格式
-                RSAUtil.RSAKeyFormat outputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAEncryptOutputFormat.SelectedItem.ToString());
-                // 密钥格式
-                RSAUtil.RSAKeyFormat inputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAKeyOutputFormat.SelectedItem.ToString());
-                var cipherText = RSAUtil.Encrypt(textRSAPlainText.Text, textRSAPublicKey.Text, inputFormat, rsaKeyType, paddingFormat, outputFormat);
+                // 使用CryptoUIHelper解析枚举
+                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
+                RSAPadding paddingFormat = CryptoUIHelper.ParseRSAPadding(comboRSAKeyPadding.SelectedItem.ToString());
+                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboRSAEncryptOutputFormat.SelectedItem.ToString());
+                KeyFormat inputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
+
+                var publicKey = RSAProvider.ParsePublicKeyFromPem(textRSAPublicKey.Text);
+                string cipherText = RSAProvider.Encrypt(textRSAPlainText.Text, publicKey, paddingFormat, KeyFormat.Base64);
                 textRSACipherText.Text = cipherText;
 
-                SetStatus("RSA加密完成");
+                SetStatus($"RSA加密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输出{comboRSAEncryptOutputFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -219,7 +194,7 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textRSACipherText.Text))
                 {
-                    MessageBox.Show("请输入密文！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入要解密的密文！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -232,16 +207,18 @@ namespace CryptoTool.Win
                 SetStatus("正在进行RSA解密...");
 
                 string paddingText = comboRSAKeyPadding.SelectedItem.ToString();
-                RSAUtil.RSAKeyType rsaKeyType = (RSAUtil.RSAKeyType)Enum.Parse(typeof(RSAUtil.RSAKeyType), comboRSAKeyFormat.SelectedIndex.ToString());
-                RSAUtil.RSAPadding paddingFormat = (RSAUtil.RSAPadding)Enum.Parse(typeof(RSAUtil.RSAPadding), paddingText);
-                // 密文格式
-                RSAUtil.RSAKeyFormat outputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAEncryptOutputFormat.SelectedItem.ToString());
-                // 密钥格式
-                RSAUtil.RSAKeyFormat inputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAKeyOutputFormat.SelectedItem.ToString());
-                string plainText = RSAUtil.Decrypt(textRSACipherText.Text, textRSAPrivateKey.Text, inputFormat, rsaKeyType, paddingFormat, outputFormat);
+
+                // 使用CryptoUIHelper解析枚举
+                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
+                RSAPadding paddingFormat = CryptoUIHelper.ParseRSAPadding(paddingText);
+                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboRSAEncryptOutputFormat.SelectedItem.ToString());
+                KeyFormat keyInputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
+
+                var privateKey = RSAProvider.ParsePrivateKeyFromPem(textRSAPrivateKey.Text);
+                string plainText = RSAProvider.Decrypt(textRSACipherText.Text, privateKey, paddingFormat, KeyFormat.Base64);
                 textRSAPlainText.Text = plainText;
 
-                SetStatus("RSA解密完成");
+                SetStatus($"RSA解密完成 - 使用{paddingText}填充，输入{comboRSAEncryptOutputFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -256,7 +233,7 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textRSASignData.Text))
                 {
-                    MessageBox.Show("请输入要签名的原文数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入要签名的数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -268,20 +245,17 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA签名...");
 
-                string comboRSASignAlgmFormatText = comboRSASignAlgmFormat.SelectedItem.ToString();
-                RSAUtil.RSAKeyType rsaKeyType = (RSAUtil.RSAKeyType)Enum.Parse(typeof(RSAUtil.RSAKeyType), comboRSAKeyFormat.SelectedIndex.ToString());
+                // 使用CryptoUIHelper解析枚举
+                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
+                SignatureAlgorithm signAlgmFormat = CryptoUIHelper.ParseSignatureAlgorithm(comboRSASignAlgmFormat.SelectedIndex);
+                OutputFormat signOutputFormat = CryptoUIHelper.ParseOutputFormat(comboRSASignOutputFormat.SelectedItem.ToString());
+                KeyFormat inputFormat = CryptoUIHelper.ParseKeyFormat(comboRSAKeyOutputFormat.SelectedIndex);
 
-                // hash算法类型
-                RSAUtil.SignatureAlgorithm signAlgmFormat = (RSAUtil.SignatureAlgorithm)Enum.Parse(typeof(RSAUtil.SignatureAlgorithm), comboRSASignAlgmFormat.SelectedIndex.ToString());
-                // 签名结果类型
-                RSAUtil.RSAKeyFormat signOutputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSASignOutputFormat.SelectedItem.ToString());
-                // 密钥格式
-                RSAUtil.RSAKeyFormat inputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAKeyOutputFormat.SelectedItem.ToString());
-
-                string signature = RSAUtil.Sign(textRSASignData.Text, textRSAPrivateKey.Text, inputFormat, rsaKeyType, signAlgmFormat, signOutputFormat);
+                var privateKey = RSAProvider.ParsePrivateKeyFromPem(textRSAPrivateKey.Text);
+                string signature = RSAProvider.Sign(textRSASignData.Text, privateKey, signAlgmFormat, KeyFormat.Base64);
                 textRSASignature.Text = signature;
 
-                SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormatText}算法");
+                SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormat.SelectedItem}算法，输出{comboRSASignOutputFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -294,15 +268,39 @@ namespace CryptoTool.Win
         {
             try
             {
-                if (string.IsNullOrEmpty(textRSASignData.Text))
+                // 使用可能的控件名称
+                string verifyData = "";
+                string verifySignature = "";
+                
+                // 尝试查找不同的可能控件名称
+                var dataControl = FindControlByName("textRSAVerifyData") ?? FindControlByName("textRSASignData");
+                var signatureControl = FindControlByName("textRSAVerifySignature") ?? FindControlByName("textRSASignature");
+                
+                if (dataControl is TextBox dataTextBox)
+                    verifyData = dataTextBox.Text;
+                else
                 {
-                    MessageBox.Show("请输入原文数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("找不到验证数据输入控件！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                if (string.IsNullOrEmpty(textRSASignature.Text))
+                if (signatureControl is TextBox signatureTextBox)
+                    verifySignature = signatureTextBox.Text;
+                else
                 {
-                    MessageBox.Show("请输入签名数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("找不到签名输入控件！", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(verifyData))
+                {
+                    MessageBox.Show("请输入要验证的数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(verifySignature))
+                {
+                    MessageBox.Show("请输入要验证的签名！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -314,48 +312,69 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA验签...");
 
-                string comboRSASignAlgmFormatText = comboRSASignAlgmFormat.SelectedItem.ToString();
+                // 使用CryptoUIHelper解析枚举
+                RSAKeyType rsaKeyType = CryptoUIHelper.ParseRSAKeyType(comboRSAKeyFormat.SelectedIndex);
+                SignatureAlgorithm signAlgmFormat = CryptoUIHelper.ParseSignatureAlgorithm(comboRSASignAlgmFormat.SelectedIndex);
 
-                // 签名类型
-                RSAUtil.RSAKeyType rsaKeyType = (RSAUtil.RSAKeyType)Enum.Parse(typeof(RSAUtil.RSAKeyType), comboRSAKeyFormat.SelectedIndex.ToString());
+                var publicKey = RSAProvider.ParsePublicKeyFromPem(textRSAPublicKey.Text);
+                bool isValid = RSAProvider.Verify(verifyData, verifySignature, publicKey, signAlgmFormat, KeyFormat.Base64);
 
-                // hash算法类型
-                RSAUtil.SignatureAlgorithm signAlgmFormat = (RSAUtil.SignatureAlgorithm)Enum.Parse(typeof(RSAUtil.SignatureAlgorithm), comboRSASignAlgmFormat.SelectedIndex.ToString());
-                // 签名结果格式
-                RSAUtil.RSAKeyFormat inputFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSASignOutputFormat.SelectedItem.ToString());
-                // 公钥格式
-                RSAUtil.RSAKeyFormat publicKeyKeyFormat = (RSAUtil.RSAKeyFormat)Enum.Parse(typeof(RSAUtil.RSAKeyFormat), comboRSAKeyOutputFormat.SelectedItem.ToString());
+                labelRSAVerifyResult.Text = isValid ? "验证通过" : "验证失败";
+                labelRSAVerifyResult.ForeColor = isValid ? Color.Green : Color.Red;
 
-                bool verifyResult = RSAUtil.Verify(textRSASignData.Text, textRSASignature.Text, textRSAPublicKey.Text, publicKeyKeyFormat, rsaKeyType, signAlgmFormat, inputFormat);
-
-                labelRSAVerifyResult.Text = $"验签结果: {(verifyResult ? "验证成功" : "验证失败")}";
-                labelRSAVerifyResult.ForeColor = verifyResult ? Color.Green : Color.Red;
-
-                SetStatus($"RSA验签完成 - {(verifyResult ? "验证成功" : "验证失败")}");
+                SetStatus($"RSA验签完成 - 结果：{(isValid ? "通过" : "失败")}");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"RSA验签失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelRSAVerifyResult.Text = "验签结果: 验证异常";
+                labelRSAVerifyResult.Text = "验证异常";
                 labelRSAVerifyResult.ForeColor = Color.Red;
                 SetStatus("RSA验签失败");
             }
         }
 
+        #endregion
+
+        #region 辅助方法
+
+        /// <summary>
+        /// 通过名称查找控件
+        /// </summary>
+        private Control? FindControlByName(string name)
+        {
+            return FindControlByName(this, name);
+        }
+
+        /// <summary>
+        /// 递归查找控件
+        /// </summary>
+        private Control? FindControlByName(Control parent, string name)
+        {
+            if (parent.Name == name)
+                return parent;
+
+            foreach (Control child in parent.Controls)
+            {
+                var found = FindControlByName(child, name);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region 事件处理器
+
         private void ComboRSAEncryptOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
         {
-            label6.Text = $"密文({comboRSAEncryptOutputFormat.SelectedItem}):";
+            // 输出格式改变时的处理逻辑
         }
 
         private void ComboRSASignOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
         {
-            label8.Text = $"签名({comboRSASignOutputFormat.SelectedItem}):";
-        }
-
-        private void ComboRSAKeyOutputFormat_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            label3.Text = $"公钥({comboRSAKeyOutputFormat.SelectedItem}):";
-            label4.Text = $"私钥({comboRSAKeyOutputFormat.SelectedItem}):";
+            // 签名输出格式改变时的处理逻辑
         }
 
         #endregion

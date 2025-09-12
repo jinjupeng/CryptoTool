@@ -1,9 +1,7 @@
-using CryptoTool.Common;
-using System;
-using System.Drawing;
-using System.IO;
+using CryptoTool.Common.Providers;
+using CryptoTool.Common.Enums;
+using CryptoTool.Win.Helpers;
 using System.Text;
-using System.Windows.Forms;
 
 namespace CryptoTool.Win
 {
@@ -40,9 +38,11 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES密钥...");
 
-                string keyFormat = comboDESKeyFormat.SelectedItem.ToString();
-                DESUtil.InputFormat format = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), keyFormat);
-                string key = DESUtil.GenerateKey(format);
+                string keyFormat = comboDESKeyFormat.SelectedItem?.ToString() ?? "";
+                OutputFormat format = CryptoUIHelper.ParseOutputFormat(keyFormat);
+
+                var provider = new DESProvider();
+                string key = provider.GenerateKey(KeySize.Key64, format);
                 textDESKey.Text = key;
                 SetStatus($"DES密钥生成完成 - {keyFormat}格式");
             }
@@ -59,9 +59,11 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES初始向量...");
 
-                string ivFormat = comboDESIVFormat.SelectedItem.ToString();
-                DESUtil.InputFormat format = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), ivFormat);
-                string iv = DESUtil.GenerateIV(format);
+                string ivFormat = comboDESIVFormat.SelectedItem?.ToString() ?? "";
+                OutputFormat format = CryptoUIHelper.ParseOutputFormat(ivFormat);
+
+                var provider = new DESProvider();
+                string iv = provider.GenerateIV(format);
                 textDESIV.Text = iv;
                 SetStatus($"DES初始向量生成完成 - {ivFormat}格式");
             }
@@ -88,7 +90,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboDESMode.SelectedItem.ToString();
+                string mode = comboDESMode.SelectedItem?.ToString() ?? "";
                 if (mode != "ECB" && string.IsNullOrEmpty(textDESIV.Text))
                 {
                     MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -97,21 +99,19 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行DES加密...");
 
-                string modeText = comboDESMode.SelectedItem.ToString();
-                string paddingText = comboDESPadding.SelectedItem.ToString();
-                string outputFormatText = comboDESCiphertextFormat.SelectedItem.ToString();
-                DESUtil.DESMode desMode = (DESUtil.DESMode)Enum.Parse(typeof(DESUtil.DESMode), modeText);
-                DESUtil.DESPadding desPadding = (DESUtil.DESPadding)Enum.Parse(typeof(DESUtil.DESPadding), paddingText);
-                DESUtil.OutputFormat outputFormat = (DESUtil.OutputFormat)Enum.Parse(typeof(DESUtil.OutputFormat), outputFormatText);
-                DESUtil.InputFormat keyFormat = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), comboDESKeyFormat.SelectedItem.ToString());
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
+                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
                 string plaintext = GetPlaintextFromFormat();
-                string iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
 
-                string cipherText = DESUtil.EncryptByDES(plaintext, textDESKey.Text, keyFormat, desMode, desPadding, outputFormat, iv);
+                var provider = new DESProvider();
+                string cipherText = provider.Encrypt(plaintext, textDESKey.Text, desMode, desPadding, outputFormat, iv);
                 textDESCipherText.Text = cipherText;
 
-                SetStatus($"DES加密完成 - 使用{modeText}模式，输出{outputFormatText}格式");
+                SetStatus($"DES加密完成 - 使用{comboDESMode.SelectedItem}模式，输出{comboDESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboDESMode.SelectedItem.ToString();
+                string mode = comboDESMode.SelectedItem?.ToString() ?? "";
                 if (mode != "ECB" && string.IsNullOrEmpty(textDESIV.Text))
                 {
                     MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -145,20 +145,18 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行DES解密...");
 
-                string modeText = comboDESMode.SelectedItem.ToString();
-                string paddingText = comboDESPadding.SelectedItem.ToString();
-                string outputFormatText = comboDESCiphertextFormat.SelectedItem.ToString();
-                DESUtil.DESMode desMode = (DESUtil.DESMode)Enum.Parse(typeof(DESUtil.DESMode), modeText);
-                DESUtil.DESPadding desPadding = (DESUtil.DESPadding)Enum.Parse(typeof(DESUtil.DESPadding), paddingText);
-                DESUtil.OutputFormat inputFormat = (DESUtil.OutputFormat)Enum.Parse(typeof(DESUtil.OutputFormat), outputFormatText);
-                DESUtil.InputFormat keyFormat = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), comboDESKeyFormat.SelectedItem.ToString());
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
+                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                string iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
 
-                string plainText = DESUtil.DecryptByDES(textDESCipherText.Text, textDESKey.Text, keyFormat, desMode, desPadding, inputFormat, iv);
+                var provider = new DESProvider();
+                string plainText = provider.Decrypt(textDESCipherText.Text, textDESKey.Text, desMode, desPadding, inputFormat, iv);
                 SetPlaintextFromFormat(plainText);
 
-                SetStatus($"DES解密完成 - 使用{modeText}模式，输入{outputFormatText}格式");
+                SetStatus($"DES解密完成 - 使用{comboDESMode.SelectedItem}模式，输入{comboDESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -170,7 +168,7 @@ namespace CryptoTool.Win
         private void comboDESMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             // 当选择ECB模式时，禁用初始向量相关控件
-            bool needsIV = comboDESMode.SelectedItem.ToString() != "ECB";
+            bool needsIV = comboDESMode.SelectedItem?.ToString() != "ECB";
             textDESIV.Enabled = needsIV;
             btnGenerateDESIV.Enabled = needsIV;
             btnConvertDESIV.Enabled = needsIV;
@@ -195,7 +193,7 @@ namespace CryptoTool.Win
 
                 SetStatus("正在转换密钥格式...");
 
-                string currentFormat = comboDESKeyFormat.SelectedItem.ToString();
+                string? currentFormat = comboDESKeyFormat.SelectedItem?.ToString() ?? "";
                 string newFormat;
                 if (currentFormat == "UTF8") newFormat = "Base64";
                 else if (currentFormat == "Base64") newFormat = "Hex";
@@ -226,7 +224,7 @@ namespace CryptoTool.Win
 
                 SetStatus("正在转换IV格式...");
 
-                string currentFormat = comboDESIVFormat.SelectedItem.ToString();
+                string? currentFormat = comboDESIVFormat.SelectedItem?.ToString() ?? "";
                 string newFormat;
                 if (currentFormat == "UTF8") newFormat = "Base64";
                 else if (currentFormat == "Base64") newFormat = "Hex";
@@ -257,7 +255,7 @@ namespace CryptoTool.Win
                 {
                     openDialog.Title = "选择要加密的文件";
                     openDialog.Filter = "所有文件|*.*";
-                    
+
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
@@ -266,7 +264,7 @@ namespace CryptoTool.Win
                         saveDialog.Title = "保存加密文件";
                         saveDialog.Filter = "加密文件|*.enc|所有文件|*.*";
                         saveDialog.FileName = Path.GetFileNameWithoutExtension(openDialog.FileName) + ".enc";
-                        
+
                         if (saveDialog.ShowDialog() != DialogResult.OK)
                             return;
 
@@ -276,7 +274,7 @@ namespace CryptoTool.Win
                             return;
                         }
 
-                        string mode = comboDESMode.SelectedItem.ToString();
+                        string? mode = comboDESMode.SelectedItem?.ToString();
                         if (mode != "ECB" && string.IsNullOrEmpty(textDESIV.Text))
                         {
                             MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -285,15 +283,14 @@ namespace CryptoTool.Win
 
                         SetStatus("正在加密文件...");
 
-                        string modeText = comboDESMode.SelectedItem.ToString();
-                        string paddingText = comboDESPadding.SelectedItem.ToString();
-                        DESUtil.DESMode desMode = (DESUtil.DESMode)Enum.Parse(typeof(DESUtil.DESMode), modeText);
-                        DESUtil.DESPadding desPadding = (DESUtil.DESPadding)Enum.Parse(typeof(DESUtil.DESPadding), paddingText);
-                        DESUtil.InputFormat keyFormat = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), comboDESKeyFormat.SelectedItem.ToString());
+                        // 使用CryptoUIHelper解析枚举
+                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "0");
+                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "0");
 
-                        string iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                        string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
 
-                        DESUtil.EncryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, keyFormat, desMode, desPadding, iv);
+                        var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
+                        desProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, desMode, desPadding, iv);
 
                         SetStatus($"文件加密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件加密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -315,7 +312,7 @@ namespace CryptoTool.Win
                 {
                     openDialog.Title = "选择要解密的文件";
                     openDialog.Filter = "加密文件|*.enc|所有文件|*.*";
-                    
+
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
@@ -327,7 +324,7 @@ namespace CryptoTool.Win
                         if (originalName.EndsWith(".enc"))
                             originalName = originalName.Substring(0, originalName.Length - 4);
                         saveDialog.FileName = originalName;
-                        
+
                         if (saveDialog.ShowDialog() != DialogResult.OK)
                             return;
 
@@ -337,7 +334,7 @@ namespace CryptoTool.Win
                             return;
                         }
 
-                        string mode = comboDESMode.SelectedItem.ToString();
+                        string? mode = comboDESMode.SelectedItem?.ToString();
                         if (mode != "ECB" && string.IsNullOrEmpty(textDESIV.Text))
                         {
                             MessageBox.Show($"{mode}模式需要初始向量，请先输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -346,15 +343,14 @@ namespace CryptoTool.Win
 
                         SetStatus("正在解密文件...");
 
-                        string modeText = comboDESMode.SelectedItem.ToString();
-                        string paddingText = comboDESPadding.SelectedItem.ToString();
-                        DESUtil.DESMode desMode = (DESUtil.DESMode)Enum.Parse(typeof(DESUtil.DESMode), modeText);
-                        DESUtil.DESPadding desPadding = (DESUtil.DESPadding)Enum.Parse(typeof(DESUtil.DESPadding), paddingText);
-                        DESUtil.InputFormat keyFormat = (DESUtil.InputFormat)Enum.Parse(typeof(DESUtil.InputFormat), comboDESKeyFormat.SelectedItem.ToString());
+                        // 使用CryptoUIHelper解析枚举
+                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(comboDESMode.SelectedItem?.ToString() ?? "");
+                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
 
-                        string iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
+                        string? iv = string.IsNullOrEmpty(textDESIV.Text) ? null : textDESIV.Text;
 
-                        DESUtil.DecryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, keyFormat, desMode, desPadding, iv);
+                        var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
+                        desProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, textDESKey.Text, desMode, desPadding, iv);
 
                         SetStatus($"文件解密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件解密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -374,7 +370,7 @@ namespace CryptoTool.Win
 
         private string GetPlaintextFromFormat()
         {
-            string plaintextFormat = comboDESPlaintextFormat.SelectedItem.ToString();
+            string? plaintextFormat = comboDESPlaintextFormat.SelectedItem?.ToString();
             string plaintext = textDESPlainText.Text;
 
             // 如果是Text格式，直接返回
@@ -401,7 +397,7 @@ namespace CryptoTool.Win
             {
                 // 先解码为字节数组
                 byte[] keyBytes = GetKeyBytesFromFormat(key, fromFormat);
-                
+
                 // 再编码为目标格式
                 return EncodeKeyBytes(keyBytes, toFormat);
             }
@@ -427,7 +423,7 @@ namespace CryptoTool.Win
             {
                 // 先解码为字节数组
                 byte[] ivBytes = GetIVBytesFromFormat(iv, fromFormat);
-                
+
                 // 再编码为目标格式
                 return EncodeIVBytes(ivBytes, toFormat);
             }
@@ -535,7 +531,7 @@ namespace CryptoTool.Win
 
         private void SetPlaintextFromFormat(string decryptedText)
         {
-            string plaintextFormat = comboDESPlaintextFormat.SelectedItem.ToString();
+            string? plaintextFormat = comboDESPlaintextFormat.SelectedItem?.ToString();
 
             // 根据格式设置显示内容
             if (plaintextFormat == "UTF8")

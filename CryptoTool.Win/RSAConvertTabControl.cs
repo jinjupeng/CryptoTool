@@ -1,7 +1,9 @@
-using CryptoTool.Common;
 using System.Text;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto;
+using CryptoTool.Common.Providers;
+using CryptoTool.Common.Enums;
+using CryptoTool.Win.Helpers;
 
 namespace CryptoTool.Win
 {
@@ -12,10 +14,10 @@ namespace CryptoTool.Win
         // 存储导入的公钥和私钥用于验证
         private string _publicKeyForValidation = string.Empty;
         private string _privateKeyForValidation = string.Empty;
-        private RSAUtil.RSAKeyFormat _publicKeyFormatForValidation = RSAUtil.RSAKeyFormat.PEM;
-        private RSAUtil.RSAKeyType _publicKeyTypeForValidation = RSAUtil.RSAKeyType.PKCS1;
-        private RSAUtil.RSAKeyFormat _privateKeyFormatForValidation = RSAUtil.RSAKeyFormat.PEM;
-        private RSAUtil.RSAKeyType _privateKeyTypeForValidation = RSAUtil.RSAKeyType.PKCS1;
+        private KeyFormat _publicKeyFormatForValidation = KeyFormat.PEM;
+        private RSAKeyType _publicKeyTypeForValidation = RSAKeyType.PKCS1;
+        private KeyFormat _privateKeyFormatForValidation = KeyFormat.PEM;
+        private RSAKeyType _privateKeyTypeForValidation = RSAKeyType.PKCS1;
 
         public RSAConvertTabControl()
         {
@@ -25,15 +27,15 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // 初始化默认值
-            comboInputKeyType.SelectedIndex = 0; // PKCS1
+            // 设置默认选项
             comboInputFormat.SelectedIndex = 0; // PEM
+            comboInputKeyType.SelectedIndex = 1; // PKCS8
+            comboOutputFormat.SelectedIndex = 1; // Base64
             comboOutputKeyType.SelectedIndex = 1; // PKCS8
-            comboOutputFormat.SelectedIndex = 0; // PEM
-            radioPrivateKey.Checked = true; // 默认选择私钥
+            radioPrivateKey.Checked = true;
 
-            // 初始化验证结果标签
-            labelValidationResult.Text = "验证结果: 等待验证";
+            // 初始化验证结果
+            labelValidationResult.Text = "验证结果: 未验证";
             labelValidationResult.ForeColor = Color.Gray;
         }
 
@@ -44,61 +46,36 @@ namespace CryptoTool.Win
 
         #region 事件处理
 
-        private void btnImportFromFile_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                using (OpenFileDialog openFileDialog = new OpenFileDialog())
-                {
-                    openFileDialog.Filter = "密钥文件 (*.txt;*.key;*.pem;*.pub)|*.txt;*.key;*.pem;*.pub|所有文件 (*.*)|*.*";
-                    openFileDialog.Title = "导入RSA密钥文件";
-
-                    if (openFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        string content = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
-                        textInputKey.Text = content.Trim();
-                        
-                        // 根据文件内容自动判断密钥类型
-                        AutoDetectKeyType(content);
-                        
-                        SetStatus("密钥文件导入成功");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"导入密钥文件失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("导入密钥文件失败");
-            }
-        }
-
         private void btnValidateKeyPair_Click(object sender, EventArgs e)
         {
             try
             {
                 if (string.IsNullOrEmpty(_publicKeyForValidation) || string.IsNullOrEmpty(_privateKeyForValidation))
                 {
-                    MessageBox.Show("请先分别导入公钥和私钥进行验证！\n\n操作步骤：\n1. 导入私钥并点击「从私钥提取公钥」\n2. 或分别导入公钥和私钥文件", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("请先转换密钥或从私钥提取公钥！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("正在验证密钥对一致性...");
+                SetStatus("正在验证密钥对...");
 
-                bool isValid = RSAUtil.ValidateKeyPair(_publicKeyForValidation, _privateKeyForValidation, 
-                    _publicKeyFormatForValidation, _publicKeyTypeForValidation,
-                    _privateKeyFormatForValidation, _privateKeyTypeForValidation);
+                // 解析密钥
+                var publicKey = RSAProvider.ParsePublicKeyFromPem(_publicKeyForValidation);
+                var privateKey = RSAProvider.ParsePrivateKeyFromPem(_privateKeyForValidation);
 
-                labelValidationResult.Text = $"验证结果: {(isValid ? "密钥对匹配" : "密钥对不匹配")}";
+                // 使用加密解密测试来验证密钥对匹配性
+                bool isValid = ValidateKeyPairByEncryption(publicKey, privateKey);
+
+                labelValidationResult.Text = isValid ? "验证结果: 密钥对匹配" : "验证结果: 密钥对不匹配";
                 labelValidationResult.ForeColor = isValid ? Color.Green : Color.Red;
 
-                SetStatus($"密钥对验证完成 - {(isValid ? "匹配" : "不匹配")}");
+                SetStatus($"密钥对验证完成 - 结果：{(isValid ? "匹配" : "不匹配")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"密钥对验证失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"验证密钥对失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 labelValidationResult.Text = "验证结果: 验证异常";
                 labelValidationResult.ForeColor = Color.Red;
-                SetStatus("密钥对验证失败");
+                SetStatus("验证密钥对失败");
             }
         }
 
@@ -120,10 +97,10 @@ namespace CryptoTool.Win
 
                 SetStatus("正在从私钥提取公钥...");
 
-                var inputKeyType = (RSAUtil.RSAKeyType)comboInputKeyType.SelectedIndex;
-                var inputFormat = (RSAUtil.RSAKeyFormat)comboInputFormat.SelectedIndex;
-                var outputKeyType = (RSAUtil.RSAKeyType)comboOutputKeyType.SelectedIndex;
-                var outputFormat = (RSAUtil.RSAKeyFormat)comboOutputFormat.SelectedIndex;
+                var inputKeyType = CryptoUIHelper.ParseRSAKeyType(comboInputKeyType.SelectedIndex);
+                var inputFormat = CryptoUIHelper.ParseKeyFormat(comboInputFormat.SelectedIndex);
+                var outputKeyType = CryptoUIHelper.ParseRSAKeyType(comboOutputKeyType.SelectedIndex);
+                var outputFormat = CryptoUIHelper.ParseKeyFormat(comboOutputFormat.SelectedIndex);
 
                 // 尝试解析私钥，如果失败则使用智能检测
                 AsymmetricKeyParameter? keyParam = SafeParseKey(textInputKey.Text, true, inputFormat, inputKeyType);
@@ -155,7 +132,7 @@ namespace CryptoTool.Win
                 var publicKey = new RsaKeyParameters(false, privateKey.Modulus, privateKey.PublicExponent);
 
                 // 生成公钥字符串
-                string publicKeyString = RSAUtil.GeneratePublicKeyString(publicKey, outputFormat, outputKeyType);
+                string publicKeyString = RSAProvider.GeneratePublicKeyString(publicKey, outputFormat);
 
                 textOutputKey.Text = publicKeyString;
 
@@ -197,10 +174,10 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行格式转换...");
 
-                var inputKeyType = (RSAUtil.RSAKeyType)comboInputKeyType.SelectedIndex;
-                var inputFormat = (RSAUtil.RSAKeyFormat)comboInputFormat.SelectedIndex;
-                var outputKeyType = (RSAUtil.RSAKeyType)comboOutputKeyType.SelectedIndex;
-                var outputFormat = (RSAUtil.RSAKeyFormat)comboOutputFormat.SelectedIndex;
+                var inputKeyType = CryptoUIHelper.ParseRSAKeyType(comboInputKeyType.SelectedIndex);
+                var inputFormat = CryptoUIHelper.ParseKeyFormat(comboInputFormat.SelectedIndex);
+                var outputKeyType = CryptoUIHelper.ParseRSAKeyType(comboOutputKeyType.SelectedIndex);
+                var outputFormat = CryptoUIHelper.ParseKeyFormat(comboOutputFormat.SelectedIndex);
 
                 bool isPrivateKey = radioPrivateKey.Checked;
                 string convertedKey;
@@ -235,7 +212,7 @@ namespace CryptoTool.Win
                     // 确保是正确的私钥类型
                     if (keyParam is RsaPrivateCrtKeyParameters privateKey)
                     {
-                        convertedKey = RSAUtil.GeneratePrivateKeyString(privateKey, outputFormat, outputKeyType);
+                        convertedKey = RSAProvider.GeneratePrivateKeyString(privateKey, outputFormat);
                     }
                     else
                     {
@@ -271,7 +248,7 @@ namespace CryptoTool.Win
                     // 确保是正确的公钥类型
                     if (keyParam is RsaKeyParameters publicKey)
                     {
-                        convertedKey = RSAUtil.GeneratePublicKeyString(publicKey, outputFormat, outputKeyType);
+                        convertedKey = RSAProvider.GeneratePublicKeyString(publicKey, outputFormat);
                     }
                     else
                     {
@@ -299,17 +276,6 @@ namespace CryptoTool.Win
             }
         }
 
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            textInputKey.Clear();
-            textOutputKey.Clear();
-            labelValidationResult.Text = "验证结果: 等待验证";
-            labelValidationResult.ForeColor = Color.Gray;
-            _publicKeyForValidation = string.Empty;
-            _privateKeyForValidation = string.Empty;
-            SetStatus("已清空所有内容");
-        }
-
         private void btnSaveToFile_Click(object sender, EventArgs e)
         {
             try
@@ -322,14 +288,14 @@ namespace CryptoTool.Win
 
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
-                    var outputFormat = (RSAUtil.RSAKeyFormat)comboOutputFormat.SelectedIndex;
+                    var outputFormat = CryptoUIHelper.ParseKeyFormat(comboOutputFormat.SelectedIndex);
                     var keyType = radioPrivateKey.Checked ? "private" : "public";
                     
                     string extension = outputFormat switch
                     {
-                        RSAUtil.RSAKeyFormat.PEM => ".pem",
-                        RSAUtil.RSAKeyFormat.Base64 => ".txt",
-                        RSAUtil.RSAKeyFormat.Hex => ".txt",
+                        KeyFormat.PEM => ".pem",
+                        KeyFormat.Base64 => ".txt",
+                        KeyFormat.Hex => ".txt",
                         _ => ".txt"
                     };
 
@@ -352,41 +318,69 @@ namespace CryptoTool.Win
             }
         }
 
-        private void btnCopyToClipboard_Click(object sender, EventArgs e)
+        #endregion
+
+        #region 缺失的事件处理方法
+
+        private void btnImportFromFile_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrEmpty(textOutputKey.Text))
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    MessageBox.Show("没有可复制的内容！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                    openFileDialog.Filter = "密钥文件 (*.pem;*.key;*.txt)|*.pem;*.key;*.txt|所有文件 (*.*)|*.*";
+                    openFileDialog.Title = "导入RSA密钥文件";
 
-                Clipboard.SetText(textOutputKey.Text);
-                SetStatus("已复制到剪贴板");
-                MessageBox.Show("已复制到剪贴板！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string content = File.ReadAllText(openFileDialog.FileName, Encoding.UTF8);
+                        textInputKey.Text = content;
+                        SetStatus("密钥文件导入完成");
+                    }
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"复制到剪贴板失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("复制到剪贴板失败");
+                MessageBox.Show($"导入密钥文件失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("导入密钥文件失败");
             }
         }
 
         private void textInputKey_TextChanged(object sender, EventArgs e)
         {
-            // 当输入密钥内容改变时，自动检测密钥类型
-            if (!string.IsNullOrEmpty(textInputKey.Text))
+            // 清空验证结果
+            labelValidationResult.Text = "验证结果: 未验证";
+            labelValidationResult.ForeColor = Color.Gray;
+        }
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            textInputKey.Clear();
+            textOutputKey.Clear();
+            labelValidationResult.Text = "验证结果: 未验证";
+            labelValidationResult.ForeColor = Color.Gray;
+            SetStatus("已清空内容");
+        }
+
+        private void btnCopyToClipboard_Click(object sender, EventArgs e)
+        {
+            try
             {
-                AutoDetectKeyType(textInputKey.Text);
+                if (!string.IsNullOrEmpty(textOutputKey.Text))
+                {
+                    Clipboard.SetText(textOutputKey.Text);
+                    SetStatus("密钥已复制到剪贴板");
+                    MessageBox.Show("密钥已复制到剪贴板！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("没有可复制的内容！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                // 清空验证结果
-                labelValidationResult.Text = "验证结果: 等待验证";
-                labelValidationResult.ForeColor = Color.Gray;
-                _publicKeyForValidation = string.Empty;
-                _privateKeyForValidation = string.Empty;
+                MessageBox.Show($"复制失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("复制失败");
             }
         }
 
@@ -394,54 +388,39 @@ namespace CryptoTool.Win
 
         #region 辅助方法
 
-        private void AutoDetectKeyType(string keyContent)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(keyContent))
-                    return;
-
-                bool isPrivateKey = radioPrivateKey.Checked && !radioPublicKey.Checked;
-
-                // 使用智能检测来确定最佳的格式和类型组合
-                var (detectedFormat, detectedType) = SmartDetectKeyFormat(keyContent, isPrivateKey);
-
-                // 更新UI选择
-                comboInputFormat.SelectedIndex = (int)detectedFormat;
-                comboInputKeyType.SelectedIndex = (int)detectedType;
-
-                // 存储检测结果用于验证
-                if (isPrivateKey)
-                {
-                    _privateKeyForValidation = keyContent;
-                    _privateKeyFormatForValidation = detectedFormat;
-                    _privateKeyTypeForValidation = detectedType;
-                }
-                else
-                {
-                    _publicKeyForValidation = keyContent;
-                    _publicKeyFormatForValidation = detectedFormat;
-                    _publicKeyTypeForValidation = detectedType;
-                }
-
-                SetStatus($"密钥类型自动检测成功 - {detectedType}/{detectedFormat}");
-            }
-            catch
-            {
-                // 自动检测失败时保持默认值
-                SetStatus("无法自动检测密钥类型，请手动选择");
-            }
-        }
-
-        private static string GetFileFilter(RSAUtil.RSAKeyFormat format)
+        private static string GetFileFilter(KeyFormat format)
         {
             return format switch
             {
-                RSAUtil.RSAKeyFormat.PEM => "PEM文件 (*.pem)|*.pem|所有文件 (*.*)|*.*",
-                RSAUtil.RSAKeyFormat.Base64 => "文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*",
-                RSAUtil.RSAKeyFormat.Hex => "文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*",
+                KeyFormat.PEM => "PEM文件 (*.pem)|*.pem|所有文件 (*.*)|*.*",
+                KeyFormat.Base64 => "文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*",
+                KeyFormat.Hex => "文本文件 (*.txt)|*.txt|所有文件 (*.*)|*.*",
                 _ => "所有文件 (*.*)|*.*"
             };
+        }
+
+        /// <summary>
+        /// 通过加密解密测试验证密钥对匹配性
+        /// </summary>
+        private bool ValidateKeyPairByEncryption(RsaKeyParameters publicKey, RsaPrivateCrtKeyParameters privateKey)
+        {
+            try
+            {
+                // 使用测试数据
+                string testData = "RSA Key Pair Validation Test";
+                
+                // 加密
+                string encrypted = RSAProvider.Encrypt(testData, publicKey, RSAPadding.PKCS1, KeyFormat.Base64);
+                
+                // 解密
+                string decrypted = RSAProvider.Decrypt(encrypted, privateKey, RSAPadding.PKCS1, KeyFormat.Base64);
+                
+                return testData.Equals(decrypted);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
@@ -452,7 +431,7 @@ namespace CryptoTool.Win
         /// <param name="format">密钥格式</param>
         /// <param name="keyType">密钥类型</param>
         /// <returns>解析结果，失败时返回null</returns>
-        private static AsymmetricKeyParameter? SafeParseKey(string keyContent, bool isPrivateKey, RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType)
+        private static AsymmetricKeyParameter? SafeParseKey(string keyContent, bool isPrivateKey, KeyFormat format, RSAKeyType keyType)
         {
             // 首先尝试直接解析方法，避免通用ParseKey可能的类型问题
             var directResult = DirectParseKey(keyContent, isPrivateKey, format, keyType);
@@ -469,27 +448,24 @@ namespace CryptoTool.Win
                 }
             }
 
-            // 如果直接解析失败，尝试通用ParseKey方法
+            // 如果直接解析失败，尝试通过RSAProvider的方法
             try
             {
-                AsymmetricKeyParameter result = RSAUtil.ParseKey(keyContent, isPrivateKey, format, keyType);
-                
-                // 验证返回的密钥类型是否符合预期
                 if (isPrivateKey)
                 {
-                    // 对于私钥，确保返回的是RsaPrivateCrtKeyParameters类型
-                    if (result is RsaPrivateCrtKeyParameters)
+                    return format switch
                     {
-                        return result;
-                    }
+                        KeyFormat.PEM => RSAProvider.ParsePrivateKeyFromPem(keyContent),
+                        _ => null
+                    };
                 }
                 else
                 {
-                    // 对于公钥，确保返回的是RsaKeyParameters类型
-                    if (result is RsaKeyParameters rsaKey && !rsaKey.IsPrivate)
+                    return format switch
                     {
-                        return result;
-                    }
+                        KeyFormat.PEM => RSAProvider.ParsePublicKeyFromPem(keyContent),
+                        _ => null
+                    };
                 }
             }
             catch
@@ -506,17 +482,17 @@ namespace CryptoTool.Win
         /// <param name="keyContent">密钥内容</param>
         /// <param name="isPrivateKey">是否为私钥</param>
         /// <returns>检测到的格式和类型</returns>
-        private (RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType) SmartDetectKeyFormat(string keyContent, bool isPrivateKey)
+        private (KeyFormat format, RSAKeyType keyType) SmartDetectKeyFormat(string keyContent, bool isPrivateKey)
         {
             // 尝试所有可能的组合
             var combinations = new[]
             {
-                (RSAUtil.RSAKeyFormat.PEM, RSAUtil.RSAKeyType.PKCS8),
-                (RSAUtil.RSAKeyFormat.PEM, RSAUtil.RSAKeyType.PKCS1),
-                (RSAUtil.RSAKeyFormat.Base64, RSAUtil.RSAKeyType.PKCS8),
-                (RSAUtil.RSAKeyFormat.Base64, RSAUtil.RSAKeyType.PKCS1),
-                (RSAUtil.RSAKeyFormat.Hex, RSAUtil.RSAKeyType.PKCS8),
-                (RSAUtil.RSAKeyFormat.Hex, RSAUtil.RSAKeyType.PKCS1)
+                (KeyFormat.PEM, RSAKeyType.PKCS8),
+                (KeyFormat.PEM, RSAKeyType.PKCS1),
+                (KeyFormat.Base64, RSAKeyType.PKCS8),
+                (KeyFormat.Base64, RSAKeyType.PKCS1),
+                (KeyFormat.Hex, RSAKeyType.PKCS8),
+                (KeyFormat.Hex, RSAKeyType.PKCS1)
             };
 
             // 首先尝试直接解析方法
@@ -551,14 +527,14 @@ namespace CryptoTool.Win
         }
 
         /// <summary>
-        /// 尝试直接使用RSAUtil的专用方法解析密钥，避免通用ParseKey方法的类型问题
+        /// 尝试直接使用RSAProvider的专用方法解析密钥，避免通用ParseKey方法的类型问题
         /// </summary>
         /// <param name="keyContent">密钥内容</param>
         /// <param name="isPrivateKey">是否为私钥</param>
         /// <param name="format">密钥格式</param>
         /// <param name="keyType">密钥类型</param>
         /// <returns>解析后的密钥对象</returns>
-        private static AsymmetricKeyParameter? DirectParseKey(string keyContent, bool isPrivateKey, RSAUtil.RSAKeyFormat format, RSAUtil.RSAKeyType keyType)
+        private static AsymmetricKeyParameter? DirectParseKey(string keyContent, bool isPrivateKey, KeyFormat format, RSAKeyType keyType)
         {
             try
             {
@@ -566,9 +542,7 @@ namespace CryptoTool.Win
                 {
                     return format switch
                     {
-                        RSAUtil.RSAKeyFormat.PEM => RSAUtil.ParsePrivateKeyFromPem(keyContent),
-                        RSAUtil.RSAKeyFormat.Base64 => RSAUtil.ParsePrivateKeyFromBase64(keyContent, keyType),
-                        RSAUtil.RSAKeyFormat.Hex => RSAUtil.ParsePrivateKeyFromHex(keyContent, keyType),
+                        KeyFormat.PEM => RSAProvider.ParsePrivateKeyFromPem(keyContent),
                         _ => null
                     };
                 }
@@ -576,9 +550,7 @@ namespace CryptoTool.Win
                 {
                     return format switch
                     {
-                        RSAUtil.RSAKeyFormat.PEM => RSAUtil.ParsePublicKeyFromPem(keyContent),
-                        RSAUtil.RSAKeyFormat.Base64 => RSAUtil.ParsePublicKeyFromBase64(keyContent, keyType),
-                        RSAUtil.RSAKeyFormat.Hex => RSAUtil.ParsePublicKeyFromHex(keyContent, keyType),
+                        KeyFormat.PEM => RSAProvider.ParsePublicKeyFromPem(keyContent),
                         _ => null
                     };
                 }
@@ -588,6 +560,7 @@ namespace CryptoTool.Win
                 return null;
             }
         }
+
         #endregion
     }
 }

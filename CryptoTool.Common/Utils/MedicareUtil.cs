@@ -1,4 +1,4 @@
-﻿using CryptoTool.Common.GM;
+﻿using CryptoTool.Common.Providers.GM;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace CryptoTool.Common
+namespace CryptoTool.Common.Utils
 {
     /// <summary>
     /// 医保工具：按规范实现请求签名/验签与报文加解密（SM2/SM4）
@@ -66,7 +66,7 @@ namespace CryptoTool.Common
             string baseString = BuildSignatureBaseString(parameters, appSecret);
 
             // 使用SM2+SM3签名，默认ASN.1，工具返回Hex，需要转Base64
-            string hexAsn1 = SM2Util.SignSm3WithSm2(Encoding.UTF8.GetBytes(baseString), privateKey);
+            string hexAsn1 = SM2Provider.SignSm3WithSm2(Encoding.UTF8.GetBytes(baseString), privateKey);
             byte[] sigBytes = Hex.Decode(hexAsn1);
             return Convert.ToBase64String(sigBytes);
         }
@@ -88,7 +88,7 @@ namespace CryptoTool.Common
             string baseString = BuildSignatureBaseString(parameters, appSecret);
             byte[] sigBytes = Convert.FromBase64String(signDataBase64.Trim());
             string hexAsn1 = Hex.ToHexString(sigBytes).ToUpperInvariant();
-            return SM2Util.VerifySm3WithSm2(Encoding.UTF8.GetBytes(baseString), hexAsn1, publicKey);
+            return SM2Provider.VerifySm3WithSm2(Encoding.UTF8.GetBytes(baseString), hexAsn1, publicKey);
         }
 
         /// <summary>
@@ -112,9 +112,9 @@ namespace CryptoTool.Common
             string derived16 = GetSm4Key16(appId, appSecret);
 
             // 3) 使用派生密钥加密jStr，得到Base64，再转Hex大写
-            string base64 = SM4Util.EncryptEcb(jStr, derived16);
+            string base64 = SM4Provider.EncryptEcb(jStr, derived16);
             byte[] cipherBytes = Convert.FromBase64String(base64);
-            string encHex = SM4Util.BytesToHex(cipherBytes);
+            string encHex = SM4Provider.BytesToHex(cipherBytes);
             return encHex;
         }
 
@@ -133,9 +133,9 @@ namespace CryptoTool.Common
             if (string.IsNullOrEmpty(appSecret)) throw new ArgumentNullException(nameof(appSecret));
 
             string derived16 = GetSm4Key16(appId, appSecret);
-            byte[] cipherBytes = SM4Util.HexToBytes(encDataHex);
+            byte[] cipherBytes = SM4Provider.HexToBytes(encDataHex);
             string base64 = Convert.ToBase64String(cipherBytes);
-            string jStr = SM4Util.DecryptEcb(base64, derived16);
+            string jStr = SM4Provider.DecryptEcb(base64, derived16);
             return jStr;
         }
 
@@ -152,7 +152,7 @@ namespace CryptoTool.Common
         {
             if (value == null) return true;
             if (value is string s) return string.IsNullOrEmpty(s);
-            if (value is JValue jv) return jv.Type == JTokenType.Null || (jv.Type == JTokenType.String && string.IsNullOrEmpty(jv.Value?.ToString()));
+            if (value is JValue jv) return jv.Type == JTokenType.Null || jv.Type == JTokenType.String && string.IsNullOrEmpty(jv.Value?.ToString());
             return false;
         }
 
@@ -239,7 +239,10 @@ namespace CryptoTool.Common
             }
             byte[] appIdBytes16 = Encoding.UTF8.GetBytes(appId.Substring(0, 16));
             byte[] appSecretBytes = Encoding.UTF8.GetBytes(appSecret);
-            byte[] newEncryptedData = SM4Util.EncryptEcb(appSecretBytes, appIdBytes16);
+            string appSecretStr = Encoding.UTF8.GetString(appSecretBytes);
+            string appIdStr = Encoding.UTF8.GetString(appIdBytes16);
+            string encryptedStr = SM4Provider.EncryptEcb(appSecretStr, appIdStr);
+            byte[] newEncryptedData = Convert.FromBase64String(encryptedStr);
             string derived16 = Hex.ToHexString(newEncryptedData).ToUpper().Substring(0, 16);
             return derived16;
         }

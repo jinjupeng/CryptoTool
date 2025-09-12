@@ -1,6 +1,8 @@
-using CryptoTool.Common.GM;
-using System.Text;
+using CryptoTool.Common.Providers.GM;
+using CryptoTool.Common.Enums;
+using CryptoTool.Common.Utils;
 using Org.BouncyCastle.Crypto.Parameters;
+using System.Text;
 
 namespace CryptoTool.Win
 {
@@ -34,21 +36,21 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM2密钥对...");
 
-                var keyPair = SM2Util.GenerateKeyPair();
+                var keyPair = SM2Provider.GenerateKeyPair();
                 var publicKey = (ECPublicKeyParameters)keyPair.Public;
                 var privateKey = (ECPrivateKeyParameters)keyPair.Private;
 
-                string formatText = comboSM2KeyFormat.SelectedItem.ToString();
+                string? formatText = comboSM2KeyFormat.SelectedItem?.ToString();
 
                 if (formatText == "Base64")
                 {
-                    textSM2PublicKey.Text = SM2Util.PublicKeyToRawBase64(publicKey);
-                    textSM2PrivateKey.Text = SM2Util.PrivateKeyToRawBase64(privateKey);
+                    textSM2PublicKey.Text = SM2Provider.PublicKeyToRawBase64(publicKey);
+                    textSM2PrivateKey.Text = SM2Provider.PrivateKeyToRawBase64(privateKey);
                 }
                 else // Hex
                 {
-                    textSM2PublicKey.Text = SM2Util.PublicKeyToHex(publicKey);
-                    textSM2PrivateKey.Text = SM2Util.PrivateKeyToHex(privateKey);
+                    textSM2PublicKey.Text = SM2Provider.PublicKeyToHex(publicKey);
+                    textSM2PrivateKey.Text = SM2Provider.PrivateKeyToHex(privateKey);
                 }
 
                 SetStatus($"SM2密钥对生成完成 - {formatText}格式");
@@ -143,20 +145,23 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM2加密...");
 
-                string formatText = comboSM2KeyFormat.SelectedItem.ToString();
-                string cipherFormatText = comboSM2CipherFormat.SelectedItem.ToString();
+                string formatText = comboSM2KeyFormat.SelectedItem?.ToString() ?? "";
+                string cipherFormatText = comboSM2CipherFormat.SelectedItem?.ToString() ?? "";
 
-                SM2Util.SM2CipherFormat cipherFormat = (SM2Util.SM2CipherFormat)Enum.Parse(typeof(SM2Util.SM2CipherFormat), cipherFormatText);
+                SM2Provider.SM2CipherFormat cipherFormat = (SM2Provider.SM2CipherFormat)Enum.Parse(typeof(SM2Provider.SM2CipherFormat), cipherFormatText);
 
                 string cipherText;
                 if (formatText == "Base64")
                 {
-                    cipherText = SM2Util.Encrypt(textSM2PlainText.Text, textSM2PublicKey.Text, Encoding.UTF8, cipherFormat);
+                    var sm2Provider = new SM2Provider();
+                    cipherText = sm2Provider.Encrypt(textSM2PlainText.Text, textSM2PublicKey.Text, OutputFormat.Base64);
                 }
                 else // Hex
                 {
-                    var publicKey = SM2Util.ParsePublicKeyFromHex(textSM2PublicKey.Text);
-                    cipherText = SM2Util.Encrypt(textSM2PlainText.Text, publicKey, Encoding.UTF8, cipherFormat);
+                    var publicKey = SM2Provider.ParsePublicKeyFromHex(textSM2PublicKey.Text);
+                    var dataBytes = Encoding.UTF8.GetBytes(textSM2PlainText.Text);
+                    var cipherBytes = SM2Provider.Encrypt(dataBytes, publicKey, cipherFormat);
+                    cipherText = CryptoCommonUtil.BytesToString(cipherBytes, OutputFormat.Base64);
                 }
 
                 textSM2CipherText.Text = cipherText;
@@ -187,20 +192,23 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM2解密...");
 
-                string formatText = comboSM2KeyFormat.SelectedItem.ToString();
-                string cipherFormatText = comboSM2CipherFormat.SelectedItem.ToString();
+                string formatText = comboSM2KeyFormat.SelectedItem?.ToString() ?? "";
+                string cipherFormatText = comboSM2CipherFormat.SelectedItem?.ToString() ?? "";
 
-                SM2Util.SM2CipherFormat cipherFormat = (SM2Util.SM2CipherFormat)Enum.Parse(typeof(SM2Util.SM2CipherFormat), cipherFormatText);
+                SM2Provider.SM2CipherFormat cipherFormat = (SM2Provider.SM2CipherFormat)Enum.Parse(typeof(SM2Provider.SM2CipherFormat), cipherFormatText);
 
                 string plainText;
                 if (formatText == "Base64")
                 {
-                    plainText = SM2Util.DecryptToString(textSM2CipherText.Text, textSM2PrivateKey.Text, Encoding.UTF8, cipherFormat);
+                    var sm2Provider = new SM2Provider();
+                    plainText = sm2Provider.Decrypt(textSM2CipherText.Text, textSM2PrivateKey.Text, InputFormat.Base64);
                 }
                 else // Hex
                 {
-                    var privateKey = SM2Util.ParsePrivateKeyFromHex(textSM2PrivateKey.Text);
-                    plainText = SM2Util.DecryptToString(textSM2CipherText.Text, privateKey, Encoding.UTF8, cipherFormat);
+                    var privateKey = SM2Provider.ParsePrivateKeyFromHex(textSM2PrivateKey.Text);
+                    var cipherBytes = CryptoCommonUtil.StringToBytes(textSM2CipherText.Text, InputFormat.Base64);
+                    var plainBytes = SM2Provider.Decrypt(cipherBytes, privateKey, cipherFormat);
+                    plainText = Encoding.UTF8.GetString(plainBytes);
                 }
 
                 textSM2PlainText.Text = plainText;
@@ -231,20 +239,24 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM2签名...");
 
-                string formatText = comboSM2KeyFormat.SelectedItem.ToString();
-                string signFormatText = comboSM2SignFormat.SelectedItem.ToString();
+                string formatText = comboSM2KeyFormat.SelectedItem?.ToString() ?? "";
+                string signFormatText = comboSM2SignFormat.SelectedItem?.ToString() ?? "";
 
-                SM2Util.SM2SignatureFormat signFormat = (SM2Util.SM2SignatureFormat)Enum.Parse(typeof(SM2Util.SM2SignatureFormat), signFormatText);
+                SM2Provider.SM2SignatureFormat signFormat = (SM2Provider.SM2SignatureFormat)Enum.Parse(typeof(SM2Provider.SM2SignatureFormat), signFormatText);
 
                 string signature;
                 if (formatText == "Base64")
                 {
-                    signature = SM2Util.SignSm3WithSm2(textSM2SignData.Text, textSM2PrivateKey.Text, Encoding.UTF8, signFormat);
+                    // 使用接口方法进行签名
+                    var sm2Provider = new SM2Provider();
+                    signature = sm2Provider.Sign(textSM2SignData.Text, textSM2PrivateKey.Text, SignatureAlgorithm.SM3withSM2, OutputFormat.Base64);
                 }
                 else // Hex
                 {
-                    var privateKey = SM2Util.ParsePrivateKeyFromHex(textSM2PrivateKey.Text);
-                    signature = SM2Util.SignSm3WithSm2(textSM2SignData.Text, privateKey, Encoding.UTF8, signFormat);
+                    var privateKey = SM2Provider.ParsePrivateKeyFromHex(textSM2PrivateKey.Text);
+                    var dataBytes = Encoding.UTF8.GetBytes(textSM2SignData.Text);
+                    var signatureBytes = SM2Provider.Sign(dataBytes, privateKey, signFormat);
+                    signature = CryptoCommonUtil.BytesToString(signatureBytes, OutputFormat.Base64);
                 }
 
                 textSM2Signature.Text = signature;
@@ -281,20 +293,24 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM2验签...");
 
-                string formatText = comboSM2KeyFormat.SelectedItem.ToString();
-                string signFormatText = comboSM2SignFormat.SelectedItem.ToString();
+                string formatText = comboSM2KeyFormat.SelectedItem?.ToString() ?? "";
+                string signFormatText = comboSM2SignFormat.SelectedItem?.ToString() ?? "";
 
-                SM2Util.SM2SignatureFormat signFormat = (SM2Util.SM2SignatureFormat)Enum.Parse(typeof(SM2Util.SM2SignatureFormat), signFormatText);
+                SM2Provider.SM2SignatureFormat signFormat = (SM2Provider.SM2SignatureFormat)Enum.Parse(typeof(SM2Provider.SM2SignatureFormat), signFormatText);
 
                 bool verifyResult;
                 if (formatText == "Base64")
                 {
-                    verifyResult = SM2Util.VerifySm3WithSm2(textSM2SignData.Text, textSM2Signature.Text, textSM2PublicKey.Text, Encoding.UTF8, signFormat);
+                    // 使用接口方法进行验签
+                    var sm2Provider = new SM2Provider();
+                    verifyResult = sm2Provider.Verify(textSM2SignData.Text, textSM2Signature.Text, textSM2PublicKey.Text, SignatureAlgorithm.SM3withSM2, InputFormat.Base64);
                 }
                 else // Hex
                 {
-                    var publicKey = SM2Util.ParsePublicKeyFromHex(textSM2PublicKey.Text);
-                    verifyResult = SM2Util.VerifySm3WithSm2(textSM2SignData.Text, textSM2Signature.Text, publicKey, Encoding.UTF8, signFormat);
+                    var publicKey = SM2Provider.ParsePublicKeyFromHex(textSM2PublicKey.Text);
+                    var dataBytes = Encoding.UTF8.GetBytes(textSM2SignData.Text);
+                    var signatureBytes = CryptoCommonUtil.StringToBytes(textSM2Signature.Text, InputFormat.Base64);
+                    verifyResult = SM2Provider.Verify(dataBytes, signatureBytes, publicKey, signFormat);
                 }
 
                 labelSM2VerifyResult.Text = $"验签结果: {(verifyResult ? "验证成功" : "验证失败")}";

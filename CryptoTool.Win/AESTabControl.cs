@@ -1,7 +1,6 @@
-using CryptoTool.Common;
-using System;
-using System.Drawing;
-using System.IO;
+using CryptoTool.Common.Enums;
+using CryptoTool.Common.Providers;
+using CryptoTool.Win.Helpers;
 using System.Text;
 using System.Windows.Forms;
 
@@ -41,10 +40,11 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成AES密钥...");
 
-                string keySizeText = comboAESKeySize.SelectedItem.ToString();
-                AESUtil.AESKeySize keySize = (AESUtil.AESKeySize)Enum.Parse(typeof(AESUtil.AESKeySize), keySizeText);
+                string keySizeText = comboAESKeySize.SelectedItem?.ToString() ?? "";
+                KeySize keySize = CryptoUIHelper.ParseKeySize(keySizeText);
 
-                string key = AESUtil.GenerateKey(keySize);
+                var aesProvider = new AESProvider();
+                string key = aesProvider.GenerateKey(keySize);
                 textAESKey.Text = key;
                 SetStatus($"AES密钥生成完成 - {keySizeText}位");
             }
@@ -61,7 +61,8 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成AES初始向量...");
 
-                string iv = AESUtil.GenerateIV();
+                var aesProvider = new AESProvider();
+                string iv = aesProvider.GenerateIV();
                 textAESIV.Text = iv;
                 SetStatus("AES初始向量生成完成");
             }
@@ -88,7 +89,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboAESMode.SelectedItem.ToString();
+                string mode = comboAESMode.SelectedItem?.ToString() ?? "";
                 if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                 {
                     MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -97,21 +98,18 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行AES加密...");
 
-                string modeText = comboAESMode.SelectedItem.ToString();
-                string paddingText = comboAESPadding.SelectedItem.ToString();
-                string outputFormatText = comboAESCiphertextFormat.SelectedItem.ToString();
-
-                AESUtil.AESMode aesMode = (AESUtil.AESMode)Enum.Parse(typeof(AESUtil.AESMode), modeText);
-                AESUtil.AESPadding aesPadding = (AESUtil.AESPadding)Enum.Parse(typeof(AESUtil.AESPadding), paddingText);
-                AESUtil.OutputFormat outputFormat = (AESUtil.OutputFormat)Enum.Parse(typeof(AESUtil.OutputFormat), outputFormatText);
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
+                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
                 string plaintext = GetPlaintextFromFormat();
-                string iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
-
-                string cipherText = AESUtil.EncryptByAES(plaintext, textAESKey.Text, aesMode, aesPadding, outputFormat, iv);
+                string? iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
+                var provider = CryptoFactory.CreateCryptoProvider(AlgorithmType.AES);
+                string cipherText = provider.Encrypt(plaintext, textAESKey.Text, aesMode, aesPadding, outputFormat, iv);
                 textAESCipherText.Text = cipherText;
 
-                SetStatus($"AES加密完成 - 使用{modeText}模式，输出{outputFormatText}格式");
+                SetStatus($"AES加密完成 - 使用{comboAESMode.SelectedItem}模式，输出{comboAESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -136,7 +134,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboAESMode.SelectedItem.ToString();
+                string mode = comboAESMode.SelectedItem?.ToString() ?? "";
                 if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                 {
                     MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -145,20 +143,18 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行AES解密...");
 
-                string modeText = comboAESMode.SelectedItem.ToString();
-                string paddingText = comboAESPadding.SelectedItem.ToString();
-                string outputFormatText = comboAESCiphertextFormat.SelectedItem.ToString();
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
+                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboAESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                AESUtil.AESMode aesMode = (AESUtil.AESMode)Enum.Parse(typeof(AESUtil.AESMode), modeText);
-                AESUtil.AESPadding aesPadding = (AESUtil.AESPadding)Enum.Parse(typeof(AESUtil.AESPadding), paddingText);
-                AESUtil.OutputFormat inputFormat = (AESUtil.OutputFormat)Enum.Parse(typeof(AESUtil.OutputFormat), outputFormatText);
+                string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
 
-                string iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
-
-                string plainText = AESUtil.DecryptByAES(textAESCipherText.Text, textAESKey.Text, aesMode, aesPadding, inputFormat, iv);
+                var provider = CryptoFactory.CreateCryptoProvider(AlgorithmType.AES);
+                string plainText = provider.Decrypt(textAESCipherText.Text, textAESKey.Text, aesMode, aesPadding, inputFormat, iv);
                 SetPlaintextFromFormat(plainText);
 
-                SetStatus($"AES解密完成 - 使用{modeText}模式，输入{outputFormatText}格式");
+                SetStatus($"AES解密完成 - 使用{comboAESMode.SelectedItem}模式，输入{comboAESCiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -170,7 +166,7 @@ namespace CryptoTool.Win
         private void comboAESMode_SelectedIndexChanged(object sender, EventArgs e)
         {
             // 当选择ECB模式时，禁用初始向量相关控件
-            bool needsIV = comboAESMode.SelectedItem.ToString() != "ECB";
+            bool needsIV = comboAESMode.SelectedItem?.ToString() != "ECB";
             textAESIV.Enabled = needsIV;
             btnGenerateAESIV.Enabled = needsIV;
             comboAESIVFormat.Enabled = needsIV;
@@ -194,7 +190,7 @@ namespace CryptoTool.Win
                 {
                     openDialog.Title = "选择要加密的文件";
                     openDialog.Filter = "所有文件|*.*";
-                    
+
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
@@ -203,7 +199,7 @@ namespace CryptoTool.Win
                         saveDialog.Title = "保存加密文件";
                         saveDialog.Filter = "加密文件|*.enc|所有文件|*.*";
                         saveDialog.FileName = Path.GetFileNameWithoutExtension(openDialog.FileName) + ".enc";
-                        
+
                         if (saveDialog.ShowDialog() != DialogResult.OK)
                             return;
 
@@ -213,7 +209,7 @@ namespace CryptoTool.Win
                             return;
                         }
 
-                        string mode = comboAESMode.SelectedItem.ToString();
+                        string mode = comboAESMode.SelectedItem?.ToString() ?? "";
                         if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                         {
                             MessageBox.Show($"{mode}模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -222,15 +218,14 @@ namespace CryptoTool.Win
 
                         SetStatus("正在加密文件...");
 
-                        string modeText = comboAESMode.SelectedItem.ToString();
-                        string paddingText = comboAESPadding.SelectedItem.ToString();
+                        // 使用CryptoUIHelper解析枚举
+                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                        CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
 
-                        AESUtil.AESMode aesMode = (AESUtil.AESMode)Enum.Parse(typeof(AESUtil.AESMode), modeText);
-                        AESUtil.AESPadding aesPadding = (AESUtil.AESPadding)Enum.Parse(typeof(AESUtil.AESPadding), paddingText);
+                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
 
-                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
-
-                        AESUtil.EncryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
+                        var aesProvider = new AESProvider();
+                        aesProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
 
                         SetStatus($"文件加密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件加密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -252,7 +247,7 @@ namespace CryptoTool.Win
                 {
                     openDialog.Title = "选择要解密的文件";
                     openDialog.Filter = "加密文件|*.enc|所有文件|*.*";
-                    
+
                     if (openDialog.ShowDialog() != DialogResult.OK)
                         return;
 
@@ -264,7 +259,7 @@ namespace CryptoTool.Win
                         if (originalName.EndsWith(".enc"))
                             originalName = originalName.Substring(0, originalName.Length - 4);
                         saveDialog.FileName = originalName;
-                        
+
                         if (saveDialog.ShowDialog() != DialogResult.OK)
                             return;
 
@@ -274,7 +269,7 @@ namespace CryptoTool.Win
                             return;
                         }
 
-                        string mode = comboAESMode.SelectedItem.ToString();
+                        string mode = comboAESMode.SelectedItem?.ToString() ?? "";
                         if (mode != "ECB" && string.IsNullOrEmpty(textAESIV.Text))
                         {
                             MessageBox.Show($"{mode}模式需要初始向量，请先输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -283,15 +278,14 @@ namespace CryptoTool.Win
 
                         SetStatus("正在解密文件...");
 
-                        string modeText = comboAESMode.SelectedItem.ToString();
-                        string paddingText = comboAESPadding.SelectedItem.ToString();
+                        // 使用CryptoUIHelper解析枚举
+                        CryptoMode aesMode = CryptoUIHelper.ParseCryptoMode(comboAESMode.SelectedItem?.ToString() ?? "");
+                        CryptoPaddingMode aesPadding = CryptoUIHelper.ParsePaddingMode(comboAESPadding.SelectedItem?.ToString() ?? "");
 
-                        AESUtil.AESMode aesMode = (AESUtil.AESMode)Enum.Parse(typeof(AESUtil.AESMode), modeText);
-                        AESUtil.AESPadding aesPadding = (AESUtil.AESPadding)Enum.Parse(typeof(AESUtil.AESPadding), paddingText);
+                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? "" : textAESIV.Text;
 
-                        string iv = string.IsNullOrEmpty(textAESIV.Text) ? null : textAESIV.Text;
-
-                        AESUtil.DecryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
+                        var aesProvider = new AESProvider();
+                        aesProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, textAESKey.Text, aesMode, aesPadding, iv);
 
                         SetStatus($"文件解密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件解密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -311,7 +305,7 @@ namespace CryptoTool.Win
 
         private string GetPlaintextFromFormat()
         {
-            string plaintextFormat = comboAESPlaintextFormat.SelectedItem.ToString();
+            string plaintextFormat = comboAESPlaintextFormat.SelectedItem?.ToString() ?? "";
             string plaintext = textAESPlainText.Text;
 
             // 如果是Text格式，直接返回
@@ -324,7 +318,7 @@ namespace CryptoTool.Win
 
         private void SetPlaintextFromFormat(string decryptedText)
         {
-            string plaintextFormat = comboAESPlaintextFormat.SelectedItem.ToString();
+            string plaintextFormat = comboAESPlaintextFormat.SelectedItem?.ToString() ?? "";
 
             // 根据格式设置显示内容
             if (plaintextFormat == "Text")

@@ -1,10 +1,11 @@
+﻿using CryptoTool.Common.Enums;
 using System.IO;
-using CryptoTool.Common.Enums;
 
 namespace CryptoTool.Common.Interfaces
 {
+
     /// <summary>
-    /// 哈希算法提供者接口
+    /// 哈希提供者接口
     /// </summary>
     public interface IHashProvider
     {
@@ -14,7 +15,7 @@ namespace CryptoTool.Common.Interfaces
         AlgorithmType AlgorithmType { get; }
 
         /// <summary>
-        /// 计算字符串哈希值
+        /// 计算哈希值
         /// </summary>
         /// <param name="data">待计算数据</param>
         /// <param name="outputFormat">输出格式</param>
@@ -46,7 +47,7 @@ namespace CryptoTool.Common.Interfaces
         string ComputeStreamHash(Stream stream, OutputFormat outputFormat = OutputFormat.Hex);
 
         /// <summary>
-        /// 验证字符串哈希值
+        /// 验证哈希值
         /// </summary>
         /// <param name="data">原始数据</param>
         /// <param name="expectedHash">期望的哈希值</param>

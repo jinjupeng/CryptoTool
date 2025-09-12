@@ -1,18 +1,18 @@
-﻿using System;
+﻿using CryptoTool.Common.Enums;
+using CryptoTool.Common.Interfaces;
+using CryptoTool.Common.Utils;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using CryptoTool.Common.Enums;
-using CryptoTool.Common.Interfaces;
-using CryptoTool.Common.Common;
 
-namespace CryptoTool.Common
+namespace CryptoTool.Common.Providers
 {
     /// <summary>
     /// MD5加密和哈希计算工具类
     /// 提供字符串、文件、流的MD5哈希计算功能
     /// </summary>
-    public class MD5Util : IHashProvider
+    public class MD5Provider : IHashProvider
     {
         #region IHashProvider 实现
 
@@ -50,7 +50,7 @@ namespace CryptoTool.Common
             using (var md5 = MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(data);
-                return CryptoCommon.BytesToString(hashBytes, outputFormat);
+                return CryptoCommonUtil.BytesToString(hashBytes, outputFormat);
             }
         }
 
@@ -72,7 +72,7 @@ namespace CryptoTool.Common
             using (var fileStream = File.OpenRead(filePath))
             {
                 byte[] hashBytes = md5.ComputeHash(fileStream);
-                return CryptoCommon.BytesToString(hashBytes, outputFormat);
+                return CryptoCommonUtil.BytesToString(hashBytes, outputFormat);
             }
         }
 
@@ -90,7 +90,7 @@ namespace CryptoTool.Common
             using (var md5 = MD5.Create())
             {
                 byte[] hashBytes = md5.ComputeHash(stream);
-                return CryptoCommon.BytesToString(hashBytes, outputFormat);
+                return CryptoCommonUtil.BytesToString(hashBytes, outputFormat);
             }
         }
 

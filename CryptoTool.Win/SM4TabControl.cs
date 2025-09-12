@@ -1,5 +1,6 @@
-using CryptoTool.Common.GM;
-using System.Text;
+using CryptoTool.Common.Providers.GM;
+using CryptoTool.Common.Enums;
+using CryptoTool.Win.Helpers;
 
 namespace CryptoTool.Win
 {
@@ -42,10 +43,11 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4密钥...");
 
-                string formatText = comboSM4KeyFormat.SelectedItem.ToString();
-                SM4Util.FormatType format = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), formatText);
+                string formatText = comboSM4KeyFormat.SelectedItem?.ToString() ?? "";
+                OutputFormat format = CryptoUIHelper.ParseOutputFormat(formatText);
 
-                string key = SM4Util.GenerateKey(format);
+                var provider = new SM4Provider();
+                string key = provider.GenerateKey(KeySize.Key128, format);
                 textSM4Key.Text = key;
                 SetStatus($"SM4密钥生成完成 - {formatText}格式");
             }
@@ -62,10 +64,11 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4初始向量...");
 
-                string formatText = comboSM4IVFormat.SelectedItem.ToString();
-                SM4Util.FormatType format = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), formatText);
+                string formatText = comboSM4IVFormat.SelectedItem?.ToString() ?? "";
+                OutputFormat format = CryptoUIHelper.ParseOutputFormat(formatText);
 
-                string iv = SM4Util.GenerateIV(format);
+                var provider = new SM4Provider();
+                string iv = provider.GenerateIV(format);
                 textSM4IV.Text = iv;
                 SetStatus($"SM4初始向量生成完成 - {formatText}格式");
             }
@@ -92,7 +95,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboSM4Mode.SelectedItem.ToString();
+                string mode = comboSM4Mode.SelectedItem?.ToString() ?? "";
                 if (mode == "CBC" && string.IsNullOrEmpty(textSM4IV.Text))
                 {
                     MessageBox.Show("CBC模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -101,30 +104,19 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM4加密...");
 
-                string paddingText = comboSM4Padding.SelectedItem.ToString();
-                string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
-                string plaintextFormatText = comboSM4PlaintextFormat.SelectedItem.ToString();
-                string ciphertextFormatText = comboSM4CiphertextFormat.SelectedItem.ToString();
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode cryptoMode = CryptoUIHelper.ParseCryptoMode(mode);
+                CryptoPaddingMode paddingMode = CryptoUIHelper.ParsePaddingMode(comboSM4Padding.SelectedItem?.ToString() ?? "");
+                OutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                SM4Util.PaddingMode padding = (SM4Util.PaddingMode)Enum.Parse(typeof(SM4Util.PaddingMode), paddingText);
-                SM4Util.FormatType keyFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), keyFormatText);
-                SM4Util.FormatType plaintextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), plaintextFormatText);
-                SM4Util.FormatType ciphertextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ciphertextFormatText);
+                string plaintext = GetPlaintextFromFormat();
+                string? iv = string.IsNullOrEmpty(textSM4IV.Text) ? null : textSM4IV.Text;
 
-                string cipherText;
-                if (mode == "ECB")
-                {
-                    cipherText = SM4Util.EncryptEcbWithFormat(textSM4PlainText.Text, textSM4Key.Text, keyFormat, plaintextFormat, ciphertextFormat, padding);
-                }
-                else // CBC
-                {
-                    string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
-                    SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    cipherText = SM4Util.EncryptCbcWithFormat(textSM4PlainText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, plaintextFormat, ciphertextFormat, padding);
-                }
-
+                var provider = new SM4Provider();
+                string cipherText = provider.Encrypt(plaintext, textSM4Key.Text, cryptoMode, paddingMode, outputFormat, iv);
                 textSM4CipherText.Text = cipherText;
-                SetStatus($"SM4加密完成 - 使用{mode}模式，明文{plaintextFormatText}格式，输出{ciphertextFormatText}格式");
+
+                SetStatus($"SM4加密完成 - 使用{mode}模式，输出{comboSM4CiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -149,7 +141,7 @@ namespace CryptoTool.Win
                     return;
                 }
 
-                string mode = comboSM4Mode.SelectedItem.ToString();
+                string mode = comboSM4Mode.SelectedItem?.ToString() ?? "";
                 if (mode == "CBC" && string.IsNullOrEmpty(textSM4IV.Text))
                 {
                     MessageBox.Show("CBC模式需要初始向量，请先生成或输入初始向量！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -158,30 +150,18 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行SM4解密...");
 
-                string paddingText = comboSM4Padding.SelectedItem.ToString();
-                string keyFormatText = comboSM4KeyFormat.SelectedItem.ToString();
-                string plaintextFormatText = comboSM4PlaintextFormat.SelectedItem.ToString();
-                string ciphertextFormatText = comboSM4CiphertextFormat.SelectedItem.ToString();
+                // 使用CryptoUIHelper解析枚举
+                CryptoMode cryptoMode = CryptoUIHelper.ParseCryptoMode(mode);
+                CryptoPaddingMode paddingMode = CryptoUIHelper.ParsePaddingMode(comboSM4Padding.SelectedItem?.ToString() ?? "");
+                InputFormat inputFormat = CryptoUIHelper.ParseInputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
 
-                SM4Util.PaddingMode padding = (SM4Util.PaddingMode)Enum.Parse(typeof(SM4Util.PaddingMode), paddingText);
-                SM4Util.FormatType keyFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), keyFormatText);
-                SM4Util.FormatType plaintextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), plaintextFormatText);
-                SM4Util.FormatType ciphertextFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ciphertextFormatText);
+                string? iv = string.IsNullOrEmpty(textSM4IV.Text) ? null : textSM4IV.Text;
 
-                string plainText;
-                if (mode == "ECB")
-                {
-                    plainText = SM4Util.DecryptEcbWithFormat(textSM4CipherText.Text, textSM4Key.Text, keyFormat, ciphertextFormat, plaintextFormat, padding);
-                }
-                else // CBC
-                {
-                    string ivFormatText = comboSM4IVFormat.SelectedItem.ToString();
-                    SM4Util.FormatType ivFormat = (SM4Util.FormatType)Enum.Parse(typeof(SM4Util.FormatType), ivFormatText);
-                    plainText = SM4Util.DecryptCbcWithFormat(textSM4CipherText.Text, textSM4Key.Text, textSM4IV.Text, keyFormat, ivFormat, ciphertextFormat, plaintextFormat, padding);
-                }
+                var provider = new SM4Provider();
+                string plainText = provider.Decrypt(textSM4CipherText.Text, textSM4Key.Text, cryptoMode, paddingMode, inputFormat, iv);
+                SetPlaintextFromFormat(plainText);
 
-                textSM4PlainText.Text = plainText;
-                SetStatus($"SM4解密完成 - 使用{mode}模式，密文{ciphertextFormatText}格式，输出{plaintextFormatText}格式");
+                SetStatus($"SM4解密完成 - 使用{mode}模式，输入{comboSM4CiphertextFormat.SelectedItem}格式");
             }
             catch (Exception ex)
             {
@@ -193,7 +173,7 @@ namespace CryptoTool.Win
         private void comboSM4Mode_SelectedIndexChanged(object sender, EventArgs e)
         {
             // 当选择ECB模式时，禁用初始向量相关控件
-            bool isCBC = comboSM4Mode.SelectedItem.ToString() == "CBC";
+            bool isCBC = comboSM4Mode.SelectedItem?.ToString() == "CBC";
             textSM4IV.Enabled = isCBC;
             btnGenerateSM4IV.Enabled = isCBC;
             comboSM4IVFormat.Enabled = isCBC;
@@ -217,6 +197,62 @@ namespace CryptoTool.Win
             catch
             {
                 // 格式转换失败，忽略
+            }
+        }
+
+        #endregion
+
+        #region 辅助方法
+
+        private string GetPlaintextFromFormat()
+        {
+            string? plaintextFormat = comboSM4PlaintextFormat.SelectedItem?.ToString();
+            string plaintext = textSM4PlainText.Text;
+
+            // 如果是Text格式，直接返回
+            if (plaintextFormat == "Text")
+                return plaintext;
+
+            // 其他格式暂时直接返回，后续可以扩展格式转换功能
+            return plaintext;
+        }
+
+        private void SetPlaintextFromFormat(string decryptedText)
+        {
+            string? plaintextFormat = comboSM4PlaintextFormat.SelectedItem?.ToString();
+
+            // 根据格式设置显示内容
+            if (plaintextFormat == "Text")
+            {
+                textSM4PlainText.Text = decryptedText;
+            }
+            else if (plaintextFormat == "Base64")
+            {
+                try
+                {
+                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(decryptedText);
+                    textSM4PlainText.Text = Convert.ToBase64String(bytes);
+                }
+                catch
+                {
+                    textSM4PlainText.Text = decryptedText; // 如果转换失败，直接显示
+                }
+            }
+            else if (plaintextFormat == "Hex")
+            {
+                try
+                {
+                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(decryptedText);
+                    textSM4PlainText.Text = BitConverter.ToString(bytes).Replace("-", "");
+                }
+                catch
+                {
+                    textSM4PlainText.Text = decryptedText; // 如果转换失败，直接显示
+                }
+            }
+            else
+            {
+                textSM4PlainText.Text = decryptedText;
             }
         }
 

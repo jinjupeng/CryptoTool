@@ -1,22 +1,20 @@
-﻿using CryptoTool.Common.Enums;
-using CryptoTool.Common.Interfaces;
-using CryptoTool.Common.Common;
+﻿using CryptoTool.Common.Common;
+using CryptoTool.Common.Enums;
+using CryptoTool.Common.Utils;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Security.Cryptography;
-using System.Text;
 
-namespace CryptoTool.Common.GM
+namespace CryptoTool.Common.Providers.GM
 {
     /// <summary>
     /// 使用BouncyCastle实现的SM4国密算法工具类
     /// </summary>
-    public class SM4Util : BaseCryptoProvider
+    public class SM4Provider : BaseCryptoProvider
     {
         #region 属性
 
@@ -48,8 +46,8 @@ namespace CryptoTool.Common.GM
         /// <summary>
         /// 创建加密器
         /// </summary>
-        protected override ICryptoTransform CreateCryptoTransform(byte[] key, byte[] iv, CipherMode mode, 
-            PaddingMode padding, bool isEncryption)
+        protected override ICryptoTransform CreateCryptoTransform(byte[] key, byte[] iv, CryptoMode mode,
+            CryptoPaddingMode padding, bool isEncryption)
         {
             // SM4使用BouncyCastle，需要特殊处理
             var engine = new SM4Engine();
@@ -58,16 +56,16 @@ namespace CryptoTool.Common.GM
 
             switch (mode)
             {
-                case CipherMode.ECB:
+                case CryptoMode.ECB:
                     cipher = new PaddedBufferedBlockCipher(engine, paddingProvider);
                     break;
-                case CipherMode.CBC:
+                case CryptoMode.CBC:
                     cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(engine), paddingProvider);
                     break;
-                case CipherMode.CFB:
+                case CryptoMode.CFB:
                     cipher = new BufferedBlockCipher(new CfbBlockCipher(engine, BlockSize));
                     break;
-                case CipherMode.OFB:
+                case CryptoMode.OFB:
                     cipher = new BufferedBlockCipher(new OfbBlockCipher(engine, BlockSize));
                     break;
                 default:
@@ -75,7 +73,7 @@ namespace CryptoTool.Common.GM
             }
 
             ICipherParameters parameters;
-            if (mode == CipherMode.ECB)
+            if (mode == CryptoMode.ECB)
             {
                 parameters = new KeyParameter(key);
             }
@@ -91,7 +89,7 @@ namespace CryptoTool.Common.GM
         /// <summary>
         /// 转换加密模式
         /// </summary>
-        protected override System.Security.Cryptography.CipherMode ConvertCipherMode(CipherMode mode)
+        protected override CipherMode ConvertCipherMode(CryptoMode mode)
         {
             // SM4使用BouncyCastle，不需要转换
             throw new NotSupportedException("SM4使用BouncyCastle实现，不需要转换CipherMode");
@@ -100,7 +98,7 @@ namespace CryptoTool.Common.GM
         /// <summary>
         /// 转换填充模式
         /// </summary>
-        protected override System.Security.Cryptography.PaddingMode ConvertPaddingMode(PaddingMode padding)
+        protected override PaddingMode ConvertPaddingMode(CryptoPaddingMode padding)
         {
             // SM4使用BouncyCastle，不需要转换
             throw new NotSupportedException("SM4使用BouncyCastle实现，不需要转换PaddingMode");
@@ -109,16 +107,64 @@ namespace CryptoTool.Common.GM
         /// <summary>
         /// 获取BouncyCastle填充
         /// </summary>
-        private static IBlockCipherPadding GetPadding(PaddingMode padding)
+        private static IBlockCipherPadding GetPadding(CryptoPaddingMode padding)
         {
             return padding switch
             {
-                PaddingMode.PKCS7 => new Pkcs7Padding(),
-                PaddingMode.PKCS5 => new Pkcs7Padding(), // PKCS5等同于PKCS7
-                PaddingMode.Zeros => new ZeroBytePadding(),
-                PaddingMode.None => null,
+                CryptoPaddingMode.PKCS7 => new Pkcs7Padding(),
+                CryptoPaddingMode.PKCS5 => new Pkcs7Padding(), // PKCS5等同于PKCS7
+                CryptoPaddingMode.Zeros => new ZeroBytePadding(),
+                CryptoPaddingMode.None => null,
                 _ => new Pkcs7Padding()
             };
+        }
+
+        #endregion
+
+        #region 静态工具方法
+
+        /// <summary>
+        /// ECB模式加密字符串
+        /// </summary>
+        /// <param name="plaintext">明文</param>
+        /// <param name="key">密钥（16字节）</param>
+        /// <returns>Base64编码的密文</returns>
+        public static string EncryptEcb(string plaintext, string key)
+        {
+            var sm4 = new SM4Provider();
+            return sm4.Encrypt(plaintext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7, OutputFormat.Base64);
+        }
+
+        /// <summary>
+        /// ECB模式解密字符串
+        /// </summary>
+        /// <param name="ciphertext">Base64编码的密文</param>
+        /// <param name="key">密钥（16字节）</param>
+        /// <returns>明文</returns>
+        public static string DecryptEcb(string ciphertext, string key)
+        {
+            var sm4 = new SM4Provider();
+            return sm4.Decrypt(ciphertext, key, CryptoMode.ECB, CryptoPaddingMode.PKCS7, InputFormat.Base64);
+        }
+
+        /// <summary>
+        /// 字节数组转十六进制字符串
+        /// </summary>
+        /// <param name="bytes">字节数组</param>
+        /// <returns>十六进制字符串</returns>
+        public static string BytesToHex(byte[] bytes)
+        {
+            return CryptoCommonUtil.ConvertToHexString(bytes, true);
+        }
+
+        /// <summary>
+        /// 十六进制字符串转字节数组
+        /// </summary>
+        /// <param name="hex">十六进制字符串</param>
+        /// <returns>字节数组</returns>
+        public static byte[] HexToBytes(string hex)
+        {
+            return CryptoCommonUtil.ConvertFromHexString(hex);
         }
 
         #endregion

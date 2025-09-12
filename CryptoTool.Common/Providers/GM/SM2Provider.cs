@@ -1,5 +1,9 @@
-﻿using Org.BouncyCastle.Asn1;
+﻿using CryptoTool.Common.Enums;
+using CryptoTool.Common.Interfaces;
+using CryptoTool.Common.Utils;
+using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.GM;
+using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
@@ -8,25 +12,21 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using Org.BouncyCastle.X509;
 using System;
 using System.Text;
-using CryptoTool.Common.Enums;
-using CryptoTool.Common.Interfaces;
-using CryptoTool.Common.Common;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Asn1.Pkcs;
+using System.Threading.Tasks;
 
-namespace CryptoTool.Common.GM
+namespace CryptoTool.Common.Providers.GM
 {
     /// <summary>
     /// SM2国密算法工具类，提供SM2非对称加密、签名验签等功能。
     /// SM2是一种基于椭圆曲线密码（ECC）的公钥密码算法，由国家密码管理局发布。
     /// </summary>
-    public class SM2Util : IAsymmetricCryptoProvider
+    public class SM2Provider : IAsymmetricCryptoProvider
     {
         #region 常量和字段
 
@@ -134,7 +134,7 @@ namespace CryptoTool.Common.GM
             var plainTextBytes = encoding.GetBytes(plainText);
             var cipherTextBytes = Encrypt(plainTextBytes, publicKey);
 
-            return CryptoCommon.BytesToString(cipherTextBytes, outputFormat);
+            return CryptoCommonUtil.BytesToString(cipherTextBytes, outputFormat);
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace CryptoTool.Common.GM
                 throw new ArgumentException("私钥不能为空", nameof(privateKey));
 
             encoding = encoding ?? Encoding.UTF8;
-            var cipherTextBytes = CryptoCommon.StringToBytes(cipherText, inputFormat);
+            var cipherTextBytes = CryptoCommonUtil.StringToBytes(cipherText, inputFormat);
             var plainTextBytes = Decrypt(cipherTextBytes, privateKey);
 
             return encoding.GetString(plainTextBytes);
@@ -217,7 +217,7 @@ namespace CryptoTool.Common.GM
             var ecPrivateKey = ParsePrivateKeyFromBase64(privateKey);
             var signatureBytes = Sign(dataBytes, ecPrivateKey, SM2SignatureFormat.ASN1);
 
-            return CryptoCommon.BytesToString(signatureBytes, outputFormat);
+            return CryptoCommonUtil.BytesToString(signatureBytes, outputFormat);
         }
 
         /// <summary>
@@ -239,19 +239,30 @@ namespace CryptoTool.Common.GM
 
             encoding = encoding ?? Encoding.UTF8;
             var dataBytes = encoding.GetBytes(data);
-            var signatureBytes = CryptoCommon.StringToBytes(signature, inputFormat);
+            var signatureBytes = CryptoCommonUtil.StringToBytes(signature, inputFormat);
             var ecPublicKey = ParsePublicKeyFromBase64(publicKey);
 
             return Verify(dataBytes, signatureBytes, ecPublicKey, SM2SignatureFormat.ASN1);
         }
 
         /// <summary>
-        /// 生成密钥对
+        /// 生成密钥对（接口方法）
+        /// </summary>
+        /// <param name="keySize">密钥长度</param>
+        /// <returns>密钥对（公钥，私钥）</returns>
+        public (string PublicKey, string PrivateKey) GenerateKeyPair(KeySize keySize = KeySize.Key2048)
+        {
+            var keyPair = GenerateKeyPairInternal(keySize, OutputFormat.Base64);
+            return (keyPair.publicKey, keyPair.privateKey);
+        }
+
+        /// <summary>
+        /// 生成密钥对（内部方法）
         /// </summary>
         /// <param name="keySize">密钥长度（SM2固定为256位，忽略此参数）</param>
         /// <param name="outputFormat">输出格式</param>
         /// <returns>密钥对（公钥，私钥）</returns>
-        public (string publicKey, string privateKey) GenerateKeyPair(KeySize keySize = KeySize.Key256, OutputFormat outputFormat = OutputFormat.Base64)
+        public (string publicKey, string privateKey) GenerateKeyPairInternal(KeySize keySize = KeySize.Key256, OutputFormat outputFormat = OutputFormat.Base64)
         {
             var keyPair = GenerateKeyPair();
             var publicKey = (ECPublicKeyParameters)keyPair.Public;
@@ -261,6 +272,151 @@ namespace CryptoTool.Common.GM
             var privateKeyString = PrivateKeyToBase64(privateKey);
 
             return (publicKeyString, privateKeyString);
+        }
+
+        /// <summary>
+        /// 使用公钥加密（接口方法）
+        /// </summary>
+        public string EncryptWithPublicKey(string plaintext, string publicKey, OutputFormat outputFormat = OutputFormat.Base64)
+        {
+            return Encrypt(plaintext, publicKey, outputFormat);
+        }
+
+        /// <summary>
+        /// 使用私钥解密（接口方法）
+        /// </summary>
+        public string DecryptWithPrivateKey(string ciphertext, string privateKey, InputFormat inputFormat = InputFormat.Base64)
+        {
+            return Decrypt(ciphertext, privateKey, inputFormat);
+        }
+
+        /// <summary>
+        /// 签名（接口方法）
+        /// </summary>
+        public string Sign(string data, string privateKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SM3withSM2, OutputFormat outputFormat = OutputFormat.Base64)
+        {
+            var signatureBytes = Sign(Encoding.UTF8.GetBytes(data), ParsePrivateKeyFromBase64(privateKey));
+            return CryptoCommonUtil.BytesToString(signatureBytes, outputFormat);
+        }
+
+        /// <summary>
+        /// 验签（接口方法）
+        /// </summary>
+        public bool Verify(string data, string signature, string publicKey, SignatureAlgorithm algorithm = SignatureAlgorithm.SM3withSM2, InputFormat inputFormat = InputFormat.Base64)
+        {
+            var signatureBytes = CryptoCommonUtil.StringToBytes(signature, inputFormat);
+            return Verify(Encoding.UTF8.GetBytes(data), signatureBytes, ParsePublicKeyFromBase64(publicKey));
+        }
+
+        /// <summary>
+        /// 加密字符串（ICryptoProvider接口实现）
+        /// </summary>
+        public string Encrypt(string plaintext, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
+        {
+            return Encrypt(plaintext, key, outputFormat);
+        }
+
+        /// <summary>
+        /// 解密字符串（ICryptoProvider接口实现）
+        /// </summary>
+        public string Decrypt(string ciphertext, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null)
+        {
+            return Decrypt(ciphertext, key, inputFormat);
+        }
+
+        /// <summary>
+        /// 加密字节数组（ICryptoProvider接口实现）
+        /// </summary>
+        public byte[] Encrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
+        {
+            // SM2不支持字节数组密钥，需要转换
+            string keyString = Convert.ToBase64String(key);
+            return Encrypt(data, keyString);
+        }
+
+        /// <summary>
+        /// 解密字节数组（ICryptoProvider接口实现）
+        /// </summary>
+        public byte[] Decrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
+        {
+            // SM2不支持字节数组密钥，需要转换
+            string keyString = Convert.ToBase64String(key);
+            return Decrypt(data, keyString);
+        }
+
+        /// <summary>
+        /// 加密文件（ICryptoProvider接口实现）
+        /// </summary>
+        public void EncryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
+        {
+            throw new NotSupportedException("SM2不支持文件加密，请使用对称加密算法");
+        }
+
+        /// <summary>
+        /// 解密文件（ICryptoProvider接口实现）
+        /// </summary>
+        public void DecryptFile(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
+        {
+            throw new NotSupportedException("SM2不支持文件解密，请使用对称加密算法");
+        }
+
+        /// <summary>
+        /// 异步加密文件（ICryptoProvider接口实现）
+        /// </summary>
+        public async Task EncryptFileAsync(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
+        {
+            await Task.Run(() => EncryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
+        }
+
+        /// <summary>
+        /// 异步解密文件（ICryptoProvider接口实现）
+        /// </summary>
+        public async Task DecryptFileAsync(string inputFilePath, string outputFilePath, string key, CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
+        {
+            await Task.Run(() => DecryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
+        }
+
+        /// <summary>
+        /// 生成密钥（ICryptoProvider接口实现）
+        /// </summary>
+        public string GenerateKey(KeySize keySize = KeySize.Key256, OutputFormat format = OutputFormat.Base64)
+        {
+            var keyPair = GenerateKeyPairInternal(KeySize.Key2048, format);
+            return keyPair.privateKey;
+        }
+
+        /// <summary>
+        /// 生成初始化向量（ICryptoProvider接口实现）
+        /// </summary>
+        public string GenerateIV(OutputFormat format = OutputFormat.Base64)
+        {
+            throw new NotSupportedException("SM2不需要初始化向量");
+        }
+
+        /// <summary>
+        /// 验证密钥有效性（ICryptoProvider接口实现）
+        /// </summary>
+        public bool ValidateKey(string key, InputFormat format = InputFormat.UTF8)
+        {
+            try
+            {
+                if (format == InputFormat.UTF8)
+                {
+                    // 尝试解析Base64格式
+                    ParsePrivateKeyFromBase64(key);
+                    return true;
+                }
+                else
+                {
+                    // 尝试解析Base64格式
+                    byte[] keyBytes = Convert.FromBase64String(key);
+                    return keyBytes.Length > 0;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         #endregion
@@ -775,6 +931,118 @@ namespace CryptoTool.Common.GM
 
             // 其他异常情况
             throw new ArgumentException($"BigInteger转换为固定长度字节数组时发生意外长度: {rs.Length}。预期长度: {SM2_RS_LENGTH}", nameof(bigInt));
+        }
+
+        #endregion
+
+        #region 16进制格式密钥转换（兼容旧版本）
+
+        /// <summary>
+        /// 将SM2公钥转换为16进制字符串
+        /// </summary>
+        /// <param name="publicKey">SM2公钥</param>
+        /// <returns>16进制编码的公钥</returns>
+        public static string PublicKeyToHex(ECPublicKeyParameters publicKey)
+        {
+            if (publicKey == null)
+                throw new ArgumentNullException(nameof(publicKey), "公钥不能为空");
+
+            byte[] rawKeyBytes = publicKey.Q.GetEncoded(false);
+            return CryptoCommonUtil.ConvertToHexString(rawKeyBytes, true);
+        }
+
+        /// <summary>
+        /// 将SM2私钥转换为16进制字符串
+        /// </summary>
+        /// <param name="privateKey">SM2私钥</param>
+        /// <returns>16进制编码的私钥</returns>
+        public static string PrivateKeyToHex(ECPrivateKeyParameters privateKey)
+        {
+            if (privateKey == null)
+                throw new ArgumentNullException(nameof(privateKey), "私钥不能为空");
+
+            byte[] rawKeyBytes = privateKey.D.ToByteArrayUnsigned();
+            // 确保私钥长度为32字节
+            if (rawKeyBytes.Length < 32)
+            {
+                byte[] paddedKey = new byte[32];
+                Buffer.BlockCopy(rawKeyBytes, 0, paddedKey, 32 - rawKeyBytes.Length, rawKeyBytes.Length);
+                rawKeyBytes = paddedKey;
+            }
+            return CryptoCommonUtil.ConvertToHexString(rawKeyBytes, true);
+        }
+
+        /// <summary>
+        /// 从16进制字符串解析SM2公钥
+        /// </summary>
+        /// <param name="hexPublicKey">16进制编码的公钥</param>
+        /// <returns>SM2公钥</returns>
+        public static ECPublicKeyParameters ParsePublicKeyFromHex(string hexPublicKey)
+        {
+            if (string.IsNullOrEmpty(hexPublicKey))
+                throw new ArgumentNullException(nameof(hexPublicKey), "16进制格式公钥不能为空");
+
+            try
+            {
+                byte[] publicKeyBytes = CryptoCommonUtil.ConvertFromHexString(hexPublicKey);
+                var q = SM2_ECX9_PARAMS.Curve.DecodePoint(publicKeyBytes);
+                return new ECPublicKeyParameters(q, SM2_DOMAIN_PARAMS);
+            }
+            catch (Exception ex)
+            {
+                throw new FormatException("无效的16进制公钥格式", ex);
+            }
+        }
+
+        /// <summary>
+        /// 从16进制字符串解析SM2私钥
+        /// </summary>
+        /// <param name="hexPrivateKey">16进制编码的私钥</param>
+        /// <returns>SM2私钥</returns>
+        public static ECPrivateKeyParameters ParsePrivateKeyFromHex(string hexPrivateKey)
+        {
+            if (string.IsNullOrEmpty(hexPrivateKey))
+                throw new ArgumentNullException(nameof(hexPrivateKey), "16进制格式私钥不能为空");
+
+            try
+            {
+                byte[] privateKeyBytes = CryptoCommonUtil.ConvertFromHexString(hexPrivateKey);
+                BigInteger d = new BigInteger(1, privateKeyBytes);
+                return new ECPrivateKeyParameters(d, SM2_DOMAIN_PARAMS);
+            }
+            catch (Exception ex)
+            {
+                throw new FormatException("无效的16进制私钥格式", ex);
+            }
+        }
+
+        #endregion
+
+        #region 静态工具方法
+
+        /// <summary>
+        /// SM3withSM2签名（静态方法）
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <returns>十六进制签名</returns>
+        public static string SignSm3WithSm2(byte[] data, ECPrivateKeyParameters privateKey)
+        {
+            var signatureBytes = Sign(data, privateKey);
+            return CryptoCommonUtil.ConvertToHexString(signatureBytes, true);
+        }
+
+        /// <summary>
+        /// SM3withSM2验签（静态方法）
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">十六进制签名</param>
+        /// <param name="publicKey">公钥</param>
+        /// <returns>验签结果</returns>
+        public static bool VerifySm3WithSm2(byte[] data, string signature, ECPublicKeyParameters publicKey)
+        {
+            var signatureBytes = CryptoCommonUtil.ConvertFromHexString(signature);
+            return Verify(data, signatureBytes, publicKey);
         }
 
         #endregion

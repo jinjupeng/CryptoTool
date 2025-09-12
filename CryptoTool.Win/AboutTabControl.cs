@@ -1,15 +1,7 @@
-using System;
-using System.ComponentModel;
+using Octokit;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Octokit;
 
 namespace CryptoTool.Win
 {
@@ -60,7 +52,7 @@ namespace CryptoTool.Win
             {
                 // 从环境变量获取 GitHub Token
                 var token = Environment.GetEnvironmentVariable("GITHUB_TOKEN");
-                
+
                 if (!string.IsNullOrWhiteSpace(token))
                 {
                     // 使用认证的客户端
@@ -211,7 +203,7 @@ namespace CryptoTool.Win
                     SetStatus("GitHub API 配额已用完");
                     return;
                 }
-                
+
                 SetStatus($"GitHub API 配额剩余: {remaining}/{limit}");
                 await CheckForUpdatesAsync();
             }
@@ -277,12 +269,12 @@ namespace CryptoTool.Win
             try
             {
                 _latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
-                
+
                 textLatestVersion.Text = _latestRelease.TagName;
-                
+
                 var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
                 var latestVersionString = _latestRelease.TagName.TrimStart('v');
-                
+
                 if (Version.TryParse(latestVersionString, out var latestVersion) && currentVersion != null)
                 {
                     var comparison = currentVersion.CompareTo(latestVersion);
@@ -317,7 +309,7 @@ namespace CryptoTool.Win
                 var resetTime = ex.Reset.ToString("HH:mm:ss");
                 textUpdateStatus.Text = $"GitHub API 请求次数限制，重置时间: {resetTime}";
                 SetStatus($"GitHub API 请求次数限制，重置时间: {resetTime}");
-                
+
                 MessageBox.Show(
                     $"GitHub API 请求次数已达到限制。\n\n" +
                     $"建议解决方案：\n" +
@@ -362,10 +354,10 @@ namespace CryptoTool.Win
                 }
 
                 var latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
-                
+
                 var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
                 var latestVersionString = latestRelease.TagName.TrimStart('v');
-                
+
                 if (Version.TryParse(latestVersionString, out var latestVersion) && currentVersion != null)
                 {
                     var comparison = currentVersion.CompareTo(latestVersion);
@@ -374,7 +366,7 @@ namespace CryptoTool.Win
                         return latestRelease; // 发现新版本
                     }
                 }
-                
+
                 return null; // 没有新版本
             }
             catch (Exception)
@@ -392,7 +384,7 @@ namespace CryptoTool.Win
             _latestRelease = release;
             textLatestVersion.Text = release.TagName;
             btnDownloadUpdate.Enabled = false;
-            
+
             // 切换到关于选项卡
             var parentForm = this.FindForm();
             if (parentForm is MainForm mainForm)
@@ -415,13 +407,13 @@ namespace CryptoTool.Win
         {
             // 查找Windows可执行文件或安装包
             ReleaseAsset? installerAsset = null;
-            
+
             // 优先查找可执行文件
             foreach (var asset in release.Assets)
             {
                 // 查找exe文件（优先）
-                if (asset.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && 
-                    (asset.Name.Contains("win", StringComparison.OrdinalIgnoreCase) || 
+                if (asset.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
+                    (asset.Name.Contains("win", StringComparison.OrdinalIgnoreCase) ||
                      asset.Name.Contains("windows", StringComparison.OrdinalIgnoreCase) ||
                      asset.Name.Contains("CryptoTool", StringComparison.OrdinalIgnoreCase)))
                 {
@@ -429,7 +421,7 @@ namespace CryptoTool.Win
                     break;
                 }
             }
-            
+
             // 如果没找到exe，查找MSI安装包
             if (installerAsset == null)
             {
@@ -442,14 +434,14 @@ namespace CryptoTool.Win
                     }
                 }
             }
-            
+
             // 如果还是没找到，查找ZIP包
             if (installerAsset == null)
             {
                 foreach (var asset in release.Assets)
                 {
-                    if (asset.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) && 
-                        (asset.Name.Contains("win", StringComparison.OrdinalIgnoreCase) || 
+                    if (asset.Name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) &&
+                        (asset.Name.Contains("win", StringComparison.OrdinalIgnoreCase) ||
                          asset.Name.Contains("windows", StringComparison.OrdinalIgnoreCase) ||
                          asset.Name.Contains("CryptoTool", StringComparison.OrdinalIgnoreCase)))
                     {
@@ -518,7 +510,7 @@ namespace CryptoTool.Win
                     }
                 }
                 catch { }
-                
+
                 throw new InvalidOperationException($"下载或处理更新失败: {ex.Message}", ex);
             }
         }
@@ -541,7 +533,7 @@ namespace CryptoTool.Win
                     // 获取当前应用程序路径
                     var currentExePath = System.Windows.Forms.Application.ExecutablePath;
                     var backupPath = currentExePath + ".backup";
-                    
+
                     // 创建更新脚本
                     var updateScript = Path.Combine(Path.GetTempPath(), "CryptoTool_Update.bat");
                     var scriptContent = "@echo off\r\n" +
@@ -562,9 +554,9 @@ namespace CryptoTool.Win
                         "timeout /t 2 /nobreak >nul\r\n" +
                         $"if exist \"{backupPath}\" del \"{backupPath}\"\r\n" +
                         "del \"%~f0\"\r\n";
-                    
+
                     await File.WriteAllTextAsync(updateScript, scriptContent, System.Text.Encoding.UTF8);
-                    
+
                     // 启动更新脚本
                     Process.Start(new ProcessStartInfo
                     {
@@ -572,13 +564,13 @@ namespace CryptoTool.Win
                         UseShellExecute = true,
                         WindowStyle = ProcessWindowStyle.Hidden
                     });
-                    
+
                     // 关闭应用程序
                     System.Windows.Forms.Application.Exit();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"自动更新失败: {ex.Message}\n\n请手动替换程序文件：\n{downloadPath}", 
+                    MessageBox.Show($"自动更新失败: {ex.Message}\n\n请手动替换程序文件：\n{downloadPath}",
                         "更新失败", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
@@ -586,8 +578,8 @@ namespace CryptoTool.Win
             {
                 textUpdateStatus.Text = $"更新程序已下载到: {downloadPath}";
                 SetStatus("更新程序下载完成，用户选择稍后手动安装");
-                
-                MessageBox.Show($"更新程序已下载到临时目录：\n{downloadPath}\n\n请手动替换当前程序文件以完成更新。", 
+
+                MessageBox.Show($"更新程序已下载到临时目录：\n{downloadPath}\n\n请手动替换当前程序文件以完成更新。",
                     "下载完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }

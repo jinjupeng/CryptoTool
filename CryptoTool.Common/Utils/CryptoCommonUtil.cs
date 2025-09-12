@@ -1,16 +1,15 @@
+using CryptoTool.Common.Enums;
 using System;
-using System.Globalization;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using CryptoTool.Common.Enums;
 
-namespace CryptoTool.Common.Common
+namespace CryptoTool.Common.Utils
 {
     /// <summary>
     /// 加密通用工具类
     /// </summary>
-    public static class CryptoCommon
+    public static class CryptoCommonUtil
     {
         #region 格式转换方法
 
@@ -198,15 +197,15 @@ namespace CryptoTool.Common.Common
                 throw new ArgumentException("长度必须大于0", nameof(length));
 
             charset = charset ?? "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            
+
             StringBuilder sb = new StringBuilder(length);
             byte[] randomBytes = GenerateRandomBytes(length);
-            
+
             for (int i = 0; i < length; i++)
             {
                 sb.Append(charset[randomBytes[i] % charset.Length]);
             }
-            
+
             return sb.ToString();
         }
 
@@ -291,7 +290,7 @@ namespace CryptoTool.Common.Common
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            int paddingLength = blockSize - (data.Length % blockSize);
+            int paddingLength = blockSize - data.Length % blockSize;
             if (paddingLength == blockSize) paddingLength = 0;
 
             byte[] paddedData = new byte[data.Length + paddingLength];
@@ -342,7 +341,7 @@ namespace CryptoTool.Common.Common
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            int paddingLength = blockSize - (data.Length % blockSize);
+            int paddingLength = blockSize - data.Length % blockSize;
             if (paddingLength == blockSize) paddingLength = 0;
 
             byte[] paddedData = new byte[data.Length + paddingLength];
@@ -417,12 +416,12 @@ namespace CryptoTool.Common.Common
             {
                 // 检查路径格式
                 Path.GetFullPath(filePath);
-                
+
                 if (mustExist)
                 {
                     return File.Exists(filePath);
                 }
-                
+
                 return true;
             }
             catch

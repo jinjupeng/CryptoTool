@@ -218,7 +218,7 @@ namespace CryptoTool.Win
             comboRSAKeyOutputFormat.Name = "comboRSAKeyOutputFormat";
             comboRSAKeyOutputFormat.Size = new Size(173, 28);
             comboRSAKeyOutputFormat.TabIndex = 14;
-            comboRSAKeyOutputFormat.SelectedIndexChanged += ComboRSAKeyOutputFormat_SelectedIndexChanged;
+            //comboRSAKeyOutputFormat.SelectedIndexChanged += ComboRSAKeyOutputFormat_SelectedIndexChanged;
             // 
             // btnGenerateRSAKey
             // 

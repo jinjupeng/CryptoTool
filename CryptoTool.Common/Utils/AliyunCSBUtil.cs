@@ -1,11 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace CryptoTool.Common
+namespace CryptoTool.Common.Utils
 {
     /// <summary>
     /// 采用阿里云csb网关请求头签名加密方式，即在http请求头增加参数的方式实现签名校验。算法参见：https://github.com/aliyun/csb-sdk
@@ -41,9 +40,9 @@ namespace CryptoTool.Common
             }
 
             //设置csb要求的头参数
-            newDict.Add("_api_name", new String[] { apiName });
-            newDict.Add("_api_version", new String[] { apiVersion });
-            newDict.Add("_api_access_key", new String[] { accessKey });
+            newDict.Add("_api_name", new string[] { apiName });
+            newDict.Add("_api_version", new string[] { apiVersion });
+            newDict.Add("_api_access_key", new string[] { accessKey });
             newDict.Add("_api_timestamp", new object[] { timeStamp });
 
             //对所有参数进行排序

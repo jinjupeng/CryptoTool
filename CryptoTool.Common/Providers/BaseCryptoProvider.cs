@@ -1,10 +1,11 @@
+using CryptoTool.Common.Enums;
+using CryptoTool.Common.Interfaces;
+using CryptoTool.Common.Utils;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using CryptoTool.Common.Enums;
-using CryptoTool.Common.Interfaces;
 
 namespace CryptoTool.Common.Common
 {
@@ -48,22 +49,22 @@ namespace CryptoTool.Common.Common
         /// <param name="padding">填充模式</param>
         /// <param name="isEncryption">是否为加密</param>
         /// <returns>加密器</returns>
-        protected abstract ICryptoTransform CreateCryptoTransform(byte[] key, byte[] iv, CipherMode mode, 
-            PaddingMode padding, bool isEncryption);
+        protected abstract ICryptoTransform CreateCryptoTransform(byte[] key, byte[] iv, CryptoMode mode,
+            CryptoPaddingMode padding, bool isEncryption);
 
         /// <summary>
         /// 转换加密模式
         /// </summary>
         /// <param name="mode">通用加密模式</param>
         /// <returns>具体算法的加密模式</returns>
-        protected abstract System.Security.Cryptography.CipherMode ConvertCipherMode(CipherMode mode);
+        protected abstract System.Security.Cryptography.CipherMode ConvertCipherMode(CryptoMode mode);
 
         /// <summary>
         /// 转换填充模式
         /// </summary>
         /// <param name="padding">通用填充模式</param>
         /// <returns>具体算法的填充模式</returns>
-        protected abstract System.Security.Cryptography.PaddingMode ConvertPaddingMode(PaddingMode padding);
+        protected abstract System.Security.Cryptography.PaddingMode ConvertPaddingMode(CryptoPaddingMode padding);
 
         #endregion
 
@@ -72,38 +73,38 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 加密字符串
         /// </summary>
-        public virtual string Encrypt(string plaintext, string key, CipherMode mode = CipherMode.CBC, 
-            PaddingMode padding = PaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
+        public virtual string Encrypt(string plaintext, string key, CryptoMode mode = CryptoMode.CBC,
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, OutputFormat outputFormat = OutputFormat.Base64, string iv = null)
         {
             if (string.IsNullOrEmpty(plaintext))
-                throw CryptoCommon.CreateArgumentException(nameof(plaintext), "明文不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(plaintext), "明文不能为空");
             if (string.IsNullOrEmpty(key))
-                throw CryptoCommon.CreateArgumentException(nameof(key), "密钥不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), "密钥不能为空");
 
             byte[] plainBytes = Encoding.UTF8.GetBytes(plaintext);
-            byte[] keyBytes = CryptoCommon.ProcessKey(key, KeySize);
-            byte[] ivBytes = string.IsNullOrEmpty(iv) ? CryptoCommon.GenerateRandomBytes(IVSize) : 
-                CryptoCommon.ProcessIV(iv, IVSize);
+            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, KeySize);
+            byte[] ivBytes = string.IsNullOrEmpty(iv) ? CryptoCommonUtil.GenerateRandomBytes(IVSize) :
+                CryptoCommonUtil.ProcessIV(iv, IVSize);
 
             byte[] encryptedBytes = Encrypt(plainBytes, keyBytes, mode, padding, ivBytes);
-            return CryptoCommon.BytesToString(encryptedBytes, outputFormat);
+            return CryptoCommonUtil.BytesToString(encryptedBytes, outputFormat);
         }
 
         /// <summary>
         /// 解密字符串
         /// </summary>
-        public virtual string Decrypt(string ciphertext, string key, CipherMode mode = CipherMode.CBC, 
-            PaddingMode padding = PaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null)
+        public virtual string Decrypt(string ciphertext, string key, CryptoMode mode = CryptoMode.CBC,
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, InputFormat inputFormat = InputFormat.Base64, string iv = null)
         {
             if (string.IsNullOrEmpty(ciphertext))
-                throw CryptoCommon.CreateArgumentException(nameof(ciphertext), "密文不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(ciphertext), "密文不能为空");
             if (string.IsNullOrEmpty(key))
-                throw CryptoCommon.CreateArgumentException(nameof(key), "密钥不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), "密钥不能为空");
 
-            byte[] cipherBytes = CryptoCommon.StringToBytes(ciphertext, inputFormat);
-            byte[] keyBytes = CryptoCommon.ProcessKey(key, KeySize);
-            byte[] ivBytes = string.IsNullOrEmpty(iv) ? 
-                throw new ArgumentException("解密时必须提供IV") : CryptoCommon.ProcessIV(iv, IVSize);
+            byte[] cipherBytes = CryptoCommonUtil.StringToBytes(ciphertext, inputFormat);
+            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, KeySize);
+            byte[] ivBytes = string.IsNullOrEmpty(iv) ?
+                throw new ArgumentException("解密时必须提供IV") : CryptoCommonUtil.ProcessIV(iv, IVSize);
 
             byte[] decryptedBytes = Decrypt(cipherBytes, keyBytes, mode, padding, ivBytes);
             return Encoding.UTF8.GetString(decryptedBytes);
@@ -112,19 +113,19 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 加密字节数组
         /// </summary>
-        public virtual byte[] Encrypt(byte[] data, byte[] key, CipherMode mode = CipherMode.CBC, 
-            PaddingMode padding = PaddingMode.PKCS7, byte[] iv = null)
+        public virtual byte[] Encrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC,
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
         {
             if (data == null || data.Length == 0)
-                throw CryptoCommon.CreateArgumentException(nameof(data), "数据不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(data), "数据不能为空");
             if (key == null)
-                throw CryptoCommon.CreateArgumentException(nameof(key), "密钥不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), "密钥不能为空");
 
-            if (!CryptoCommon.ValidateKeyLength(key, KeySize, AlgorithmType))
-                throw CryptoCommon.CreateArgumentException(nameof(key), $"密钥长度必须为{KeySize}字节");
+            if (!CryptoCommonUtil.ValidateKeyLength(key, KeySize, AlgorithmType))
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), $"密钥长度必须为{KeySize}字节");
 
-            if (mode != CipherMode.ECB && (iv == null || !CryptoCommon.ValidateIVLength(iv, IVSize)))
-                throw CryptoCommon.CreateArgumentException(nameof(iv), $"IV长度必须为{IVSize}字节");
+            if (mode != CryptoMode.ECB && (iv == null || !CryptoCommonUtil.ValidateIVLength(iv, IVSize)))
+                throw CryptoCommonUtil.CreateArgumentException(nameof(iv), $"IV长度必须为{IVSize}字节");
 
             using (var cryptoTransform = CreateCryptoTransform(key, iv, mode, padding, true))
             using (var memoryStream = new MemoryStream())
@@ -141,19 +142,19 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 解密字节数组
         /// </summary>
-        public virtual byte[] Decrypt(byte[] data, byte[] key, CipherMode mode = CipherMode.CBC, 
-            PaddingMode padding = PaddingMode.PKCS7, byte[] iv = null)
+        public virtual byte[] Decrypt(byte[] data, byte[] key, CryptoMode mode = CryptoMode.CBC,
+            CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, byte[] iv = null)
         {
             if (data == null || data.Length == 0)
-                throw CryptoCommon.CreateArgumentException(nameof(data), "数据不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(data), "数据不能为空");
             if (key == null)
-                throw CryptoCommon.CreateArgumentException(nameof(key), "密钥不能为空");
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), "密钥不能为空");
 
-            if (!CryptoCommon.ValidateKeyLength(key, KeySize, AlgorithmType))
-                throw CryptoCommon.CreateArgumentException(nameof(key), $"密钥长度必须为{KeySize}字节");
+            if (!CryptoCommonUtil.ValidateKeyLength(key, KeySize, AlgorithmType))
+                throw CryptoCommonUtil.CreateArgumentException(nameof(key), $"密钥长度必须为{KeySize}字节");
 
-            if (mode != CipherMode.ECB && (iv == null || !CryptoCommon.ValidateIVLength(iv, IVSize)))
-                throw CryptoCommon.CreateArgumentException(nameof(iv), $"IV长度必须为{IVSize}字节");
+            if (mode != CryptoMode.ECB && (iv == null || !CryptoCommonUtil.ValidateIVLength(iv, IVSize)))
+                throw CryptoCommonUtil.CreateArgumentException(nameof(iv), $"IV长度必须为{IVSize}字节");
 
             using (var cryptoTransform = CreateCryptoTransform(key, iv, mode, padding, false))
             using (var memoryStream = new MemoryStream(data))
@@ -168,17 +169,17 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 加密文件
         /// </summary>
-        public virtual void EncryptFile(string inputFilePath, string outputFilePath, string key, 
-            CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7, string iv = null)
+        public virtual void EncryptFile(string inputFilePath, string outputFilePath, string key,
+            CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
-            if (!CryptoCommon.ValidateFilePath(inputFilePath, true))
+            if (!CryptoCommonUtil.ValidateFilePath(inputFilePath, true))
                 throw new FileNotFoundException($"输入文件不存在: {inputFilePath}");
-            if (!CryptoCommon.ValidateFilePath(outputFilePath, false))
+            if (!CryptoCommonUtil.ValidateFilePath(outputFilePath, false))
                 throw new ArgumentException($"输出文件路径无效: {outputFilePath}");
 
-            byte[] keyBytes = CryptoCommon.ProcessKey(key, KeySize);
-            byte[] ivBytes = string.IsNullOrEmpty(iv) ? CryptoCommon.GenerateRandomBytes(IVSize) : 
-                CryptoCommon.ProcessIV(iv, IVSize);
+            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, KeySize);
+            byte[] ivBytes = string.IsNullOrEmpty(iv) ? CryptoCommonUtil.GenerateRandomBytes(IVSize) :
+                CryptoCommonUtil.ProcessIV(iv, IVSize);
 
             using (var inputStream = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read))
             using (var outputStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write))
@@ -190,17 +191,17 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 解密文件
         /// </summary>
-        public virtual void DecryptFile(string inputFilePath, string outputFilePath, string key, 
-            CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7, string iv = null)
+        public virtual void DecryptFile(string inputFilePath, string outputFilePath, string key,
+            CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
-            if (!CryptoCommon.ValidateFilePath(inputFilePath, true))
+            if (!CryptoCommonUtil.ValidateFilePath(inputFilePath, true))
                 throw new FileNotFoundException($"输入文件不存在: {inputFilePath}");
-            if (!CryptoCommon.ValidateFilePath(outputFilePath, false))
+            if (!CryptoCommonUtil.ValidateFilePath(outputFilePath, false))
                 throw new ArgumentException($"输出文件路径无效: {outputFilePath}");
 
-            byte[] keyBytes = CryptoCommon.ProcessKey(key, KeySize);
-            byte[] ivBytes = string.IsNullOrEmpty(iv) ? 
-                throw new ArgumentException("解密时必须提供IV") : CryptoCommon.ProcessIV(iv, IVSize);
+            byte[] keyBytes = CryptoCommonUtil.ProcessKey(key, KeySize);
+            byte[] ivBytes = string.IsNullOrEmpty(iv) ?
+                throw new ArgumentException("解密时必须提供IV") : CryptoCommonUtil.ProcessIV(iv, IVSize);
 
             using (var inputStream = new FileStream(inputFilePath, FileMode.Open, FileAccess.Read))
             using (var outputStream = new FileStream(outputFilePath, FileMode.Create, FileAccess.Write))
@@ -212,8 +213,8 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 异步加密文件
         /// </summary>
-        public virtual async Task EncryptFileAsync(string inputFilePath, string outputFilePath, string key, 
-            CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7, string iv = null)
+        public virtual async Task EncryptFileAsync(string inputFilePath, string outputFilePath, string key,
+            CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
             await Task.Run(() => EncryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
         }
@@ -221,8 +222,8 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 异步解密文件
         /// </summary>
-        public virtual async Task DecryptFileAsync(string inputFilePath, string outputFilePath, string key, 
-            CipherMode mode = CipherMode.CBC, PaddingMode padding = PaddingMode.PKCS7, string iv = null)
+        public virtual async Task DecryptFileAsync(string inputFilePath, string outputFilePath, string key,
+            CryptoMode mode = CryptoMode.CBC, CryptoPaddingMode padding = CryptoPaddingMode.PKCS7, string iv = null)
         {
             await Task.Run(() => DecryptFile(inputFilePath, outputFilePath, key, mode, padding, iv));
         }
@@ -230,14 +231,14 @@ namespace CryptoTool.Common.Common
         /// <summary>
         /// 生成密钥
         /// </summary>
-        public virtual string GenerateKey(KeySize keySize = KeySize.Key256, OutputFormat format = OutputFormat.Base64)
+        public virtual string GenerateKey(Enums.KeySize keySize = Enums.KeySize.Key256, OutputFormat format = OutputFormat.Base64)
         {
             int actualKeySize = (int)keySize / 8;
-            if (actualKeySize != KeySize)
-                throw new ArgumentException($"不支持的密钥长度: {keySize}，当前算法支持{KeySize * 8}位");
+            if (actualKeySize != this.KeySize)
+                throw new ArgumentException($"不支持的密钥长度: {keySize}，当前算法支持{this.KeySize * 8}位");
 
-            byte[] keyBytes = CryptoCommon.GenerateRandomBytes(KeySize);
-            return CryptoCommon.BytesToString(keyBytes, format);
+            byte[] keyBytes = CryptoCommonUtil.GenerateRandomBytes(this.KeySize);
+            return CryptoCommonUtil.BytesToString(keyBytes, format);
         }
 
         /// <summary>
@@ -245,8 +246,8 @@ namespace CryptoTool.Common.Common
         /// </summary>
         public virtual string GenerateIV(OutputFormat format = OutputFormat.Base64)
         {
-            byte[] ivBytes = CryptoCommon.GenerateRandomBytes(IVSize);
-            return CryptoCommon.BytesToString(ivBytes, format);
+            byte[] ivBytes = CryptoCommonUtil.GenerateRandomBytes(IVSize);
+            return CryptoCommonUtil.BytesToString(ivBytes, format);
         }
 
         /// <summary>
@@ -256,11 +257,11 @@ namespace CryptoTool.Common.Common
         {
             try
             {
-                if (!CryptoCommon.ValidateStringFormat(key, format))
+                if (!CryptoCommonUtil.ValidateStringFormat(key, format))
                     return false;
 
-                byte[] keyBytes = CryptoCommon.StringToBytes(key, format);
-                return CryptoCommon.ValidateKeyLength(keyBytes, KeySize, AlgorithmType);
+                byte[] keyBytes = CryptoCommonUtil.StringToBytes(key, format);
+                return CryptoCommonUtil.ValidateKeyLength(keyBytes, KeySize, AlgorithmType);
             }
             catch
             {
@@ -281,8 +282,8 @@ namespace CryptoTool.Common.Common
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量</param>
-        protected virtual void EncryptStream(Stream inputStream, Stream outputStream, byte[] key, 
-            CipherMode mode, PaddingMode padding, byte[] iv)
+        protected virtual void EncryptStream(Stream inputStream, Stream outputStream, byte[] key,
+            CryptoMode mode, CryptoPaddingMode padding, byte[] iv)
         {
             using (var cryptoTransform = CreateCryptoTransform(key, iv, mode, padding, true))
             using (var cryptoStream = new CryptoStream(outputStream, cryptoTransform, CryptoStreamMode.Write))
@@ -301,8 +302,8 @@ namespace CryptoTool.Common.Common
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <param name="iv">初始化向量</param>
-        protected virtual void DecryptStream(Stream inputStream, Stream outputStream, byte[] key, 
-            CipherMode mode, PaddingMode padding, byte[] iv)
+        protected virtual void DecryptStream(Stream inputStream, Stream outputStream, byte[] key,
+            CryptoMode mode, CryptoPaddingMode padding, byte[] iv)
         {
             using (var cryptoTransform = CreateCryptoTransform(key, iv, mode, padding, false))
             using (var cryptoStream = new CryptoStream(inputStream, cryptoTransform, CryptoStreamMode.Read))

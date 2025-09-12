@@ -1,9 +1,8 @@
-using CryptoTool.Common;
-using CryptoTool.Common.GM;
-using System.Text;
-using Org.BouncyCastle.Crypto.Parameters;
-using System.Collections.Generic;
+using CryptoTool.Common.Providers.GM;
+using CryptoTool.Common.Utils;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Parameters;
+using System.Text;
 
 namespace CryptoTool.Win
 {
@@ -56,12 +55,12 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成医保SM2密钥对...");
 
-                var keyPair = SM2Util.GenerateKeyPair();
+                var keyPair = SM2Provider.GenerateKeyPair();
                 var publicKey = (ECPublicKeyParameters)keyPair.Public;
                 var privateKey = (ECPrivateKeyParameters)keyPair.Private;
 
-                textMedicarePublicKey.Text = SM2Util.PublicKeyToHex(publicKey);
-                textMedicarePrivateKey.Text = SM2Util.PrivateKeyToHex(privateKey);
+                textMedicarePublicKey.Text = SM2Provider.PublicKeyToHex(publicKey);
+                textMedicarePrivateKey.Text = SM2Provider.PrivateKeyToHex(privateKey);
 
                 SetStatus("医保SM2密钥对生成完成");
             }
@@ -149,7 +148,7 @@ namespace CryptoTool.Win
                     var parameters = BuildMedicareParameters();
 
                     // 解析私钥
-                    var privateKey = SM2Util.ParsePrivateKeyFromHex(textMedicarePrivateKey.Text);
+                    var privateKey = SM2Provider.ParsePrivateKeyFromHex(textMedicarePrivateKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
 
                     // 构造签名字符串
@@ -182,7 +181,7 @@ namespace CryptoTool.Win
                     var parameters = BuildMedicareParameters();
 
                     // 解析公钥
-                    var publicKey = SM2Util.ParsePublicKeyFromHex(textMedicarePublicKey.Text);
+                    var publicKey = SM2Provider.ParsePublicKeyFromHex(textMedicarePublicKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
                     string signData = textMedicareSignData.Text.Trim();
 
@@ -215,7 +214,7 @@ namespace CryptoTool.Win
                     string appSecret = textMedicareAppSecret.Text.Trim();
 
                     // 解析JSON数据
-                    object dataObject;
+                    object? dataObject;
                     try
                     {
                         dataObject = JsonConvert.DeserializeObject(textMedicareData.Text);
@@ -456,11 +455,11 @@ namespace CryptoTool.Win
             string keyString = appId.Substring(0, 16);
 
             // 使用SM4-ECB模式，appId前16字符作为密钥，对appSecret进行加密
-            string encryptedData = SM4Util.EncryptEcb(appSecret, keyString, Encoding.UTF8);
+            string encryptedData = SM4Provider.EncryptEcb(appSecret, keyString);
 
             // 将Base64结果转换为字节数组，再转换为Hex字符串，取前16个字符（8字节）作为最终的SM4密钥
             byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
-            string hexResult = SM4Util.BytesToHex(encryptedBytes);
+            string hexResult = SM4Provider.BytesToHex(encryptedBytes);
 
             // 取前16个字符作为最终的SM4密钥（Hex格式，实际对应8字节）
             // 但SM4需要16字节密钥，所以取前32个字符（对应16字节）

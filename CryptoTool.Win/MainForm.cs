@@ -1,11 +1,4 @@
-using CryptoTool.Common;
-using CryptoTool.Common.GM;
-using System.Text;
-using Org.BouncyCastle.Crypto.Parameters;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using Octokit;
-using System.Windows.Forms;
 
 namespace CryptoTool.Win
 {
@@ -105,27 +98,27 @@ namespace CryptoTool.Win
             medicareTabControl.SM4KeyGenerated += (key) => sm4TabControl.UpdateKeyFromMedicare(key);
         }
 
-//        private void Form1_Load(object sender, EventArgs e)
-//        {
-//            SetStatus("就绪");
-            
-//            // 启动后台更新检测服务
-//            try
-//            {
-//                updateService?.Start(5000, 7200000); // 5秒后开始检测，然后每2小时检测一次
-//                SetStatus("后台更新检测已启动");
-//            }
-//            catch (Exception ex)
-//            {
-//                SetStatus($"启动后台更新检测失败: {ex.Message}");
-//            }
+        //        private void Form1_Load(object sender, EventArgs e)
+        //        {
+        //            SetStatus("就绪");
 
-//            // 在调试模式下，添加快捷键手动触发检测更新
-//#if DEBUG
-//            this.KeyPreview = true;
-//            this.KeyDown += MainForm_KeyDown;
-//#endif
-//        }
+        //            // 启动后台更新检测服务
+        //            try
+        //            {
+        //                updateService?.Start(5000, 7200000); // 5秒后开始检测，然后每2小时检测一次
+        //                SetStatus("后台更新检测已启动");
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                SetStatus($"启动后台更新检测失败: {ex.Message}");
+        //            }
+
+        //            // 在调试模式下，添加快捷键手动触发检测更新
+        //#if DEBUG
+        //            this.KeyPreview = true;
+        //            this.KeyDown += MainForm_KeyDown;
+        //#endif
+        //        }
 
 #if DEBUG
         /// <summary>
@@ -229,7 +222,7 @@ namespace CryptoTool.Win
                 pendingRelease = release;
                 updateNotification.Message = $"发现新版本 {release.TagName}";
                 updateNotification.ShowNotification();
-                
+
                 SetStatus($"发现新版本 {release.TagName}，点击右上角提示进行更新");
             }
             catch (Exception ex)
@@ -266,19 +259,19 @@ namespace CryptoTool.Win
             try
             {
                 updateNotification.HideNotification();
-                
+
                 // 切换到关于选项卡
                 tabControl1.SelectedIndex = tabControl1.TabCount - 1;
-                
+
                 // 开始下载更新
                 await aboutTabControl.StartDownloadUpdateAsync(pendingRelease);
-                
+
                 pendingRelease = null;
             }
             catch (Exception ex)
             {
                 SetStatus($"启动更新下载失败: {ex.Message}");
-                MessageBox.Show($"启动更新下载失败: {ex.Message}", "错误", 
+                MessageBox.Show($"启动更新下载失败: {ex.Message}", "错误",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }

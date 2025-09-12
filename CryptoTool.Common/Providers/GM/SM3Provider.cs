@@ -1,12 +1,12 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using CryptoTool.Common.Enums;
+using CryptoTool.Common.Interfaces;
+using CryptoTool.Common.Utils;
+using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.IO;
 using System.Text;
-using CryptoTool.Common.Enums;
-using CryptoTool.Common.Interfaces;
-using CryptoTool.Common.Common;
 
-namespace CryptoTool.Common.GM
+namespace CryptoTool.Common.Providers.GM
 {
     /// <summary>
     /// 国密SM3杂凑算法工具类
@@ -14,7 +14,7 @@ namespace CryptoTool.Common.GM
     /// 相关标准为"GM/T 0004-2012 《SM3密码杂凑算法》"。
     /// SM3适用于商用密码应用中的数字签名和验证，消息认证码生成与验证，随机数生成等，可满足多种密码应用的安全需求。
     /// </summary>
-    public class SM3Util : IHashProvider
+    public class SM3Provider : IHashProvider
     {
         #region 常量
 
@@ -65,11 +65,11 @@ namespace CryptoTool.Common.GM
 
             SM3Digest digest = new SM3Digest();
             digest.BlockUpdate(data, 0, data.Length);
-            
+
             byte[] hash = new byte[digest.GetDigestSize()];
             digest.DoFinal(hash, 0);
-            
-            return CryptoCommon.BytesToString(hash, outputFormat);
+
+            return CryptoCommonUtil.BytesToString(hash, outputFormat);
         }
 
         /// <summary>
@@ -114,8 +114,8 @@ namespace CryptoTool.Common.GM
 
             byte[] hash = new byte[digest.GetDigestSize()];
             digest.DoFinal(hash, 0);
-            
-            return CryptoCommon.BytesToString(hash, outputFormat);
+
+            return CryptoCommonUtil.BytesToString(hash, outputFormat);
         }
 
         /// <summary>
@@ -193,12 +193,12 @@ namespace CryptoTool.Common.GM
             var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new SM3Digest());
             var keyParam = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key);
             hmac.Init(keyParam);
-            
+
             hmac.BlockUpdate(data, 0, data.Length);
             byte[] result = new byte[hmac.GetMacSize()];
             hmac.DoFinal(result, 0);
-            
-            return CryptoCommon.BytesToString(result, outputFormat);
+
+            return CryptoCommonUtil.BytesToString(result, outputFormat);
         }
 
         /// <summary>

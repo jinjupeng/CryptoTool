@@ -1,8 +1,5 @@
-using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Octokit;
+using System.Reflection;
 
 namespace CryptoTool.Win
 {
@@ -42,7 +39,7 @@ namespace CryptoTool.Win
         {
             _gitHubClient = new GitHubClient(new ProductHeaderValue("CryptoTool"));
             _semaphore = new SemaphoreSlim(1, 1);
-            
+
             // 创建定时器，但不立即启动
             _timer = new System.Threading.Timer(async _ => await CheckForUpdatesAsync(), null, Timeout.Infinite, Timeout.Infinite);
         }
@@ -103,10 +100,10 @@ namespace CryptoTool.Win
                 StatusUpdated?.Invoke("正在后台检测更新...");
 
                 var latestRelease = await _gitHubClient.Repository.Release.GetLatest(_repositoryOwner, _repositoryName);
-                
+
                 var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
                 var latestVersionString = latestRelease.TagName.TrimStart('v');
-                
+
                 if (Version.TryParse(latestVersionString, out var latestVersion) && currentVersion != null)
                 {
                     var comparison = currentVersion.CompareTo(latestVersion);
@@ -160,7 +157,7 @@ namespace CryptoTool.Win
             _disposed = true;
             _timer?.Dispose();
             _semaphore?.Dispose();
-            
+
             StatusUpdated?.Invoke("后台更新检测服务已释放");
         }
 

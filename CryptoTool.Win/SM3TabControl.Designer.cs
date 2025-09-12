@@ -190,7 +190,7 @@ namespace CryptoTool.Win
             comboSM3DataFormat.Name = "comboSM3DataFormat";
             comboSM3DataFormat.Size = new Size(127, 28);
             comboSM3DataFormat.TabIndex = 1;
-            comboSM3DataFormat.SelectedIndexChanged += ComboSM3DataFormat_TabIndexChanged;
+            //comboSM3DataFormat.SelectedIndexChanged += ComboSM3DataFormat_TabIndexChanged;
             // 
             // labelSM3OutputFormat
             // 
@@ -212,7 +212,7 @@ namespace CryptoTool.Win
             comboSM3OutputFormat.Name = "comboSM3OutputFormat";
             comboSM3OutputFormat.Size = new Size(127, 28);
             comboSM3OutputFormat.TabIndex = 3;
-            comboSM3OutputFormat.SelectedIndexChanged += ComboSM3OutputFormat_TabIndexChanged;
+            //comboSM3OutputFormat.SelectedIndexChanged += ComboSM3OutputFormat_TabIndexChanged;
             // 
             // btnSM3Hash
             // 
@@ -345,7 +345,7 @@ namespace CryptoTool.Win
             comboSM3FileHashFormat.Name = "comboSM3FileHashFormat";
             comboSM3FileHashFormat.Size = new Size(127, 28);
             comboSM3FileHashFormat.TabIndex = 1;
-            comboSM3FileHashFormat.SelectedIndexChanged += ComboSM3FileHashFormat_TabIndexChanged;
+            //comboSM3FileHashFormat.SelectedIndexChanged += ComboSM3FileHashFormat_TabIndexChanged;
             // 
             // label3
             // 
@@ -499,7 +499,7 @@ namespace CryptoTool.Win
             comboSM3VerifyDataFormat.Name = "comboSM3VerifyDataFormat";
             comboSM3VerifyDataFormat.Size = new Size(127, 28);
             comboSM3VerifyDataFormat.TabIndex = 1;
-            comboSM3VerifyDataFormat.SelectedIndexChanged += ComboSM3VerifyDataFormat_TabIndexChanged;
+            //comboSM3VerifyDataFormat.SelectedIndexChanged += ComboSM3VerifyDataFormat_TabIndexChanged;
             // 
             // labelSM3VerifyHashFormat
             // 
@@ -521,7 +521,7 @@ namespace CryptoTool.Win
             comboSM3VerifyHashFormat.Name = "comboSM3VerifyHashFormat";
             comboSM3VerifyHashFormat.Size = new Size(127, 28);
             comboSM3VerifyHashFormat.TabIndex = 3;
-            comboSM3VerifyHashFormat.SelectedIndexChanged += ComboSM3VerifyHashFormat_TabIndexChanged;
+            //comboSM3VerifyHashFormat.SelectedIndexChanged += ComboSM3VerifyHashFormat_TabIndexChanged;
             // 
             // btnSM3Verify
             // 
@@ -668,7 +668,7 @@ namespace CryptoTool.Win
             comboSM3HMACDataFormat.Name = "comboSM3HMACDataFormat";
             comboSM3HMACDataFormat.Size = new Size(127, 28);
             comboSM3HMACDataFormat.TabIndex = 1;
-            comboSM3HMACDataFormat.SelectedIndexChanged += ComboSM3HMACDataFormat_TabIndexChanged;
+            //comboSM3HMACDataFormat.SelectedIndexChanged += ComboSM3HMACDataFormat_TabIndexChanged;
             // 
             // labelSM3HMACOutputFormat
             // 
@@ -690,7 +690,7 @@ namespace CryptoTool.Win
             comboSM3HMACOutputFormat.Name = "comboSM3HMACOutputFormat";
             comboSM3HMACOutputFormat.Size = new Size(127, 28);
             comboSM3HMACOutputFormat.TabIndex = 3;
-            comboSM3HMACOutputFormat.SelectedIndexChanged += ComboSM3HMACOutputFormat_TabIndexChanged;
+            //comboSM3HMACOutputFormat.SelectedIndexChanged += ComboSM3HMACOutputFormat_TabIndexChanged;
             // 
             // btnSM3HMAC
             // 
@@ -701,7 +701,7 @@ namespace CryptoTool.Win
             btnSM3HMAC.TabIndex = 10;
             btnSM3HMAC.Text = "计算HMAC";
             btnSM3HMAC.UseVisualStyleBackColor = true;
-            btnSM3HMAC.Click += btnSM3HMAC_Click;
+            //btnSM3HMAC.Click += btnSM3HMAC_Click;
             // 
             // label7
             // 

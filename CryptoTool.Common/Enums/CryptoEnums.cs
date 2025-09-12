@@ -1,11 +1,9 @@
-using System;
-
 namespace CryptoTool.Common.Enums
 {
     /// <summary>
     /// 通用加密模式枚举
     /// </summary>
-    public enum CipherMode
+    public enum CryptoMode
     {
         /// <summary>
         /// 电子密码本模式 (Electronic Codebook)
@@ -36,7 +34,7 @@ namespace CryptoTool.Common.Enums
     /// <summary>
     /// 通用填充模式枚举
     /// </summary>
-    public enum PaddingMode
+    public enum CryptoPaddingMode
     {
         /// <summary>
         /// PKCS7填充（推荐）- 最常用的标准填充模式
@@ -80,7 +78,11 @@ namespace CryptoTool.Common.Enums
         /// <summary>
         /// 十六进制字符串格式
         /// </summary>
-        Hex
+        Hex,
+        /// <summary>
+        /// PEM格式
+        /// </summary>
+        PEM
     }
 
     /// <summary>
@@ -163,6 +165,10 @@ namespace CryptoTool.Common.Enums
     public enum KeySize
     {
         /// <summary>
+        /// 64位密钥
+        /// </summary>
+        Key64 = 64,
+        /// <summary>
         /// 128位密钥
         /// </summary>
         Key128 = 128,
@@ -224,7 +230,7 @@ namespace CryptoTool.Common.Enums
     }
 
     /// <summary>
-    /// 密钥格式枚举
+    /// 密钥格式枚举 - 统一RSA和其他算法的密钥格式定义
     /// </summary>
     public enum KeyFormat
     {
@@ -248,6 +254,40 @@ namespace CryptoTool.Common.Enums
         /// PKCS8格式
         /// </summary>
         PKCS8
+    }
+
+    /// <summary>
+    /// RSA密钥类型枚举
+    /// </summary>
+    public enum RSAKeyType
+    {
+        /// <summary>
+        /// PKCS1格式
+        /// </summary>
+        PKCS1,
+        /// <summary>
+        /// PKCS8格式
+        /// </summary>
+        PKCS8
+    }
+
+    /// <summary>
+    /// RSA填充方式枚举
+    /// </summary>
+    public enum RSAPadding
+    {
+        /// <summary>
+        /// PKCS1填充
+        /// </summary>
+        PKCS1,
+        /// <summary>
+        /// OAEP填充
+        /// </summary>
+        OAEP,
+        /// <summary>
+        /// 无填充
+        /// </summary>
+        NoPadding
     }
 
     /// <summary>
