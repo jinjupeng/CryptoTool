@@ -169,3 +169,4 @@
 [【开源】全网首个支持国密算法的微信支付 C#/.NET SDK（附 SM2/SM3/SM4 跨语言联调的踩坑要点）](https://developers.weixin.qq.com/community/develop/article/doc/000a60d64bcc48a17feeff8e95b813)
 [C#.NET 国密SM4对称加解密 与JAVA互通](https://www.cnblogs.com/runliuv/p/17593661.html)
 [国密（国产密码）SM2、SM3、SM4 C#实现 ](https://www.cnblogs.com/guanshan/p/guan2022-5-5_002.html)
+[Visual Studio Installer实现覆盖安装新版本的方法](https://snailya.github.io/posts/visual-studio-installer%E5%AE%9E%E7%8E%B0%E8%A6%86%E7%9B%96%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88%E6%9C%AC%E7%9A%84%E6%96%B9%E6%B3%95/)

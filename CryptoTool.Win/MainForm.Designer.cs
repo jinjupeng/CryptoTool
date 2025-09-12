@@ -42,6 +42,7 @@ namespace CryptoTool.Win
             tabSM4 = new TabPage();
             tabSM2 = new TabPage();
             tabSM3 = new TabPage();
+            tabMD5 = new TabPage();
             tabMedicare = new TabPage();
             tabAbout = new TabPage();
             statusStrip1 = new StatusStrip();
@@ -59,6 +60,7 @@ namespace CryptoTool.Win
             tabControl1.Controls.Add(tabSM4);
             tabControl1.Controls.Add(tabSM2);
             tabControl1.Controls.Add(tabSM3);
+            tabControl1.Controls.Add(tabMD5);
             tabControl1.Controls.Add(tabMedicare);
             tabControl1.Controls.Add(tabAbout);
             tabControl1.Dock = DockStyle.Fill;
@@ -145,6 +147,17 @@ namespace CryptoTool.Win
             tabSM3.TabIndex = 2;
             tabSM3.Text = "SM3算法";
             tabSM3.UseVisualStyleBackColor = true;
+            //
+            // tabMD5
+            //
+            tabMD5.Location = new Point(4, 29);
+            tabMD5.Margin = new Padding(4);
+            tabMD5.Name = "tabMD5";
+            tabMD5.Padding = new Padding(4);
+            tabMD5.Size = new Size(1278, 1022);
+            tabMD5.TabIndex = 9;
+            tabMD5.Text = "MD5算法";
+            tabMD5.UseVisualStyleBackColor = true;
             // 
             // tabMedicare
             // 
@@ -214,6 +227,7 @@ namespace CryptoTool.Win
         private System.Windows.Forms.TabPage tabSM4;
         private System.Windows.Forms.TabPage tabSM2;
         private TabPage tabSM3;
+        private TabPage tabMD5;
         private TabPage tabMedicare;
         private TabPage tabAbout;
         private StatusStrip statusStrip1;

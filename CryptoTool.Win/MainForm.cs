@@ -11,6 +11,7 @@ namespace CryptoTool.Win
         private SM4TabControl sm4TabControl;
         private SM2TabControl sm2TabControl;
         private SM3TabControl sm3TabControl;
+        private MD5TabControl md5TabControl;
         private MedicareTabControl medicareTabControl;
         private AboutTabControl aboutTabControl;
 
@@ -41,6 +42,7 @@ namespace CryptoTool.Win
             sm4TabControl = new SM4TabControl();
             sm2TabControl = new SM2TabControl();
             sm3TabControl = new SM3TabControl();
+            md5TabControl = new MD5TabControl();
             medicareTabControl = new MedicareTabControl();
             aboutTabControl = new AboutTabControl();
 
@@ -52,6 +54,7 @@ namespace CryptoTool.Win
             sm4TabControl.Dock = DockStyle.Fill;
             sm2TabControl.Dock = DockStyle.Fill;
             sm3TabControl.Dock = DockStyle.Fill;
+            md5TabControl.Dock = DockStyle.Fill;
             medicareTabControl.Dock = DockStyle.Fill;
             aboutTabControl.Dock = DockStyle.Fill;
 
@@ -77,6 +80,9 @@ namespace CryptoTool.Win
             tabSM3.Controls.Clear();
             tabSM3.Controls.Add(sm3TabControl);
 
+            tabMD5.Controls.Clear();
+            tabMD5.Controls.Add(md5TabControl);
+
             tabMedicare.Controls.Clear();
             tabMedicare.Controls.Add(medicareTabControl);
 
@@ -91,6 +97,7 @@ namespace CryptoTool.Win
             sm4TabControl.StatusChanged += SetStatus;
             sm2TabControl.StatusChanged += SetStatus;
             sm3TabControl.StatusChanged += SetStatus;
+            md5TabControl.StatusChanged += SetStatus;
             medicareTabControl.StatusChanged += SetStatus;
             aboutTabControl.StatusChanged += SetStatus;
 
