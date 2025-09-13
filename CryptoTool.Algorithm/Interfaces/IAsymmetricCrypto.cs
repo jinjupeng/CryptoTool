@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Interfaces
 {
@@ -47,5 +48,38 @@ namespace CryptoTool.Algorithm.Interfaces
         /// <param name="publicKey">公钥</param>
         /// <returns>验证结果</returns>
         bool VerifySign(byte[] data, byte[] signature, byte[] publicKey);
+
+        /// <summary>
+        /// 异步加密
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <returns>加密后的数据</returns>
+        Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey);
+
+        /// <summary>
+        /// 异步解密
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <returns>解密后的数据</returns>
+        Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey);
+
+        /// <summary>
+        /// 异步签名
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <returns>签名数据</returns>
+        Task<byte[]> SignAsync(byte[] data, byte[] privateKey);
+
+        /// <summary>
+        /// 异步验证签名
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <returns>验证结果</returns>
+        Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey);
     }
 }

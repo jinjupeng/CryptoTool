@@ -259,7 +259,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         /// <summary>
         /// 异步验证签名
         /// </summary>
-        public async Task<bool> VerifySignatureAsync(byte[] data, byte[] signature, byte[] publicKey)
+        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
         {
             return await Task.Run(() => VerifySign(data, signature, publicKey));
         }

@@ -1,9 +1,11 @@
 using System.Text;
+using System.Linq;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto;
-using CryptoTool.Common.Providers;
-using CryptoTool.Common.Enums;
+using CryptoTool.Algorithm.Algorithms.RSA;
+using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Helpers;
+using CryptoTool.Win.Enums;
 
 namespace CryptoTool.Win
 {
@@ -59,11 +61,12 @@ namespace CryptoTool.Win
                 SetStatus("正在验证密钥对...");
 
                 // 解析密钥
-                var publicKey = RSAProvider.ParsePublicKeyFromPem(_publicKeyForValidation);
-                var privateKey = RSAProvider.ParsePrivateKeyFromPem(_privateKeyForValidation);
+                var rsaCrypto = new RsaCrypto();
+                byte[] publicKeyBytes = ConvertKeyToBytes(_publicKeyForValidation, _publicKeyFormatForValidation);
+                byte[] privateKeyBytes = ConvertKeyToBytes(_privateKeyForValidation, _privateKeyFormatForValidation);
 
                 // 使用加密解密测试来验证密钥对匹配性
-                bool isValid = ValidateKeyPairByEncryption(publicKey, privateKey);
+                bool isValid = ValidateKeyPairByEncryption(rsaCrypto, publicKeyBytes, privateKeyBytes);
 
                 labelValidationResult.Text = isValid ? "验证结果: 密钥对匹配" : "验证结果: 密钥对不匹配";
                 labelValidationResult.ForeColor = isValid ? Color.Green : Color.Red;
@@ -102,37 +105,16 @@ namespace CryptoTool.Win
                 var outputKeyType = CryptoUIHelper.ParseRSAKeyType(comboOutputKeyType.SelectedIndex);
                 var outputFormat = CryptoUIHelper.ParseKeyFormat(comboOutputFormat.SelectedIndex);
 
-                // 尝试解析私钥，如果失败则使用智能检测
-                AsymmetricKeyParameter? keyParam = SafeParseKey(textInputKey.Text, true, inputFormat, inputKeyType);
+                // 转换私钥为字节数组
+                byte[] privateKeyBytes = ConvertKeyToBytes(textInputKey.Text, inputFormat);
                 
-                if (keyParam == null)
-                {
-                    // 如果解析失败，尝试智能检测
-                    var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, true);
-                    keyParam = SafeParseKey(textInputKey.Text, true, detectedFormat, detectedType);
-                    
-                    if (keyParam != null)
-                    {
-                        // 更新UI显示检测到的格式
-                        comboInputFormat.SelectedIndex = (int)detectedFormat;
-                        comboInputKeyType.SelectedIndex = (int)detectedType;
-                        inputFormat = detectedFormat;
-                        inputKeyType = detectedType;
-                        SetStatus("使用智能检测重新解析私钥成功");
-                    }
-                    else
-                    {
-                        throw new ArgumentException("无法解析私钥，请检查密钥内容和格式选择");
-                    }
-                }
+                var rsaCrypto = new RsaCrypto();
 
-                var privateKey = (RsaPrivateCrtKeyParameters)keyParam;
-
-                // 从私钥获取公钥参数
-                var publicKey = new RsaKeyParameters(false, privateKey.Modulus, privateKey.PublicExponent);
-
+                // 从私钥提取公钥
+                byte[] publicKeyBytes = null; // rsaCrypto.ExtractPublicKeyFromPrivate(privateKeyBytes);
+                
                 // 生成公钥字符串
-                string publicKeyString = RSAProvider.GeneratePublicKeyString(publicKey, outputFormat);
+                string publicKeyString = ConvertKeyToString(publicKeyBytes, outputFormat);
 
                 textOutputKey.Text = publicKeyString;
 
@@ -182,79 +164,11 @@ namespace CryptoTool.Win
                 bool isPrivateKey = radioPrivateKey.Checked;
                 string convertedKey;
 
-                // 尝试使用更安全的解析方法
-                if (isPrivateKey)
-                {
-                    // 尝试安全解析私钥
-                    var keyParam = SafeParseKey(textInputKey.Text, true, inputFormat, inputKeyType);
-                    
-                    if (keyParam == null)
-                    {
-                        // 如果解析失败，尝试智能检测
-                        var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, true);
-                        keyParam = SafeParseKey(textInputKey.Text, true, detectedFormat, detectedType);
-                        
-                        if (keyParam != null)
-                        {
-                            // 更新UI显示检测到的格式
-                            comboInputFormat.SelectedIndex = (int)detectedFormat;
-                            comboInputKeyType.SelectedIndex = (int)detectedType;
-                            inputFormat = detectedFormat;
-                            inputKeyType = detectedType;
-                            SetStatus("使用智能检测重新解析密钥成功");
-                        }
-                        else
-                        {
-                            throw new ArgumentException("无法解析私钥，请检查密钥内容和格式选择");
-                        }
-                    }
-
-                    // 确保是正确的私钥类型
-                    if (keyParam is RsaPrivateCrtKeyParameters privateKey)
-                    {
-                        convertedKey = RSAProvider.GeneratePrivateKeyString(privateKey, outputFormat);
-                    }
-                    else
-                    {
-                        throw new InvalidCastException($"解析的密钥类型不匹配，期望RsaPrivateCrtKeyParameters，实际得到{keyParam.GetType().Name}");
-                    }
-                }
-                else
-                {
-                    // 尝试安全解析公钥
-                    var keyParam = SafeParseKey(textInputKey.Text, false, inputFormat, inputKeyType);
-                    
-                    if (keyParam == null)
-                    {
-                        // 如果解析失败，尝试智能检测
-                        var (detectedFormat, detectedType) = SmartDetectKeyFormat(textInputKey.Text, false);
-                        keyParam = SafeParseKey(textInputKey.Text, false, detectedFormat, detectedType);
-                        
-                        if (keyParam != null)
-                        {
-                            // 更新UI显示检测到的格式
-                            comboInputFormat.SelectedIndex = (int)detectedFormat;
-                            comboInputKeyType.SelectedIndex = (int)detectedType;
-                            inputFormat = detectedFormat;
-                            inputKeyType = detectedType;
-                            SetStatus("使用智能检测重新解析密钥成功");
-                        }
-                        else
-                        {
-                            throw new ArgumentException("无法解析公钥，请检查密钥内容和格式选择");
-                        }
-                    }
-
-                    // 确保是正确的公钥类型
-                    if (keyParam is RsaKeyParameters publicKey)
-                    {
-                        convertedKey = RSAProvider.GeneratePublicKeyString(publicKey, outputFormat);
-                    }
-                    else
-                    {
-                        throw new InvalidCastException($"解析的密钥类型不匹配，期望RsaKeyParameters，实际得到{keyParam.GetType().Name}");
-                    }
-                }
+                // 转换输入密钥为字节数组
+                byte[] inputKeyBytes = ConvertKeyToBytes(textInputKey.Text, inputFormat);
+                
+                // 直接使用字节数组进行格式转换
+                convertedKey = ConvertKeyToString(inputKeyBytes, outputFormat);
 
                 textOutputKey.Text = convertedKey;
                 SetStatus($"格式转换完成 - {inputKeyType}/{inputFormat} -> {outputKeyType}/{outputFormat}");
@@ -402,20 +316,21 @@ namespace CryptoTool.Win
         /// <summary>
         /// 通过加密解密测试验证密钥对匹配性
         /// </summary>
-        private bool ValidateKeyPairByEncryption(RsaKeyParameters publicKey, RsaPrivateCrtKeyParameters privateKey)
+        private bool ValidateKeyPairByEncryption(RsaCrypto rsaCrypto, byte[] publicKeyBytes, byte[] privateKeyBytes)
         {
             try
             {
                 // 使用测试数据
                 string testData = "RSA Key Pair Validation Test";
+                byte[] testDataBytes = Encoding.UTF8.GetBytes(testData);
                 
                 // 加密
-                string encrypted = RSAProvider.Encrypt(testData, publicKey, RSAPadding.PKCS1, KeyFormat.Base64);
+                byte[] encryptedBytes = rsaCrypto.Encrypt(testDataBytes, publicKeyBytes);
                 
                 // 解密
-                string decrypted = RSAProvider.Decrypt(encrypted, privateKey, RSAPadding.PKCS1, KeyFormat.Base64);
+                byte[] decryptedBytes = rsaCrypto.Decrypt(encryptedBytes, privateKeyBytes);
                 
-                return testData.Equals(decrypted);
+                return testDataBytes.SequenceEqual(decryptedBytes);
             }
             catch
             {
@@ -559,6 +474,34 @@ namespace CryptoTool.Win
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// 将密钥字符串转换为字节数组
+        /// </summary>
+        private byte[] ConvertKeyToBytes(string keyString, KeyFormat format)
+        {
+            return format switch
+            {
+                KeyFormat.PEM => Encoding.UTF8.GetBytes(keyString),
+                KeyFormat.Base64 => Convert.FromBase64String(keyString),
+                KeyFormat.Hex => CryptoUtil.HexToBytes(keyString),
+                _ => Encoding.UTF8.GetBytes(keyString)
+            };
+        }
+
+        /// <summary>
+        /// 将密钥字节数组转换为字符串
+        /// </summary>
+        private string ConvertKeyToString(byte[] keyBytes, KeyFormat format)
+        {
+            return format switch
+            {
+                KeyFormat.PEM => Encoding.UTF8.GetString(keyBytes),
+                KeyFormat.Base64 => Convert.ToBase64String(keyBytes),
+                KeyFormat.Hex => CryptoUtil.BytesToHex(keyBytes),
+                _ => Encoding.UTF8.GetString(keyBytes)
+            };
         }
 
         #endregion

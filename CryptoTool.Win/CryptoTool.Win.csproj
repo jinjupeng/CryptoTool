@@ -64,11 +64,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Octokit" Version="14.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CryptoTool.Common\CryptoTool.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,6 +79,10 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CryptoTool.Algorithm\CryptoTool.Algorithm.csproj" />
   </ItemGroup>
 
   <ItemGroup>

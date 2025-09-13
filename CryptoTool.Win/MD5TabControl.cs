@@ -1,5 +1,6 @@
-using CryptoTool.Common.Providers;
-using CryptoTool.Common.Utils;
+using CryptoTool.Algorithm.Algorithms.MD5;
+using CryptoTool.Algorithm.Enums;
+using CryptoTool.Algorithm.Utils;
 using System.Text;
 
 namespace CryptoTool.Win
@@ -16,14 +17,14 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // ÉèÖÃÄ¬ÈÏÑ¡Ïî
+            // ï¿½ï¿½ï¿½ï¿½Ä¬ï¿½ï¿½Ñ¡ï¿½ï¿½
             comboMD5DataFormat.SelectedIndex = 0; // Text
             comboMD5OutputFormat.SelectedIndex = 0; // Hex
             comboMD5FileHashFormat.SelectedIndex = 0; // Hex
             comboMD5VerifyDataFormat.SelectedIndex = 0; // Text
             comboMD5VerifyHashFormat.SelectedIndex = 0; // Hex
 
-            // ÉèÖÃÊ¾ÀýÊý¾Ý
+            // ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             textMD5Input.Text = "Hello MD5!";
         }
 
@@ -32,7 +33,7 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region MD5¹þÏ£¼ÆËã
+        #region MD5ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½
 
         private void btnMD5Hash_Click(object sender, EventArgs e)
         {
@@ -40,11 +41,11 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5Input.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒª¼ÆËã¹þÏ£µÄÊý¾Ý£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½", "ï¿½ï¿½Ê¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕýÔÚ¼ÆËãMD5¹þÏ£...");
+                SetStatus("ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½MD5ï¿½ï¿½Ï£...");
 
                 string inputData = textMD5Input.Text;
                 string dataFormat = comboMD5DataFormat.SelectedItem?.ToString() ?? "Text";
@@ -52,16 +53,17 @@ namespace CryptoTool.Win
 
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
                 
-                var md5Provider = new MD5Provider();
-                string result = md5Provider.ComputeHashWithFormat(dataBytes, outputFormat);
+                var md5Hash = new Md5Hash();
+                byte[] hashBytes = md5Hash.ComputeHash(dataBytes);
+                string result = ConvertHashToFormat(hashBytes, outputFormat);
 
                 textMD5Output.Text = result;
-                SetStatus($"MD5¹þÏ£¼ÆËãÍê±Ï - ÊäÈë¸ñÊ½£º{dataFormat}£¬Êä³ö¸ñÊ½£º{outputFormat}");
+                SetStatus($"MD5ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½{dataFormat}ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"MD5¹þÏ£¼ÆËãÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("MD5¹þÏ£¼ÆËãÊ§°Ü");
+                MessageBox.Show($"MD5ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½{ex.Message}", "ï¿½ï¿½ï¿½ï¿½", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("MD5ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½Ê§ï¿½ï¿½");
             }
         }
 
@@ -69,12 +71,12 @@ namespace CryptoTool.Win
         {
             textMD5Input.Clear();
             textMD5Output.Clear();
-            SetStatus("ÒÑÇå¿ÕÊäÈëºÍÊä³ö");
+            SetStatus("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
         }
 
         #endregion
 
-        #region MD5ÎÄ¼þ¹þÏ£
+        #region MD5ï¿½Ä¼ï¿½ï¿½ï¿½Ï£
 
         private void btnMD5SelectFile_Click(object sender, EventArgs e)
         {
@@ -82,20 +84,20 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Title = "Ñ¡ÔñÒª¼ÆËã¹þÏ£µÄÎÄ¼þ";
-                    openFileDialog.Filter = "ËùÓÐÎÄ¼þ (*.*)|*.*";
+                    openFileDialog.Title = "Ñ¡ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ä¼ï¿½";
+                    openFileDialog.Filter = "ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ (*.*)|*.*";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         textMD5FilePath.Text = openFileDialog.FileName;
-                        SetStatus($"ÒÑÑ¡ÔñÎÄ¼þ: {Path.GetFileName(openFileDialog.FileName)}");
+                        SetStatus($"ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ä¼ï¿½: {Path.GetFileName(openFileDialog.FileName)}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ñ¡ÔñÎÄ¼þÊ§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("Ñ¡ÔñÎÄ¼þÊ§°Ü");
+                MessageBox.Show($"Ñ¡ï¿½ï¿½ï¿½Ä¼ï¿½Ê§ï¿½Ü£ï¿½{ex.Message}", "ï¿½ï¿½ï¿½ï¿½", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("Ñ¡ï¿½ï¿½ï¿½Ä¼ï¿½Ê§ï¿½ï¿½");
             }
         }
 
@@ -105,30 +107,31 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5FilePath.Text) || !File.Exists(textMD5FilePath.Text))
                 {
-                    MessageBox.Show("ÇëÏÈÑ¡ÔñÒ»¸öÓÐÐ§µÄÎÄ¼þ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½", "ï¿½ï¿½Ê¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕýÔÚ¼ÆËãÎÄ¼þMD5¹þÏ£...");
+                SetStatus("ï¿½ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½MD5ï¿½ï¿½Ï£...");
 
                 string outputFormat = comboMD5FileHashFormat.SelectedItem?.ToString() ?? "Hex";
                 
-                var md5Provider = new MD5Provider();
-                string result = md5Provider.ComputeFileHashWithFormat(textMD5FilePath.Text, outputFormat);
+                var md5Hash = new Md5Hash();
+                byte[] hashBytes = md5Hash.ComputeFileHash(textMD5FilePath.Text);
+                string result = ConvertHashToFormat(hashBytes, outputFormat);
 
                 textMD5FileHash.Text = result;
-                SetStatus($"ÎÄ¼þMD5¹þÏ£¼ÆËãÍê³É - Êä³ö¸ñÊ½£º{outputFormat}");
+                SetStatus($"ï¿½Ä¼ï¿½MD5ï¿½ï¿½Ï£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"¼ÆËãÎÄ¼þ¹þÏ£Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("¼ÆËãÎÄ¼þ¹þÏ£Ê§°Ü");
+                MessageBox.Show($"ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ï£Ê§ï¿½Ü£ï¿½{ex.Message}", "ï¿½ï¿½ï¿½ï¿½", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ï£Ê§ï¿½ï¿½");
             }
         }
 
         #endregion
 
-        #region MD5¹þÏ£ÑéÖ¤
+        #region MD5ï¿½ï¿½Ï£ï¿½ï¿½Ö¤
 
         private void btnMD5Verify_Click(object sender, EventArgs e)
         {
@@ -136,17 +139,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5VerifyData.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÒªÑéÖ¤µÄÊý¾Ý£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½", "ï¿½ï¿½Ê¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textMD5VerifyHash.Text))
                 {
-                    MessageBox.Show("ÇëÊäÈëÆÚÍûµÄ¹þÏ£Öµ£¡", "ÌáÊ¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¹ï¿½Ï£Öµï¿½ï¿½", "ï¿½ï¿½Ê¾", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("ÕýÔÚÑéÖ¤MD5¹þÏ£...");
+                SetStatus("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤MD5ï¿½ï¿½Ï£...");
 
                 string data = textMD5VerifyData.Text;
                 string expectedHash = textMD5VerifyHash.Text;
@@ -154,27 +157,28 @@ namespace CryptoTool.Win
                 string hashFormat = comboMD5VerifyHashFormat.SelectedItem?.ToString() ?? "Hex";
 
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
+                byte[] expectedHashBytes = ConvertHashFromFormat(expectedHash, hashFormat);
                 
-                var md5Provider = new MD5Provider();
-                bool isValid = md5Provider.VerifyHashWithFormat(dataBytes, expectedHash, hashFormat);
+                var md5Hash = new Md5Hash();
+                bool isValid = md5Hash.VerifyHash(dataBytes, expectedHashBytes);
 
-                labelMD5VerifyResult.Text = isValid ? "ÑéÖ¤Í¨¹ý" : "ÑéÖ¤Ê§°Ü";
+                labelMD5VerifyResult.Text = isValid ? "ï¿½ï¿½Ö¤Í¨ï¿½ï¿½" : "ï¿½ï¿½Ö¤Ê§ï¿½ï¿½";
                 labelMD5VerifyResult.ForeColor = isValid ? Color.Green : Color.Red;
 
-                SetStatus($"MD5¹þÏ£ÑéÖ¤Íê³É - ½á¹û£º{(isValid ? "Í¨¹ý" : "Ê§°Ü")}");
+                SetStatus($"MD5ï¿½ï¿½Ï£ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ - ï¿½ï¿½ï¿½ï¿½ï¿½{(isValid ? "Í¨ï¿½ï¿½" : "Ê§ï¿½ï¿½")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"MD5¹þÏ£ÑéÖ¤Ê§°Ü£º{ex.Message}", "´íÎó", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelMD5VerifyResult.Text = "ÑéÖ¤Òì³£";
+                MessageBox.Show($"MD5ï¿½ï¿½Ï£ï¿½ï¿½Ö¤Ê§ï¿½Ü£ï¿½{ex.Message}", "ï¿½ï¿½ï¿½ï¿½", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelMD5VerifyResult.Text = "ï¿½ï¿½Ö¤ï¿½ì³£";
                 labelMD5VerifyResult.ForeColor = Color.Red;
-                SetStatus("MD5¹þÏ£ÑéÖ¤Ê§°Ü");
+                SetStatus("MD5ï¿½ï¿½Ï£ï¿½ï¿½Ö¤Ê§ï¿½ï¿½");
             }
         }
 
         #endregion
 
-        #region ¸¨Öú·½·¨
+        #region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
         private byte[] ConvertInputData(string data, string format)
         {
@@ -182,8 +186,28 @@ namespace CryptoTool.Win
             {
                 "Text" => Encoding.UTF8.GetBytes(data),
                 "Base64" => Convert.FromBase64String(data),
-                "Hex" => CryptoCommonUtil.ConvertFromHexString(data),
+                "Hex" => CryptoUtil.ConvertFromHexString(data),
                 _ => Encoding.UTF8.GetBytes(data)
+            };
+        }
+
+        private string ConvertHashToFormat(byte[] hashBytes, string format)
+        {
+            return format switch
+            {
+                "Hex" => CryptoUtil.BytesToHex(hashBytes),
+                "Base64" => Convert.ToBase64String(hashBytes),
+                _ => CryptoUtil.BytesToHex(hashBytes)
+            };
+        }
+
+        private byte[] ConvertHashFromFormat(string hashString, string format)
+        {
+            return format switch
+            {
+                "Hex" => CryptoUtil.ConvertFromHexString(hashString),
+                "Base64" => Convert.FromBase64String(hashString),
+                _ => CryptoUtil.ConvertFromHexString(hashString)
             };
         }
 

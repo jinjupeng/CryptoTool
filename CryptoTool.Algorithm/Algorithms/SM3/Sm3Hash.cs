@@ -1,37 +1,44 @@
 using System;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CryptoTool.Algorithm.Interfaces;
-using CryptoTool.Algorithm.Exceptions;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace CryptoTool.Algorithm.Algorithms.SM3
 {
     /// <summary>
     /// SM3国密哈希算法实现
-    /// 注意：这是一个简化实现，实际生产环境建议使用专业的国密库
+    /// 基于BouncyCastle库的生产级实现
     /// </summary>
     public class Sm3Hash : IHashAlgorithm
     {
         public string AlgorithmName => "SM3";
         public CryptoAlgorithmType AlgorithmType => CryptoAlgorithmType.Hash;
-        public int HashLength => 32; // SM3输出256位，即32字节
+
+        /// <summary>
+        /// SM3输出256位，即32字节
+        /// </summary>
+        public int HashLength => 32;
 
         /// <summary>
         /// 计算哈希值
         /// </summary>
         public byte[] ComputeHash(byte[] data)
         {
-            if (data == null || data.Length == 0)
-                throw new Exceptions.DataException("待计算数据不能为空");
+            if (data == null)
+                throw new Exceptions.DataException("待计算数据不能为null");
 
             try
             {
-                // 简化实现：使用SHA256作为SM3的替代（实际项目中应使用真正的SM3算法）
-                // 这里仅作为示例，生产环境请使用专业的国密库
-                using (var sha256 = SHA256.Create())
+                var digest = new SM3Digest();
+                var result = new byte[digest.GetDigestSize()];
+                
+                if (data.Length > 0)
                 {
-                    return sha256.ComputeHash(data);
+                    digest.BlockUpdate(data, 0, data.Length);
                 }
+                
+                digest.DoFinal(result, 0);
+                return result;
             }
             catch (Exception ex)
             {
@@ -163,12 +170,21 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
 
             try
             {
-                // 简化实现：使用SHA256作为SM3的替代（实际项目中应使用真正的SM3算法）
-                using (var sha256 = SHA256.Create())
+                var digest = new SM3Digest();
+                var result = new byte[digest.GetDigestSize()];
+                
                 using (var stream = System.IO.File.OpenRead(filePath))
                 {
-                    return sha256.ComputeHash(stream);
+                    var buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        digest.BlockUpdate(buffer, 0, bytesRead);
+                    }
                 }
+                
+                digest.DoFinal(result, 0);
+                return result;
             }
             catch (Exception ex)
             {
@@ -214,11 +230,14 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
 
             try
             {
-                // 简化实现：使用HMAC-SHA256作为HMAC-SM3的替代（实际项目中应使用真正的HMAC-SM3算法）
-                using (var hmac = new HMACSHA256(key))
-                {
-                    return hmac.ComputeHash(data);
-                }
+                var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new SM3Digest());
+                var keyParam = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key);
+                hmac.Init(keyParam);
+                
+                var result = new byte[hmac.GetMacSize()];
+                hmac.BlockUpdate(data, 0, data.Length);
+                hmac.DoFinal(result, 0);
+                return result;
             }
             catch (Exception ex)
             {

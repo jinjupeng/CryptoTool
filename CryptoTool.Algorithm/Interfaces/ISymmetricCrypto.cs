@@ -38,5 +38,17 @@ namespace CryptoTool.Algorithm.Interfaces
         /// 异步解密
         /// </summary>
         Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null);
+
+        /// <summary>
+        /// 生成随机密钥
+        /// </summary>
+        /// <returns>随机密钥</returns>
+        byte[] GenerateKey();
+
+        /// <summary>
+        /// 生成随机IV
+        /// </summary>
+        /// <returns>随机IV</returns>
+        byte[] GenerateIV();
     }
 }

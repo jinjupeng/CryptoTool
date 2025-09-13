@@ -1,7 +1,4 @@
-using CryptoTool.Common.Providers;
-using CryptoTool.Common.Enums;
-using CryptoTool.Win.Helpers;
-using Org.BouncyCastle.Crypto.Parameters;
+using CryptoTool.Algorithm.Algorithms.RSA;
 using System.Text;
 
 namespace CryptoTool.Win
@@ -43,21 +40,13 @@ namespace CryptoTool.Win
 
                 string keySizeStr = comboRSAKeySize.SelectedItem.ToString();
                 int keySize = int.Parse(keySizeStr);
-                
-                // 转换为KeySize枚举
-                KeySize keySizeEnum = keySize switch
-                {
-                    1024 => KeySize.Key1024,
-                    2048 => KeySize.Key2048,
-                    4096 => KeySize.Key4096,
-                    _ => KeySize.Key2048
-                };
 
-                var rsaProvider = new RSAProvider();
-                var keyPair = rsaProvider.GenerateKeyPair(keySizeEnum);
+                var rsaCrypto = new RsaCrypto(keySize);
+                var keyPair = rsaCrypto.GenerateKeyPair();
                 
-                textRSAPublicKey.Text = keyPair.PublicKey;
-                textRSAPrivateKey.Text = keyPair.PrivateKey;
+                // 转换为Base64格式显示
+                textRSAPublicKey.Text = Convert.ToBase64String(keyPair.PublicKey);
+                textRSAPrivateKey.Text = Convert.ToBase64String(keyPair.PrivateKey);
 
                 SetStatus($"RSA密钥对生成完成 - {keySize}位 {comboRSAKeyFormat.SelectedItem}格式");
             }
@@ -174,9 +163,12 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA加密...");
 
-                var rsaProvider = new RSAProvider();
-                string cipherText = rsaProvider.EncryptWithPublicKey(textRSAPlainText.Text, textRSAPublicKey.Text);
-                textRSACipherText.Text = cipherText;
+                var rsaCrypto = new RsaCrypto();
+                byte[] publicKeyBytes = Convert.FromBase64String(textRSAPublicKey.Text);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(textRSAPlainText.Text);
+                byte[] encryptedBytes = rsaCrypto.Encrypt(dataBytes, publicKeyBytes);
+                
+                textRSACipherText.Text = Convert.ToBase64String(encryptedBytes);
 
                 SetStatus($"RSA加密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输出{comboRSAEncryptOutputFormat.SelectedItem}格式");
             }
@@ -205,9 +197,12 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA解密...");
 
-                var rsaProvider = new RSAProvider();
-                string plainText = rsaProvider.DecryptWithPrivateKey(textRSACipherText.Text, textRSAPrivateKey.Text);
-                textRSAPlainText.Text = plainText;
+                var rsaCrypto = new RsaCrypto();
+                byte[] privateKeyBytes = Convert.FromBase64String(textRSAPrivateKey.Text);
+                byte[] cipherBytes = Convert.FromBase64String(textRSACipherText.Text);
+                byte[] decryptedBytes = rsaCrypto.Decrypt(cipherBytes, privateKeyBytes);
+                
+                textRSAPlainText.Text = Encoding.UTF8.GetString(decryptedBytes);
 
                 SetStatus($"RSA解密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输入{comboRSAEncryptOutputFormat.SelectedItem}格式");
             }
@@ -236,9 +231,12 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA签名...");
 
-                var rsaProvider = new RSAProvider();
-                string signature = rsaProvider.Sign(textRSASignData.Text, textRSAPrivateKey.Text);
-                textRSASignature.Text = signature;
+                var rsaCrypto = new RsaCrypto();
+                byte[] privateKeyBytes = Convert.FromBase64String(textRSAPrivateKey.Text);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(textRSASignData.Text);
+                byte[] signatureBytes = rsaCrypto.Sign(dataBytes, privateKeyBytes);
+                
+                textRSASignature.Text = Convert.ToBase64String(signatureBytes);
 
                 SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormat.SelectedItem}算法，输出{comboRSASignOutputFormat.SelectedItem}格式");
             }
@@ -297,8 +295,11 @@ namespace CryptoTool.Win
 
                 SetStatus("正在进行RSA验签...");
 
-                var rsaProvider = new RSAProvider();
-                bool isValid = rsaProvider.Verify(verifyData, verifySignature, textRSAPublicKey.Text);
+                var rsaCrypto = new RsaCrypto();
+                byte[] publicKeyBytes = Convert.FromBase64String(textRSAPublicKey.Text);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(verifyData);
+                byte[] signatureBytes = Convert.FromBase64String(verifySignature);
+                bool isValid = rsaCrypto.VerifySign(dataBytes, signatureBytes, publicKeyBytes);
 
                 labelRSAVerifyResult.Text = isValid ? "验证通过" : "验证失败";
                 labelRSAVerifyResult.ForeColor = isValid ? Color.Green : Color.Red;

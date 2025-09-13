@@ -1,5 +1,5 @@
-using CryptoTool.Common.Providers;
-using CryptoTool.Common.Enums;
+using CryptoTool.Algorithm.Algorithms.DES;
+using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Helpers;
 using System.Text;
 
@@ -40,11 +40,10 @@ namespace CryptoTool.Win
 
                 UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
 
-                var provider = new DESProvider();
-                string keyBase64 = provider.GenerateKey(KeySize.Key64);
+                var desCrypto = new DesCrypto();
+                byte[] keyBytes = desCrypto.GenerateKey();
                 
                 // 转换为用户指定的格式
-                byte[] keyBytes = Convert.FromBase64String(keyBase64);
                 string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
                 
                 textDESKey.Text = key;
@@ -65,11 +64,10 @@ namespace CryptoTool.Win
 
                 UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
-                var provider = new DESProvider();
-                string ivBase64 = provider.GenerateIV();
+                var desCrypto = new DesCrypto();
+                byte[] ivBytes = desCrypto.GenerateIV();
                 
                 // 转换为用户指定的格式
-                byte[] ivBytes = Convert.FromBase64String(ivBase64);
                 string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
                 
                 textDESIV.Text = iv;
@@ -108,8 +106,6 @@ namespace CryptoTool.Win
                 SetStatus("正在进行DES加密...");
 
                 // 解析参数
-                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode);
-                CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
                 UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
                 UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
                 UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
@@ -117,16 +113,18 @@ namespace CryptoTool.Win
 
                 // 处理输入数据
                 string plaintext = GetPlaintextFromFormat(plaintextFormat);
-                string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
-                string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
+                byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);
+                byte[]? ivBytes = string.IsNullOrEmpty(textDESIV.Text) ? null : FormatConversionHelper.StringToBytes(textDESIV.Text, ivFormat);
 
+                // 创建DES加密器
+                var desCrypto = new DesCrypto();
+                
                 // 执行加密
-                var provider = new DESProvider();
-                string cipherTextBase64 = provider.Encrypt(plaintext, keyForProvider, desMode, desPadding, ivForProvider);
+                byte[] dataBytes = Encoding.UTF8.GetBytes(plaintext);
+                byte[] encryptedBytes = desCrypto.Encrypt(dataBytes, keyBytes, ivBytes);
                 
                 // 转换输出格式
-                byte[] cipherBytes = Convert.FromBase64String(cipherTextBase64);
-                string cipherText = FormatConversionHelper.BytesToString(cipherBytes, outputFormat);
+                string cipherText = FormatConversionHelper.BytesToString(encryptedBytes, outputFormat);
                 
                 textDESCipherText.Text = cipherText;
 
@@ -165,21 +163,22 @@ namespace CryptoTool.Win
                 SetStatus("正在进行DES解密...");
 
                 // 解析参数
-                CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode);
-                CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
                 UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
                 UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
                 UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
                 UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
 
                 // 处理输入数据
-                string cipherTextForProvider = ConvertToProviderFormat(textDESCipherText.Text, ciphertextFormat);
-                string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
-                string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
+                byte[] cipherBytes = FormatConversionHelper.StringToBytes(textDESCipherText.Text, ciphertextFormat);
+                byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);
+                byte[]? ivBytes = string.IsNullOrEmpty(textDESIV.Text) ? null : FormatConversionHelper.StringToBytes(textDESIV.Text, ivFormat);
 
+                // 创建DES加密器
+                var desCrypto = new DesCrypto();
+                
                 // 执行解密
-                var provider = new DESProvider();
-                string plainText = provider.Decrypt(cipherTextForProvider, keyForProvider, desMode, desPadding, ivForProvider);
+                byte[] decryptedBytes = desCrypto.Decrypt(cipherBytes, keyBytes, ivBytes);
+                string plainText = Encoding.UTF8.GetString(decryptedBytes);
                 
                 // 设置解密结果
                 SetPlaintextFromFormat(plainText, plaintextFormat);
@@ -318,17 +317,17 @@ namespace CryptoTool.Win
                         SetStatus("正在加密文件...");
 
                         // 解析参数
-                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode ?? "");
-                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
                         UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
                         UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                         // 处理输入数据
-                        string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
-                        string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
+                        byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);
+                        byte[]? ivBytes = string.IsNullOrEmpty(textDESIV.Text) ? null : FormatConversionHelper.StringToBytes(textDESIV.Text, ivFormat);
 
-                        var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
-                        desProvider.EncryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, desMode, desPadding, ivForProvider);
+                        var desCrypto = new DesCrypto();
+                        byte[] fileData = File.ReadAllBytes(openDialog.FileName);
+                        byte[] encryptedData = desCrypto.Encrypt(fileData, keyBytes, ivBytes);
+                        File.WriteAllBytes(saveDialog.FileName, encryptedData);
 
                         SetStatus($"文件加密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件加密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -382,17 +381,17 @@ namespace CryptoTool.Win
                         SetStatus("正在解密文件...");
 
                         // 解析参数
-                        CryptoMode desMode = CryptoUIHelper.ParseCryptoMode(mode ?? "");
-                        CryptoPaddingMode desPadding = CryptoUIHelper.ParsePaddingMode(comboDESPadding.SelectedItem?.ToString() ?? "");
                         UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
                         UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                         // 处理输入数据
-                        string keyForProvider = ConvertToProviderFormat(textDESKey.Text, keyFormat);
-                        string ivForProvider = string.IsNullOrEmpty(textDESIV.Text) ? null : ConvertToProviderFormat(textDESIV.Text, ivFormat);
+                        byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);
+                        byte[]? ivBytes = string.IsNullOrEmpty(textDESIV.Text) ? null : FormatConversionHelper.StringToBytes(textDESIV.Text, ivFormat);
 
-                        var desProvider = CryptoFactory.CreateCryptoProvider(AlgorithmType.DES);
-                        desProvider.DecryptFile(openDialog.FileName, saveDialog.FileName, keyForProvider, desMode, desPadding, ivForProvider);
+                        var desCrypto = new DesCrypto();
+                        byte[] encryptedData = File.ReadAllBytes(openDialog.FileName);
+                        byte[] decryptedData = desCrypto.Decrypt(encryptedData, keyBytes, ivBytes);
+                        File.WriteAllBytes(saveDialog.FileName, decryptedData);
 
                         SetStatus($"文件解密完成：{saveDialog.FileName}");
                         MessageBox.Show("文件解密完成！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
