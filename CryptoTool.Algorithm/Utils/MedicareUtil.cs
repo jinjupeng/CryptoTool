@@ -61,14 +61,13 @@ namespace CryptoTool.Algorithm.Utils
         /// <param name="appSecret"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static string SignParameters(IDictionary<string, object> parameters, ECPrivateKeyParameters privateKey, string appSecret)
+        public static string SignParameters(IDictionary<string, object> parameters, byte[] privateKey, string appSecret)
         {
             if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
             string baseString = BuildSignatureBaseString(parameters, appSecret);
 
             var sm2Crypto = new Sm2Crypto();
-            string hexAsn1 = sm2Crypto.Sign(Encoding.UTF8.GetBytes(baseString), privateKey);
-            byte[] sigBytes = Hex.Decode(hexAsn1);
+            byte[] sigBytes = sm2Crypto.Sign(Encoding.UTF8.GetBytes(baseString), privateKey);
             return Convert.ToBase64String(sigBytes);
         }
 
@@ -81,7 +80,7 @@ namespace CryptoTool.Algorithm.Utils
         /// <param name="appSecret"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static bool VerifyParametersSignature(IDictionary<string, object> parameters, string signDataBase64, ECPublicKeyParameters publicKey, string appSecret)
+        public static bool VerifyParametersSignature(IDictionary<string, object> parameters, string signDataBase64, byte[] publicKey, string appSecret)
         {
             if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
             if (string.IsNullOrEmpty(signDataBase64)) throw new ArgumentNullException(nameof(signDataBase64));

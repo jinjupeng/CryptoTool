@@ -88,10 +88,13 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
 
             try
             {
+                bool ivWasGenerated = false;
+                
                 // 生成IV（如果需要且未提供）
                 if (iv == null && RequiresIV())
                 {
                     iv = CryptoUtil.GenerateRandomBytes(16);
+                    ivWasGenerated = true;
                 }
 
                 // 创建SM4引擎
@@ -114,7 +117,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
                 }
                 
                 // 如果IV是自动生成的，需要将IV和加密数据一起返回
-                if (iv != null && RequiresIV())
+                if (ivWasGenerated && RequiresIV() && iv != null)
                 {
                     var result = new byte[iv.Length + encrypted.Length];
                     Array.Copy(iv, 0, result, 0, iv.Length);
@@ -146,7 +149,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
 
             try
             {
-                // 如果IV为null，说明IV包含在加密数据的前面
+                // 如果IV为null，说明IV包含在加密数据的前面（自动生成的IV）
                 if (iv == null && RequiresIV())
                 {
                     if (encryptedData.Length < 16)

@@ -1,5 +1,4 @@
 using CryptoTool.Algorithm.Algorithms.MD5;
-using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Utils;
 using System.Text;
 
@@ -186,7 +185,7 @@ namespace CryptoTool.Win
             {
                 "Text" => Encoding.UTF8.GetBytes(data),
                 "Base64" => Convert.FromBase64String(data),
-                "Hex" => CryptoUtil.ConvertFromHexString(data),
+                "Hex" => CryptoUtil.HexToBytes(data),
                 _ => Encoding.UTF8.GetBytes(data)
             };
         }
@@ -205,9 +204,9 @@ namespace CryptoTool.Win
         {
             return format switch
             {
-                "Hex" => CryptoUtil.ConvertFromHexString(hashString),
+                "Hex" => CryptoUtil.HexToBytes(hashString),
                 "Base64" => Convert.FromBase64String(hashString),
-                _ => CryptoUtil.ConvertFromHexString(hashString)
+                _ => CryptoUtil.HexToBytes(hashString)
             };
         }
 

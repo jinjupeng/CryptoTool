@@ -366,11 +366,13 @@ namespace CryptoTool.Win
             // 如果直接解析失败，尝试通过RSAProvider的方法
             try
             {
+                var rsaCrypto = new RsaCrypto();
+                
                 if (isPrivateKey)
                 {
                     return format switch
                     {
-                        KeyFormat.PEM => RSAProvider.ParsePrivateKeyFromPem(keyContent),
+                        KeyFormat.PEM => null,
                         _ => null
                     };
                 }
@@ -378,7 +380,7 @@ namespace CryptoTool.Win
                 {
                     return format switch
                     {
-                        KeyFormat.PEM => RSAProvider.ParsePublicKeyFromPem(keyContent),
+                        KeyFormat.PEM => null,
                         _ => null
                     };
                 }
@@ -457,7 +459,7 @@ namespace CryptoTool.Win
                 {
                     return format switch
                     {
-                        KeyFormat.PEM => RSAProvider.ParsePrivateKeyFromPem(keyContent),
+                        KeyFormat.PEM => null,
                         _ => null
                     };
                 }
@@ -465,7 +467,7 @@ namespace CryptoTool.Win
                 {
                     return format switch
                     {
-                        KeyFormat.PEM => RSAProvider.ParsePublicKeyFromPem(keyContent),
+                        KeyFormat.PEM => null,
                         _ => null
                     };
                 }

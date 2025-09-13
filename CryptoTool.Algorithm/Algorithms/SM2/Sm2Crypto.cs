@@ -175,12 +175,82 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 else
                 {
                     // 其他情况，尝试解析为r和s值
+                    // 对于SM2，签名通常是DER编码的ASN.1格式
+                    // 我们需要解析DER格式并提取r和s值
+                    try
+                    {
+                        // 尝试解析为DER格式
+                        var derSequence = Org.BouncyCastle.Asn1.Asn1Object.FromByteArray(signature) as Org.BouncyCastle.Asn1.DerSequence;
+                        if (derSequence != null && derSequence.Count == 2)
+                        {
+                            var rDer = derSequence[0] as Org.BouncyCastle.Asn1.DerInteger;
+                            var sDer = derSequence[1] as Org.BouncyCastle.Asn1.DerInteger;
+                            
+                            if (rDer != null && sDer != null)
+                            {
+                                var rBytes = rDer.Value.ToByteArrayUnsigned();
+                                var sBytes = sDer.Value.ToByteArrayUnsigned();
+                                
+                                // 确保r和s都是32字节
+                                var rArray = new byte[32];
+                                var sArray = new byte[32];
+                                
+                                if (rBytes.Length <= 32)
+                                {
+                                    Array.Copy(rBytes, 0, rArray, 32 - rBytes.Length, rBytes.Length);
+                                }
+                                else
+                                {
+                                    Array.Copy(rBytes, rBytes.Length - 32, rArray, 0, 32);
+                                }
+                                
+                                if (sBytes.Length <= 32)
+                                {
+                                    Array.Copy(sBytes, 0, sArray, 32 - sBytes.Length, sBytes.Length);
+                                }
+                                else
+                                {
+                                    Array.Copy(sBytes, sBytes.Length - 32, sArray, 0, 32);
+                                }
+                                
+                                var derResult = new byte[64];
+                                Array.Copy(rArray, 0, derResult, 0, 32);
+                                Array.Copy(sArray, 0, derResult, 32, 32);
+                                
+                                return derResult;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // 如果DER解析失败，尝试其他方法
+                    }
+                    
+                    // 如果DER解析失败，尝试按长度处理
                     var halfLength = signature.Length / 2;
+                    
+                    // 验证签名长度是否合理
+                    if (signature.Length % 2 != 0 || halfLength < 1 || halfLength > 32)
+                    {
+                        throw new Exceptions.CryptoException($"不支持的签名长度: {signature.Length}字节，期望64字节或有效的DER格式");
+                    }
+                    
                     var r = new byte[32];
                     var s = new byte[32];
                     
-                    Array.Copy(signature, 0, r, 32 - halfLength, halfLength);
-                    Array.Copy(signature, halfLength, s, 32 - halfLength, halfLength);
+                    // 安全地复制r和s值，确保不会越界
+                    if (halfLength <= 32)
+                    {
+                        // 右对齐填充到32字节
+                        Array.Copy(signature, 0, r, 32 - halfLength, halfLength);
+                        Array.Copy(signature, halfLength, s, 32 - halfLength, halfLength);
+                    }
+                    else
+                    {
+                        // 如果halfLength > 32，取后32字节
+                        Array.Copy(signature, halfLength - 32, r, 0, 32);
+                        Array.Copy(signature, halfLength + halfLength - 32, s, 0, 32);
+                    }
                     
                     var result = new byte[64];
                     Array.Copy(r, 0, result, 0, 32);
@@ -218,13 +288,16 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 if (signature.Length != 64)
                     return false;
                 
+                // 将64字节的r||s格式转换为DER格式
+                var derSignature = ConvertRsToDer(signature);
+                
                 // 创建SM2签名器
                 var signer = new SM2Signer();
                 signer.Init(false, ecPublicKey);
                 
                 // 执行验证
                 signer.BlockUpdate(data, 0, data.Length);
-                return signer.VerifySignature(signature);
+                return signer.VerifySignature(derSignature);
             }
             catch (Exception ex)
             {
@@ -478,6 +551,42 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             catch (Exception ex)
             {
                 throw new Exceptions.KeyException("公钥编码失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 将r||s格式的签名转换为DER格式
+        /// </summary>
+        /// <param name="rsSignature">r||s格式的签名（64字节）</param>
+        /// <returns>DER格式的签名</returns>
+        private byte[] ConvertRsToDer(byte[] rsSignature)
+        {
+            if (rsSignature == null || rsSignature.Length != 64)
+                throw new ArgumentException("签名必须是64字节的r||s格式");
+
+            try
+            {
+                // 提取r和s值（各32字节）
+                var rBytes = new byte[32];
+                var sBytes = new byte[32];
+                Array.Copy(rsSignature, 0, rBytes, 0, 32);
+                Array.Copy(rsSignature, 32, sBytes, 0, 32);
+
+                // 创建BigInteger对象
+                var r = new BigInteger(1, rBytes);
+                var s = new BigInteger(1, sBytes);
+
+                // 创建DER序列
+                var rDer = new Org.BouncyCastle.Asn1.DerInteger(r);
+                var sDer = new Org.BouncyCastle.Asn1.DerInteger(s);
+                var sequence = new Org.BouncyCastle.Asn1.DerSequence(rDer, sDer);
+
+                // 编码为DER格式
+                return sequence.GetEncoded();
+            }
+            catch (Exception ex)
+            {
+                throw new Exceptions.CryptoException("签名格式转换失败", ex);
             }
         }
 

@@ -1,6 +1,6 @@
+using CryptoTool.Algorithm.Utils;
 using System;
 using System.Text;
-using CryptoTool.Common.Utils;
 
 namespace CryptoTool.Win.Helpers
 {
@@ -72,7 +72,7 @@ namespace CryptoTool.Win.Helpers
             {
                 UIInputFormat.UTF8 => encoding.GetBytes(str),
                 UIInputFormat.Base64 => Convert.FromBase64String(str),
-                UIInputFormat.Hex => CryptoCommonUtil.ConvertFromHexString(str),
+                UIInputFormat.Hex => CryptoUtil.HexToBytes(str),
                 _ => throw new ArgumentException($"不支持的输入格式: {format}")
             };
         }
@@ -95,7 +95,7 @@ namespace CryptoTool.Win.Helpers
             {
                 UIOutputFormat.UTF8 => encoding.GetString(bytes),
                 UIOutputFormat.Base64 => Convert.ToBase64String(bytes),
-                UIOutputFormat.Hex => CryptoCommonUtil.ConvertToHexString(bytes),
+                UIOutputFormat.Hex => CryptoUtil.BytesToHex(bytes),
                 UIOutputFormat.PEM => Convert.ToBase64String(bytes), // PEM使用Base64编码
                 _ => throw new ArgumentException($"不支持的输出格式: {format}")
             };
@@ -163,7 +163,7 @@ namespace CryptoTool.Win.Helpers
                         Convert.FromBase64String(str);
                         return true;
                     case UIInputFormat.Hex:
-                        CryptoCommonUtil.ConvertFromHexString(str);
+                        CryptoUtil.HexToBytes(str);
                         return true;
                     case UIInputFormat.UTF8:
                         return true;
