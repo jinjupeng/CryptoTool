@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CryptoTool.Common\CryptoTool.Common.csproj" />
+    <ProjectReference Include="..\CryptoTool.Algorithm\CryptoTool.Algorithm.csproj" />
   </ItemGroup>
 
 </Project>

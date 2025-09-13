@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
+    <AssemblyTitle>CryptoTool.Algorithm</AssemblyTitle>
+    <AssemblyDescription>完整的加密算法类库，支持RSA、AES、DES、MD5、SM2、SM3、SM4等算法</AssemblyDescription>
+    <AssemblyCompany>CryptoTool</AssemblyCompany>
+    <AssemblyProduct>CryptoTool.Algorithm</AssemblyProduct>
+    <AssemblyCopyright>Copyright © 2024</AssemblyCopyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.OpenSsl" Version="4.3.0" />
+	<PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+  </ItemGroup>
+
+</Project>

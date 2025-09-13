@@ -1,0 +1,42 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CryptoTool.Algorithm.Interfaces
+{
+
+    /// <summary>
+    /// 对称加密算法接口
+    /// </summary>
+    public interface ISymmetricCrypto : ICryptoAlgorithm
+    {
+        /// <summary>
+        /// 加密
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始化向量</param>
+        /// <returns>加密后的数据</returns>
+        byte[] Encrypt(byte[] data, byte[] key, byte[]? iv = null);
+
+        /// <summary>
+        /// 解密
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始化向量</param>
+        /// <returns>解密后的数据</returns>
+        byte[] Decrypt(byte[] encryptedData, byte[] key, byte[]? iv = null);
+
+        /// <summary>
+        /// 异步加密
+        /// </summary>
+        Task<byte[]> EncryptAsync(byte[] data, byte[] key, byte[]? iv = null);
+
+        /// <summary>
+        /// 异步解密
+        /// </summary>
+        Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null);
+    }
+}
