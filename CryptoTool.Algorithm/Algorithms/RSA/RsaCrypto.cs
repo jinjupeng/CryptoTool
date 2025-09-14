@@ -6,6 +6,7 @@ using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Utils;
 using CryptoTool.Algorithm.Enums;
+using System.Collections.Generic;
 
 namespace CryptoTool.Algorithm.Algorithms.RSA
 {
@@ -18,21 +19,29 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         public CryptoAlgorithmType AlgorithmType => CryptoAlgorithmType.Asymmetric;
 
         private readonly int _keySize;
+        private readonly string _keyFormat;
         private const int PKCS1_PADDING_SIZE = 11;
 
         /// <summary>
         /// 初始化RSA加密算法
         /// </summary>
         /// <param name="keySize">密钥长度，默认2048位</param>
-        public RsaCrypto(int keySize = 2048)
+        /// <param name="keyFormat">密钥格式，支持"pkcs1"或"pkcs8"，默认为"pkcs8"</param>
+        public RsaCrypto(int keySize = 2048, string keyFormat = "pkcs8")
         {
             ValidateKeySize(keySize);
+            ValidateKeyFormat(keyFormat);
             _keySize = keySize;
+            _keyFormat = keyFormat.ToLower();
         }
 
         /// <summary>
-        /// 加密
+        /// 加密 - 固定PKCS1填充模式
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Encrypt(byte[] data, byte[] publicKey)
         {
             ValidateEncryptInput(data, publicKey);
@@ -57,8 +66,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 解密
+        /// 解密 - 固定PKCS1填充模式
         /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Decrypt(byte[] encryptedData, byte[] privateKey)
         {
             ValidateDecryptInput(encryptedData, privateKey);
@@ -83,26 +96,60 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 生成密钥对，PKCS1格式
+        /// 生成密钥对，根据构造函数指定的格式生成
         /// </summary>
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair()
         {
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
-                var publicKey = rsa.ExportRSAPublicKey();
-                var privateKey = rsa.ExportRSAPrivateKey();
-                return (publicKey, privateKey);
+                return _keyFormat switch
+                {
+                    "pkcs1" => (rsa.ExportRSAPublicKey(), rsa.ExportRSAPrivateKey()),
+                    "pkcs8" => (rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey()),
+                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+                };
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is CryptoException))
             {
-                throw new CryptoException("RSA密钥对生成失败", ex);
+                throw new CryptoException($"RSA密钥对生成失败 (格式: {_keyFormat})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 生成指定格式的密钥对
+        /// </summary>
+        /// <param name="keyFormat">密钥格式，"pkcs1"或"pkcs8"，默认支持pkcs8</param>
+        /// <returns>密钥对</returns>
+        public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair(string keyFormat = "pkcs8")
+        {
+            ValidateKeyFormat(keyFormat);
+            
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
+                var format = keyFormat.ToLower();
+                
+                return format switch
+                {
+                    "pkcs1" => (rsa.ExportRSAPublicKey(), rsa.ExportRSAPrivateKey()),
+                    "pkcs8" => (rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey()),
+                    _ => throw new CryptoException($"不支持的密钥格式: {format}")
+                };
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA密钥对生成失败 (格式: {keyFormat})", ex);
             }
         }
 
         /// <summary>
         /// 签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Sign(byte[] data, byte[] privateKey)
         {
             ValidateSignInput(data, privateKey);
@@ -122,6 +169,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 验证签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="signature"></param>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public bool VerifySign(byte[] data, byte[] signature, byte[] publicKey)
         {
             ValidateVerifyInput(data, signature, publicKey);
@@ -139,8 +191,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 异步加密 - 优化版
+        /// 异步加密
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
         public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey)
         {
             ValidateEncryptInput(data, publicKey);
@@ -148,8 +203,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 异步解密 - 优化版
+        /// 异步解密
         /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
         public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey)
         {
             ValidateDecryptInput(encryptedData, privateKey);
@@ -157,8 +215,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 异步签名 - 优化版
+        /// 异步签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
         public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey)
         {
             ValidateSignInput(data, privateKey);
@@ -166,8 +227,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 异步验证签名 - 优化版
+        /// 异步验证签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="signature"></param>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
         public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
         {
             ValidateVerifyInput(data, signature, publicKey);
@@ -177,6 +242,10 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 带取消令牌的异步加密
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="publicKey"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, CancellationToken cancellationToken)
         {
             ValidateEncryptInput(data, publicKey);
@@ -190,6 +259,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 使用指定填充模式加密
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="publicKey"></param>
+        /// <param name="paddingMode"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Encrypt(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
         {
             ValidateEncryptInput(data, publicKey);
@@ -218,6 +292,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 使用指定填充模式解密
         /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <param name="privateKey"></param>
+        /// <param name="paddingMode"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Decrypt(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
         {
             ValidateDecryptInput(encryptedData, privateKey);
@@ -246,6 +325,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 使用指定签名算法签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="privateKey"></param>
+        /// <param name="signatureAlgorithm"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Sign(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
         {
             ValidateSignInput(data, privateKey);
@@ -272,6 +356,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <summary>
         /// 使用指定签名算法验证签名
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="signature"></param>
+        /// <param name="publicKey"></param>
+        /// <param name="signatureAlgorithm"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public bool VerifySign(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
         {
             ValidateVerifyInput(data, signature, publicKey);
@@ -462,6 +552,16 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 throw new ArgumentException("密钥长度必须大于等于1024位且为8的倍数", nameof(keySize));
         }
 
+        private static void ValidateKeyFormat(string keyFormat)
+        {
+            if (string.IsNullOrWhiteSpace(keyFormat))
+                throw new ArgumentException("密钥格式不能为空", nameof(keyFormat));
+            
+            var format = keyFormat.ToLower();
+            if (format != "pkcs1" && format != "pkcs8")
+                throw new ArgumentException("密钥格式只支持 'pkcs1' 或 'pkcs8'", nameof(keyFormat));
+        }
+
         private static void ValidateEncryptInput(byte[] data, byte[] publicKey)
         {
             if (data == null || data.Length == 0)
@@ -502,11 +602,22 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 throw new KeyException($"{keyType}不能为空");
         }
 
+        /// <summary>
+        /// 获取最大可加密数据长度，固定PKCS1填充模式
+        /// </summary>
+        /// <param name="keySize"></param>
+        /// <returns></returns>
         private static int GetMaxDataLength(int keySize)
         {
             return (keySize / 8) - PKCS1_PADDING_SIZE;
         }
 
+        /// <summary>
+        /// 获取最大可加密数据长度，支持多种填充模式
+        /// </summary>
+        /// <param name="keySize"></param>
+        /// <param name="paddingMode"></param>
+        /// <returns></returns>
         private static int GetMaxDataLength(int keySize, AsymmetricPaddingMode paddingMode)
         {
             return paddingMode switch
@@ -517,6 +628,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             };
         }
 
+        /// <summary>
+        /// 获取最大可加密数据长度，支持多种填充模式
+        /// </summary>
+        /// <param name="keySize"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         private static int GetMaxDataLength(int keySize, RSAEncryptionPadding padding)
         {
             if (padding == RSAEncryptionPadding.Pkcs1)
@@ -534,12 +651,15 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 优化的分块加密
+        /// 分块加密 - 固定PKCS1填充模式
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="rsa"></param>
+        /// <returns></returns>
         private byte[] EncryptLargeData(byte[] data, System.Security.Cryptography.RSA rsa)
         {
             var blockSize = GetMaxDataLength(rsa.KeySize);
-            var encryptedBlocks = new System.Collections.Generic.List<byte[]>();
+            var encryptedBlocks = new List<byte[]>();
             var totalLength = 0;
 
             var dataSpan = data.AsSpan();
@@ -547,7 +667,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 var currentBlockSize = Math.Min(blockSize, data.Length - i);
                 var block = dataSpan.Slice(i, currentBlockSize).ToArray();
-                var encryptedBlock = rsa.Encrypt(block, RSAEncryptionPadding.Pkcs1);
+                var encryptedBlock = rsa.Encrypt(block, RSAEncryptionPadding.Pkcs1); // 固定填充模式为PKCS1
                 encryptedBlocks.Add(encryptedBlock);
                 totalLength += encryptedBlock.Length;
             }
@@ -564,8 +684,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 优化的分块加密 - 支持指定填充模式
+        /// 分块加密，支持指定填充模式
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="rsa"></param>
+        /// <param name="padding"></param>
+        /// <returns></returns>
         private byte[] EncryptLargeData(byte[] data, System.Security.Cryptography.RSA rsa, RSAEncryptionPadding padding)
         {
             var blockSize = GetMaxDataLength(rsa.KeySize, padding);

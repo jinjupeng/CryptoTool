@@ -40,15 +40,23 @@ namespace CryptoTool.Win
                 SetStatus("正在生成RSA密钥对...");
 
                 string keySizeStr = comboRSAKeySize.SelectedItem.ToString();
+                var keyFormat = comboRSAKeyFormat.SelectedItem.ToString().ToLower();
+                var keyOutputFormat = comboRSAKeyOutputFormat.SelectedItem.ToString().ToLower();
+                if (keyOutputFormat.ToLowerInvariant() == "pem")
+                {
+                    MessageBox.Show($"RSA密钥生成失败，暂不支持{keyOutputFormat}格式显示！", "失败", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    textRSAPublicKey.Text = "";
+                    textRSAPrivateKey.Text = "";
+                    return;
+                }
                 int keySize = int.Parse(keySizeStr);
 
-                var rsaCrypto = new RsaCrypto(keySize);
+                var rsaCrypto = new RsaCrypto(keySize, keyFormat);
                 var keyPair = rsaCrypto.GenerateKeyPair();
                 
-                var uiOutputFormat = FormatConversionHelper.ParseOutputFormat(comboRSAKeyOutputFormat.SelectedItem.ToString());
-                // 转换为Base64格式显示
+                var uiOutputFormat = FormatConversionHelper.ParseOutputFormat(keyOutputFormat);
                 textRSAPublicKey.Text = FormatConversionHelper.BytesToString(keyPair.PublicKey, uiOutputFormat);
-                textRSAPrivateKey.Text = Convert.ToBase64String(keyPair.PrivateKey);
+                textRSAPrivateKey.Text = FormatConversionHelper.BytesToString(keyPair.PrivateKey, uiOutputFormat);
 
                 SetStatus($"RSA密钥对生成完成 - {keySize}位 {comboRSAKeyFormat.SelectedItem}格式");
             }

@@ -191,7 +191,7 @@ namespace CryptoTool.Win
             // 
             comboRSAKeyFormat.DropDownStyle = ComboBoxStyle.DropDownList;
             comboRSAKeyFormat.FormattingEnabled = true;
-            comboRSAKeyFormat.Items.AddRange(new object[] { "PKCS1(非JAVA适用)", "PKCS8(JAVA适用)" });
+            comboRSAKeyFormat.Items.AddRange(new object[] { "PKCS1", "PKCS8" });
             comboRSAKeyFormat.Location = new Point(305, 4);
             comboRSAKeyFormat.Margin = new Padding(4);
             comboRSAKeyFormat.Name = "comboRSAKeyFormat";

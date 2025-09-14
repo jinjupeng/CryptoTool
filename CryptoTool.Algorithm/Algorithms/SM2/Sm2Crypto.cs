@@ -32,8 +32,12 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             _sm2Parameters.Curve, _sm2Parameters.G, _sm2Parameters.N, _sm2Parameters.H, _sm2Parameters.GetSeed());
 
         /// <summary>
-        /// 加密
+        /// 加密 
         /// </summary>
+        /// <param name="data"></param>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Encrypt(byte[] data, byte[] publicKey)
         {
             ValidateEncryptInput(data, publicKey);
@@ -55,6 +59,10 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         /// <summary>
         /// 解密
         /// </summary>
+        /// <param name="encryptedData"></param>
+        /// <param name="privateKey"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
         public byte[] Decrypt(byte[] encryptedData, byte[] privateKey)
         {
             ValidateDecryptInput(encryptedData, privateKey);
@@ -151,7 +159,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         }
 
         /// <summary>
-        /// 异步加密 - 优化版
+        /// 异步加密
         /// </summary>
         public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey)
         {
@@ -160,7 +168,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         }
 
         /// <summary>
-        /// 异步解密 - 优化版
+        /// 异步解密
         /// </summary>
         public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey)
         {
@@ -169,7 +177,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         }
 
         /// <summary>
-        /// 异步签名 - 优化版
+        /// 异步签名
         /// </summary>
         public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey)
         {
@@ -178,7 +186,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         }
 
         /// <summary>
-        /// 异步验证签名 - 优化版
+        /// 异步验证签名
         /// </summary>
         public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
         {
