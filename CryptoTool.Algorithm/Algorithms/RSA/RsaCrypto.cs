@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Threading;
 using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Utils;
@@ -8,7 +9,7 @@ using CryptoTool.Algorithm.Utils;
 namespace CryptoTool.Algorithm.Algorithms.RSA
 {
     /// <summary>
-    /// RSA加密算法实现
+    /// RSA加密算法实现 - 优化版
     /// </summary>
     public class RsaCrypto : IAsymmetricCrypto
     {
@@ -16,6 +17,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         public CryptoAlgorithmType AlgorithmType => CryptoAlgorithmType.Asymmetric;
 
         private readonly int _keySize;
+        private const int PKCS1_PADDING_SIZE = 11;
 
         /// <summary>
         /// 初始化RSA加密算法
@@ -23,9 +25,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <param name="keySize">密钥长度，默认2048位</param>
         public RsaCrypto(int keySize = 2048)
         {
-            if (keySize < 1024 || keySize % 8 != 0)
-                throw new ArgumentException("密钥长度必须大于等于1024位且为8的倍数", nameof(keySize));
-
+            ValidateKeySize(keySize);
             _keySize = keySize;
         }
 
@@ -34,29 +34,22 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// </summary>
         public byte[] Encrypt(byte[] data, byte[] publicKey)
         {
-            if (data == null || data.Length == 0)
-                throw new DataException("待加密数据不能为空");
-
-            if (publicKey == null || publicKey.Length == 0)
-                throw new KeyException("公钥不能为空");
+            ValidateEncryptInput(data, publicKey);
 
             try
             {
-                using (var rsa = System.Security.Cryptography.RSA.Create())
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPublicKey(publicKey, out _);
+                
+                var maxDataLength = GetMaxDataLength(rsa.KeySize);
+                if (data.Length > maxDataLength)
                 {
-                    rsa.ImportRSAPublicKey(publicKey, out _);
-                    
-                    // RSA加密有长度限制，需要分块处理
-                    var maxDataLength = (rsa.KeySize / 8) - 42; // PKCS1填充需要42字节
-                    if (data.Length > maxDataLength)
-                    {
-                        return EncryptLargeData(data, rsa);
-                    }
-
-                    return rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
+                    return EncryptLargeData(data, rsa);
                 }
+
+                return rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is CryptoException))
             {
                 throw new CryptoException("RSA加密失败", ex);
             }
@@ -67,29 +60,22 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// </summary>
         public byte[] Decrypt(byte[] encryptedData, byte[] privateKey)
         {
-            if (encryptedData == null || encryptedData.Length == 0)
-                throw new DataException("待解密数据不能为空");
-
-            if (privateKey == null || privateKey.Length == 0)
-                throw new KeyException("私钥不能为空");
+            ValidateDecryptInput(encryptedData, privateKey);
 
             try
             {
-                using (var rsa = System.Security.Cryptography.RSA.Create())
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPrivateKey(privateKey, out _);
+                
+                var blockSize = rsa.KeySize / 8;
+                if (encryptedData.Length > blockSize)
                 {
-                    rsa.ImportRSAPrivateKey(privateKey, out _);
-                    
-                    // 检查是否需要分块解密
-                    var blockSize = rsa.KeySize / 8;
-                    if (encryptedData.Length > blockSize)
-                    {
-                        return DecryptLargeData(encryptedData, rsa);
-                    }
-
-                    return rsa.Decrypt(encryptedData, RSAEncryptionPadding.Pkcs1);
+                    return DecryptLargeData(encryptedData, rsa);
                 }
+
+                return rsa.Decrypt(encryptedData, RSAEncryptionPadding.Pkcs1);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is CryptoException))
             {
                 throw new CryptoException("RSA解密失败", ex);
             }
@@ -102,12 +88,10 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         {
             try
             {
-                using (var rsa = System.Security.Cryptography.RSA.Create(_keySize))
-                {
-                    var publicKey = rsa.ExportRSAPublicKey();
-                    var privateKey = rsa.ExportRSAPrivateKey();
-                    return (publicKey, privateKey);
-                }
+                using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
+                var publicKey = rsa.ExportRSAPublicKey();
+                var privateKey = rsa.ExportRSAPrivateKey();
+                return (publicKey, privateKey);
             }
             catch (Exception ex)
             {
@@ -120,21 +104,15 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// </summary>
         public byte[] Sign(byte[] data, byte[] privateKey)
         {
-            if (data == null || data.Length == 0)
-                throw new DataException("待签名数据不能为空");
-
-            if (privateKey == null || privateKey.Length == 0)
-                throw new KeyException("私钥不能为空");
+            ValidateSignInput(data, privateKey);
 
             try
             {
-                using (var rsa = System.Security.Cryptography.RSA.Create())
-                {
-                    rsa.ImportRSAPrivateKey(privateKey, out _);
-                    return rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                }
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPrivateKey(privateKey, out _);
+                return rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is CryptoException))
             {
                 throw new CryptoException("RSA签名失败", ex);
             }
@@ -145,90 +123,140 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// </summary>
         public bool VerifySign(byte[] data, byte[] signature, byte[] publicKey)
         {
-            if (data == null || data.Length == 0)
-                throw new DataException("原始数据不能为空");
-
-            if (signature == null || signature.Length == 0)
-                throw new DataException("签名数据不能为空");
-
-            if (publicKey == null || publicKey.Length == 0)
-                throw new KeyException("公钥不能为空");
+            ValidateVerifyInput(data, signature, publicKey);
 
             try
             {
-                using (var rsa = System.Security.Cryptography.RSA.Create())
-                {
-                    rsa.ImportRSAPublicKey(publicKey, out _);
-                    return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                }
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPublicKey(publicKey, out _);
+                return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is CryptoException))
             {
                 throw new CryptoException("RSA签名验证失败", ex);
             }
         }
 
         /// <summary>
-        /// 异步加密
+        /// 异步加密 - 优化版
         /// </summary>
         public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey)
         {
-            return await Task.Run(() => Encrypt(data, publicKey));
+            ValidateEncryptInput(data, publicKey);
+            return await Task.Run(() => Encrypt(data, publicKey)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 异步解密
+        /// 异步解密 - 优化版
         /// </summary>
         public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey)
         {
-            return await Task.Run(() => Decrypt(encryptedData, privateKey));
+            ValidateDecryptInput(encryptedData, privateKey);
+            return await Task.Run(() => Decrypt(encryptedData, privateKey)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 异步签名
+        /// 异步签名 - 优化版
         /// </summary>
         public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey)
         {
-            return await Task.Run(() => Sign(data, privateKey));
+            ValidateSignInput(data, privateKey);
+            return await Task.Run(() => Sign(data, privateKey)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 异步验证签名
+        /// 异步验证签名 - 优化版
         /// </summary>
         public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
         {
-            return await Task.Run(() => VerifySign(data, signature, publicKey));
+            ValidateVerifyInput(data, signature, publicKey);
+            return await Task.Run(() => VerifySign(data, signature, publicKey)).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// 分块加密大数据
+        /// 带取消令牌的异步加密
+        /// </summary>
+        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, CancellationToken cancellationToken)
+        {
+            ValidateEncryptInput(data, publicKey);
+            return await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                return Encrypt(data, publicKey);
+            }, cancellationToken).ConfigureAwait(false);
+        }
+
+        #region 私有辅助方法
+
+        private void ValidateKeySize(int keySize)
+        {
+            if (keySize < 1024 || keySize % 8 != 0)
+                throw new ArgumentException("密钥长度必须大于等于1024位且为8的倍数", nameof(keySize));
+        }
+
+        private static void ValidateEncryptInput(byte[] data, byte[] publicKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("待加密数据不能为空");
+            if (publicKey == null || publicKey.Length == 0)
+                throw new KeyException("公钥不能为空");
+        }
+
+        private static void ValidateDecryptInput(byte[] encryptedData, byte[] privateKey)
+        {
+            if (encryptedData == null || encryptedData.Length == 0)
+                throw new DataException("待解密数据不能为空");
+            if (privateKey == null || privateKey.Length == 0)
+                throw new KeyException("私钥不能为空");
+        }
+
+        private static void ValidateSignInput(byte[] data, byte[] privateKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("待签名数据不能为空");
+            if (privateKey == null || privateKey.Length == 0)
+                throw new KeyException("私钥不能为空");
+        }
+
+        private static void ValidateVerifyInput(byte[] data, byte[] signature, byte[] publicKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("原始数据不能为空");
+            if (signature == null || signature.Length == 0)
+                throw new DataException("签名数据不能为空");
+            if (publicKey == null || publicKey.Length == 0)
+                throw new KeyException("公钥不能为空");
+        }
+
+        private static int GetMaxDataLength(int keySize)
+        {
+            return (keySize / 8) - PKCS1_PADDING_SIZE;
+        }
+
+        /// <summary>
+        /// 优化的分块加密
         /// </summary>
         private byte[] EncryptLargeData(byte[] data, System.Security.Cryptography.RSA rsa)
         {
-            var blockSize = (rsa.KeySize / 8) - 42; // PKCS1填充需要42字节
+            var blockSize = GetMaxDataLength(rsa.KeySize);
             var encryptedBlocks = new System.Collections.Generic.List<byte[]>();
+            var totalLength = 0;
 
+            var dataSpan = data.AsSpan();
             for (int i = 0; i < data.Length; i += blockSize)
             {
                 var currentBlockSize = Math.Min(blockSize, data.Length - i);
-                var block = new byte[currentBlockSize];
-                Array.Copy(data, i, block, 0, currentBlockSize);
-                encryptedBlocks.Add(rsa.Encrypt(block, RSAEncryptionPadding.Pkcs1));
+                var block = dataSpan.Slice(i, currentBlockSize).ToArray();
+                var encryptedBlock = rsa.Encrypt(block, RSAEncryptionPadding.Pkcs1);
+                encryptedBlocks.Add(encryptedBlock);
+                totalLength += encryptedBlock.Length;
             }
 
-            // 计算总长度
-            var totalLength = 0;
-            foreach (var block in encryptedBlocks)
-            {
-                totalLength += block.Length;
-            }
-
-            // 合并所有加密块
             var result = new byte[totalLength];
             var offset = 0;
             foreach (var block in encryptedBlocks)
             {
-                Array.Copy(block, 0, result, offset, block.Length);
+                Buffer.BlockCopy(block, 0, result, offset, block.Length);
                 offset += block.Length;
             }
 
@@ -236,38 +264,35 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 分块解密大数据
+        /// 优化的分块解密
         /// </summary>
         private byte[] DecryptLargeData(byte[] encryptedData, System.Security.Cryptography.RSA rsa)
         {
             var blockSize = rsa.KeySize / 8;
             var decryptedBlocks = new System.Collections.Generic.List<byte[]>();
+            var totalLength = 0;
 
+            var dataSpan = encryptedData.AsSpan();
             for (int i = 0; i < encryptedData.Length; i += blockSize)
             {
                 var currentBlockSize = Math.Min(blockSize, encryptedData.Length - i);
-                var block = new byte[currentBlockSize];
-                Array.Copy(encryptedData, i, block, 0, currentBlockSize);
-                decryptedBlocks.Add(rsa.Decrypt(block, RSAEncryptionPadding.Pkcs1));
+                var block = dataSpan.Slice(i, currentBlockSize).ToArray();
+                var decryptedBlock = rsa.Decrypt(block, RSAEncryptionPadding.Pkcs1);
+                decryptedBlocks.Add(decryptedBlock);
+                totalLength += decryptedBlock.Length;
             }
 
-            // 计算总长度
-            var totalLength = 0;
-            foreach (var block in decryptedBlocks)
-            {
-                totalLength += block.Length;
-            }
-
-            // 合并所有解密块
             var result = new byte[totalLength];
             var offset = 0;
             foreach (var block in decryptedBlocks)
             {
-                Array.Copy(block, 0, result, offset, block.Length);
+                Buffer.BlockCopy(block, 0, result, offset, block.Length);
                 offset += block.Length;
             }
 
             return result;
         }
+
+        #endregion
     }
 }

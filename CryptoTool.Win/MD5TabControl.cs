@@ -16,14 +16,14 @@ namespace CryptoTool.Win
 
         private void InitializeDefaults()
         {
-            // ����Ĭ��ѡ��
+            // 设置默认选项
             comboMD5DataFormat.SelectedIndex = 0; // Text
             comboMD5OutputFormat.SelectedIndex = 0; // Hex
             comboMD5FileHashFormat.SelectedIndex = 0; // Hex
             comboMD5VerifyDataFormat.SelectedIndex = 0; // Text
             comboMD5VerifyHashFormat.SelectedIndex = 0; // Hex
 
-            // ����ʾ������
+            // 设置示例数据
             textMD5Input.Text = "Hello MD5!";
         }
 
@@ -32,7 +32,7 @@ namespace CryptoTool.Win
             StatusChanged?.Invoke(message);
         }
 
-        #region MD5��ϣ����
+        # region MD5哈希计算
 
         private void btnMD5Hash_Click(object sender, EventArgs e)
         {
@@ -40,11 +40,11 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5Input.Text))
                 {
-                    MessageBox.Show("������Ҫ�����ϣ�����ݣ�", "��ʾ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入要计算哈希的数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("���ڼ���MD5��ϣ...");
+                SetStatus("正在计算MD5哈希...");
 
                 string inputData = textMD5Input.Text;
                 string dataFormat = comboMD5DataFormat.SelectedItem?.ToString() ?? "Text";
@@ -57,12 +57,12 @@ namespace CryptoTool.Win
                 string result = ConvertHashToFormat(hashBytes, outputFormat);
 
                 textMD5Output.Text = result;
-                SetStatus($"MD5��ϣ������� - �����ʽ��{dataFormat}�������ʽ��{outputFormat}");
+                SetStatus($"MD5哈希计算完毕 - 输入格式：{dataFormat}，输出格式：{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"MD5��ϣ����ʧ�ܣ�{ex.Message}", "����", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("MD5��ϣ����ʧ��");
+                MessageBox.Show($"MD5哈希计算失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("MD5哈希计算失败");
             }
         }
 
@@ -70,12 +70,12 @@ namespace CryptoTool.Win
         {
             textMD5Input.Clear();
             textMD5Output.Clear();
-            SetStatus("�������������");
+            SetStatus("已清空输入和输出");
         }
 
         #endregion
 
-        #region MD5�ļ���ϣ
+        #region MD5文件哈希
 
         private void btnMD5SelectFile_Click(object sender, EventArgs e)
         {
@@ -83,20 +83,20 @@ namespace CryptoTool.Win
             {
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
-                    openFileDialog.Title = "ѡ��Ҫ�����ϣ���ļ�";
-                    openFileDialog.Filter = "�����ļ� (*.*)|*.*";
+                    openFileDialog.Title = "选择要计算哈希的文件";
+                    openFileDialog.Filter = "所有文件 (*.*)|*.*";
 
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         textMD5FilePath.Text = openFileDialog.FileName;
-                        SetStatus($"��ѡ���ļ�: {Path.GetFileName(openFileDialog.FileName)}");
+                        SetStatus($"已选择文件: {Path.GetFileName(openFileDialog.FileName)}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"ѡ���ļ�ʧ�ܣ�{ex.Message}", "����", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("ѡ���ļ�ʧ��");
+                MessageBox.Show($"选择文件失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("选择文件失败");
             }
         }
 
@@ -106,11 +106,11 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5FilePath.Text) || !File.Exists(textMD5FilePath.Text))
                 {
-                    MessageBox.Show("����ѡ��һ����Ч���ļ���", "��ʾ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请先选择一个有效的文件！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("���ڼ����ļ�MD5��ϣ...");
+                SetStatus("正在计算文件MD5哈希...");
 
                 string outputFormat = comboMD5FileHashFormat.SelectedItem?.ToString() ?? "Hex";
                 
@@ -119,18 +119,18 @@ namespace CryptoTool.Win
                 string result = ConvertHashToFormat(hashBytes, outputFormat);
 
                 textMD5FileHash.Text = result;
-                SetStatus($"�ļ�MD5��ϣ������� - �����ʽ��{outputFormat}");
+                SetStatus($"文件MD5哈希计算完成 - 输出格式：{outputFormat}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"�����ļ���ϣʧ�ܣ�{ex.Message}", "����", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                SetStatus("�����ļ���ϣʧ��");
+                MessageBox.Show($"计算文件哈希失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SetStatus("计算文件哈希失败");
             }
         }
 
         #endregion
 
-        #region MD5��ϣ��֤
+        #region MD5哈希验证
 
         private void btnMD5Verify_Click(object sender, EventArgs e)
         {
@@ -138,17 +138,17 @@ namespace CryptoTool.Win
             {
                 if (string.IsNullOrEmpty(textMD5VerifyData.Text))
                 {
-                    MessageBox.Show("������Ҫ��֤�����ݣ�", "��ʾ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入要验证的数据！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(textMD5VerifyHash.Text))
                 {
-                    MessageBox.Show("�����������Ĺ�ϣֵ��", "��ʾ", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("请输入期望的哈希值！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                SetStatus("������֤MD5��ϣ...");
+                SetStatus("正在验证MD5哈希...");
 
                 string data = textMD5VerifyData.Text;
                 string expectedHash = textMD5VerifyHash.Text;
@@ -164,20 +164,20 @@ namespace CryptoTool.Win
                 labelMD5VerifyResult.Text = isValid ? "��֤ͨ��" : "��֤ʧ��";
                 labelMD5VerifyResult.ForeColor = isValid ? Color.Green : Color.Red;
 
-                SetStatus($"MD5��ϣ��֤��� - �����{(isValid ? "ͨ��" : "ʧ��")}");
+                SetStatus($"MD5哈希验证完成 - 结果：{(isValid ? "通过" : "失败")}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"MD5��ϣ��֤ʧ�ܣ�{ex.Message}", "����", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                labelMD5VerifyResult.Text = "��֤�쳣";
+                MessageBox.Show($"MD5哈希验证失败：{ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                labelMD5VerifyResult.Text = "验证异常";
                 labelMD5VerifyResult.ForeColor = Color.Red;
-                SetStatus("MD5��ϣ��֤ʧ��");
+                SetStatus("MD5哈希验证失败");
             }
         }
 
         #endregion
 
-        #region ��������
+        #region 辅助方法
 
         private byte[] ConvertInputData(string data, string format)
         {
