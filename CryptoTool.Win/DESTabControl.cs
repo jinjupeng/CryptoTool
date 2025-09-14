@@ -1,5 +1,6 @@
 using CryptoTool.Algorithm.Algorithms.DES;
 using CryptoTool.Algorithm.Utils;
+using CryptoTool.Win.Enums;
 using CryptoTool.Win.Helpers;
 using System.Text;
 
@@ -38,7 +39,7 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES密钥...");
 
-                UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat keyFormat = FormatConversionHelper.ParseOutputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
 
                 var desCrypto = new DesCrypto();
                 byte[] keyBytes = desCrypto.GenerateKey();
@@ -62,7 +63,7 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成DES初始向量...");
 
-                UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat ivFormat = FormatConversionHelper.ParseOutputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                 var desCrypto = new DesCrypto();
                 byte[] ivBytes = desCrypto.GenerateIV();
@@ -106,10 +107,10 @@ namespace CryptoTool.Win
                 SetStatus("正在进行DES加密...");
 
                 // 解析参数
-                UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
-                UIOutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat plaintextFormat = FormatConversionHelper.ParseInputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat outputFormat = FormatConversionHelper.ParseOutputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
 
                 // 处理输入数据
                 string plaintext = GetPlaintextFromFormat(plaintextFormat);
@@ -163,10 +164,10 @@ namespace CryptoTool.Win
                 SetStatus("正在进行DES解密...");
 
                 // 解析参数
-                UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
-                UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ciphertextFormat = FormatConversionHelper.ParseInputFormat(comboDESCiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat plaintextFormat = FormatConversionHelper.ParseOutputFormat(comboDESPlaintextFormat.SelectedItem?.ToString() ?? "");
 
                 // 处理输入数据
                 byte[] cipherBytes = FormatConversionHelper.StringToBytes(textDESCipherText.Text, ciphertextFormat);
@@ -317,8 +318,8 @@ namespace CryptoTool.Win
                         SetStatus("正在加密文件...");
 
                         // 解析参数
-                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
-                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                         // 处理输入数据
                         byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);
@@ -381,8 +382,8 @@ namespace CryptoTool.Win
                         SetStatus("正在解密文件...");
 
                         // 解析参数
-                        UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
-                        UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboDESKeyFormat.SelectedItem?.ToString() ?? "");
+                        UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboDESIVFormat.SelectedItem?.ToString() ?? "");
 
                         // 处理输入数据
                         byte[] keyBytes = FormatConversionHelper.StringToBytes(textDESKey.Text, keyFormat);

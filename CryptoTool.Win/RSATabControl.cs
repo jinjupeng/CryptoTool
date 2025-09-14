@@ -1,4 +1,5 @@
 using CryptoTool.Algorithm.Algorithms.RSA;
+using CryptoTool.Win.Helpers;
 using System.Text;
 
 namespace CryptoTool.Win
@@ -44,8 +45,9 @@ namespace CryptoTool.Win
                 var rsaCrypto = new RsaCrypto(keySize);
                 var keyPair = rsaCrypto.GenerateKeyPair();
                 
+                var uiOutputFormat = FormatConversionHelper.ParseOutputFormat(comboRSAKeyOutputFormat.SelectedItem.ToString());
                 // 转换为Base64格式显示
-                textRSAPublicKey.Text = Convert.ToBase64String(keyPair.PublicKey);
+                textRSAPublicKey.Text = FormatConversionHelper.BytesToString(keyPair.PublicKey, uiOutputFormat);
                 textRSAPrivateKey.Text = Convert.ToBase64String(keyPair.PrivateKey);
 
                 SetStatus($"RSA密钥对生成完成 - {keySize}位 {comboRSAKeyFormat.SelectedItem}格式");

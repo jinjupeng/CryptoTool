@@ -1,6 +1,7 @@
 using CryptoTool.Algorithm.Algorithms.SM4;
 using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Utils;
+using CryptoTool.Win.Enums;
 using CryptoTool.Win.Helpers;
 using System.Text;
 
@@ -45,7 +46,7 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4密钥...");
 
-                UIOutputFormat keyFormat = CryptoUIHelper.ParseOutputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat keyFormat = FormatConversionHelper.ParseOutputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
 
                 var sm4Crypto = new Sm4Crypto();
                 byte[] keyBytes = sm4Crypto.GenerateKey();
@@ -69,7 +70,7 @@ namespace CryptoTool.Win
             {
                 SetStatus("正在生成SM4初始向量...");
 
-                UIOutputFormat ivFormat = CryptoUIHelper.ParseOutputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat ivFormat = FormatConversionHelper.ParseOutputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
 
                 var sm4Crypto = new Sm4Crypto();
                 byte[] ivBytes = sm4Crypto.GenerateIV();
@@ -113,10 +114,10 @@ namespace CryptoTool.Win
                 SetStatus("正在进行SM4加密...");
 
                 // 解析参数
-                UIInputFormat plaintextFormat = CryptoUIHelper.ParseInputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
-                UIOutputFormat outputFormat = CryptoUIHelper.ParseOutputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat plaintextFormat = FormatConversionHelper.ParseInputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat outputFormat = FormatConversionHelper.ParseOutputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
 
                 // 处理输入数据
                 string plaintext = GetPlaintextFromFormat(plaintextFormat);
@@ -171,10 +172,10 @@ namespace CryptoTool.Win
                 SetStatus("正在进行SM4解密...");
 
                 // 解析参数
-                UIInputFormat ciphertextFormat = CryptoUIHelper.ParseInputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat keyFormat = CryptoUIHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
-                UIInputFormat ivFormat = CryptoUIHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
-                UIOutputFormat plaintextFormat = CryptoUIHelper.ParseOutputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ciphertextFormat = FormatConversionHelper.ParseInputFormat(comboSM4CiphertextFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat keyFormat = FormatConversionHelper.ParseInputFormat(comboSM4KeyFormat.SelectedItem?.ToString() ?? "");
+                UIInputFormat ivFormat = FormatConversionHelper.ParseInputFormat(comboSM4IVFormat.SelectedItem?.ToString() ?? "");
+                UIOutputFormat plaintextFormat = FormatConversionHelper.ParseOutputFormat(comboSM4PlaintextFormat.SelectedItem?.ToString() ?? "");
 
                 // 处理输入数据
                 byte[] cipherBytes = FormatConversionHelper.StringToBytes(textSM4CipherText.Text, ciphertextFormat);

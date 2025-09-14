@@ -1,50 +1,10 @@
 using CryptoTool.Algorithm.Utils;
+using CryptoTool.Win.Enums;
 using System;
 using System.Text;
 
 namespace CryptoTool.Win.Helpers
 {
-    /// <summary>
-    /// UI层格式转换枚举
-    /// </summary>
-    public enum UIInputFormat
-    {
-        /// <summary>
-        /// UTF-8字符串格式
-        /// </summary>
-        UTF8,
-        /// <summary>
-        /// Base64编码格式
-        /// </summary>
-        Base64,
-        /// <summary>
-        /// 十六进制字符串格式
-        /// </summary>
-        Hex
-    }
-
-    /// <summary>
-    /// UI层输出格式枚举
-    /// </summary>
-    public enum UIOutputFormat
-    {
-        /// <summary>
-        /// UTF-8字符串格式
-        /// </summary>
-        UTF8,
-        /// <summary>
-        /// Base64编码格式
-        /// </summary>
-        Base64,
-        /// <summary>
-        /// 十六进制字符串格式
-        /// </summary>
-        Hex,
-        /// <summary>
-        /// PEM格式
-        /// </summary>
-        PEM
-    }
 
     /// <summary>
     /// 格式转换助手类 - 专门用于UI层的数据格式转换
@@ -142,42 +102,6 @@ namespace CryptoTool.Win.Helpers
 
         #endregion
 
-        #region 验证方法
-
-        /// <summary>
-        /// 验证字符串格式
-        /// </summary>
-        /// <param name="str">字符串</param>
-        /// <param name="format">格式</param>
-        /// <returns>是否有效</returns>
-        public static bool ValidateStringFormat(string str, UIInputFormat format)
-        {
-            if (string.IsNullOrEmpty(str))
-                return false;
-
-            try
-            {
-                switch (format)
-                {
-                    case UIInputFormat.Base64:
-                        Convert.FromBase64String(str);
-                        return true;
-                    case UIInputFormat.Hex:
-                        CryptoUtil.HexToBytes(str);
-                        return true;
-                    case UIInputFormat.UTF8:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        #endregion
 
         #region 格式转换方法
 

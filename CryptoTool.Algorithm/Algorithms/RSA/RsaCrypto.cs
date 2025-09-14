@@ -83,7 +83,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 生成密钥对
+        /// 生成密钥对，PKCS8格式
         /// </summary>
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair()
         {
