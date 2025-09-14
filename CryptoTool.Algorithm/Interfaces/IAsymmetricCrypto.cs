@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CryptoTool.Algorithm.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -81,5 +82,79 @@ namespace CryptoTool.Algorithm.Interfaces
         /// <param name="publicKey">公钥</param>
         /// <returns>验证结果</returns>
         Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey);
+
+        /// <summary>
+        /// 使用指定填充模式加密
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>加密后的数据</returns>
+        byte[] Encrypt(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode);
+
+        /// <summary>
+        /// 使用指定填充模式解密
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>解密后的数据</returns>
+        byte[] Decrypt(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode);
+
+        /// <summary>
+        /// 使用指定签名算法签名
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="signatureAlgorithm">签名算法</param>
+        /// <returns>签名数据</returns>
+        byte[] Sign(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm);
+
+        /// <summary>
+        /// 使用指定签名算法验证签名
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="signatureAlgorithm">签名算法</param>
+        /// <returns>验证结果</returns>
+        bool VerifySign(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm);
+
+        /// <summary>
+        /// 异步使用指定填充模式加密
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>加密后的数据</returns>
+        Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode);
+
+        /// <summary>
+        /// 异步使用指定填充模式解密
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="paddingMode">填充模式</param>
+        /// <returns>解密后的数据</returns>
+        Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode);
+
+        /// <summary>
+        /// 异步使用指定签名算法签名
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKey">私钥</param>
+        /// <param name="signatureAlgorithm">签名算法</param>
+        /// <returns>签名数据</returns>
+        Task<byte[]> SignAsync(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm);
+
+        /// <summary>
+        /// 异步使用指定签名算法验证签名
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名数据</param>
+        /// <param name="publicKey">公钥</param>
+        /// <param name="signatureAlgorithm">签名算法</param>
+        /// <returns>验证结果</returns>
+        Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm);
     }
 }

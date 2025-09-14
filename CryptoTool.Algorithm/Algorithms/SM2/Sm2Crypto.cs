@@ -1,5 +1,6 @@
 using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Interfaces;
+using CryptoTool.Algorithm.Utils;
 using System;
 using System.Threading.Tasks;
 using System.Threading;
@@ -10,6 +11,7 @@ using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Signers;
+using CryptoTool.Algorithm.Enums;
 
 namespace CryptoTool.Algorithm.Algorithms.SM2
 {
@@ -237,6 +239,124 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         public async Task<SM2CipherFormat> DetectCipherFormatAsync(byte[] cipherData)
         {
             return await Task.Run(() => DetectCipherFormat(cipherData)).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region 扩展填充模式和签名算法支持
+
+        /// <summary>
+        /// 使用指定填充模式加密 - SM2默认不支持多种填充模式，但保持接口一致性
+        /// </summary>
+        public byte[] Encrypt(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
+        {
+            // SM2算法本身不支持多种填充模式，但为了接口一致性，我们忽略填充模式参数
+            if (paddingMode != AsymmetricPaddingMode.PKCS1)
+            {
+                throw new NotSupportedException($"SM2算法不支持填充模式: {paddingMode}，SM2使用固定的填充方式");
+            }
+            
+            return Encrypt(data, publicKey);
+        }
+
+        /// <summary>
+        /// 使用指定填充模式解密 - SM2默认不支持多种填充模式，但保持接口一致性
+        /// </summary>
+        public byte[] Decrypt(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        {
+            // SM2算法本身不支持多种填充模式，但为了接口一致性，我们忽略填充模式参数
+            if (paddingMode != AsymmetricPaddingMode.PKCS1)
+            {
+                throw new NotSupportedException($"SM2算法不支持填充模式: {paddingMode}，SM2使用固定的填充方式");
+            }
+            
+            return Decrypt(encryptedData, privateKey);
+        }
+
+        /// <summary>
+        /// 使用指定签名算法签名
+        /// </summary>
+        public byte[] Sign(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateSignInput(data, privateKey);
+
+            if (!CryptoPaddingUtil.IsSM2Compatible(signatureAlgorithm))
+            {
+                throw new CryptoException($"SM2不支持签名算法: {signatureAlgorithm}，SM2只支持SM3withSM2");
+            }
+
+            // SM2目前只支持SM3withSM2，直接调用原有方法
+            return Sign(data, privateKey);
+        }
+
+        /// <summary>
+        /// 使用指定签名算法验证签名
+        /// </summary>
+        public bool VerifySign(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateVerifyInput(data, signature, publicKey);
+
+            if (!CryptoPaddingUtil.IsSM2Compatible(signatureAlgorithm))
+            {
+                throw new CryptoException($"SM2不支持签名算法: {signatureAlgorithm}，SM2只支持SM3withSM2");
+            }
+
+            // SM2目前只支持SM3withSM2，直接调用原有方法
+            return VerifySign(data, signature, publicKey);
+        }
+
+        /// <summary>
+        /// 异步使用指定填充模式加密
+        /// </summary>
+        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateEncryptInput(data, publicKey);
+            return await Task.Run(() => Encrypt(data, publicKey, paddingMode)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定填充模式解密
+        /// </summary>
+        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateDecryptInput(encryptedData, privateKey);
+            return await Task.Run(() => Decrypt(encryptedData, privateKey, paddingMode)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定签名算法签名
+        /// </summary>
+        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateSignInput(data, privateKey);
+            return await Task.Run(() => Sign(data, privateKey, signatureAlgorithm)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定签名算法验证签名
+        /// </summary>
+        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateVerifyInput(data, signature, publicKey);
+            return await Task.Run(() => VerifySign(data, signature, publicKey, signatureAlgorithm)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 获取SM2支持的签名算法列表
+        /// </summary>
+        /// <returns>支持的签名算法列表</returns>
+        public SignatureAlgorithm[] GetSupportedSignatureAlgorithms()
+        {
+            return new[] { SignatureAlgorithm.SM3withSM2 };
+        }
+
+        /// <summary>
+        /// 获取SM2支持的填充模式列表
+        /// </summary>
+        /// <returns>支持的填充模式列表</returns>
+        public AsymmetricPaddingMode[] GetSupportedPaddingModes()
+        {
+            return new[] { AsymmetricPaddingMode.PKCS1 };
         }
 
         #endregion

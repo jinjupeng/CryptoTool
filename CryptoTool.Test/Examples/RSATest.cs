@@ -1,10 +1,12 @@
-﻿using System;
+﻿using CryptoTool.Algorithm.Algorithms.RSA;
+using CryptoTool.Algorithm.Enums;
+using CryptoTool.Algorithm.Factory;
+using CryptoTool.Algorithm.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CryptoTool.Algorithm.Factory;
-using CryptoTool.Algorithm.Interfaces;
 
 namespace CryptoTool.Test.Examples
 {
@@ -86,7 +88,12 @@ namespace CryptoTool.Test.Examples
                 // 大数据测试
                 Console.WriteLine("\n--- 大数据测试 ---");
                 TestLargeData();
-                
+
+                await TestRSAPaddingModes();
+
+                await TestRSASignatureAlgorithms();
+
+
             }
             catch (Exception ex)
             {
@@ -96,7 +103,61 @@ namespace CryptoTool.Test.Examples
             
             Console.WriteLine("=== RSA算法测试完成 ===\n");
         }
-        
+
+
+        /// <summary>
+        /// 测试RSA多种填充模式
+        /// </summary>
+        public static async Task TestRSAPaddingModes()
+        {
+            var _rsaCrypto = new RsaCrypto(2048);
+            Console.WriteLine("=== RSA多种填充模式测试 ===");
+
+            var testData = Encoding.UTF8.GetBytes("Hello, 世界! 这是一个RSA填充模式测试。");
+            var (publicKey, privateKey) = _rsaCrypto.GenerateKeyPair();
+
+            // 测试PKCS1填充
+            Console.WriteLine("\n--- PKCS1填充测试 ---");
+            await TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.PKCS1);
+
+            // 测试OAEP填充
+            Console.WriteLine("\n--- OAEP填充测试 ---");
+            await TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.OAEP);
+
+            Console.WriteLine("RSA填充模式测试完成！\n");
+        }
+
+        /// <summary>
+        /// 测试RSA多种签名算法
+        /// </summary>
+        public static async Task TestRSASignatureAlgorithms()
+        {
+            var _rsaCrypto = new RsaCrypto(2048);
+            Console.WriteLine("=== RSA多种签名算法测试 ===");
+
+            var testData = Encoding.UTF8.GetBytes("Hello, 世界! 这是一个RSA签名算法测试。");
+            var (publicKey, privateKey) = _rsaCrypto.GenerateKeyPair();
+
+            // 测试各种签名算法
+            var algorithms = new[]
+            {
+                SignatureAlgorithm.SHA256withRSA,
+                SignatureAlgorithm.SHA384withRSA,
+                SignatureAlgorithm.SHA512withRSA,
+                SignatureAlgorithm.SHA256withRSA_PSS,
+                SignatureAlgorithm.SHA384withRSA_PSS,
+                SignatureAlgorithm.SHA512withRSA_PSS
+            };
+
+            foreach (var algorithm in algorithms)
+            {
+                Console.WriteLine($"\n--- {algorithm} 签名测试 ---");
+                await TestRSAWithSignature(testData, publicKey, privateKey, algorithm);
+            }
+
+            Console.WriteLine("RSA签名算法测试完成！\n");
+        }
+
         /// <summary>
         /// 测试不同的密钥长度
         /// </summary>
@@ -150,5 +211,70 @@ namespace CryptoTool.Test.Examples
                 Console.WriteLine($"大数据测试失败: {ex.Message}");
             }
         }
+
+
+        /// <summary>
+        /// 测试RSA指定填充模式
+        /// </summary>
+        private static async Task TestRSAWithPadding(byte[] data, byte[] publicKey, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        {
+            var _rsaCrypto = new RsaCrypto(2048);
+            try
+            {
+                // 加密
+                var encrypted = await _rsaCrypto.EncryptAsync(data, publicKey, paddingMode);
+                Console.WriteLine($"✓ 加密成功 (填充模式: {paddingMode})");
+                Console.WriteLine($"  密文长度: {encrypted.Length} 字节");
+
+                // 解密
+                var decrypted = await _rsaCrypto.DecryptAsync(encrypted, privateKey, paddingMode);
+                var decryptedText = Encoding.UTF8.GetString(decrypted);
+
+                if (decryptedText == Encoding.UTF8.GetString(data))
+                {
+                    Console.WriteLine($"✓ 解密成功，数据一致");
+                }
+                else
+                {
+                    Console.WriteLine($"✗ 解密失败，数据不一致");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ 测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试RSA指定签名算法
+        /// </summary>
+        private static async Task TestRSAWithSignature(byte[] data, byte[] publicKey, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            var _rsaCrypto = new RsaCrypto(2048);
+            try
+            {
+                // 签名
+                var signature = await _rsaCrypto.SignAsync(data, privateKey, signatureAlgorithm);
+                Console.WriteLine($"✓ 签名成功 (算法: {signatureAlgorithm})");
+                Console.WriteLine($"  签名长度: {signature.Length} 字节");
+
+                // 验证签名
+                var isValid = await _rsaCrypto.VerifySignAsync(data, signature, publicKey, signatureAlgorithm);
+
+                if (isValid)
+                {
+                    Console.WriteLine($"✓ 签名验证成功");
+                }
+                else
+                {
+                    Console.WriteLine($"✗ 签名验证失败");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ 测试失败: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -5,6 +5,7 @@ using System.Threading;
 using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Utils;
+using CryptoTool.Algorithm.Enums;
 
 namespace CryptoTool.Algorithm.Algorithms.RSA
 {
@@ -186,6 +187,184 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             }, cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// 使用指定填充模式加密
+        /// </summary>
+        public byte[] Encrypt(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateEncryptInput(data, publicKey);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPublicKey(publicKey, out _);
+                
+                var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
+                var maxDataLength = GetMaxDataLength(rsa.KeySize, paddingMode);
+                
+                if (data.Length > maxDataLength)
+                {
+                    return EncryptLargeData(data, rsa, padding);
+                }
+
+                return rsa.Encrypt(data, padding);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA加密失败 (填充模式: {paddingMode})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用指定填充模式解密
+        /// </summary>
+        public byte[] Decrypt(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateDecryptInput(encryptedData, privateKey);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPrivateKey(privateKey, out _);
+                
+                var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
+                var blockSize = rsa.KeySize / 8;
+                
+                if (encryptedData.Length > blockSize)
+                {
+                    return DecryptLargeData(encryptedData, rsa, padding);
+                }
+
+                return rsa.Decrypt(encryptedData, padding);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA解密失败 (填充模式: {paddingMode})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用指定签名算法签名
+        /// </summary>
+        public byte[] Sign(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateSignInput(data, privateKey);
+
+            if (!CryptoPaddingUtil.IsRSACompatible(signatureAlgorithm))
+            {
+                throw new CryptoException($"RSA不支持签名算法: {signatureAlgorithm}");
+            }
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPrivateKey(privateKey, out _);
+                
+                var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
+                return rsa.SignData(data, hashAlgorithm, signaturePadding);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA签名失败 (算法: {signatureAlgorithm})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用指定签名算法验证签名
+        /// </summary>
+        public bool VerifySign(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateVerifyInput(data, signature, publicKey);
+
+            if (!CryptoPaddingUtil.IsRSACompatible(signatureAlgorithm))
+            {
+                throw new CryptoException($"RSA不支持签名算法: {signatureAlgorithm}");
+            }
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPublicKey(publicKey, out _);
+                
+                var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
+                return rsa.VerifyData(data, signature, hashAlgorithm, signaturePadding);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA签名验证失败 (算法: {signatureAlgorithm})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 异步使用指定填充模式加密
+        /// </summary>
+        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateEncryptInput(data, publicKey);
+            return await Task.Run(() => Encrypt(data, publicKey, paddingMode)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定填充模式解密
+        /// </summary>
+        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        {
+            ValidateDecryptInput(encryptedData, privateKey);
+            return await Task.Run(() => Decrypt(encryptedData, privateKey, paddingMode)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定签名算法签名
+        /// </summary>
+        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateSignInput(data, privateKey);
+            return await Task.Run(() => Sign(data, privateKey, signatureAlgorithm)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 异步使用指定签名算法验证签名
+        /// </summary>
+        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
+        {
+            ValidateVerifyInput(data, signature, publicKey);
+            return await Task.Run(() => VerifySign(data, signature, publicKey, signatureAlgorithm)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// 获取RSA支持的签名算法列表
+        /// </summary>
+        /// <returns>支持的签名算法列表</returns>
+        public SignatureAlgorithm[] GetSupportedSignatureAlgorithms()
+        {
+            return new[]
+            {
+                SignatureAlgorithm.MD5withRSA,
+                SignatureAlgorithm.SHA1withRSA,
+                SignatureAlgorithm.SHA256withRSA,
+                SignatureAlgorithm.SHA384withRSA,
+                SignatureAlgorithm.SHA512withRSA,
+                SignatureAlgorithm.SHA1withRSA_PSS,
+                SignatureAlgorithm.SHA256withRSA_PSS,
+                SignatureAlgorithm.SHA384withRSA_PSS,
+                SignatureAlgorithm.SHA512withRSA_PSS
+            };
+        }
+
+        /// <summary>
+        /// 获取RSA支持的填充模式列表
+        /// </summary>
+        /// <returns>支持的填充模式列表</returns>
+        public AsymmetricPaddingMode[] GetSupportedPaddingModes()
+        {
+            return new[]
+            {
+                AsymmetricPaddingMode.PKCS1,
+                AsymmetricPaddingMode.OAEP,
+                AsymmetricPaddingMode.PSS
+            };
+        }
+
         #region 私有辅助方法
 
         private void ValidateKeySize(int keySize)
@@ -233,6 +412,32 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             return (keySize / 8) - PKCS1_PADDING_SIZE;
         }
 
+        private static int GetMaxDataLength(int keySize, AsymmetricPaddingMode paddingMode)
+        {
+            return paddingMode switch
+            {
+                AsymmetricPaddingMode.PKCS1 => (keySize / 8) - PKCS1_PADDING_SIZE,
+                AsymmetricPaddingMode.OAEP => (keySize / 8) - 42, // OAEP-SHA1 需要42字节填充
+                _ => (keySize / 8) - PKCS1_PADDING_SIZE
+            };
+        }
+
+        private static int GetMaxDataLength(int keySize, RSAEncryptionPadding padding)
+        {
+            if (padding == RSAEncryptionPadding.Pkcs1)
+                return (keySize / 8) - PKCS1_PADDING_SIZE;
+            else if (padding == RSAEncryptionPadding.OaepSHA1)
+                return (keySize / 8) - 42;
+            else if (padding == RSAEncryptionPadding.OaepSHA256)
+                return (keySize / 8) - 66;
+            else if (padding == RSAEncryptionPadding.OaepSHA384)
+                return (keySize / 8) - 98;
+            else if (padding == RSAEncryptionPadding.OaepSHA512)
+                return (keySize / 8) - 130;
+            else
+                return (keySize / 8) - PKCS1_PADDING_SIZE;
+        }
+
         /// <summary>
         /// 优化的分块加密
         /// </summary>
@@ -264,6 +469,36 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
+        /// 优化的分块加密 - 支持指定填充模式
+        /// </summary>
+        private byte[] EncryptLargeData(byte[] data, System.Security.Cryptography.RSA rsa, RSAEncryptionPadding padding)
+        {
+            var blockSize = GetMaxDataLength(rsa.KeySize, padding);
+            var encryptedBlocks = new System.Collections.Generic.List<byte[]>();
+            var totalLength = 0;
+
+            var dataSpan = data.AsSpan();
+            for (int i = 0; i < data.Length; i += blockSize)
+            {
+                var currentBlockSize = Math.Min(blockSize, data.Length - i);
+                var block = dataSpan.Slice(i, currentBlockSize).ToArray();
+                var encryptedBlock = rsa.Encrypt(block, padding);
+                encryptedBlocks.Add(encryptedBlock);
+                totalLength += encryptedBlock.Length;
+            }
+
+            var result = new byte[totalLength];
+            var offset = 0;
+            foreach (var block in encryptedBlocks)
+            {
+                Buffer.BlockCopy(block, 0, result, offset, block.Length);
+                offset += block.Length;
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// 优化的分块解密
         /// </summary>
         private byte[] DecryptLargeData(byte[] encryptedData, System.Security.Cryptography.RSA rsa)
@@ -278,6 +513,36 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 var currentBlockSize = Math.Min(blockSize, encryptedData.Length - i);
                 var block = dataSpan.Slice(i, currentBlockSize).ToArray();
                 var decryptedBlock = rsa.Decrypt(block, RSAEncryptionPadding.Pkcs1);
+                decryptedBlocks.Add(decryptedBlock);
+                totalLength += decryptedBlock.Length;
+            }
+
+            var result = new byte[totalLength];
+            var offset = 0;
+            foreach (var block in decryptedBlocks)
+            {
+                Buffer.BlockCopy(block, 0, result, offset, block.Length);
+                offset += block.Length;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// 优化的分块解密 - 支持指定填充模式
+        /// </summary>
+        private byte[] DecryptLargeData(byte[] encryptedData, System.Security.Cryptography.RSA rsa, RSAEncryptionPadding padding)
+        {
+            var blockSize = rsa.KeySize / 8;
+            var decryptedBlocks = new System.Collections.Generic.List<byte[]>();
+            var totalLength = 0;
+
+            var dataSpan = encryptedData.AsSpan();
+            for (int i = 0; i < encryptedData.Length; i += blockSize)
+            {
+                var currentBlockSize = Math.Min(blockSize, encryptedData.Length - i);
+                var block = dataSpan.Slice(i, currentBlockSize).ToArray();
+                var decryptedBlock = rsa.Decrypt(block, padding);
                 decryptedBlocks.Add(decryptedBlock);
                 totalLength += decryptedBlock.Length;
             }

@@ -269,6 +269,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         {
             return _padding switch
             {
+                "PKCS5" => new Pkcs7Padding(),  // PKCS5等同于PKCS7
                 "PKCS7" => new Pkcs7Padding(),
                 "NOPADDING" => new ZeroBytePadding(),
                 "ZEROPADDING" => new ZeroBytePadding(),

@@ -184,7 +184,51 @@ namespace CryptoTool.Common.Enums
         /// <summary>
         /// SM3withSM2
         /// </summary>
-        SM3withSM2
+        SM3withSM2,
+        /// <summary>
+        /// PSS填充的SHA1withRSA
+        /// </summary>
+        SHA1withRSA_PSS,
+        /// <summary>
+        /// PSS填充的SHA256withRSA
+        /// </summary>
+        SHA256withRSA_PSS,
+        /// <summary>
+        /// PSS填充的SHA384withRSA
+        /// </summary>
+        SHA384withRSA_PSS,
+        /// <summary>
+        /// PSS填充的SHA512withRSA
+        /// </summary>
+        SHA512withRSA_PSS,
+        /// <summary>
+        /// ECDSA with SHA1
+        /// </summary>
+        ECDSAwithSHA1,
+        /// <summary>
+        /// ECDSA with SHA256
+        /// </summary>
+        ECDSAwithSHA256,
+        /// <summary>
+        /// ECDSA with SHA384
+        /// </summary>
+        ECDSAwithSHA384,
+        /// <summary>
+        /// ECDSA with SHA512
+        /// </summary>
+        ECDSAwithSHA512,
+        /// <summary>
+        /// EdDSA (Ed25519)
+        /// </summary>
+        EdDSA,
+        /// <summary>
+        /// DSA with SHA1
+        /// </summary>
+        DSAwithSHA1,
+        /// <summary>
+        /// DSA with SHA256
+        /// </summary>
+        DSAwithSHA256
     }
 
     /// <summary>
@@ -243,8 +287,30 @@ namespace CryptoTool.Common.Enums
         /// </summary>
         OAEP,
         /// <summary>
+        /// OAEP-SHA1填充
+        /// </summary>
+        OAEP_SHA1,
+        /// <summary>
+        /// OAEP-SHA256填充
+        /// </summary>
+        OAEP_SHA256,
+        /// <summary>
+        /// OAEP-SHA384填充
+        /// </summary>
+        OAEP_SHA384,
+        /// <summary>
+        /// OAEP-SHA512填充
+        /// </summary>
+        OAEP_SHA512,
+        /// <summary>
+        /// PSS填充
+        /// </summary>
+        PSS,
+        /// <summary>
         /// 无填充
         /// </summary>
         NoPadding
     }
+
+
 }
