@@ -1,9 +1,7 @@
 ﻿using CryptoTool.Algorithm.Algorithms.RSA;
 using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Factory;
-using CryptoTool.Algorithm.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -93,6 +91,9 @@ namespace CryptoTool.Test.Examples
 
                 await TestRSASignatureAlgorithms();
 
+                // PKCS格式转换测试
+                Console.WriteLine("\n--- PKCS格式转换测试 ---");
+                await TestPKCSFormatConversion();
 
             }
             catch (Exception ex)
@@ -273,6 +274,92 @@ namespace CryptoTool.Test.Examples
             catch (Exception ex)
             {
                 Console.WriteLine($"✗ 测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试PKCS格式转换功能
+        /// </summary>
+        public static async Task TestPKCSFormatConversion()
+        {
+            var rsa = new RsaCrypto(2048);
+            Console.WriteLine("=== PKCS格式转换测试 ===");
+
+            try
+            {
+                // 生成原始密钥对（默认PKCS1格式）
+                var (originalPublicKey, originalPrivateKey) = rsa.GenerateKeyPair();
+                Console.WriteLine($"原始公钥长度: {originalPublicKey.Length} 字节");
+                Console.WriteLine($"原始私钥长度: {originalPrivateKey.Length} 字节");
+
+                // 测试公钥格式转换
+                Console.WriteLine("\n--- 公钥格式转换测试 ---");
+                TestPublicKeyConversion(rsa, originalPublicKey);
+
+                // 测试私钥格式转换
+                Console.WriteLine("\n--- 私钥格式转换测试 ---");
+                TestPrivateKeyConversion(rsa, originalPrivateKey);
+
+                Console.WriteLine("PKCS格式转换测试完成！\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PKCS格式转换测试失败: {ex.Message}");
+                Console.WriteLine($"异常详情: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 测试公钥格式转换
+        /// </summary>
+        private static void TestPublicKeyConversion(RsaCrypto rsa, byte[] originalPublicKey)
+        {
+            try
+            {
+                // PKCS1 -> PKCS8
+                var pkcs8PublicKey = rsa.ConvertPublicKeyFromPKCS1ToPKCS8(originalPublicKey);
+                Console.WriteLine($"✓ PKCS1 -> PKCS8 转换成功，长度: {pkcs8PublicKey.Length} 字节");
+                // PKCS8 -> PKCS1
+                var pkcs1PublicKey = rsa.ConvertPublicKeyFromPKCS8ToPKCS1(pkcs8PublicKey);
+                Console.WriteLine($"✓ PKCS8 -> PKCS1 转换成功，长度: {pkcs1PublicKey.Length} 字节");
+
+                // 验证转换后的密钥是否仍然有效
+                var testData = Encoding.UTF8.GetBytes("PKCS格式转换测试数据");
+                var encryptedData = rsa.Encrypt(testData, pkcs1PublicKey);
+                Console.WriteLine($"✓ 转换后的公钥加密功能正常");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ 公钥格式转换失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试私钥格式转换
+        /// </summary>
+        private static void TestPrivateKeyConversion(RsaCrypto rsa, byte[] originalPrivateKey)
+        {
+            try
+            {
+                // PKCS1 -> PKCS8
+                var pkcs8PrivateKey = rsa.ConvertPrivateKeyFromPKCS1ToPKCS8(originalPrivateKey);
+                Console.WriteLine($"✓ PKCS1 -> PKCS8 转换成功，长度: {pkcs8PrivateKey.Length} 字节");
+
+                // PKCS8 -> PKCS1
+                var pkcs1PrivateKey = rsa.ConvertPrivateKeyFromPKCS8ToPKCS1(pkcs8PrivateKey);
+                Console.WriteLine($"✓ PKCS8 -> PKCS1 转换成功，长度: {pkcs1PrivateKey.Length} 字节");
+
+
+                // 验证转换后的密钥是否仍然有效
+                var testData = Encoding.UTF8.GetBytes("PKCS格式转换测试数据");
+                var signature = rsa.Sign(testData, pkcs1PrivateKey);
+                Console.WriteLine($"✓ 转换后的私钥签名功能正常");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ 私钥格式转换失败: {ex.Message}");
             }
         }
 

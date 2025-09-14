@@ -83,7 +83,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 生成密钥对，PKCS8格式
+        /// 生成密钥对，PKCS1格式
         /// </summary>
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair()
         {
@@ -365,6 +365,95 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             };
         }
 
+        #region PKCS格式转换方法
+
+        /// <summary>
+        /// 将PKCS1格式公钥转换为PKCS8格式
+        /// </summary>
+        /// <param name="pkcs1PublicKey">PKCS1格式公钥</param>
+        /// <returns>PKCS8格式公钥</returns>
+        public byte[] ConvertPublicKeyFromPKCS1ToPKCS8(byte[] pkcs1PublicKey)
+        {
+            ValidateKeyInput(pkcs1PublicKey, "PKCS1公钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPublicKey(pkcs1PublicKey, out _);
+                return rsa.ExportSubjectPublicKeyInfo();
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("PKCS1公钥转换为PKCS8格式失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 将PKCS8格式公钥转换为PKCS1格式
+        /// </summary>
+        /// <param name="pkcs8PublicKey">PKCS8格式公钥</param>
+        /// <returns>PKCS1格式公钥</returns>
+        public byte[] ConvertPublicKeyFromPKCS8ToPKCS1(byte[] pkcs8PublicKey)
+        {
+            ValidateKeyInput(pkcs8PublicKey, "PKCS8公钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportSubjectPublicKeyInfo(pkcs8PublicKey, out _);
+                return rsa.ExportRSAPublicKey();
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("PKCS8公钥转换为PKCS1格式失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 将PKCS1格式私钥转换为PKCS8格式
+        /// </summary>
+        /// <param name="pkcs1PrivateKey">PKCS1格式私钥</param>
+        /// <returns>PKCS8格式私钥</returns>
+        public byte[] ConvertPrivateKeyFromPKCS1ToPKCS8(byte[] pkcs1PrivateKey)
+        {
+            ValidateKeyInput(pkcs1PrivateKey, "PKCS1私钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportRSAPrivateKey(pkcs1PrivateKey, out _);
+                return rsa.ExportPkcs8PrivateKey();
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("PKCS1私钥转换为PKCS8格式失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 将PKCS8格式私钥转换为PKCS1格式
+        /// </summary>
+        /// <param name="pkcs8PrivateKey">PKCS8格式私钥</param>
+        /// <returns>PKCS1格式私钥</returns>
+        public byte[] ConvertPrivateKeyFromPKCS8ToPKCS1(byte[] pkcs8PrivateKey)
+        {
+            ValidateKeyInput(pkcs8PrivateKey, "PKCS8私钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                rsa.ImportPkcs8PrivateKey(pkcs8PrivateKey, out _);
+                return rsa.ExportRSAPrivateKey();
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("PKCS8私钥转换为PKCS1格式失败", ex);
+            }
+        }
+
+
+        #endregion
+
         #region 私有辅助方法
 
         private void ValidateKeySize(int keySize)
@@ -405,6 +494,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 throw new DataException("签名数据不能为空");
             if (publicKey == null || publicKey.Length == 0)
                 throw new KeyException("公钥不能为空");
+        }
+
+        private static void ValidateKeyInput(byte[] keyData, string keyType)
+        {
+            if (keyData == null || keyData.Length == 0)
+                throw new KeyException($"{keyType}不能为空");
         }
 
         private static int GetMaxDataLength(int keySize)
