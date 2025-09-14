@@ -142,7 +142,7 @@
 - **.NET 8**: 现代化的.NET平台
 - **Windows Forms**: 经典的桌面UI框架
 - **BouncyCastle**: 提供完整的加密算法实现
-- **CryptoTool.Common**: 封装的加密工具库
+- **CryptoTool.Algorithm**: 封装的加密工具库
 
 支持的操作系统：
 - Windows 10/11 (.NET 8 Runtime)
