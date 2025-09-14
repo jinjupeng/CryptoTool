@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CryptoTool.Algorithm.Factory;
 using CryptoTool.Algorithm.Interfaces;
+using CryptoTool.Algorithm.Enums;
 
 namespace CryptoTool.Test.Examples
 {
@@ -20,7 +21,7 @@ namespace CryptoTool.Test.Examples
             try
             {
                 // 创建SM4算法实例
-                var sm4 = CryptoFactory.CreateSm4("CBC", "PKCS7");
+                var sm4 = CryptoFactory.CreateSm4(SymmetricCipherMode.CBC, SymmetricPaddingMode.PKCS7);
                 Console.WriteLine($"算法名称: {sm4.AlgorithmName}");
                 Console.WriteLine($"算法类型: {sm4.AlgorithmType}");
                 
@@ -92,7 +93,7 @@ namespace CryptoTool.Test.Examples
             byte[] data = Encoding.UTF8.GetBytes(testData);
             
             // 测试CBC模式
-            var sm4Cbc = CryptoFactory.CreateSm4("CBC", "PKCS7");
+            var sm4Cbc = CryptoFactory.CreateSm4(Algorithm.Enums.SymmetricCipherMode.ECB, SymmetricPaddingMode.PKCS7);
             byte[] key = sm4Cbc.GenerateKey();
             byte[] iv = sm4Cbc.GenerateIV();
             byte[] encryptedCbc = sm4Cbc.Encrypt(data, key, iv);
@@ -101,7 +102,7 @@ namespace CryptoTool.Test.Examples
             Console.WriteLine($"CBC模式测试: {(cbcSuccess ? "通过" : "失败")}");
             
             // 测试ECB模式
-            var sm4Ecb = CryptoFactory.CreateSm4("ECB", "PKCS7");
+            var sm4Ecb = CryptoFactory.CreateSm4(SymmetricCipherMode.ECB, SymmetricPaddingMode.PKCS7);
             byte[] keyEcb = sm4Ecb.GenerateKey();
             byte[] encryptedEcb = sm4Ecb.Encrypt(data, keyEcb);
             byte[] decryptedEcb = sm4Ecb.Decrypt(encryptedEcb, keyEcb);
@@ -109,7 +110,7 @@ namespace CryptoTool.Test.Examples
             Console.WriteLine($"ECB模式测试: {(ecbSuccess ? "通过" : "失败")}");
             
             // 测试CFB模式
-            var sm4Cfb = CryptoFactory.CreateSm4("CFB", "PKCS7");
+            var sm4Cfb = CryptoFactory.CreateSm4(SymmetricCipherMode.CBC, SymmetricPaddingMode.PKCS7);
             byte[] keyCfb = sm4Cfb.GenerateKey();
             byte[] ivCfb = sm4Cfb.GenerateIV();
             byte[] encryptedCfb = sm4Cfb.Encrypt(data, keyCfb, ivCfb);
@@ -118,7 +119,7 @@ namespace CryptoTool.Test.Examples
             Console.WriteLine($"CFB模式测试: {(cfbSuccess ? "通过" : "失败")}");
             
             // 测试OFB模式
-            var sm4Ofb = CryptoFactory.CreateSm4("OFB", "PKCS7");
+            var sm4Ofb = CryptoFactory.CreateSm4(SymmetricCipherMode.OFB, SymmetricPaddingMode.PKCS7);
             byte[] keyOfb = sm4Ofb.GenerateKey();
             byte[] ivOfb = sm4Ofb.GenerateIV();
             byte[] encryptedOfb = sm4Ofb.Encrypt(data, keyOfb, ivOfb);

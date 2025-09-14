@@ -10,6 +10,7 @@ using CryptoTool.Algorithm.Algorithms.SM2;
 using CryptoTool.Algorithm.Algorithms.SM3;
 using CryptoTool.Algorithm.Algorithms.SM4;
 using CryptoTool.Algorithm.Exceptions;
+using CryptoTool.Algorithm.Enums;
 
 namespace CryptoTool.Algorithm.Factory
 {
@@ -119,7 +120,7 @@ namespace CryptoTool.Algorithm.Factory
         /// <param name="mode">加密模式</param>
         /// <param name="padding">填充模式</param>
         /// <returns>SM4算法实例</returns>
-        public static Sm4Crypto CreateSm4(string mode = "CBC", string padding = "PKCS7")
+        public static Sm4Crypto CreateSm4(SymmetricCipherMode mode = SymmetricCipherMode.CBC, SymmetricPaddingMode padding = SymmetricPaddingMode.PKCS7)
         {
             return new Sm4Crypto(mode, padding);
         }

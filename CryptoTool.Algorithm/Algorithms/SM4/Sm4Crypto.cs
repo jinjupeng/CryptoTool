@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Utils;
+using CryptoTool.Algorithm.Enums;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto;
@@ -34,43 +35,20 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         /// </summary>
         private const int IVSize = 16; // 128位
 
-        private readonly string _mode;
-        private readonly string _padding;
+        private readonly SymmetricCipherMode _mode;
+        private readonly SymmetricPaddingMode _padding;
 
         /// <summary>
         /// 初始化SM4加密算法
         /// </summary>
-        /// <param name="mode">加密模式，支持CBC、ECB、CFB、OFB、CTR，默认CBC</param>
-        /// <param name="padding">填充模式，支持PKCS7、NoPadding、ZeroPadding，默认PKCS7</param>
-        public Sm4Crypto(string mode = "CBC", string padding = "PKCS7")
+        /// <param name="mode">加密模式，默认CBC</param>
+        /// <param name="padding">填充模式，默认PKCS7</param>
+        public Sm4Crypto(SymmetricCipherMode mode = SymmetricCipherMode.CBC, SymmetricPaddingMode padding = SymmetricPaddingMode.PKCS7)
         {
-            _mode = mode?.ToUpper() ?? "CBC";
-            _padding = padding?.ToUpper() ?? "PKCS7";
-            
-            // 验证模式
-            if (!IsValidMode(_mode))
-                throw new ArgumentException($"不支持的加密模式: {_mode}，支持的模式: CBC, ECB, CFB, OFB, CTR", nameof(mode));
-            
-            // 验证填充
-            if (!IsValidPadding(_padding))
-                throw new ArgumentException($"不支持的填充模式: {_padding}，支持的填充: PKCS7, NoPadding, ZeroPadding", nameof(padding));
+            _mode = mode;
+            _padding = padding;
         }
 
-        /// <summary>
-        /// 验证加密模式是否支持
-        /// </summary>
-        private static bool IsValidMode(string mode)
-        {
-            return mode == "CBC" || mode == "ECB" || mode == "CFB" || mode == "OFB" || mode == "CTR";
-        }
-
-        /// <summary>
-        /// 验证填充模式是否支持
-        /// </summary>
-        private static bool IsValidPadding(string padding)
-        {
-            return padding == "PKCS7" || padding == "NOPADDING" || padding == "ZEROPADDING";
-        }
 
         /// <summary>
         /// 加密
@@ -269,10 +247,10 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         {
             return _padding switch
             {
-                "PKCS5" => new Pkcs7Padding(),  // PKCS5等同于PKCS7
-                "PKCS7" => new Pkcs7Padding(),
-                "NOPADDING" => new ZeroBytePadding(),
-                "ZEROPADDING" => new ZeroBytePadding(),
+                SymmetricPaddingMode.PKCS5 => new Pkcs7Padding(),  // PKCS5等同于PKCS7
+                SymmetricPaddingMode.PKCS7 => new Pkcs7Padding(),
+                SymmetricPaddingMode.None => new ZeroBytePadding(),
+                SymmetricPaddingMode.Zeros => new ZeroBytePadding(),
                 _ => new Pkcs7Padding()
             };
         }
@@ -287,19 +265,19 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
             // 根据模式创建密码器
             switch (_mode)
             {
-                case "CBC":
+                case SymmetricCipherMode.CBC:
                     cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(engine), CreatePadding());
                     break;
-                case "ECB":
+                case SymmetricCipherMode.ECB:
                     cipher = new PaddedBufferedBlockCipher(new EcbBlockCipher(engine), CreatePadding());
                     break;
-                case "CFB":
+                case SymmetricCipherMode.CFB:
                     cipher = new BufferedBlockCipher(new CfbBlockCipher(engine, 128));
                     break;
-                case "OFB":
+                case SymmetricCipherMode.OFB:
                     cipher = new BufferedBlockCipher(new OfbBlockCipher(engine, 128));
                     break;
-                case "CTR":
+                case SymmetricCipherMode.CTR:
                     cipher = new BufferedBlockCipher(new SicBlockCipher(engine));
                     break;
                 default:
@@ -337,7 +315,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         /// </summary>
         private bool RequiresIV()
         {
-            return _mode != "ECB";
+            return _mode != SymmetricCipherMode.ECB;
         }
     }
 }

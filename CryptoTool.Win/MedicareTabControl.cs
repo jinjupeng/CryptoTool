@@ -1,5 +1,6 @@
 using CryptoTool.Algorithm.Algorithms.SM2;
 using CryptoTool.Algorithm.Algorithms.SM4;
+using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Utils;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -456,7 +457,7 @@ namespace CryptoTool.Win
             string keyString = appId.Substring(0, 16);
 
             // 使用SM4-ECB模式，appId前16字符作为密钥，对appSecret进行加密
-            var sm4Crypto = new Sm4Crypto("ECB");
+            var sm4Crypto = new Sm4Crypto(SymmetricCipherMode.ECB, SymmetricPaddingMode.PKCS7);
 
             //结果转换为字节数组，再转换为Hex字符串，取前16个字符（8字节）作为最终的SM4密钥
             byte[] encryptedBytes = sm4Crypto.Encrypt(Encoding.UTF8.GetBytes(appSecret), Encoding.UTF8.GetBytes(keyString));

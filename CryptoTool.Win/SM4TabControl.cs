@@ -1,4 +1,5 @@
 using CryptoTool.Algorithm.Algorithms.SM4;
+using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Helpers;
 using System.Text;
@@ -122,8 +123,9 @@ namespace CryptoTool.Win
                 byte[] keyBytes = FormatConversionHelper.StringToBytes(textSM4Key.Text, keyFormat);
                 byte[]? ivBytes = string.IsNullOrEmpty(textSM4IV.Text) ? null : FormatConversionHelper.StringToBytes(textSM4IV.Text, ivFormat);
 
+                var modeEnum = Enum.Parse<SymmetricCipherMode>(mode);
                 // 创建SM4加密器
-                var sm4Crypto = new Sm4Crypto(mode, "PKCS7");
+                var sm4Crypto = new Sm4Crypto(modeEnum, SymmetricPaddingMode.PKCS7);
                 
                 // 执行加密
                 byte[] dataBytes = Encoding.UTF8.GetBytes(plaintext);
@@ -180,7 +182,8 @@ namespace CryptoTool.Win
                 byte[]? ivBytes = string.IsNullOrEmpty(textSM4IV.Text) ? null : FormatConversionHelper.StringToBytes(textSM4IV.Text, ivFormat);
 
                 // 创建SM4加密器
-                var sm4Crypto = new Sm4Crypto(mode, "PKCS7");
+                var modeEnum = Enum.Parse<SymmetricCipherMode>(mode);
+                var sm4Crypto = new Sm4Crypto(modeEnum, SymmetricPaddingMode.PKCS7);
                 
                 // 执行解密
                 byte[] decryptedBytes = sm4Crypto.Decrypt(cipherBytes, keyBytes, ivBytes);

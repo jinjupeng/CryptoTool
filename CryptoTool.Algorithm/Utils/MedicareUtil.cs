@@ -112,7 +112,7 @@ namespace CryptoTool.Algorithm.Utils
             string derived16 = GetSm4Key16(appId, appSecret);
 
             // 3) 使用派生密钥加密jStr，得到Base64，再转Hex大写
-            var sm4Crypto = new Sm4Crypto("ECB");
+            var sm4Crypto = new Sm4Crypto(Enums.SymmetricCipherMode.ECB);
             byte[] cipherBytes = sm4Crypto.Encrypt(Encoding.UTF8.GetBytes(jStr), Encoding.UTF8.GetBytes(derived16));
             string encHex = CryptoUtil.BytesToHex(cipherBytes, true);
             return encHex;
@@ -135,7 +135,7 @@ namespace CryptoTool.Algorithm.Utils
             string derived16 = GetSm4Key16(appId, appSecret);
             byte[] derived16Bytes = CryptoUtil.HexToBytes(derived16);
             byte[] cipherBytes = CryptoUtil.HexToBytes(encDataHex);
-            var sm4Crypto = new Sm4Crypto("ECB");
+            var sm4Crypto = new Sm4Crypto(Enums.SymmetricCipherMode.ECB);
             byte[] decryptBytes = sm4Crypto.Decrypt(cipherBytes, derived16Bytes);
             return Encoding.UTF8.GetString(decryptBytes);
         }
@@ -240,7 +240,7 @@ namespace CryptoTool.Algorithm.Utils
             }
             byte[] appIdBytes16 = Encoding.UTF8.GetBytes(appId.Substring(0, 16));
             byte[] appSecretBytes = Encoding.UTF8.GetBytes(appSecret);
-            var sm4Crypto = new Sm4Crypto("ECB");
+            var sm4Crypto = new Sm4Crypto(Enums.SymmetricCipherMode.ECB);
             byte[] newEncryptedData = sm4Crypto.Encrypt(appSecretBytes, appIdBytes16);
             string derived16 = Hex.ToHexString(newEncryptedData).ToUpper().Substring(0, 16);
             return derived16;
