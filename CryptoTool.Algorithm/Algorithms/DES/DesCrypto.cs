@@ -15,6 +15,12 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         public string AlgorithmName => "DES";
         public CryptoAlgorithmType AlgorithmType => CryptoAlgorithmType.Symmetric;
 
+        // DES算法常量
+        private const int DES_KEY_LENGTH = 8;        // DES密钥长度（字节）
+        private const int DES_IV_LENGTH = 8;         // DES IV长度（字节）
+        private const int DES_KEY_BITS = 64;         // DES密钥位数
+        private const int DES_BLOCK_BITS = 64;       // DES块位数
+
         private readonly CipherMode _mode;
         private readonly PaddingMode _padding;
 
@@ -34,50 +40,48 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// </summary>
         public byte[] Encrypt(byte[] data, byte[] key, byte[]? iv = null)
         {
-            if (data == null || data.Length == 0)
-                throw new DataException("待加密数据不能为空");
-
-            if (key == null || key.Length == 0)
-                throw new KeyException("密钥不能为空");
-
-            if (key.Length != 8)
-                throw new KeyException("DES密钥长度必须为8字节");
+            // 参数验证
+            ValidateEncryptParameters(data, key, iv);
 
             try
             {
-                using (var des = System.Security.Cryptography.DES.Create())
-                {
-                    des.Mode = _mode;
-                    des.Padding = _padding;
-                    des.Key = key;
+                using var des = System.Security.Cryptography.DES.Create();
+                des.Mode = _mode;
+                des.Padding = _padding;
+                des.Key = key;
 
-                    if (iv != null)
-                    {
-                        if (iv.Length != des.BlockSize / 8)
-                            throw new KeyException($"IV长度必须为{des.BlockSize / 8}字节");
-                        des.IV = iv;
-                    }
+                // ECB模式不需要IV
+                if (IsECBMode && iv != null)
+                {
+                    throw new KeyException("ECB模式不支持IV参数");
+                }
+                else
+                {
+                     if (iv != null)
+                     {
+                         if (iv.Length != DES_IV_LENGTH)
+                             throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节");
+                         des.IV = iv;
+                     }
                     else
                     {
                         des.GenerateIV();
                     }
-
-                    using (var encryptor = des.CreateEncryptor())
-                    {
-                        var encrypted = encryptor.TransformFinalBlock(data, 0, data.Length);
-
-                        // 如果IV是自动生成的，需要将IV和加密数据一起返回
-                        if (iv == null)
-                        {
-                            var result = new byte[des.IV.Length + encrypted.Length];
-                            Array.Copy(des.IV, 0, result, 0, des.IV.Length);
-                            Array.Copy(encrypted, 0, result, des.IV.Length, encrypted.Length);
-                            return result;
-                        }
-
-                        return encrypted;
-                    }
                 }
+
+                using var encryptor = des.CreateEncryptor();
+                var encrypted = encryptor.TransformFinalBlock(data, 0, data.Length);
+
+                // 如果IV是自动生成的，需要将IV和加密数据一起返回（ECB模式除外）
+                if (iv == null && _mode != CipherMode.ECB)
+                {
+                    var result = new byte[des.IV.Length + encrypted.Length];
+                    Array.Copy(des.IV, 0, result, 0, des.IV.Length);
+                    Array.Copy(encrypted, 0, result, des.IV.Length, encrypted.Length);
+                    return result;
+                }
+
+                return encrypted;
             }
             catch (Exception ex)
             {
@@ -90,49 +94,47 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// </summary>
         public byte[] Decrypt(byte[] encryptedData, byte[] key, byte[]? iv = null)
         {
-            if (encryptedData == null || encryptedData.Length == 0)
-                throw new DataException("待解密数据不能为空");
-
-            if (key == null || key.Length == 0)
-                throw new KeyException("密钥不能为空");
-
-            if (key.Length != 8)
-                throw new KeyException("DES密钥长度必须为8字节");
+            // 参数验证
+            ValidateDecryptParameters(encryptedData, key, iv);
 
             try
             {
-                using (var des = System.Security.Cryptography.DES.Create())
+                using var des = System.Security.Cryptography.DES.Create();
+                des.Mode = _mode;
+                des.Padding = _padding;
+                des.Key = key;
+
+                // ECB模式不需要IV
+                if (IsECBMode && iv != null)
                 {
-                    des.Mode = _mode;
-                    des.Padding = _padding;
-                    des.Key = key;
-
-                    // 如果IV为null，说明IV包含在加密数据的前面
-                    if (iv == null)
-                    {
-                        if (encryptedData.Length < des.BlockSize / 8)
-                            throw new DataException("加密数据长度不足，无法提取IV");
-
-                        var extractedIV = new byte[des.BlockSize / 8];
-                        Array.Copy(encryptedData, 0, extractedIV, 0, extractedIV.Length);
-                        des.IV = extractedIV;
-
-                        var actualEncryptedData = new byte[encryptedData.Length - extractedIV.Length];
-                        Array.Copy(encryptedData, extractedIV.Length, actualEncryptedData, 0, actualEncryptedData.Length);
-                        encryptedData = actualEncryptedData;
-                    }
-                    else
-                    {
-                        if (iv.Length != des.BlockSize / 8)
-                            throw new KeyException($"IV长度必须为{des.BlockSize / 8}字节");
-                        des.IV = iv;
-                    }
-
-                    using (var decryptor = des.CreateDecryptor())
-                    {
-                        return decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
-                    }
+                    throw new KeyException("ECB模式不支持IV参数");
                 }
+                else
+                {
+                    // 如果IV为null，说明IV包含在加密数据的前面
+                     if (iv == null)
+                     {
+                         if (encryptedData.Length < DES_IV_LENGTH)
+                             throw new DataException("加密数据长度不足，无法提取IV");
+
+                         var extractedIV = new byte[DES_IV_LENGTH];
+                         Array.Copy(encryptedData, 0, extractedIV, 0, extractedIV.Length);
+                         des.IV = extractedIV;
+
+                         var actualEncryptedData = new byte[encryptedData.Length - extractedIV.Length];
+                         Array.Copy(encryptedData, extractedIV.Length, actualEncryptedData, 0, actualEncryptedData.Length);
+                         encryptedData = actualEncryptedData;
+                     }
+                     else
+                     {
+                         if (iv.Length != DES_IV_LENGTH)
+                             throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节");
+                         des.IV = iv;
+                     }
+                }
+
+                using var decryptor = des.CreateDecryptor();
+                return decryptor.TransformFinalBlock(encryptedData, 0, encryptedData.Length);
             }
             catch (Exception ex)
             {
@@ -145,6 +147,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// </summary>
         public async Task<byte[]> EncryptAsync(byte[] data, byte[] key, byte[]? iv = null)
         {
+            // 先进行参数验证
+            ValidateEncryptParameters(data, key, iv);
             return await Task.Run(() => Encrypt(data, key, iv));
         }
 
@@ -153,6 +157,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// </summary>
         public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null)
         {
+            // 先进行参数验证
+            ValidateDecryptParameters(encryptedData, key, iv);
             return await Task.Run(() => Decrypt(encryptedData, key, iv));
         }
 
@@ -162,7 +168,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>随机密钥</returns>
         public byte[] GenerateKey()
         {
-            return StringUtil.GenerateRandomKey(64); // DES密钥为64位
+            return StringUtil.GenerateRandomKey(DES_KEY_BITS); // DES密钥为64位
         }
 
         /// <summary>
@@ -171,7 +177,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>随机IV</returns>
         public byte[] GenerateIV()
         {
-            return StringUtil.GenerateRandomIV(64); // DES块大小为64位
+            return StringUtil.GenerateRandomIV(DES_BLOCK_BITS); // DES块大小为64位
         }
 
         /// <summary>
@@ -189,10 +195,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
             if (salt == null || salt.Length == 0)
                 throw new ArgumentException("盐值不能为空", nameof(salt));
 
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA1))
-            {
-                return pbkdf2.GetBytes(8); // DES密钥为8字节
-            }
+            using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA1);
+            return pbkdf2.GetBytes(DES_KEY_LENGTH); // DES密钥为8字节
         }
 
         /// <summary>
@@ -218,7 +222,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>是否为弱密钥</returns>
         public bool IsWeakKey(byte[] key)
         {
-            if (key == null || key.Length != 8)
+            if (key == null || key.Length != DES_KEY_LENGTH)
                 return false;
 
             // DES弱密钥检查
@@ -237,6 +241,87 @@ namespace CryptoTool.Algorithm.Algorithms.DES
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 验证加密参数
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始化向量</param>
+        private void ValidateEncryptParameters(byte[] data, byte[] key, byte[]? iv)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("待加密数据不能为空");
+
+            ValidateKey(key);
+            ValidateIV(iv);
+        }
+
+        /// <summary>
+        /// 验证解密参数
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="key">密钥</param>
+        /// <param name="iv">初始化向量</param>
+        private void ValidateDecryptParameters(byte[] encryptedData, byte[] key, byte[]? iv)
+        {
+            if (encryptedData == null || encryptedData.Length == 0)
+                throw new DataException("待解密数据不能为空");
+
+            ValidateKey(key);
+            ValidateIV(iv);
+        }
+
+        /// <summary>
+        /// 验证密钥
+        /// </summary>
+        /// <param name="key">密钥</param>
+        private void ValidateKey(byte[] key)
+        {
+            if (key == null)
+                throw new KeyException("密钥不能为null");
+
+            if (key.Length == 0)
+                throw new KeyException("密钥不能为空");
+
+            if (key.Length != DES_KEY_LENGTH)
+                throw new KeyException($"DES密钥长度必须为{DES_KEY_LENGTH}字节，当前长度为{key.Length}字节");
+
+            // 检查是否为弱密钥
+            if (IsWeakKey(key))
+                throw new KeyException("检测到DES弱密钥，请使用其他密钥");
+        }
+
+        /// <summary>
+        /// 检查是否为ECB模式
+        /// </summary>
+        private bool IsECBMode => _mode == CipherMode.ECB;
+
+        /// <summary>
+        /// 检查模式是否需要IV
+        /// </summary>
+        private bool RequiresIV => !IsECBMode;
+
+        /// <summary>
+        /// 验证IV
+        /// </summary>
+        /// <param name="iv">初始化向量</param>
+        private void ValidateIV(byte[]? iv)
+        {
+            if (iv == null)
+                return;
+
+            if (iv.Length == 0)
+                throw new KeyException("IV不能为空");
+
+            // ECB模式不需要IV
+            if (_mode == CipherMode.ECB)
+                throw new KeyException("ECB模式不支持IV参数");
+
+            // 其他模式需要8字节IV
+            if (iv.Length != DES_IV_LENGTH)
+                throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节，当前长度为{iv.Length}字节");
         }
     }
 }
