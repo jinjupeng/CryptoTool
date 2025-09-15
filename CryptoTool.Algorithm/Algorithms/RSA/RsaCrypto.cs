@@ -855,7 +855,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <param name="rsa"></param>
         /// <returns></returns>
         /// <exception cref="CryptoException"></exception>
-        public string ExportPublicKeyPem(System.Security.Cryptography.RSA rsa)
+        private string ExportPublicKeyPem(System.Security.Cryptography.RSA rsa)
         {
             return _keyFormat switch
             {
@@ -871,7 +871,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         /// <param name="rsa"></param>
         /// <returns></returns>
         /// <exception cref="CryptoException"></exception>
-        public string ExportPrivateKeyPem(System.Security.Cryptography.RSA rsa)
+        private string ExportPrivateKeyPem(System.Security.Cryptography.RSA rsa)
         {
             return _keyFormat switch
             {
