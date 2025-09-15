@@ -285,7 +285,7 @@ namespace CryptoTool.Test.Examples
         /// </summary>
         public static async Task TestPKCSFormatConversion()
         {
-            var rsa = new RsaCrypto(2048);
+            var rsa = new RsaCrypto(2048, "pkcs1");
             Console.WriteLine("=== PKCS格式转换测试 ===");
 
             try

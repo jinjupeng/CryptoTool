@@ -439,7 +439,6 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         public byte[] ConvertPublicKeyFromPKCS1ToPKCS8(byte[] pkcs1PublicKey)
         {
             ValidateKeyInput(pkcs1PublicKey, "PKCS1公钥");
-
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
@@ -568,12 +567,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 ImportPublicKey(rsa, publicKey);
 
-                return _keyFormat switch
-                {
-                    "pkcs1" => ConvertToPem(rsa.ExportRSAPublicKey(), "RSA PUBLIC KEY"),
-                    "pkcs8" => ConvertToPem(rsa.ExportSubjectPublicKeyInfo(), "PUBLIC KEY"),
-                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
-                };
+                return ExportPublicKeyPem(rsa);
             }
             catch (Exception ex) when (!(ex is CryptoException))
             {
@@ -595,12 +589,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 ImportPrivateKey(rsa, privateKey);
 
-                return _keyFormat switch
-                {
-                    "pkcs1" => ConvertToPem(rsa.ExportRSAPrivateKey(), "RSA PRIVATE KEY"),
-                    "pkcs8" => ConvertToPem(rsa.ExportPkcs8PrivateKey(), "PRIVATE KEY"),
-                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
-                };
+                return ExportPrivateKeyPem(rsa);
             }
             catch (Exception ex) when (!(ex is CryptoException))
             {
@@ -622,12 +611,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 ImportPublicKeyFromPemString(rsa, publicKeyPem);
 
-                return _keyFormat switch
-                {
-                    "pkcs1" => rsa.ExportRSAPublicKey(),
-                    "pkcs8" => rsa.ExportSubjectPublicKeyInfo(),
-                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
-                };
+                return ExportPublicKey(rsa);
             }
             catch (Exception ex) when (!(ex is CryptoException))
             {
@@ -649,12 +633,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 ImportPrivateKeyFromPemString(rsa, privateKeyPem);
 
-                return _keyFormat switch
-                {
-                    "pkcs1" => rsa.ExportRSAPrivateKey(),
-                    "pkcs8" => rsa.ExportPkcs8PrivateKey(),
-                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
-                };
+                return ExportPrivateKey(rsa);
             }
             catch (Exception ex) when (!(ex is CryptoException))
             {
@@ -869,6 +848,70 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         #endregion
 
         #region 私有辅助方法
+
+        /// <summary>
+        /// 导出pem格式公钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
+        public string ExportPublicKeyPem(System.Security.Cryptography.RSA rsa)
+        {
+            return _keyFormat switch
+            {
+                "pkcs1" => ConvertToPem(rsa.ExportRSAPublicKey(), "RSA PUBLIC KEY"),
+                "pkcs8" => ConvertToPem(rsa.ExportSubjectPublicKeyInfo(), "PUBLIC KEY"),
+                _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+            };
+        }
+
+        /// <summary>
+        /// 导出pem格式私钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
+        public string ExportPrivateKeyPem(System.Security.Cryptography.RSA rsa)
+        {
+            return _keyFormat switch
+            {
+                "pkcs1" => ConvertToPem(rsa.ExportRSAPrivateKey(), "RSA PRIVATE KEY"),
+                "pkcs8" => ConvertToPem(rsa.ExportPkcs8PrivateKey(), "PRIVATE KEY"),
+                _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+            };
+        }
+
+        /// <summary>
+        /// 导出私钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
+        private byte[] ExportPrivateKey(System.Security.Cryptography.RSA rsa)
+        {
+            return _keyFormat switch
+            {
+                "pkcs1" => rsa.ExportRSAPrivateKey(),
+                "pkcs8" => rsa.ExportPkcs8PrivateKey(),
+                _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+            };
+        }
+
+        /// <summary>
+        /// 导出公钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa"></param>
+        /// <returns></returns>
+        /// <exception cref="CryptoException"></exception>
+        private byte[] ExportPublicKey(System.Security.Cryptography.RSA rsa)
+        {
+            return _keyFormat switch
+            {
+                "pkcs1" => rsa.ExportRSAPublicKey(),
+                "pkcs8" => rsa.ExportSubjectPublicKeyInfo(),
+                _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+            };
+        }
 
         /// <summary>
         /// 智能导入RSA公钥，自动检测格式
