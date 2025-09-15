@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace CryptoTool.Algorithm.Algorithms.RSA
 {
     /// <summary>
-    /// RSA加密算法实现 - 优化版
+    /// RSA加密算法实现
     /// </summary>
     public class RsaCrypto : IAsymmetricCrypto
     {
@@ -49,7 +49,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPublicKey(publicKey, out _);
+                ImportPublicKey(rsa, publicKey);
 
                 var maxDataLength = GetMaxDataLength(rsa.KeySize);
                 if (data.Length > maxDataLength)
@@ -79,7 +79,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPrivateKey(privateKey, out _);
+                ImportPrivateKey(rsa, privateKey);
 
                 var blockSize = rsa.KeySize / 8;
                 if (encryptedData.Length > blockSize)
@@ -117,33 +117,6 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 生成指定格式的密钥对
-        /// </summary>
-        /// <param name="keyFormat">密钥格式，"pkcs1"或"pkcs8"，默认支持pkcs8</param>
-        /// <returns>密钥对</returns>
-        public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair(string keyFormat = "pkcs8")
-        {
-            ValidateKeyFormat(keyFormat);
-
-            try
-            {
-                using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
-                var format = keyFormat.ToLower();
-
-                return format switch
-                {
-                    "pkcs1" => (rsa.ExportRSAPublicKey(), rsa.ExportRSAPrivateKey()),
-                    "pkcs8" => (rsa.ExportSubjectPublicKeyInfo(), rsa.ExportPkcs8PrivateKey()),
-                    _ => throw new CryptoException($"不支持的密钥格式: {format}")
-                };
-            }
-            catch (Exception ex) when (!(ex is CryptoException))
-            {
-                throw new CryptoException($"RSA密钥对生成失败 (格式: {keyFormat})", ex);
-            }
-        }
-
-        /// <summary>
         /// 签名
         /// </summary>
         /// <param name="data"></param>
@@ -157,7 +130,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPrivateKey(privateKey, out _);
+                ImportPrivateKey(rsa, privateKey);
                 return rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -181,7 +154,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPublicKey(publicKey, out _);
+                ImportPublicKey(rsa, publicKey);
                 return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -271,7 +244,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPublicKey(publicKey, out _);
+                ImportPublicKey(rsa, publicKey);
 
                 var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
                 var maxDataLength = GetMaxDataLength(rsa.KeySize, paddingMode);
@@ -304,7 +277,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPrivateKey(privateKey, out _);
+                ImportPrivateKey(rsa, privateKey);
 
                 var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
                 var blockSize = rsa.KeySize / 8;
@@ -342,7 +315,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPrivateKey(privateKey, out _);
+                ImportPrivateKey(rsa, privateKey);
 
                 var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
                 return rsa.SignData(data, hashAlgorithm, signaturePadding);
@@ -374,7 +347,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPublicKey(publicKey, out _);
+                ImportPublicKey(rsa, publicKey);
 
                 var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
                 return rsa.VerifyData(data, signature, hashAlgorithm, signaturePadding);
@@ -469,7 +442,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPublicKey(pkcs1PublicKey, out _);
+                ImportPublicKey(rsa, pkcs1PublicKey);
                 return rsa.ExportSubjectPublicKeyInfo();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -490,7 +463,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportSubjectPublicKeyInfo(pkcs8PublicKey, out _);
+                ImportPublicKey(rsa, pkcs8PublicKey);
                 return rsa.ExportRSAPublicKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -511,7 +484,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportRSAPrivateKey(pkcs1PrivateKey, out _);
+                ImportPrivateKey(rsa, pkcs1PrivateKey);
                 return rsa.ExportPkcs8PrivateKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -532,7 +505,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                rsa.ImportPkcs8PrivateKey(pkcs8PrivateKey, out _);
+                ImportPrivateKey(rsa, pkcs8PrivateKey);
                 return rsa.ExportRSAPrivateKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -545,6 +518,46 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         #endregion
 
         #region 私有辅助方法
+
+        /// <summary>
+        /// 智能导入RSA公钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa">RSA实例</param>
+        /// <param name="publicKey">公钥数据</param>
+        private void ImportPublicKey(System.Security.Cryptography.RSA rsa, byte[] publicKey)
+        {
+            switch (_keyFormat)
+            {
+                case "pkcs1":
+                    rsa.ImportRSAPublicKey(publicKey, out _);
+                    break;
+                case "pkcs8":
+                    rsa.ImportSubjectPublicKeyInfo(publicKey, out _);
+                    break;
+                default:
+                    throw new CryptoException("无法导入公钥，不支持的密钥格式");
+            }
+        }
+
+        /// <summary>
+        /// 智能导入RSA私钥，自动检测格式
+        /// </summary>
+        /// <param name="rsa">RSA实例</param>
+        /// <param name="privateKey">私钥数据</param>
+        private void ImportPrivateKey(System.Security.Cryptography.RSA rsa, byte[] privateKey)
+        {
+            switch (_keyFormat)
+            {
+                case "pkcs1":
+                    rsa.ImportRSAPrivateKey(privateKey, out _);
+                    break;
+                case "pkcs8":
+                    rsa.ImportPkcs8PrivateKey(privateKey, out _);
+                    break;
+                default:
+                    throw new CryptoException("无法导入私钥，不支持的密钥格式");
+            }
+        }
 
         private void ValidateKeySize(int keySize)
         {
