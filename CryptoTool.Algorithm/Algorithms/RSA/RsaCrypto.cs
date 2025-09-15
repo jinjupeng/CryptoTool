@@ -5,6 +5,7 @@ using CryptoTool.Algorithm.Utils;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -514,6 +515,356 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             }
         }
 
+        #endregion
+
+        #region PEM格式密钥方法
+
+        /// <summary>
+        /// 生成密钥对并返回PEM格式
+        /// </summary>
+        /// <returns>PEM格式的密钥对 (PublicKeyPem, PrivateKeyPem)</returns>
+        public (string PublicKeyPem, string PrivateKeyPem) GenerateKeyPairPem()
+        {
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
+
+                string publicKeyPem;
+                string privateKeyPem;
+
+                switch (_keyFormat)
+                {
+                    case "pkcs1":
+                        publicKeyPem = ConvertToPem(rsa.ExportRSAPublicKey(), "RSA PUBLIC KEY");
+                        privateKeyPem = ConvertToPem(rsa.ExportRSAPrivateKey(), "RSA PRIVATE KEY");
+                        break;
+                    case "pkcs8":
+                        publicKeyPem = ConvertToPem(rsa.ExportSubjectPublicKeyInfo(), "PUBLIC KEY");
+                        privateKeyPem = ConvertToPem(rsa.ExportPkcs8PrivateKey(), "PRIVATE KEY");
+                        break;
+                    default:
+                        throw new CryptoException($"不支持的密钥格式: {_keyFormat}");
+                }
+
+                return (publicKeyPem, privateKeyPem);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException($"RSA密钥对PEM格式生成失败 (格式: {_keyFormat})", ex);
+            }
+        }
+
+        /// <summary>
+        /// 导出公钥为PEM格式
+        /// </summary>
+        /// <param name="publicKey">公钥字节数组</param>
+        /// <returns>PEM格式公钥</returns>
+        public string ExportPublicKeyToPem(byte[] publicKey)
+        {
+            ValidateKeyInput(publicKey, "公钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPublicKey(rsa, publicKey);
+
+                return _keyFormat switch
+                {
+                    "pkcs1" => ConvertToPem(rsa.ExportRSAPublicKey(), "RSA PUBLIC KEY"),
+                    "pkcs8" => ConvertToPem(rsa.ExportSubjectPublicKeyInfo(), "PUBLIC KEY"),
+                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+                };
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("导出公钥为PEM格式失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 导出私钥为PEM格式
+        /// </summary>
+        /// <param name="privateKey">私钥字节数组</param>
+        /// <returns>PEM格式私钥</returns>
+        public string ExportPrivateKeyToPem(byte[] privateKey)
+        {
+            ValidateKeyInput(privateKey, "私钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPrivateKey(rsa, privateKey);
+
+                return _keyFormat switch
+                {
+                    "pkcs1" => ConvertToPem(rsa.ExportRSAPrivateKey(), "RSA PRIVATE KEY"),
+                    "pkcs8" => ConvertToPem(rsa.ExportPkcs8PrivateKey(), "PRIVATE KEY"),
+                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+                };
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("导出私钥为PEM格式失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 从PEM格式导入公钥
+        /// </summary>
+        /// <param name="publicKeyPem">PEM格式公钥</param>
+        /// <returns>公钥字节数组</returns>
+        public byte[] ImportPublicKeyFromPem(string publicKeyPem)
+        {
+            ValidateStringInput(publicKeyPem, "PEM格式公钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPublicKeyFromPemString(rsa, publicKeyPem);
+
+                return _keyFormat switch
+                {
+                    "pkcs1" => rsa.ExportRSAPublicKey(),
+                    "pkcs8" => rsa.ExportSubjectPublicKeyInfo(),
+                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+                };
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("从PEM格式导入公钥失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 从PEM格式导入私钥
+        /// </summary>
+        /// <param name="privateKeyPem">PEM格式私钥</param>
+        /// <returns>私钥字节数组</returns>
+        public byte[] ImportPrivateKeyFromPem(string privateKeyPem)
+        {
+            ValidateStringInput(privateKeyPem, "PEM格式私钥");
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPrivateKeyFromPemString(rsa, privateKeyPem);
+
+                return _keyFormat switch
+                {
+                    "pkcs1" => rsa.ExportRSAPrivateKey(),
+                    "pkcs8" => rsa.ExportPkcs8PrivateKey(),
+                    _ => throw new CryptoException($"不支持的密钥格式: {_keyFormat}")
+                };
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("从PEM格式导入私钥失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用PEM格式公钥加密
+        /// </summary>
+        /// <param name="data">待加密数据</param>
+        /// <param name="publicKeyPem">PEM格式公钥</param>
+        /// <returns>加密后的数据</returns>
+        public byte[] EncryptWithPem(byte[] data, string publicKeyPem)
+        {
+            ValidateEncryptInput(data, publicKeyPem);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPublicKeyFromPemString(rsa, publicKeyPem);
+
+                var maxDataLength = GetMaxDataLength(rsa.KeySize);
+                if (data.Length > maxDataLength)
+                {
+                    return EncryptLargeData(data, rsa);
+                }
+
+                return rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("使用PEM公钥加密失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用PEM格式私钥解密
+        /// </summary>
+        /// <param name="encryptedData">待解密数据</param>
+        /// <param name="privateKeyPem">PEM格式私钥</param>
+        /// <returns>解密后的数据</returns>
+        public byte[] DecryptWithPem(byte[] encryptedData, string privateKeyPem)
+        {
+            ValidateDecryptInput(encryptedData, privateKeyPem);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPrivateKeyFromPemString(rsa, privateKeyPem);
+
+                var blockSize = rsa.KeySize / 8;
+                if (encryptedData.Length > blockSize)
+                {
+                    return DecryptLargeData(encryptedData, rsa);
+                }
+
+                return rsa.Decrypt(encryptedData, RSAEncryptionPadding.Pkcs1);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("使用PEM私钥解密失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用PEM格式私钥签名
+        /// </summary>
+        /// <param name="data">待签名数据</param>
+        /// <param name="privateKeyPem">PEM格式私钥</param>
+        /// <returns>签名</returns>
+        public byte[] SignWithPem(byte[] data, string privateKeyPem)
+        {
+            ValidateSignInput(data, privateKeyPem);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPrivateKeyFromPemString(rsa, privateKeyPem);
+                return rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("使用PEM私钥签名失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 使用PEM格式公钥验证签名
+        /// </summary>
+        /// <param name="data">原始数据</param>
+        /// <param name="signature">签名</param>
+        /// <param name="publicKeyPem">PEM格式公钥</param>
+        /// <returns>验证结果</returns>
+        public bool VerifySignWithPem(byte[] data, byte[] signature, string publicKeyPem)
+        {
+            ValidateVerifyInput(data, signature, publicKeyPem);
+
+            try
+            {
+                using var rsa = System.Security.Cryptography.RSA.Create();
+                ImportPublicKeyFromPemString(rsa, publicKeyPem);
+                return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            }
+            catch (Exception ex) when (!(ex is CryptoException))
+            {
+                throw new CryptoException("使用PEM公钥验证签名失败", ex);
+            }
+        }
+
+        /// <summary>
+        /// 将字节数组转换为PEM格式
+        /// </summary>
+        /// <param name="keyBytes">密钥字节数组</param>
+        /// <param name="keyType">密钥类型标识</param>
+        /// <returns>PEM格式字符串</returns>
+        private static string ConvertToPem(byte[] keyBytes, string keyType)
+        {
+            var base64 = Convert.ToBase64String(keyBytes);
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"-----BEGIN {keyType}-----");
+
+            // 每行64个字符分割
+            for (var i = 0; i < base64.Length; i += 64)
+            {
+                sb.AppendLine(base64.Substring(i, Math.Min(64, base64.Length - i)));
+            }
+
+            sb.AppendLine($"-----END {keyType}-----");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// 从PEM格式字符串中提取密钥字节
+        /// </summary>
+        /// <param name="pemKey">PEM格式密钥</param>
+        /// <returns>密钥字节数组</returns>
+        private static byte[] ExtractKeyBytesFromPem(string pemKey)
+        {
+            var lines = pemKey.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var base64Data = new StringBuilder();
+
+            bool inKey = false;
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("-----BEGIN"))
+                {
+                    inKey = true;
+                    continue;
+                }
+                if (line.StartsWith("-----END"))
+                {
+                    break;
+                }
+                if (inKey)
+                {
+                    base64Data.Append(line.Trim());
+                }
+            }
+
+            return Convert.FromBase64String(base64Data.ToString());
+        }
+
+        /// <summary>
+        /// 从PEM格式字符串导入私钥
+        /// </summary>
+        /// <param name="rsa">RSA实例</param>
+        /// <param name="pemKey">PEM格式私钥</param>
+        private void ImportPrivateKeyFromPemString(System.Security.Cryptography.RSA rsa, string pemKey)
+        {
+            var keyBytes = ExtractKeyBytesFromPem(pemKey);
+
+            if (pemKey.Contains("RSA PRIVATE KEY")) // PKCS#1格式
+            {
+                rsa.ImportRSAPrivateKey(keyBytes, out _);
+            }
+            else if (pemKey.Contains("PRIVATE KEY")) // PKCS#8格式
+            {
+                rsa.ImportPkcs8PrivateKey(keyBytes, out _);
+            }
+            else
+            {
+                throw new CryptoException("无法识别的PEM私钥格式");
+            }
+        }
+
+        /// <summary>
+        /// 从PEM格式字符串导入公钥
+        /// </summary>
+        /// <param name="rsa">RSA实例</param>
+        /// <param name="pemKey">PEM格式公钥</param>
+        private void ImportPublicKeyFromPemString(System.Security.Cryptography.RSA rsa, string pemKey)
+        {
+            var keyBytes = ExtractKeyBytesFromPem(pemKey);
+
+            if (pemKey.Contains("RSA PUBLIC KEY")) // PKCS#1格式
+            {
+                rsa.ImportRSAPublicKey(keyBytes, out _);
+            }
+            else if (pemKey.Contains("PUBLIC KEY")) // X.509/PKCS#8格式
+            {
+                rsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
+            }
+            else
+            {
+                throw new CryptoException("无法识别的PEM公钥格式");
+            }
+        }
 
         #endregion
 
@@ -609,10 +960,51 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
                 throw new KeyException("公钥不能为空");
         }
 
+        // PEM格式密钥验证方法重载
+        private static void ValidateEncryptInput(byte[] data, string publicKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("待加密数据不能为空");
+            if (string.IsNullOrWhiteSpace(publicKey))
+                throw new KeyException("公钥不能为空");
+        }
+
+        private static void ValidateDecryptInput(byte[] encryptedData, string privateKey)
+        {
+            if (encryptedData == null || encryptedData.Length == 0)
+                throw new DataException("待解密数据不能为空");
+            if (string.IsNullOrWhiteSpace(privateKey))
+                throw new KeyException("私钥不能为空");
+        }
+
+        private static void ValidateSignInput(byte[] data, string privateKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("待签名数据不能为空");
+            if (string.IsNullOrWhiteSpace(privateKey))
+                throw new KeyException("私钥不能为空");
+        }
+
+        private static void ValidateVerifyInput(byte[] data, byte[] signature, string publicKey)
+        {
+            if (data == null || data.Length == 0)
+                throw new DataException("原始数据不能为空");
+            if (signature == null || signature.Length == 0)
+                throw new DataException("签名数据不能为空");
+            if (string.IsNullOrWhiteSpace(publicKey))
+                throw new KeyException("公钥不能为空");
+        }
+
         private static void ValidateKeyInput(byte[] keyData, string keyType)
         {
             if (keyData == null || keyData.Length == 0)
                 throw new KeyException($"{keyType}不能为空");
+        }
+
+        private static void ValidateStringInput(string input, string inputType)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                throw new ArgumentException($"{inputType}不能为空", nameof(input));
         }
 
         /// <summary>

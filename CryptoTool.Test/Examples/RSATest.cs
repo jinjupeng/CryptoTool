@@ -95,6 +95,9 @@ namespace CryptoTool.Test.Examples
                 Console.WriteLine("\n--- PKCS格式转换测试 ---");
                 await TestPKCSFormatConversion();
 
+                // PEM格式测试
+                await TestRSAPemMethods();
+
             }
             catch (Exception ex)
             {
@@ -363,5 +366,288 @@ namespace CryptoTool.Test.Examples
             }
         }
 
+        /// <summary>
+        /// 测试RSA PEM格式功能
+        /// </summary>
+        public static async Task TestRSAPemMethods()
+        {
+            Console.WriteLine("=== RSA PEM格式测试 ===");
+
+            try
+            {
+                // 测试 PKCS1 格式
+                await TestPemWithFormat("pkcs1");
+
+                // 测试 PKCS8 格式
+                await TestPemWithFormat("pkcs8");
+
+                // 测试 PEM 格式转换
+                await TestPemFormatConversion();
+
+                // 测试 PEM 加密解密
+                await TestPemEncryptionDecryption();
+
+                // 测试 PEM 签名验签
+                await TestPemSignatureVerification();
+
+                Console.WriteLine("RSA PEM格式测试完成！\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"RSA PEM格式测试失败: {ex.Message}");
+                Console.WriteLine($"异常详情: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 测试指定格式的PEM功能
+        /// </summary>
+        /// <param name="keyFormat">密钥格式</param>
+        private static async Task TestPemWithFormat(string keyFormat)
+        {
+            Console.WriteLine($"\n--- {keyFormat.ToUpper()} 格式 PEM 测试 ---");
+
+            try
+            {
+                var rsa = new RsaCrypto(2048, keyFormat);
+
+                // 生成PEM格式密钥对
+                var (publicKeyPem, privateKeyPem) = rsa.GenerateKeyPairPem();
+                Console.WriteLine($"✓ PEM密钥对生成成功 (格式: {keyFormat})");
+                Console.WriteLine($"  公钥长度: {publicKeyPem.Length} 字符");
+                Console.WriteLine($"  私钥长度: {privateKeyPem.Length} 字符");
+
+                // 验证PEM格式
+                ValidatePemFormat(publicKeyPem, keyFormat, true);
+                ValidatePemFormat(privateKeyPem, keyFormat, false);
+
+                // 导出为字节数组然后再转为PEM
+                var (publicKeyBytes, privateKeyBytes) = rsa.GenerateKeyPair();
+                var exportedPublicPem = rsa.ExportPublicKeyToPem(publicKeyBytes);
+                var exportedPrivatePem = rsa.ExportPrivateKeyToPem(privateKeyBytes);
+
+                Console.WriteLine($"✓ 字节数组转PEM格式成功");
+
+                // 从PEM导入为字节数组
+                var importedPublicBytes = rsa.ImportPublicKeyFromPem(publicKeyPem);
+                var importedPrivateBytes = rsa.ImportPrivateKeyFromPem(privateKeyPem);
+
+                Console.WriteLine($"✓ PEM格式转字节数组成功");
+                Console.WriteLine($"  导入公钥长度: {importedPublicBytes.Length} 字节");
+                Console.WriteLine($"  导入私钥长度: {importedPrivateBytes.Length} 字节");
+
+                // 验证功能正常
+                await TestPemFunctionality(rsa, publicKeyPem, privateKeyPem);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ {keyFormat.ToUpper()} 格式测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 验证PEM格式是否正确
+        /// </summary>
+        /// <param name="pemKey">PEM密钥</param>
+        /// <param name="keyFormat">密钥格式</param>
+        /// <param name="isPublicKey">是否为公钥</param>
+        private static void ValidatePemFormat(string pemKey, string keyFormat, bool isPublicKey)
+        {
+            var expectedHeader = keyFormat.ToLower() switch
+            {
+                "pkcs1" => isPublicKey ? "-----BEGIN RSA PUBLIC KEY-----" : "-----BEGIN RSA PRIVATE KEY-----",
+                "pkcs8" => isPublicKey ? "-----BEGIN PUBLIC KEY-----" : "-----BEGIN PRIVATE KEY-----",
+                _ => throw new ArgumentException($"不支持的密钥格式: {keyFormat}")
+            };
+
+            var expectedFooter = expectedHeader.Replace("BEGIN", "END");
+
+            if (!pemKey.StartsWith(expectedHeader) || !pemKey.Contains(expectedFooter))
+            {
+                throw new Exception($"PEM格式验证失败，期望格式: {expectedHeader}");
+            }
+
+            Console.WriteLine($"✓ PEM格式验证通过 ({(isPublicKey ? "公钥" : "私钥")})");
+        }
+
+        /// <summary>
+        /// 测试PEM功能是否正常
+        /// </summary>
+        /// <param name="rsa">RSA实例</param>
+        /// <param name="publicKeyPem">PEM公钥</param>
+        /// <param name="privateKeyPem">PEM私钥</param>
+        private static async Task TestPemFunctionality(RsaCrypto rsa, string publicKeyPem, string privateKeyPem)
+        {
+            var testData = Encoding.UTF8.GetBytes("PEM格式功能测试数据");
+
+            // 测试加密解密
+            var encryptedData = rsa.EncryptWithPem(testData, publicKeyPem);
+            var decryptedData = rsa.DecryptWithPem(encryptedData, privateKeyPem);
+            var decryptedText = Encoding.UTF8.GetString(decryptedData);
+
+            if (decryptedText == "PEM格式功能测试数据")
+            {
+                Console.WriteLine($"✓ PEM加密解密功能正常");
+            }
+            else
+            {
+                throw new Exception("PEM加密解密功能异常");
+            }
+
+            // 测试签名验签
+            var signature = rsa.SignWithPem(testData, privateKeyPem);
+            var verifyResult = rsa.VerifySignWithPem(testData, signature, publicKeyPem);
+
+            if (verifyResult)
+            {
+                Console.WriteLine($"✓ PEM签名验签功能正常");
+            }
+            else
+            {
+                throw new Exception("PEM签名验签功能异常");
+            }
+        }
+
+        /// <summary>
+        /// 测试PEM格式转换
+        /// </summary>
+        private static async Task TestPemFormatConversion()
+        {
+            Console.WriteLine($"\n--- PEM 格式转换测试 ---");
+
+            try
+            {
+                // 生成PKCS1格式密钥
+                var rsaPkcs1 = new RsaCrypto(2048, "pkcs1");
+                var (publicPkcs1Pem, privatePkcs1Pem) = rsaPkcs1.GenerateKeyPairPem();
+
+                // 生成PKCS8格式密钥
+                var rsaPkcs8 = new RsaCrypto(2048, "pkcs8");
+                var (publicPkcs8Pem, privatePkcs8Pem) = rsaPkcs8.GenerateKeyPairPem();
+
+                Console.WriteLine($"✓ 不同格式PEM密钥生成成功");
+
+                // 交叉验证：PKCS1实例能否处理PKCS8的PEM
+                try
+                {
+                    var pkcs8ToBytes = rsaPkcs1.ImportPublicKeyFromPem(publicPkcs8Pem);
+                    var bytesToPkcs1 = rsaPkcs1.ExportPublicKeyToPem(pkcs8ToBytes);
+                    Console.WriteLine($"✓ PKCS8 PEM 转 PKCS1 PEM 成功");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠ PKCS8 PEM 转 PKCS1 PEM 失败: {ex.Message}");
+                }
+
+                // 交叉验证：PKCS8实例能否处理PKCS1的PEM  
+                try
+                {
+                    var pkcs1ToBytes = rsaPkcs8.ImportPublicKeyFromPem(publicPkcs1Pem);
+                    var bytesToPkcs8 = rsaPkcs8.ExportPublicKeyToPem(pkcs1ToBytes);
+                    Console.WriteLine($"✓ PKCS1 PEM 转 PKCS8 PEM 成功");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"⚠ PKCS1 PEM 转 PKCS8 PEM 失败: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ PEM格式转换测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试PEM加密解密性能
+        /// </summary>
+        private static async Task TestPemEncryptionDecryption()
+        {
+            Console.WriteLine($"\n--- PEM 加密解密性能测试 ---");
+
+            try
+            {
+                var rsa = new RsaCrypto(2048, "pkcs8");
+                var (publicKeyPem, privateKeyPem) = rsa.GenerateKeyPairPem();
+
+                // 测试不同大小的数据
+                var testSizes = new[] { 10, 50, 100, 200 }; // 字节
+
+                foreach (var size in testSizes)
+                {
+                    var testData = new byte[size];
+                    new Random().NextBytes(testData);
+
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+                    var encryptedData = rsa.EncryptWithPem(testData, publicKeyPem);
+                    var decryptedData = rsa.DecryptWithPem(encryptedData, privateKeyPem);
+
+                    stopwatch.Stop();
+
+                    var isSuccess = testData.SequenceEqual(decryptedData);
+                    Console.WriteLine($"  数据大小: {size} 字节, 耗时: {stopwatch.ElapsedMilliseconds} ms, 结果: {(isSuccess ? "成功" : "失败")}");
+                }
+
+                Console.WriteLine($"✓ PEM加密解密性能测试完成");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ PEM加密解密性能测试失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 测试PEM签名验签
+        /// </summary>
+        private static async Task TestPemSignatureVerification()
+        {
+            Console.WriteLine($"\n--- PEM 签名验签测试 ---");
+
+            try
+            {
+                var rsa = new RsaCrypto(2048, "pkcs8");
+                var (publicKeyPem, privateKeyPem) = rsa.GenerateKeyPairPem();
+
+                var testMessages = new[]
+                {
+                    "简单测试消息",
+                    "包含特殊字符的消息：!@#$%^&*()",
+                    "包含中文的消息：你好，世界！",
+                    "长消息：" + new string('A', 500)
+                };
+
+                foreach (var message in testMessages)
+                {
+                    var messageBytes = Encoding.UTF8.GetBytes(message);
+                    
+                    var signature = rsa.SignWithPem(messageBytes, privateKeyPem);
+                    var isValid = rsa.VerifySignWithPem(messageBytes, signature, publicKeyPem);
+
+                    Console.WriteLine($"  消息长度: {message.Length} 字符, 签名验证: {(isValid ? "成功" : "失败")}");
+
+                    // 测试篡改数据的验证
+                    if (messageBytes.Length > 1)
+                    {
+                        messageBytes[0] = (byte)(messageBytes[0] ^ 1); // 修改一个字节
+                        var isTamperedValid = rsa.VerifySignWithPem(messageBytes, signature, publicKeyPem);
+                        
+                        if (!isTamperedValid)
+                        {
+                            Console.WriteLine($"    ✓ 篡改检测正常");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"    ✗ 篡改检测异常");
+                        }
+                    }
+                }
+
+                Console.WriteLine($"✓ PEM签名验签测试完成");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ PEM签名验签测试失败: {ex.Message}");
+            }
+        }
     }
 }
