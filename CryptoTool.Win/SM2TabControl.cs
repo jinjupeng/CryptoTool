@@ -46,8 +46,8 @@ namespace CryptoTool.Win
                 }
                 else // Hex
                 {
-                    textSM2PublicKey.Text = CryptoUtil.BytesToHex(keyPair.PublicKey, false);
-                    textSM2PrivateKey.Text = CryptoUtil.BytesToHex(keyPair.PrivateKey, false);
+                    textSM2PublicKey.Text = StringUtil.BytesToHex(keyPair.PublicKey, false);
+                    textSM2PrivateKey.Text = StringUtil.BytesToHex(keyPair.PrivateKey, false);
                 }
 
                 SetStatus($"SM2密钥对生成完成 - {formatText}格式");
@@ -147,16 +147,16 @@ namespace CryptoTool.Win
                 var sm2Crypto = new Sm2Crypto();
                 byte[] publicKeyBytes;
                 byte[] dataBytes = Encoding.UTF8.GetBytes(textSM2PlainText.Text);
-                
+
                 if (formatText == "Base64")
                 {
                     publicKeyBytes = Convert.FromBase64String(textSM2PublicKey.Text);
                 }
                 else // Hex
                 {
-                    publicKeyBytes = CryptoUtil.HexToBytes(textSM2PublicKey.Text);
+                    publicKeyBytes = StringUtil.HexToBytes(textSM2PublicKey.Text);
                 }
-                
+
                 byte[] encryptedBytes = sm2Crypto.Encrypt(dataBytes, publicKeyBytes);
                 string cipherText = Convert.ToBase64String(encryptedBytes);
 
@@ -193,16 +193,16 @@ namespace CryptoTool.Win
                 var sm2Crypto = new Sm2Crypto();
                 byte[] privateKeyBytes;
                 byte[] cipherBytes = Convert.FromBase64String(textSM2CipherText.Text);
-                
+
                 if (formatText == "Base64")
                 {
                     privateKeyBytes = Convert.FromBase64String(textSM2PrivateKey.Text);
                 }
                 else // Hex
                 {
-                    privateKeyBytes = CryptoUtil.HexToBytes(textSM2PrivateKey.Text);
+                    privateKeyBytes = StringUtil.HexToBytes(textSM2PrivateKey.Text);
                 }
-                
+
                 byte[] decryptedBytes = sm2Crypto.Decrypt(cipherBytes, privateKeyBytes);
                 string plainText = Encoding.UTF8.GetString(decryptedBytes);
 
@@ -239,16 +239,16 @@ namespace CryptoTool.Win
                 var sm2Crypto = new Sm2Crypto();
                 byte[] privateKeyBytes;
                 byte[] dataBytes = Encoding.UTF8.GetBytes(textSM2SignData.Text);
-                
+
                 if (formatText == "Base64")
                 {
                     privateKeyBytes = Convert.FromBase64String(textSM2PrivateKey.Text);
                 }
                 else // Hex
                 {
-                    privateKeyBytes = CryptoUtil.HexToBytes(textSM2PrivateKey.Text);
+                    privateKeyBytes = StringUtil.HexToBytes(textSM2PrivateKey.Text);
                 }
-                
+
                 byte[] signatureBytes = sm2Crypto.Sign(dataBytes, privateKeyBytes);
                 string signature = Convert.ToBase64String(signatureBytes);
 
@@ -292,16 +292,16 @@ namespace CryptoTool.Win
                 byte[] publicKeyBytes;
                 byte[] dataBytes = Encoding.UTF8.GetBytes(textSM2SignData.Text);
                 byte[] signatureBytes = Convert.FromBase64String(textSM2Signature.Text);
-                
+
                 if (formatText == "Base64")
                 {
                     publicKeyBytes = Convert.FromBase64String(textSM2PublicKey.Text);
                 }
                 else // Hex
                 {
-                    publicKeyBytes = CryptoUtil.HexToBytes(textSM2PublicKey.Text);
+                    publicKeyBytes = StringUtil.HexToBytes(textSM2PublicKey.Text);
                 }
-                
+
                 bool verifyResult = sm2Crypto.VerifySign(dataBytes, signatureBytes, publicKeyBytes);
 
                 labelSM2VerifyResult.Text = $"验签结果: {(verifyResult ? "验证成功" : "验证失败")}";

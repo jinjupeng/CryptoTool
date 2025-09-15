@@ -1,5 +1,4 @@
 using CryptoTool.Algorithm.Algorithms.DES;
-using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Enums;
 using CryptoTool.Win.Helpers;
 using System.Text;
@@ -43,10 +42,10 @@ namespace CryptoTool.Win
 
                 var desCrypto = new DesCrypto();
                 byte[] keyBytes = desCrypto.GenerateKey();
-                
+
                 // 转换为用户指定的格式
                 string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
-                
+
                 textDESKey.Text = key;
                 SetStatus($"DES密钥生成完成 - {comboDESKeyFormat.SelectedItem}格式");
             }
@@ -67,10 +66,10 @@ namespace CryptoTool.Win
 
                 var desCrypto = new DesCrypto();
                 byte[] ivBytes = desCrypto.GenerateIV();
-                
+
                 // 转换为用户指定的格式
                 string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
-                
+
                 textDESIV.Text = iv;
                 SetStatus($"DES初始向量生成完成 - {comboDESIVFormat.SelectedItem}格式");
             }
@@ -119,14 +118,14 @@ namespace CryptoTool.Win
 
                 // 创建DES加密器
                 var desCrypto = new DesCrypto();
-                
+
                 // 执行加密
                 byte[] dataBytes = Encoding.UTF8.GetBytes(plaintext);
                 byte[] encryptedBytes = desCrypto.Encrypt(dataBytes, keyBytes, ivBytes);
-                
+
                 // 转换输出格式
                 string cipherText = FormatConversionHelper.BytesToString(encryptedBytes, outputFormat);
-                
+
                 textDESCipherText.Text = cipherText;
 
                 SetStatus($"DES加密完成 - 使用{mode}模式，输出{comboDESCiphertextFormat.SelectedItem}格式");
@@ -176,11 +175,11 @@ namespace CryptoTool.Win
 
                 // 创建DES加密器
                 var desCrypto = new DesCrypto();
-                
+
                 // 执行解密
                 byte[] decryptedBytes = desCrypto.Decrypt(cipherBytes, keyBytes, ivBytes);
                 string plainText = Encoding.UTF8.GetString(decryptedBytes);
-                
+
                 // 设置解密结果
                 SetPlaintextFromFormat(plainText, plaintextFormat);
 

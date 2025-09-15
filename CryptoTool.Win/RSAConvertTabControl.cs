@@ -1,11 +1,7 @@
-using System.Text;
-using System.Linq;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto;
 using CryptoTool.Algorithm.Algorithms.RSA;
-using CryptoTool.Algorithm.Utils;
-using CryptoTool.Win.Helpers;
 using CryptoTool.Win.Enums;
+using CryptoTool.Win.Helpers;
+using System.Text;
 
 namespace CryptoTool.Win
 {
@@ -101,12 +97,12 @@ namespace CryptoTool.Win
 
                 // 转换私钥为字节数组
                 byte[] privateKeyBytes = FormatConversionHelper.StringToBytes(textInputKey.Text, inputFormat);
-                
+
                 var rsaCrypto = new RsaCrypto();
 
                 // 从私钥提取公钥
                 byte[] publicKeyBytes = null; // rsaCrypto.ExtractPublicKeyFromPrivate(privateKeyBytes);
-                
+
                 // 生成公钥字符串
                 string publicKeyString = FormatConversionHelper.BytesToString(publicKeyBytes, outputFormat);
 
@@ -156,7 +152,7 @@ namespace CryptoTool.Win
 
                 // 转换输入密钥为字节数组
                 byte[] inputKeyBytes = FormatConversionHelper.StringToBytes(textInputKey.Text, inputFormat);
-                
+
                 // 直接使用字节数组进行格式转换
                 convertedKey = FormatConversionHelper.BytesToString(inputKeyBytes, outputFormat);
 
@@ -194,7 +190,7 @@ namespace CryptoTool.Win
                 {
                     var outputFormat = FormatConversionHelper.ParseOutputFormat(comboOutputFormat.SelectedItem.ToString());
                     var keyType = radioPrivateKey.Checked ? "private" : "public";
-                    
+
                     string extension = outputFormat switch
                     {
                         UIOutputFormat.PEM => ".pem",

@@ -3,7 +3,6 @@ using CryptoTool.Algorithm.Algorithms.SM4;
 using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Utils;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto.Parameters;
 using System.Text;
 
 namespace CryptoTool.Win
@@ -60,9 +59,9 @@ namespace CryptoTool.Win
                 var keyPair = sm2Crypto.GenerateKeyPair();
                 var publicKey = keyPair.PublicKey;
                 var privateKey = keyPair.PrivateKey;
-                
-                textMedicarePublicKey.Text = CryptoUtil.BytesToBase64(publicKey);
-                textMedicarePrivateKey.Text = CryptoUtil.BytesToBase64(privateKey);
+
+                textMedicarePublicKey.Text = StringUtil.BytesToBase64(publicKey);
+                textMedicarePrivateKey.Text = StringUtil.BytesToBase64(privateKey);
 
                 SetStatus("医保SM2密钥对生成完成");
             }
@@ -150,7 +149,7 @@ namespace CryptoTool.Win
                     var parameters = BuildMedicareParameters();
 
                     // 解析私钥
-                    var privateKey = CryptoUtil.HexToBytes(textMedicarePrivateKey.Text);
+                    var privateKey = StringUtil.HexToBytes(textMedicarePrivateKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
 
                     // 构造签名字符串
@@ -183,7 +182,7 @@ namespace CryptoTool.Win
                     var parameters = BuildMedicareParameters();
 
                     // 解析公钥
-                    var publicKey = CryptoUtil.HexToBytes(textMedicarePublicKey.Text);
+                    var publicKey = StringUtil.HexToBytes(textMedicarePublicKey.Text);
                     string appSecret = textMedicareAppSecret.Text.Trim();
                     string signData = textMedicareSignData.Text.Trim();
 
@@ -461,7 +460,7 @@ namespace CryptoTool.Win
 
             //结果转换为字节数组，再转换为Hex字符串，取前16个字符（8字节）作为最终的SM4密钥
             byte[] encryptedBytes = sm4Crypto.Encrypt(Encoding.UTF8.GetBytes(appSecret), Encoding.UTF8.GetBytes(keyString));
-            string hexResult = CryptoUtil.BytesToHex(encryptedBytes, true);
+            string hexResult = StringUtil.BytesToHex(encryptedBytes, true);
 
             // 取前16个字符作为最终的SM4密钥（Hex格式，实际对应8字节）
             // 但SM4需要16字节密钥，所以取前32个字符（对应16字节）

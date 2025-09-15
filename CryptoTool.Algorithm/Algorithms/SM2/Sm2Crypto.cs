@@ -1,17 +1,17 @@
+using CryptoTool.Algorithm.Enums;
 using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Utils;
-using System;
-using System.Threading.Tasks;
-using System.Threading;
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Signers;
-using CryptoTool.Algorithm.Enums;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.SM2
 {
@@ -47,7 +47,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 var ecPublicKey = ParsePublicKey(publicKey);
                 var sm2Engine = new SM2Engine();
                 sm2Engine.Init(true, new ParametersWithRandom(ecPublicKey, new SecureRandom()));
-                
+
                 return sm2Engine.ProcessBlock(data, 0, data.Length);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -72,7 +72,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 var ecPrivateKey = ParsePrivateKey(privateKey);
                 var sm2Engine = new SM2Engine();
                 sm2Engine.Init(false, ecPrivateKey);
-                
+
                 return sm2Engine.ProcessBlock(encryptedData, 0, encryptedData.Length);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -91,14 +91,14 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 var keyPairGenerator = new ECKeyPairGenerator();
                 var keyGenParams = new ECKeyGenerationParameters(_domainParameters, new SecureRandom());
                 keyPairGenerator.Init(keyGenParams);
-                
+
                 var keyPair = keyPairGenerator.GenerateKeyPair();
                 var privateKey = (ECPrivateKeyParameters)keyPair.Private;
                 var publicKey = (ECPublicKeyParameters)keyPair.Public;
-                
+
                 var privateKeyBytes = privateKey.D.ToByteArrayUnsigned();
                 var publicKeyBytes = EncodePublicKey(publicKey);
-                
+
                 return (publicKeyBytes, privateKeyBytes);
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
 
                 signer.BlockUpdate(data, 0, data.Length);
                 var signature = signer.GenerateSignature();
-                
+
                 return ConvertSignatureToStandardFormat(signature);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -141,14 +141,14 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             try
             {
                 var ecPublicKey = ParsePublicKey(publicKey);
-                
+
                 if (signature.Length != SM2_SIGNATURE_LENGTH)
                     return false;
-                
+
                 var derSignature = ConvertRsToDer(signature);
                 var signer = new SM2Signer();
                 signer.Init(false, ecPublicKey);
-                
+
                 signer.BlockUpdate(data, 0, data.Length);
                 return signer.VerifySignature(derSignature);
             }
@@ -208,7 +208,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         }
 
         #region 密文格式转换功能 - 保持不变
-        
+
         public byte[] C1C2C3ToC1C3C2(byte[] c1c2c3Data)
         {
             return Sm2CipherFormatConverter.C1C2C3ToC1C3C2(c1c2c3Data);
@@ -263,7 +263,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 throw new NotSupportedException($"SM2算法不支持填充模式: {paddingMode}，SM2使用固定的填充方式");
             }
-            
+
             return Encrypt(data, publicKey);
         }
 
@@ -277,7 +277,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 throw new NotSupportedException($"SM2算法不支持填充模式: {paddingMode}，SM2使用固定的填充方式");
             }
-            
+
             return Decrypt(encryptedData, privateKey);
         }
 
@@ -384,7 +384,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 var ecPrivateKey = ParsePrivateKey(privateKey);
                 var publicPoint = _domainParameters.G.Multiply(ecPrivateKey.D);
                 var publicKey = new ECPublicKeyParameters(publicPoint, _domainParameters);
-                
+
                 return EncodePublicKey(publicKey);
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -406,8 +406,8 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 if (isPrivateKey)
                 {
                     var privateKey = ParsePrivateKey(key);
-                    return privateKey != null && 
-                           privateKey.D.CompareTo(BigInteger.Zero) > 0 && 
+                    return privateKey != null &&
+                           privateKey.D.CompareTo(BigInteger.Zero) > 0 &&
                            privateKey.D.CompareTo(_domainParameters.N) < 0;
                 }
                 else
@@ -473,14 +473,14 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             try
             {
                 // 尝试解析DER格式
-                var derSequence = Org.BouncyCastle.Asn1.Asn1Object.FromByteArray(signature) 
+                var derSequence = Org.BouncyCastle.Asn1.Asn1Object.FromByteArray(signature)
                     as Org.BouncyCastle.Asn1.DerSequence;
-                
+
                 if (derSequence?.Count == 2)
                 {
                     var rDer = derSequence[0] as Org.BouncyCastle.Asn1.DerInteger;
                     var sDer = derSequence[1] as Org.BouncyCastle.Asn1.DerInteger;
-                    
+
                     if (rDer != null && sDer != null)
                     {
                         return CreateStandardSignature(rDer.Value, sDer.Value);
@@ -491,7 +491,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 // 如果DER解析失败，抛出异常
             }
-            
+
             throw new CryptoException($"不支持的签名格式，长度: {signature.Length}字节");
         }
 
@@ -502,11 +502,11 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         {
             var rBytes = PadToLength(r.ToByteArrayUnsigned(), SM2_COMPONENT_LENGTH);
             var sBytes = PadToLength(s.ToByteArrayUnsigned(), SM2_COMPONENT_LENGTH);
-            
+
             var result = new byte[SM2_SIGNATURE_LENGTH];
             Buffer.BlockCopy(rBytes, 0, result, 0, SM2_COMPONENT_LENGTH);
             Buffer.BlockCopy(sBytes, 0, result, SM2_COMPONENT_LENGTH, SM2_COMPONENT_LENGTH);
-            
+
             return result;
         }
 
@@ -517,7 +517,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         {
             if (input.Length == targetLength)
                 return input;
-            
+
             var result = new byte[targetLength];
             if (input.Length <= targetLength)
             {
@@ -527,7 +527,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 Buffer.BlockCopy(input, input.Length - targetLength, result, 0, targetLength);
             }
-            
+
             return result;
         }
 
@@ -540,7 +540,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                     var point = _domainParameters.Curve.DecodePoint(publicKeyBytes);
                     return new ECPublicKeyParameters(point, _domainParameters);
                 }
-                
+
                 throw new Exceptions.KeyException($"不支持的公钥长度: {publicKeyBytes.Length}");
             }
             catch (Exception ex) when (!(ex is Exceptions.KeyException))

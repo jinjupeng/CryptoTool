@@ -1,12 +1,12 @@
-using System;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using System.Threading;
-using CryptoTool.Algorithm.Interfaces;
-using CryptoTool.Algorithm.Exceptions;
-using CryptoTool.Algorithm.Utils;
 using CryptoTool.Algorithm.Enums;
+using CryptoTool.Algorithm.Exceptions;
+using CryptoTool.Algorithm.Interfaces;
+using CryptoTool.Algorithm.Utils;
+using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.RSA
 {
@@ -50,7 +50,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPublicKey(publicKey, out _);
-                
+
                 var maxDataLength = GetMaxDataLength(rsa.KeySize);
                 if (data.Length > maxDataLength)
                 {
@@ -80,7 +80,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPrivateKey(privateKey, out _);
-                
+
                 var blockSize = rsa.KeySize / 8;
                 if (encryptedData.Length > blockSize)
                 {
@@ -124,12 +124,12 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         public (byte[] PublicKey, byte[] PrivateKey) GenerateKeyPair(string keyFormat = "pkcs8")
         {
             ValidateKeyFormat(keyFormat);
-            
+
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create(_keySize);
                 var format = keyFormat.ToLower();
-                
+
                 return format switch
                 {
                     "pkcs1" => (rsa.ExportRSAPublicKey(), rsa.ExportRSAPrivateKey()),
@@ -272,10 +272,10 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPublicKey(publicKey, out _);
-                
+
                 var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
                 var maxDataLength = GetMaxDataLength(rsa.KeySize, paddingMode);
-                
+
                 if (data.Length > maxDataLength)
                 {
                     return EncryptLargeData(data, rsa, padding);
@@ -305,10 +305,10 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPrivateKey(privateKey, out _);
-                
+
                 var padding = CryptoPaddingUtil.GetRSAEncryptionPadding(paddingMode);
                 var blockSize = rsa.KeySize / 8;
-                
+
                 if (encryptedData.Length > blockSize)
                 {
                     return DecryptLargeData(encryptedData, rsa, padding);
@@ -343,7 +343,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPrivateKey(privateKey, out _);
-                
+
                 var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
                 return rsa.SignData(data, hashAlgorithm, signaturePadding);
             }
@@ -375,7 +375,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPublicKey(publicKey, out _);
-                
+
                 var (hashAlgorithm, signaturePadding) = CryptoPaddingUtil.GetRSAAlgorithm(signatureAlgorithm);
                 return rsa.VerifyData(data, signature, hashAlgorithm, signaturePadding);
             }
@@ -556,7 +556,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         {
             if (string.IsNullOrWhiteSpace(keyFormat))
                 throw new ArgumentException("密钥格式不能为空", nameof(keyFormat));
-            
+
             var format = keyFormat.ToLower();
             if (format != "pkcs1" && format != "pkcs8")
                 throw new ArgumentException("密钥格式只支持 'pkcs1' 或 'pkcs8'", nameof(keyFormat));

@@ -1,6 +1,5 @@
 using CryptoTool.Algorithm.Algorithms.SM4;
 using CryptoTool.Algorithm.Enums;
-using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Enums;
 using CryptoTool.Win.Helpers;
 using System.Text;
@@ -50,10 +49,10 @@ namespace CryptoTool.Win
 
                 var sm4Crypto = new Sm4Crypto();
                 byte[] keyBytes = sm4Crypto.GenerateKey();
-                
+
                 // 转换为用户指定的格式
                 string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
-                
+
                 textSM4Key.Text = key;
                 SetStatus($"SM4密钥生成完成 - {comboSM4KeyFormat.SelectedItem}格式");
             }
@@ -74,10 +73,10 @@ namespace CryptoTool.Win
 
                 var sm4Crypto = new Sm4Crypto();
                 byte[] ivBytes = sm4Crypto.GenerateIV();
-                
+
                 // 转换为用户指定的格式
                 string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
-                
+
                 textSM4IV.Text = iv;
                 SetStatus($"SM4初始向量生成完成 - {comboSM4IVFormat.SelectedItem}格式");
             }
@@ -127,14 +126,14 @@ namespace CryptoTool.Win
                 var modeEnum = Enum.Parse<SymmetricCipherMode>(mode);
                 // 创建SM4加密器
                 var sm4Crypto = new Sm4Crypto(modeEnum, SymmetricPaddingMode.PKCS7);
-                
+
                 // 执行加密
                 byte[] dataBytes = Encoding.UTF8.GetBytes(plaintext);
                 byte[] encryptedBytes = sm4Crypto.Encrypt(dataBytes, keyBytes, ivBytes);
-                
+
                 // 转换输出格式
                 string cipherText = FormatConversionHelper.BytesToString(encryptedBytes, outputFormat);
-                
+
                 textSM4CipherText.Text = cipherText;
 
                 SetStatus($"SM4加密完成 - 使用{mode}模式，输出{comboSM4CiphertextFormat.SelectedItem}格式");
@@ -185,11 +184,11 @@ namespace CryptoTool.Win
                 // 创建SM4加密器
                 var modeEnum = Enum.Parse<SymmetricCipherMode>(mode);
                 var sm4Crypto = new Sm4Crypto(modeEnum, SymmetricPaddingMode.PKCS7);
-                
+
                 // 执行解密
                 byte[] decryptedBytes = sm4Crypto.Decrypt(cipherBytes, keyBytes, ivBytes);
                 string plainText = Encoding.UTF8.GetString(decryptedBytes);
-                
+
                 // 设置解密结果
                 SetPlaintextFromFormat(plainText, plaintextFormat);
 

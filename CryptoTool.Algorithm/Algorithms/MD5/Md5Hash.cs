@@ -1,8 +1,7 @@
-using System;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Exceptions;
+using CryptoTool.Algorithm.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.MD5
 {
@@ -70,7 +69,7 @@ namespace CryptoTool.Algorithm.Algorithms.MD5
         public string ComputeHashString(string text, bool upperCase = false, System.Text.Encoding? encoding = null)
         {
             var hash = ComputeHash(text, encoding);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>
@@ -82,7 +81,7 @@ namespace CryptoTool.Algorithm.Algorithms.MD5
         public string ComputeHashString(byte[] data, bool upperCase = false)
         {
             var hash = ComputeHash(data);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>
@@ -103,7 +102,7 @@ namespace CryptoTool.Algorithm.Algorithms.MD5
                 throw new DataException($"哈希值长度必须为{HashLength}字节");
 
             var computedHash = ComputeHash(data);
-            return Utils.CryptoUtil.SecureByteArraysEqual(computedHash, hash);
+            return Utils.StringUtil.SecureByteArraysEqual(computedHash, hash);
         }
 
         /// <summary>
@@ -119,7 +118,7 @@ namespace CryptoTool.Algorithm.Algorithms.MD5
 
             try
             {
-                var hash = Utils.CryptoUtil.HexToBytes(hashString);
+                var hash = Utils.StringUtil.HexToBytes(hashString);
                 return VerifyHash(data, hash);
             }
             catch (Exception ex)
@@ -181,7 +180,7 @@ namespace CryptoTool.Algorithm.Algorithms.MD5
         public string ComputeFileHashString(string filePath, bool upperCase = false)
         {
             var hash = ComputeFileHash(filePath);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>

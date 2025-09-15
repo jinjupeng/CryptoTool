@@ -51,7 +51,7 @@ namespace CryptoTool.Win
                 string outputFormat = comboMD5OutputFormat.SelectedItem?.ToString() ?? "Hex";
 
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
-                
+
                 var md5Hash = new Md5Hash();
                 byte[] hashBytes = md5Hash.ComputeHash(dataBytes);
                 string result = ConvertHashToFormat(hashBytes, outputFormat);
@@ -113,7 +113,7 @@ namespace CryptoTool.Win
                 SetStatus("正在计算文件MD5哈希...");
 
                 string outputFormat = comboMD5FileHashFormat.SelectedItem?.ToString() ?? "Hex";
-                
+
                 var md5Hash = new Md5Hash();
                 byte[] hashBytes = md5Hash.ComputeFileHash(textMD5FilePath.Text);
                 string result = ConvertHashToFormat(hashBytes, outputFormat);
@@ -157,7 +157,7 @@ namespace CryptoTool.Win
 
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
                 byte[] expectedHashBytes = ConvertHashFromFormat(expectedHash, hashFormat);
-                
+
                 var md5Hash = new Md5Hash();
                 bool isValid = md5Hash.VerifyHash(dataBytes, expectedHashBytes);
 
@@ -185,7 +185,7 @@ namespace CryptoTool.Win
             {
                 "Text" => Encoding.UTF8.GetBytes(data),
                 "Base64" => Convert.FromBase64String(data),
-                "Hex" => CryptoUtil.HexToBytes(data),
+                "Hex" => StringUtil.HexToBytes(data),
                 _ => Encoding.UTF8.GetBytes(data)
             };
         }
@@ -194,9 +194,9 @@ namespace CryptoTool.Win
         {
             return format switch
             {
-                "Hex" => CryptoUtil.BytesToHex(hashBytes),
+                "Hex" => StringUtil.BytesToHex(hashBytes),
                 "Base64" => Convert.ToBase64String(hashBytes),
-                _ => CryptoUtil.BytesToHex(hashBytes)
+                _ => StringUtil.BytesToHex(hashBytes)
             };
         }
 
@@ -204,9 +204,9 @@ namespace CryptoTool.Win
         {
             return format switch
             {
-                "Hex" => CryptoUtil.HexToBytes(hashString),
+                "Hex" => StringUtil.HexToBytes(hashString),
                 "Base64" => Convert.FromBase64String(hashString),
-                _ => CryptoUtil.HexToBytes(hashString)
+                _ => StringUtil.HexToBytes(hashString)
             };
         }
 

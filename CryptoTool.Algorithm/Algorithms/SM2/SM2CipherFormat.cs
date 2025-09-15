@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CryptoTool.Algorithm.Algorithms.SM2
+﻿namespace CryptoTool.Algorithm.Algorithms.SM2
 {
     /// <summary>
     /// SM2密文格式枚举

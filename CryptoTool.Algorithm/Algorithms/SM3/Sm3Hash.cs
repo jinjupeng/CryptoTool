@@ -1,7 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using CryptoTool.Algorithm.Interfaces;
 using Org.BouncyCastle.Crypto.Digests;
+using System;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.SM3
 {
@@ -31,12 +31,12 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
             {
                 var digest = new SM3Digest();
                 var result = new byte[digest.GetDigestSize()];
-                
+
                 if (data.Length > 0)
                 {
                     digest.BlockUpdate(data, 0, data.Length);
                 }
-                
+
                 digest.DoFinal(result, 0);
                 return result;
             }
@@ -80,7 +80,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
         public string ComputeHashString(string text, bool upperCase = false, System.Text.Encoding? encoding = null)
         {
             var hash = ComputeHash(text, encoding);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
         public string ComputeHashString(byte[] data, bool upperCase = false)
         {
             var hash = ComputeHash(data);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
                 throw new Exceptions.DataException($"哈希值长度必须为{HashLength}字节");
 
             var computedHash = ComputeHash(data);
-            return Utils.CryptoUtil.SecureByteArraysEqual(computedHash, hash);
+            return Utils.StringUtil.SecureByteArraysEqual(computedHash, hash);
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
 
             try
             {
-                var hash = Utils.CryptoUtil.HexToBytes(hashString);
+                var hash = Utils.StringUtil.HexToBytes(hashString);
                 return VerifyHash(data, hash);
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
             {
                 var digest = new SM3Digest();
                 var result = new byte[digest.GetDigestSize()];
-                
+
                 using (var stream = System.IO.File.OpenRead(filePath))
                 {
                     var buffer = new byte[4096];
@@ -182,7 +182,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
                         digest.BlockUpdate(buffer, 0, bytesRead);
                     }
                 }
-                
+
                 digest.DoFinal(result, 0);
                 return result;
             }
@@ -201,7 +201,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
         public string ComputeFileHashString(string filePath, bool upperCase = false)
         {
             var hash = ComputeFileHash(filePath);
-            return Utils.CryptoUtil.BytesToHex(hash, upperCase);
+            return Utils.StringUtil.BytesToHex(hash, upperCase);
         }
 
         /// <summary>
@@ -233,7 +233,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
                 var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new SM3Digest());
                 var keyParam = new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key);
                 hmac.Init(keyParam);
-                
+
                 var result = new byte[hmac.GetMacSize()];
                 hmac.BlockUpdate(data, 0, data.Length);
                 hmac.DoFinal(result, 0);
@@ -255,7 +255,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
         public string ComputeHmacString(byte[] data, byte[] key, bool upperCase = false)
         {
             var hmac = ComputeHmac(data, key);
-            return Utils.CryptoUtil.BytesToHex(hmac, upperCase);
+            return Utils.StringUtil.BytesToHex(hmac, upperCase);
         }
     }
 }

@@ -1,9 +1,9 @@
+using CryptoTool.Algorithm.Exceptions;
+using CryptoTool.Algorithm.Interfaces;
+using CryptoTool.Algorithm.Utils;
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using CryptoTool.Algorithm.Interfaces;
-using CryptoTool.Algorithm.Exceptions;
-using CryptoTool.Algorithm.Utils;
 
 namespace CryptoTool.Algorithm.Algorithms.DES
 {
@@ -65,7 +65,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                     using (var encryptor = des.CreateEncryptor())
                     {
                         var encrypted = encryptor.TransformFinalBlock(data, 0, data.Length);
-                        
+
                         // 如果IV是自动生成的，需要将IV和加密数据一起返回
                         if (iv == null)
                         {
@@ -162,7 +162,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>随机密钥</returns>
         public byte[] GenerateKey()
         {
-            return CryptoUtil.GenerateRandomKey(64); // DES密钥为64位
+            return StringUtil.GenerateRandomKey(64); // DES密钥为64位
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>随机IV</returns>
         public byte[] GenerateIV()
         {
-            return CryptoUtil.GenerateRandomIV(64); // DES块大小为64位
+            return StringUtil.GenerateRandomIV(64); // DES块大小为64位
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
             if (string.IsNullOrEmpty(password))
                 throw new ArgumentException("密码不能为空", nameof(password));
 
-            var salt = CryptoUtil.GenerateRandomBytes(16); // 128位盐值
+            var salt = StringUtil.GenerateRandomBytes(16); // 128位盐值
             var key = DeriveKeyFromPassword(password, salt, iterations);
             return (key, salt);
         }
@@ -232,7 +232,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
 
             foreach (var weakKey in weakKeys)
             {
-                if (CryptoUtil.ByteArraysEqual(key, weakKey))
+                if (StringUtil.ByteArraysEqual(key, weakKey))
                     return true;
             }
 

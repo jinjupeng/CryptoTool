@@ -7,8 +7,32 @@ namespace CryptoTool.Algorithm.Utils
     /// <summary>
     /// 加密工具类
     /// </summary>
-    public static class CryptoUtil
+    public static class StringUtil
     {
+        /// <summary>
+        /// 生成随机字符串
+        /// </summary>
+        /// <param name="length">长度</param>
+        /// <param name="charset">字符集</param>
+        /// <returns>随机字符串</returns>
+        public static string GenerateRandomString(int length, string? charset = null)
+        {
+            if (length <= 0)
+                throw new ArgumentException("长度必须大于0", nameof(length));
+
+            charset = charset ?? "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            StringBuilder sb = new StringBuilder(length);
+            byte[] randomBytes = GenerateRandomBytes(length);
+
+            for (int i = 0; i < length; i++)
+            {
+                sb.Append(charset[randomBytes[i] % charset.Length]);
+            }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// 生成随机字节数组
         /// </summary>
@@ -16,6 +40,8 @@ namespace CryptoTool.Algorithm.Utils
         /// <returns>随机字节数组</returns>
         public static byte[] GenerateRandomBytes(int length)
         {
+            if (length <= 0)
+                throw new ArgumentException("长度必须大于0", nameof(length));
             var bytes = new byte[length];
             using (var rng = RandomNumberGenerator.Create())
             {
@@ -52,6 +78,8 @@ namespace CryptoTool.Algorithm.Utils
         /// <returns>十六进制字符串</returns>
         public static string BytesToHex(byte[] bytes, bool upperCase = false)
         {
+            if (bytes == null || bytes.Length == 0)
+                return string.Empty;
             var format = upperCase ? "X2" : "x2";
             var sb = new StringBuilder(bytes.Length * 2);
             foreach (var b in bytes)

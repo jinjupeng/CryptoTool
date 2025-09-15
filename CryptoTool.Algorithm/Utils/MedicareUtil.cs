@@ -2,7 +2,6 @@
 using CryptoTool.Algorithm.Algorithms.SM4;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Utilities.Encoders;
 using System;
 using System.Collections.Generic;
@@ -114,7 +113,7 @@ namespace CryptoTool.Algorithm.Utils
             // 3) 使用派生密钥加密jStr，得到Base64，再转Hex大写
             var sm4Crypto = new Sm4Crypto(Enums.SymmetricCipherMode.ECB);
             byte[] cipherBytes = sm4Crypto.Encrypt(Encoding.UTF8.GetBytes(jStr), Encoding.UTF8.GetBytes(derived16));
-            string encHex = CryptoUtil.BytesToHex(cipherBytes, true);
+            string encHex = StringUtil.BytesToHex(cipherBytes, true);
             return encHex;
         }
 
@@ -133,8 +132,8 @@ namespace CryptoTool.Algorithm.Utils
             if (string.IsNullOrEmpty(appSecret)) throw new ArgumentNullException(nameof(appSecret));
 
             string derived16 = GetSm4Key16(appId, appSecret);
-            byte[] derived16Bytes = CryptoUtil.HexToBytes(derived16);
-            byte[] cipherBytes = CryptoUtil.HexToBytes(encDataHex);
+            byte[] derived16Bytes = StringUtil.HexToBytes(derived16);
+            byte[] cipherBytes = StringUtil.HexToBytes(encDataHex);
             var sm4Crypto = new Sm4Crypto(Enums.SymmetricCipherMode.ECB);
             byte[] decryptBytes = sm4Crypto.Decrypt(cipherBytes, derived16Bytes);
             return Encoding.UTF8.GetString(decryptBytes);

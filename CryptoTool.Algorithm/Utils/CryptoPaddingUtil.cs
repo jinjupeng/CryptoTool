@@ -1,6 +1,6 @@
+using CryptoTool.Algorithm.Enums;
 using System;
 using System.Security.Cryptography;
-using CryptoTool.Algorithm.Enums;
 
 namespace CryptoTool.Algorithm.Utils
 {

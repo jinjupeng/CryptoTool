@@ -53,7 +53,7 @@ namespace CryptoTool.Win
 
                 var rsaCrypto = new RsaCrypto(keySize, keyFormat);
                 var keyPair = rsaCrypto.GenerateKeyPair();
-                
+
                 var uiOutputFormat = FormatConversionHelper.ParseOutputFormat(keyOutputFormat);
                 textRSAPublicKey.Text = FormatConversionHelper.BytesToString(keyPair.PublicKey, uiOutputFormat);
                 textRSAPrivateKey.Text = FormatConversionHelper.BytesToString(keyPair.PrivateKey, uiOutputFormat);
@@ -177,7 +177,7 @@ namespace CryptoTool.Win
                 byte[] publicKeyBytes = Convert.FromBase64String(textRSAPublicKey.Text);
                 byte[] dataBytes = Encoding.UTF8.GetBytes(textRSAPlainText.Text);
                 byte[] encryptedBytes = rsaCrypto.Encrypt(dataBytes, publicKeyBytes);
-                
+
                 textRSACipherText.Text = Convert.ToBase64String(encryptedBytes);
 
                 SetStatus($"RSA加密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输出{comboRSAEncryptOutputFormat.SelectedItem}格式");
@@ -211,7 +211,7 @@ namespace CryptoTool.Win
                 byte[] privateKeyBytes = Convert.FromBase64String(textRSAPrivateKey.Text);
                 byte[] cipherBytes = Convert.FromBase64String(textRSACipherText.Text);
                 byte[] decryptedBytes = rsaCrypto.Decrypt(cipherBytes, privateKeyBytes);
-                
+
                 textRSAPlainText.Text = Encoding.UTF8.GetString(decryptedBytes);
 
                 SetStatus($"RSA解密完成 - 使用{comboRSAKeyPadding.SelectedItem}填充，输入{comboRSAEncryptOutputFormat.SelectedItem}格式");
@@ -245,7 +245,7 @@ namespace CryptoTool.Win
                 byte[] privateKeyBytes = Convert.FromBase64String(textRSAPrivateKey.Text);
                 byte[] dataBytes = Encoding.UTF8.GetBytes(textRSASignData.Text);
                 byte[] signatureBytes = rsaCrypto.Sign(dataBytes, privateKeyBytes);
-                
+
                 textRSASignature.Text = Convert.ToBase64String(signatureBytes);
 
                 SetStatus($"RSA签名完成 - 使用{comboRSASignAlgmFormat.SelectedItem}算法，输出{comboRSASignOutputFormat.SelectedItem}格式");
@@ -264,11 +264,11 @@ namespace CryptoTool.Win
                 // 使用可能的控件名称
                 string verifyData = "";
                 string verifySignature = "";
-                
+
                 // 尝试查找不同的可能控件名称
                 var dataControl = FindControlByName("textRSAVerifyData") ?? FindControlByName("textRSASignData");
                 var signatureControl = FindControlByName("textRSAVerifySignature") ?? FindControlByName("textRSASignature");
-                
+
                 if (dataControl is TextBox dataTextBox)
                     verifyData = dataTextBox.Text;
                 else

@@ -1,9 +1,6 @@
-using System;
-using System.Threading.Tasks;
-using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Factory;
-using CryptoTool.Algorithm.Exceptions;
 using CryptoTool.Algorithm.Utils;
+using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm
 {
@@ -340,7 +337,7 @@ namespace CryptoTool.Algorithm
         /// <returns>随机密钥</returns>
         public static byte[] GenerateRandomKey(int keySize)
         {
-            return CryptoUtil.GenerateRandomKey(keySize);
+            return StringUtil.GenerateRandomKey(keySize);
         }
 
         /// <summary>
@@ -350,7 +347,7 @@ namespace CryptoTool.Algorithm
         /// <returns>随机IV</returns>
         public static byte[] GenerateRandomIV(int ivSize)
         {
-            return CryptoUtil.GenerateRandomIV(ivSize);
+            return StringUtil.GenerateRandomIV(ivSize);
         }
 
         /// <summary>
@@ -361,7 +358,7 @@ namespace CryptoTool.Algorithm
         /// <returns>十六进制字符串</returns>
         public static string BytesToHex(byte[] bytes, bool upperCase = false)
         {
-            return CryptoUtil.BytesToHex(bytes, upperCase);
+            return StringUtil.BytesToHex(bytes, upperCase);
         }
 
         /// <summary>
@@ -371,7 +368,7 @@ namespace CryptoTool.Algorithm
         /// <returns>字节数组</returns>
         public static byte[] HexToBytes(string hex)
         {
-            return CryptoUtil.HexToBytes(hex);
+            return StringUtil.HexToBytes(hex);
         }
 
         /// <summary>
@@ -381,7 +378,7 @@ namespace CryptoTool.Algorithm
         /// <returns>Base64字符串</returns>
         public static string BytesToBase64(byte[] bytes)
         {
-            return CryptoUtil.BytesToBase64(bytes);
+            return StringUtil.BytesToBase64(bytes);
         }
 
         /// <summary>
@@ -391,7 +388,7 @@ namespace CryptoTool.Algorithm
         /// <returns>字节数组</returns>
         public static byte[] Base64ToBytes(string base64)
         {
-            return CryptoUtil.Base64ToBytes(base64);
+            return StringUtil.Base64ToBytes(base64);
         }
 
         /// <summary>
@@ -401,7 +398,7 @@ namespace CryptoTool.Algorithm
         /// <returns>字节数组</returns>
         public static byte[] StringToBytes(string text)
         {
-            return CryptoUtil.StringToBytes(text);
+            return StringUtil.StringToBytes(text);
         }
 
         /// <summary>
@@ -411,7 +408,7 @@ namespace CryptoTool.Algorithm
         /// <returns>字符串</returns>
         public static string BytesToString(byte[] bytes)
         {
-            return CryptoUtil.BytesToString(bytes);
+            return StringUtil.BytesToString(bytes);
         }
 
         #endregion

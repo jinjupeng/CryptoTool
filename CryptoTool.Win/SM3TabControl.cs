@@ -1,7 +1,6 @@
 using CryptoTool.Algorithm.Algorithms.SM3;
 using CryptoTool.Algorithm.Utils;
 using System.Text;
-using CryptoTool.Win.Helpers;
 
 namespace CryptoTool.Win
 {
@@ -56,15 +55,15 @@ namespace CryptoTool.Win
                 string outputFormat = comboSM3OutputFormat.SelectedItem?.ToString() ?? "";
 
                 byte[] dataBytes = ConvertInputData(inputData, dataFormat);
-                
+
                 var sm3Hash = new Sm3Hash();
                 byte[] hashBytes = sm3Hash.ComputeHash(dataBytes);
-                
+
                 string result = outputFormat switch
                 {
-                    "Hex" => CryptoUtil.BytesToHex(hashBytes, false),
+                    "Hex" => StringUtil.BytesToHex(hashBytes, false),
                     "Base64" => Convert.ToBase64String(hashBytes),
-                    _ => CryptoUtil.BytesToHex(hashBytes, false)
+                    _ => StringUtil.BytesToHex(hashBytes, false)
                 };
 
                 textSM3Output.Text = result;
@@ -124,15 +123,15 @@ namespace CryptoTool.Win
                 SetStatus("正在计算文件SM3哈希...");
 
                 string outputFormat = comboSM3FileHashFormat.SelectedItem?.ToString() ?? "";
-                
+
                 var sm3Hash = new Sm3Hash();
                 byte[] hashBytes = sm3Hash.ComputeFileHash(textSM3FilePath.Text);
-                
+
                 string result = outputFormat switch
                 {
-                    "Hex" => CryptoUtil.BytesToHex(hashBytes, false),
+                    "Hex" => StringUtil.BytesToHex(hashBytes, false),
                     "Base64" => Convert.ToBase64String(hashBytes),
-                    _ => CryptoUtil.BytesToHex(hashBytes, false)
+                    _ => StringUtil.BytesToHex(hashBytes, false)
                 };
 
                 // 假设控件名称应该是textSM3FileHash而不是textSM3FileHashResult
@@ -183,7 +182,7 @@ namespace CryptoTool.Win
                 string hashFormat = comboSM3VerifyHashFormat.SelectedItem?.ToString() ?? "";
 
                 byte[] dataBytes = ConvertInputData(data, dataFormat);
-                
+
                 var sm3Hash = new Sm3Hash();
                 bool isValid = sm3Hash.VerifyHash(dataBytes, expectedHash);
 
@@ -233,12 +232,12 @@ namespace CryptoTool.Win
 
                 var sm3Hash = new Sm3Hash();
                 byte[] hmacBytes = sm3Hash.ComputeHmac(dataBytes, keyBytes);
-                
+
                 string result = outputFormat switch
                 {
-                    "Hex" => CryptoUtil.BytesToHex(hmacBytes, false),
+                    "Hex" => StringUtil.BytesToHex(hmacBytes, false),
                     "Base64" => Convert.ToBase64String(hmacBytes),
-                    _ => CryptoUtil.BytesToHex(hmacBytes, false)
+                    _ => StringUtil.BytesToHex(hmacBytes, false)
                 };
 
                 // 假设控件名称应该是textSM3HMAC而不是textSM3HMACResult
@@ -271,7 +270,7 @@ namespace CryptoTool.Win
             {
                 "Text" => Encoding.UTF8.GetBytes(data),
                 "Base64" => Convert.FromBase64String(data),
-                "Hex" => CryptoUtil.HexToBytes(data),
+                "Hex" => StringUtil.HexToBytes(data),
                 _ => Encoding.UTF8.GetBytes(data)
             };
         }

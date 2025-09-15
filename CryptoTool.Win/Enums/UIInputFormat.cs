@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CryptoTool.Win.Enums
+﻿namespace CryptoTool.Win.Enums
 {
     /// <summary>
     /// UI层格式转换枚举

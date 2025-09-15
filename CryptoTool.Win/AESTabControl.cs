@@ -1,9 +1,7 @@
 using CryptoTool.Algorithm.Algorithms.AES;
-using CryptoTool.Algorithm.Utils;
 using CryptoTool.Win.Enums;
 using CryptoTool.Win.Helpers;
 using System.Text;
-using System.Windows.Forms;
 
 namespace CryptoTool.Win
 {
@@ -47,10 +45,10 @@ namespace CryptoTool.Win
 
                 var aesCrypto = new AesCrypto(keySize);
                 byte[] keyBytes = aesCrypto.GenerateKey();
-                
+
                 // 转换为用户指定的格式
                 string key = FormatConversionHelper.BytesToString(keyBytes, keyFormat);
-                
+
                 textAESKey.Text = key;
                 SetStatus($"AES密钥生成完成 - {keySizeText}位，{comboAESKeyFormat.SelectedItem}格式");
             }
@@ -71,10 +69,10 @@ namespace CryptoTool.Win
 
                 var aesCrypto = new AesCrypto();
                 byte[] ivBytes = aesCrypto.GenerateIV();
-                
+
                 // 转换为用户指定的格式
                 string iv = FormatConversionHelper.BytesToString(ivBytes, ivFormat);
-                
+
                 textAESIV.Text = iv;
                 SetStatus($"AES初始向量生成完成 - {comboAESIVFormat.SelectedItem}格式");
             }
@@ -123,14 +121,14 @@ namespace CryptoTool.Win
 
                 // 创建AES加密器
                 var aesCrypto = new AesCrypto();
-                
+
                 // 执行加密
                 byte[] dataBytes = Encoding.UTF8.GetBytes(plaintext);
                 byte[] encryptedBytes = aesCrypto.Encrypt(dataBytes, keyBytes, ivBytes);
-                
+
                 // 转换输出格式
                 string cipherText = FormatConversionHelper.BytesToString(encryptedBytes, outputFormat);
-                
+
                 textAESCipherText.Text = cipherText;
 
                 SetStatus($"AES加密完成 - 使用{mode}模式，输出{comboAESCiphertextFormat.SelectedItem}格式");
@@ -180,11 +178,11 @@ namespace CryptoTool.Win
 
                 // 创建AES加密器
                 var aesCrypto = new AesCrypto();
-                
+
                 // 执行解密
                 byte[] decryptedBytes = aesCrypto.Decrypt(cipherBytes, keyBytes, ivBytes);
                 string plainText = Encoding.UTF8.GetString(decryptedBytes);
-                
+
                 // 设置解密结果
                 SetPlaintextFromFormat(plainText, plaintextFormat);
 

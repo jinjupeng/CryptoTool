@@ -1,5 +1,5 @@
-using System;
 using CryptoTool.Algorithm.Exceptions;
+using System;
 
 namespace CryptoTool.Algorithm.Algorithms.SM2
 {
@@ -87,7 +87,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 // 尝试解析为C1C2C3格式
                 var (c1, c2, c3) = ParseC1C2C3(cipherData);
-                
+
                 // 验证C1格式（椭圆曲线点）
                 if (IsValidC1(c1))
                 {
@@ -103,7 +103,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             {
                 // 尝试解析为C1C3C2格式
                 var (c1, c2, c3) = ParseC1C3C2(cipherData);
-                
+
                 // 验证C1格式（椭圆曲线点）
                 if (IsValidC1(c1))
                 {
@@ -291,7 +291,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
                 throw new DataException("密文数据不能为空");
 
             var format = DetectFormat(cipherData);
-            
+
             return format switch
             {
                 SM2CipherFormat.C1C2C3 => GetC1C2C3ComponentInfo(cipherData),
