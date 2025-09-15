@@ -23,17 +23,17 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         /// <summary>
         /// 密钥长度（字节）
         /// </summary>
-        private const int KeySize = 16; // 128位
+        private const int SM4_KEY_SIZE_BYTES = 16; // 128位
 
         /// <summary>
         /// 块大小（字节）
         /// </summary>
-        private const int BlockSize = 16; // 128位
+        private const int SM4_BLOCK_SIZE_BYTES = 16; // 128位
 
         /// <summary>
         /// IV长度（字节）
         /// </summary>
-        private const int IVSize = 16; // 128位
+        private const int SM4_IV_SIZE_BYTES = 16; // 128位
 
         private readonly SymmetricCipherMode _mode;
         private readonly SymmetricPaddingMode _padding;
@@ -71,7 +71,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
                 // 生成IV（如果需要且未提供）
                 if (iv == null && RequiresIV())
                 {
-                    iv = StringUtil.GenerateRandomBytes(IVSize);
+                    iv = StringUtil.GenerateRandomBytes(SM4_IV_SIZE_BYTES);
                     ivWasGenerated = true;
                 }
 
@@ -130,7 +130,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
                 // 如果IV为null，说明IV包含在加密数据的前面（自动生成的IV）
                 if (iv == null && RequiresIV())
                 {
-                    if (encryptedData.Length < IVSize)
+                    if (encryptedData.Length < SM4_IV_SIZE_BYTES)
                         throw new Exceptions.DataException("加密数据长度不足，无法提取IV");
 
                     var extractedIV = new byte[16];
@@ -191,7 +191,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         /// <returns>随机密钥</returns>
         public byte[] GenerateKey()
         {
-            return StringUtil.GenerateRandomKey(KeySize * 8); // SM4密钥长度为128位
+            return StringUtil.GenerateRandomKey(SM4_KEY_SIZE_BYTES * 8); // SM4密钥长度为128位
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
         /// <returns>随机IV</returns>
         public byte[] GenerateIV()
         {
-            return StringUtil.GenerateRandomIV(IVSize * 8); // SM4向量长度为128位
+            return StringUtil.GenerateRandomIV(SM4_KEY_SIZE_BYTES * 8); // SM4向量长度为128位
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
                 throw new ArgumentException("盐值不能为空", nameof(salt));
 
             using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA256);
-            return pbkdf2.GetBytes(KeySize); // SM4密钥为16字节
+            return pbkdf2.GetBytes(SM4_KEY_SIZE_BYTES); // SM4密钥为16字节
         }
 
         /// <summary>
@@ -270,10 +270,10 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
                     cipher = new PaddedBufferedBlockCipher(new EcbBlockCipher(engine), CreatePadding());
                     break;
                 case SymmetricCipherMode.CFB:
-                    cipher = new BufferedBlockCipher(new CfbBlockCipher(engine, BlockSize * 8)); // 128位
+                    cipher = new BufferedBlockCipher(new CfbBlockCipher(engine, SM4_BLOCK_SIZE_BYTES * 8)); // 128位
                     break;
                 case SymmetricCipherMode.OFB:
-                    cipher = new BufferedBlockCipher(new OfbBlockCipher(engine, BlockSize * 8)); // 128位
+                    cipher = new BufferedBlockCipher(new OfbBlockCipher(engine, SM4_BLOCK_SIZE_BYTES * 8)); // 128位
                     break;
                 case SymmetricCipherMode.CTR:
                     cipher = new BufferedBlockCipher(new SicBlockCipher(engine));
@@ -287,7 +287,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
 
             if (RequiresIV() && iv != null)
             {
-                if (iv.Length != IVSize)
+                if (iv.Length != SM4_IV_SIZE_BYTES)
                     throw new Exceptions.KeyException("SM4 IV长度必须为16字节");
 
                 var parameters = new ParametersWithIV(keyParam, iv);
@@ -296,7 +296,7 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
             else if (RequiresIV() && iv == null)
             {
                 // 生成随机IV
-                var randomIV = StringUtil.GenerateRandomBytes(IVSize);
+                var randomIV = StringUtil.GenerateRandomBytes(SM4_IV_SIZE_BYTES);
                 var parameters = new ParametersWithIV(keyParam, randomIV);
                 cipher.Init(forEncryption, parameters);
             }

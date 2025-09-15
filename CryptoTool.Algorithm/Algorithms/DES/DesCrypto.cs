@@ -16,8 +16,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         public CryptoAlgorithmType AlgorithmType => CryptoAlgorithmType.Symmetric;
 
         // DES算法常量
-        private const int DES_KEY_LENGTH = 8;        // DES密钥长度（字节）
-        private const int DES_IV_LENGTH = 8;         // DES IV长度（字节）
+        private const int DES_KEY_SIZE_BYTES = 8;        // DES密钥长度（字节）
+        private const int DES_IV_SIZE_BYTES = 8;         // DES IV长度（字节）
         private const int DES_KEY_BITS = 64;         // DES密钥位数
         private const int DES_BLOCK_BITS = 64;       // DES块位数
 
@@ -59,8 +59,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                 {
                      if (iv != null)
                      {
-                         if (iv.Length != DES_IV_LENGTH)
-                             throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节");
+                         if (iv.Length != DES_IV_SIZE_BYTES)
+                             throw new KeyException($"IV长度必须为{DES_IV_SIZE_BYTES}字节");
                          des.IV = iv;
                      }
                     else
@@ -114,10 +114,10 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                     // 如果IV为null，说明IV包含在加密数据的前面
                      if (iv == null)
                      {
-                         if (encryptedData.Length < DES_IV_LENGTH)
+                         if (encryptedData.Length < DES_IV_SIZE_BYTES)
                              throw new DataException("加密数据长度不足，无法提取IV");
 
-                         var extractedIV = new byte[DES_IV_LENGTH];
+                         var extractedIV = new byte[DES_IV_SIZE_BYTES];
                          Array.Copy(encryptedData, 0, extractedIV, 0, extractedIV.Length);
                          des.IV = extractedIV;
 
@@ -127,8 +127,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                      }
                      else
                      {
-                         if (iv.Length != DES_IV_LENGTH)
-                             throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节");
+                         if (iv.Length != DES_IV_SIZE_BYTES)
+                             throw new KeyException($"IV长度必须为{DES_IV_SIZE_BYTES}字节");
                          des.IV = iv;
                      }
                 }
@@ -196,7 +196,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                 throw new ArgumentException("盐值不能为空", nameof(salt));
 
             using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations, HashAlgorithmName.SHA1);
-            return pbkdf2.GetBytes(DES_KEY_LENGTH); // DES密钥为8字节
+            return pbkdf2.GetBytes(DES_KEY_SIZE_BYTES); // DES密钥为8字节
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace CryptoTool.Algorithm.Algorithms.DES
         /// <returns>是否为弱密钥</returns>
         public bool IsWeakKey(byte[] key)
         {
-            if (key == null || key.Length != DES_KEY_LENGTH)
+            if (key == null || key.Length != DES_KEY_SIZE_BYTES)
                 return false;
 
             // DES弱密钥检查
@@ -285,8 +285,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
             if (key.Length == 0)
                 throw new KeyException("密钥不能为空");
 
-            if (key.Length != DES_KEY_LENGTH)
-                throw new KeyException($"DES密钥长度必须为{DES_KEY_LENGTH}字节，当前长度为{key.Length}字节");
+            if (key.Length != DES_KEY_SIZE_BYTES)
+                throw new KeyException($"DES密钥长度必须为{DES_KEY_SIZE_BYTES}字节，当前长度为{key.Length}字节");
 
             // 检查是否为弱密钥
             if (IsWeakKey(key))
@@ -320,8 +320,8 @@ namespace CryptoTool.Algorithm.Algorithms.DES
                 throw new KeyException("ECB模式不支持IV参数");
 
             // 其他模式需要8字节IV
-            if (iv.Length != DES_IV_LENGTH)
-                throw new KeyException($"IV长度必须为{DES_IV_LENGTH}字节，当前长度为{iv.Length}字节");
+            if (iv.Length != DES_IV_SIZE_BYTES)
+                throw new KeyException($"IV长度必须为{DES_IV_SIZE_BYTES}字节，当前长度为{iv.Length}字节");
         }
     }
 }
