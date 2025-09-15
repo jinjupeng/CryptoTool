@@ -441,6 +441,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             ValidateKeyInput(pkcs1PublicKey, "PKCS1公钥");
             try
             {
+                var keyFormat = DetectRsaKeyFormatByDer(pkcs1PublicKey);
+                if (keyFormat == "pkcs8")
+                {
+                    throw new CryptoException("提供的公钥已经是PKCS8格式，无需转换");
+                }
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPublicKey(pkcs1PublicKey, out _);
                 return rsa.ExportSubjectPublicKeyInfo();
@@ -462,6 +467,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
 
             try
             {
+                var keyFormat = DetectRsaKeyFormatByDer(pkcs8PublicKey);
+                if (keyFormat == "pkcs1")
+                {
+                    throw new CryptoException("提供的公钥已经是PKCS1格式，无需转换");
+                }
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportSubjectPublicKeyInfo(pkcs8PublicKey, out _);
                 return rsa.ExportRSAPublicKey();
@@ -483,6 +493,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
 
             try
             {
+                var keyFormat = DetectRsaKeyFormatByDer(pkcs1PrivateKey);
+                if (keyFormat == "pkcs8")
+                {
+                    throw new CryptoException("提供的私钥已经是PKCS8格式，无需转换");
+                }
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportRSAPrivateKey(pkcs1PrivateKey, out _);
                 return rsa.ExportPkcs8PrivateKey();
@@ -504,6 +519,11 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
 
             try
             {
+                var keyFormat = DetectRsaKeyFormatByDer(pkcs8PrivateKey);
+                if (keyFormat == "pkcs1")
+                {
+                    throw new CryptoException("提供的私钥已经是PKCS1格式，无需转换");
+                }
                 using var rsa = System.Security.Cryptography.RSA.Create();
                 rsa.ImportPkcs8PrivateKey(pkcs8PrivateKey, out _);
                 return rsa.ExportRSAPrivateKey();
@@ -843,6 +863,147 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 throw new CryptoException("无法识别的PEM公钥格式");
             }
+        }
+
+        #endregion
+
+        #region ASN.1 分析 - 判断 PKCS#1 / PKCS#8
+
+        /// <summary>
+        /// 通过分析 ASN.1/DER 二进制结构判断 RSA 密钥是 PKCS#1 还是 PKCS#8。
+        /// 注意：这里的 keyData 必须是 DER（二进制）数据；若为 PEM 请先去掉头尾并 Base64 解码。
+        /// </summary>
+        /// <param name="keyData">DER 格式的密钥字节数组</param>
+        /// <returns>"pkcs1" 或 "pkcs8"</returns>
+        /// <exception cref="CryptoException">当结构非法或无法判断时抛出</exception>
+        public static string DetectRsaKeyFormatByDer(byte[] keyData)
+        {
+            ValidateKeyInput(keyData, "密钥");
+
+            int offset = 0;
+
+            // 顶层必须是 SEQUENCE (0x30)
+            if (keyData.Length < 2 || keyData[offset] != 0x30)
+                throw new CryptoException("无效的 ASN.1/DER：顶层不是 SEQUENCE。");
+
+            // 跳过顶层 SEQUENCE 的 tag
+            offset++;
+
+            // 读取顶层长度
+            int topContentLen = Asn1ReadLength(keyData, ref offset);
+            int topEnd = offset + topContentLen;
+            if (topEnd > keyData.Length)
+                throw new CryptoException("ASN.1 数据不完整。");
+
+            if (offset >= topEnd)
+                throw new CryptoException("ASN.1 SEQUENCE 为空。");
+
+            // 第一个子元素的 tag
+            byte firstTag = keyData[offset];
+
+            // 规则：
+            // - PKCS#8 公钥 (SubjectPublicKeyInfo):
+            //     顶层第一个子元素是 AlgorithmIdentifier -> SEQUENCE (0x30)
+            // - PKCS#1（公钥/私钥）：
+
+            //     顶层第一个子元素是 INTEGER (0x02)
+            // - PKCS#8 私钥 (PrivateKeyInfo):
+            //     顶层第一个子元素是 version -> INTEGER (0x02)
+            //     但第二个子元素是 AlgorithmIdentifier -> SEQUENCE (0x30)
+            if (firstTag == 0x30)
+            {
+                // 顶层子元素一上来就是 SEQUENCE，判定为 PKCS#8（通常是公钥 SPKI）
+                return "pkcs8";
+            }
+
+            if (firstTag == 0x02)
+            {
+                // 跳过第一个 INTEGER（可能是 RSAPrivateKey 的 version 或 RSAPublicKey/PrivateKey 的第一个参数）
+                Asn1Skip(keyData, ref offset);
+
+                if (offset >= topEnd)
+                {
+                    // 只存在一个 INTEGER，结构异常但更接近 PKCS#1
+                    return "pkcs1";
+                }
+
+                // 查看第二个子元素
+                byte secondTag = keyData[offset];
+
+                if (secondTag == 0x30)
+                {
+                    // INTEGER (version) 后是 SEQUENCE (AlgorithmIdentifier) -> PKCS#8 私钥
+                    return "pkcs8";
+                }
+
+                // 否则通常仍为 INTEGER（模数/指数等）-> PKCS#1
+                return "pkcs1";
+            }
+
+            throw new CryptoException($"无法识别的 ASN.1 结构(Tag=0x{firstTag:X2})，无法判断为 PKCS#1 或 PKCS#8。");
+        }
+
+        /// <summary>
+        /// 从 PEM 字符串中判断 RSA 密钥格式（内部会提取 DER 后调用二进制结构分析）。
+        /// </summary>
+        public static string DetectRsaKeyFormatFromPem(string pem)
+        {
+            ValidateStringInput(pem, "PEM 格式密钥");
+            var der = ExtractKeyBytesFromPem(pem);
+            return DetectRsaKeyFormatByDer(der);
+        }
+
+        /// <summary>
+        /// 读取 ASN.1 长度（支持短/长格式）。offset 需指向长度首字节，返回内容长度，并将 offset 前移到内容起始位置。
+        /// </summary>
+        private static int Asn1ReadLength(byte[] data, ref int offset)
+        {
+            if (offset >= data.Length)
+                throw new CryptoException("ASN.1 长度字段越界。");
+
+            byte b = data[offset++];
+            if ((b & 0x80) == 0)
+            {
+                // 短格式
+                return b;
+            }
+
+            int count = b & 0x7F;
+            if (count == 0 || count > 4)
+                throw new CryptoException("不支持的 ASN.1 长度编码。");
+
+            if (offset + count > data.Length)
+                throw new CryptoException("ASN.1 长度字段越界。");
+
+            int len = 0;
+            for (int i = 0; i < count; i++)
+            {
+                len = (len << 8) | data[offset++];
+            }
+
+            return len;
+        }
+
+        /// <summary>
+        /// 跳过一个完整的 ASN.1 元素（Tag + Length + Value）。offset 需指向元素 Tag。
+        /// </summary>
+        private static void Asn1Skip(byte[] data, ref int offset)
+        {
+            if (offset >= data.Length)
+                throw new CryptoException("ASN.1 元素越界。");
+
+            // 跳过 tag
+            offset++;
+
+            // 读取长度，offset 将移动到内容起始
+            int len = Asn1ReadLength(data, ref offset);
+
+            // 跳过内容
+            int end = offset + len;
+            if (end > data.Length)
+                throw new CryptoException("ASN.1 元素内容越界。");
+
+            offset = end;
         }
 
         #endregion
