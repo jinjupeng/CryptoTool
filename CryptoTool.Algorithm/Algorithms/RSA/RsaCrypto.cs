@@ -442,7 +442,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                ImportPublicKey(rsa, pkcs1PublicKey);
+                rsa.ImportRSAPublicKey(pkcs1PublicKey, out _);
                 return rsa.ExportSubjectPublicKeyInfo();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -463,7 +463,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                ImportPublicKey(rsa, pkcs8PublicKey);
+                rsa.ImportSubjectPublicKeyInfo(pkcs8PublicKey, out _);
                 return rsa.ExportRSAPublicKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -484,7 +484,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                ImportPrivateKey(rsa, pkcs1PrivateKey);
+                rsa.ImportRSAPrivateKey(pkcs1PrivateKey, out _);
                 return rsa.ExportPkcs8PrivateKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
@@ -505,7 +505,7 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             try
             {
                 using var rsa = System.Security.Cryptography.RSA.Create();
-                ImportPrivateKey(rsa, pkcs8PrivateKey);
+                rsa.ImportPkcs8PrivateKey(pkcs8PrivateKey, out _);
                 return rsa.ExportRSAPrivateKey();
             }
             catch (Exception ex) when (!(ex is CryptoException))
