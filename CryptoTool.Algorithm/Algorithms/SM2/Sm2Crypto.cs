@@ -10,8 +10,6 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.SM2
 {
@@ -158,54 +156,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
             }
         }
 
-        /// <summary>
-        /// 异步加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() => Encrypt(data, publicKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步解密
-        /// </summary>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey)
-        {
-            ValidateDecryptInput(encryptedData, privateKey);
-            return await Task.Run(() => Decrypt(encryptedData, privateKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步签名
-        /// </summary>
-        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey)
-        {
-            ValidateSignInput(data, privateKey);
-            return await Task.Run(() => Sign(data, privateKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步验证签名
-        /// </summary>
-        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
-        {
-            ValidateVerifyInput(data, signature, publicKey);
-            return await Task.Run(() => VerifySign(data, signature, publicKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 带取消令牌的异步加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, CancellationToken cancellationToken)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                return Encrypt(data, publicKey);
-            }, cancellationToken).ConfigureAwait(false);
-        }
 
         #region 密文格式转换功能 - 保持不变
 
@@ -232,21 +182,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
         public SM2CipherComponentInfo GetCipherComponentInfo(byte[] cipherData)
         {
             return Sm2CipherFormatConverter.GetComponentInfo(cipherData);
-        }
-
-        public async Task<byte[]> C1C2C3ToC1C3C2Async(byte[] c1c2c3Data)
-        {
-            return await Task.Run(() => C1C2C3ToC1C3C2(c1c2c3Data)).ConfigureAwait(false);
-        }
-
-        public async Task<byte[]> C1C3C2ToC1C2C3Async(byte[] c1c3c2Data)
-        {
-            return await Task.Run(() => C1C3C2ToC1C2C3(c1c3c2Data)).ConfigureAwait(false);
-        }
-
-        public async Task<SM2CipherFormat> DetectCipherFormatAsync(byte[] cipherData)
-        {
-            return await Task.Run(() => DetectCipherFormat(cipherData)).ConfigureAwait(false);
         }
 
         #endregion
@@ -311,42 +246,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM2
 
             // SM2目前只支持SM3withSM2，直接调用原有方法
             return VerifySign(data, signature, publicKey);
-        }
-
-        /// <summary>
-        /// 异步使用指定填充模式加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() => Encrypt(data, publicKey, paddingMode)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定填充模式解密
-        /// </summary>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
-        {
-            ValidateDecryptInput(encryptedData, privateKey);
-            return await Task.Run(() => Decrypt(encryptedData, privateKey, paddingMode)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定签名算法签名
-        /// </summary>
-        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
-        {
-            ValidateSignInput(data, privateKey);
-            return await Task.Run(() => Sign(data, privateKey, signatureAlgorithm)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定签名算法验证签名
-        /// </summary>
-        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
-        {
-            ValidateVerifyInput(data, signature, publicKey);
-            return await Task.Run(() => VerifySign(data, signature, publicKey, signatureAlgorithm)).ConfigureAwait(false);
         }
 
         /// <summary>

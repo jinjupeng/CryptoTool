@@ -165,72 +165,6 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
         }
 
         /// <summary>
-        /// 异步加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="publicKey"></param>
-        /// <returns></returns>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() => Encrypt(data, publicKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步解密
-        /// </summary>
-        /// <param name="encryptedData"></param>
-        /// <param name="privateKey"></param>
-        /// <returns></returns>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey)
-        {
-            ValidateDecryptInput(encryptedData, privateKey);
-            return await Task.Run(() => Decrypt(encryptedData, privateKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步签名
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="privateKey"></param>
-        /// <returns></returns>
-        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey)
-        {
-            ValidateSignInput(data, privateKey);
-            return await Task.Run(() => Sign(data, privateKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步验证签名
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="signature"></param>
-        /// <param name="publicKey"></param>
-        /// <returns></returns>
-        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey)
-        {
-            ValidateVerifyInput(data, signature, publicKey);
-            return await Task.Run(() => VerifySign(data, signature, publicKey)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 带取消令牌的异步加密
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="publicKey"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, CancellationToken cancellationToken)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() =>
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                return Encrypt(data, publicKey);
-            }, cancellationToken).ConfigureAwait(false);
-        }
-
-        /// <summary>
         /// 使用指定填充模式加密
         /// </summary>
         /// <param name="data"></param>
@@ -357,42 +291,6 @@ namespace CryptoTool.Algorithm.Algorithms.RSA
             {
                 throw new CryptoException($"RSA签名验证失败 (算法: {signatureAlgorithm})", ex);
             }
-        }
-
-        /// <summary>
-        /// 异步使用指定填充模式加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] publicKey, AsymmetricPaddingMode paddingMode)
-        {
-            ValidateEncryptInput(data, publicKey);
-            return await Task.Run(() => Encrypt(data, publicKey, paddingMode)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定填充模式解密
-        /// </summary>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] privateKey, AsymmetricPaddingMode paddingMode)
-        {
-            ValidateDecryptInput(encryptedData, privateKey);
-            return await Task.Run(() => Decrypt(encryptedData, privateKey, paddingMode)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定签名算法签名
-        /// </summary>
-        public async Task<byte[]> SignAsync(byte[] data, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
-        {
-            ValidateSignInput(data, privateKey);
-            return await Task.Run(() => Sign(data, privateKey, signatureAlgorithm)).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// 异步使用指定签名算法验证签名
-        /// </summary>
-        public async Task<bool> VerifySignAsync(byte[] data, byte[] signature, byte[] publicKey, SignatureAlgorithm signatureAlgorithm)
-        {
-            ValidateVerifyInput(data, signature, publicKey);
-            return await Task.Run(() => VerifySign(data, signature, publicKey, signatureAlgorithm)).ConfigureAwait(false);
         }
 
         /// <summary>

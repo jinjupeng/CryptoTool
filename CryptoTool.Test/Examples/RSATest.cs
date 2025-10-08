@@ -13,7 +13,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 运行RSA算法测试
         /// </summary>
-        public static async Task RunTest()
+        public static void RunTest()
         {
             Console.WriteLine("=== RSA算法测试 ===");
 
@@ -65,20 +65,6 @@ namespace CryptoTool.Test.Examples
                 bool verifyResult = rsa.VerifySign(data, signature, publicKey);
                 Console.WriteLine($"签名验证结果: {(verifyResult ? "通过" : "失败")}");
 
-                // 异步测试
-                Console.WriteLine("\n--- 异步加密解密测试 ---");
-                byte[] asyncEncryptedData = await rsa.EncryptAsync(data, publicKey);
-                byte[] asyncDecryptedData = await rsa.DecryptAsync(asyncEncryptedData, privateKey);
-                string asyncDecryptedText = Encoding.UTF8.GetString(asyncDecryptedData);
-                bool asyncSuccess = testData == asyncDecryptedText;
-                Console.WriteLine($"异步加密解密测试结果: {(asyncSuccess ? "通过" : "失败")}");
-
-                // 异步签名测试
-                Console.WriteLine("\n--- 异步签名验证测试 ---");
-                byte[] asyncSignature = await rsa.SignAsync(data, privateKey);
-                bool asyncVerifyResult = await rsa.VerifySignAsync(data, asyncSignature, publicKey);
-                Console.WriteLine($"异步签名验证测试结果: {(asyncVerifyResult ? "通过" : "失败")}");
-
                 // 不同密钥长度测试
                 Console.WriteLine("\n--- 不同密钥长度测试 ---");
                 TestDifferentKeySizes();
@@ -87,16 +73,16 @@ namespace CryptoTool.Test.Examples
                 Console.WriteLine("\n--- 大数据测试 ---");
                 TestLargeData();
 
-                await TestRSAPaddingModes();
+                TestRSAPaddingModes();
 
-                await TestRSASignatureAlgorithms();
+                TestRSASignatureAlgorithms();
 
                 // PKCS格式转换测试
                 Console.WriteLine("\n--- PKCS格式转换测试 ---");
-                await TestPKCSFormatConversion();
+                TestPKCSFormatConversion();
 
                 // PEM格式测试
-                await TestRSAPemMethods();
+                TestRSAPemMethods();
 
             }
             catch (Exception ex)
@@ -112,7 +98,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试RSA多种填充模式
         /// </summary>
-        public static async Task TestRSAPaddingModes()
+        public static void TestRSAPaddingModes()
         {
             var _rsaCrypto = new RsaCrypto(2048);
             Console.WriteLine("=== RSA多种填充模式测试 ===");
@@ -122,11 +108,11 @@ namespace CryptoTool.Test.Examples
 
             // 测试PKCS1填充
             Console.WriteLine("\n--- PKCS1填充测试 ---");
-            await TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.PKCS1);
+            TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.PKCS1);
 
             // 测试OAEP填充
             Console.WriteLine("\n--- OAEP填充测试 ---");
-            await TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.OAEP);
+            TestRSAWithPadding(testData, publicKey, privateKey, AsymmetricPaddingMode.OAEP);
 
             Console.WriteLine("RSA填充模式测试完成！\n");
         }
@@ -134,7 +120,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试RSA多种签名算法
         /// </summary>
-        public static async Task TestRSASignatureAlgorithms()
+        public static void TestRSASignatureAlgorithms()
         {
             var _rsaCrypto = new RsaCrypto(2048);
             Console.WriteLine("=== RSA多种签名算法测试 ===");
@@ -156,7 +142,7 @@ namespace CryptoTool.Test.Examples
             foreach (var algorithm in algorithms)
             {
                 Console.WriteLine($"\n--- {algorithm} 签名测试 ---");
-                await TestRSAWithSignature(testData, publicKey, privateKey, algorithm);
+                TestRSAWithSignature(testData, publicKey, privateKey, algorithm);
             }
 
             Console.WriteLine("RSA签名算法测试完成！\n");
@@ -220,18 +206,18 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试RSA指定填充模式
         /// </summary>
-        private static async Task TestRSAWithPadding(byte[] data, byte[] publicKey, byte[] privateKey, AsymmetricPaddingMode paddingMode)
+        private static void TestRSAWithPadding(byte[] data, byte[] publicKey, byte[] privateKey, AsymmetricPaddingMode paddingMode)
         {
             var _rsaCrypto = new RsaCrypto(2048);
             try
             {
                 // 加密
-                var encrypted = await _rsaCrypto.EncryptAsync(data, publicKey, paddingMode);
+                var encrypted = _rsaCrypto.Encrypt(data, publicKey, paddingMode);
                 Console.WriteLine($"✓ 加密成功 (填充模式: {paddingMode})");
                 Console.WriteLine($"  密文长度: {encrypted.Length} 字节");
 
                 // 解密
-                var decrypted = await _rsaCrypto.DecryptAsync(encrypted, privateKey, paddingMode);
+                var decrypted = _rsaCrypto.Decrypt(encrypted, privateKey, paddingMode);
                 var decryptedText = Encoding.UTF8.GetString(decrypted);
 
                 if (decryptedText == Encoding.UTF8.GetString(data))
@@ -252,18 +238,18 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试RSA指定签名算法
         /// </summary>
-        private static async Task TestRSAWithSignature(byte[] data, byte[] publicKey, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        private static void TestRSAWithSignature(byte[] data, byte[] publicKey, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
         {
             var _rsaCrypto = new RsaCrypto(2048);
             try
             {
                 // 签名
-                var signature = await _rsaCrypto.SignAsync(data, privateKey, signatureAlgorithm);
+                var signature = _rsaCrypto.Sign(data, privateKey, signatureAlgorithm);
                 Console.WriteLine($"✓ 签名成功 (算法: {signatureAlgorithm})");
                 Console.WriteLine($"  签名长度: {signature.Length} 字节");
 
                 // 验证签名
-                var isValid = await _rsaCrypto.VerifySignAsync(data, signature, publicKey, signatureAlgorithm);
+                var isValid = _rsaCrypto.VerifySign(data, signature, publicKey, signatureAlgorithm);
 
                 if (isValid)
                 {
@@ -283,7 +269,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试PKCS格式转换功能
         /// </summary>
-        public static async Task TestPKCSFormatConversion()
+        public static void TestPKCSFormatConversion()
         {
             var rsa = new RsaCrypto(2048, "pkcs1");
             Console.WriteLine("=== PKCS格式转换测试 ===");
@@ -369,26 +355,26 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试RSA PEM格式功能
         /// </summary>
-        public static async Task TestRSAPemMethods()
+        public static void TestRSAPemMethods()
         {
             Console.WriteLine("=== RSA PEM格式测试 ===");
 
             try
             {
                 // 测试 PKCS1 格式
-                await TestPemWithFormat("pkcs1");
+                TestPemWithFormat("pkcs1");
 
                 // 测试 PKCS8 格式
-                await TestPemWithFormat("pkcs8");
+                TestPemWithFormat("pkcs8");
 
                 // 测试 PEM 格式转换
-                await TestPemFormatConversion();
+                TestPemFormatConversion();
 
                 // 测试 PEM 加密解密
-                await TestPemEncryptionDecryption();
+                TestPemEncryptionDecryption();
 
                 // 测试 PEM 签名验签
-                await TestPemSignatureVerification();
+                TestPemSignatureVerification();
 
                 Console.WriteLine("RSA PEM格式测试完成！\n");
             }
@@ -403,7 +389,7 @@ namespace CryptoTool.Test.Examples
         /// 测试指定格式的PEM功能
         /// </summary>
         /// <param name="keyFormat">密钥格式</param>
-        private static async Task TestPemWithFormat(string keyFormat)
+        private static void TestPemWithFormat(string keyFormat)
         {
             Console.WriteLine($"\n--- {keyFormat.ToUpper()} 格式 PEM 测试 ---");
 
@@ -437,7 +423,7 @@ namespace CryptoTool.Test.Examples
                 Console.WriteLine($"  导入私钥长度: {importedPrivateBytes.Length} 字节");
 
                 // 验证功能正常
-                await TestPemFunctionality(rsa, publicKeyPem, privateKeyPem);
+                TestPemFunctionality(rsa, publicKeyPem, privateKeyPem);
             }
             catch (Exception ex)
             {
@@ -476,7 +462,7 @@ namespace CryptoTool.Test.Examples
         /// <param name="rsa">RSA实例</param>
         /// <param name="publicKeyPem">PEM公钥</param>
         /// <param name="privateKeyPem">PEM私钥</param>
-        private static async Task TestPemFunctionality(RsaCrypto rsa, string publicKeyPem, string privateKeyPem)
+        private static void TestPemFunctionality(RsaCrypto rsa, string publicKeyPem, string privateKeyPem)
         {
             var testData = Encoding.UTF8.GetBytes("PEM格式功能测试数据");
 
@@ -511,7 +497,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试PEM格式转换
         /// </summary>
-        private static async Task TestPemFormatConversion()
+        private static void TestPemFormatConversion()
         {
             Console.WriteLine($"\n--- PEM 格式转换测试 ---");
 
@@ -560,7 +546,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试PEM加密解密性能
         /// </summary>
-        private static async Task TestPemEncryptionDecryption()
+        private static void TestPemEncryptionDecryption()
         {
             Console.WriteLine($"\n--- PEM 加密解密性能测试 ---");
 
@@ -599,7 +585,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试PEM签名验签
         /// </summary>
-        private static async Task TestPemSignatureVerification()
+        private static void TestPemSignatureVerification()
         {
             Console.WriteLine($"\n--- PEM 签名验签测试 ---");
 

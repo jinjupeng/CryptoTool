@@ -1,7 +1,6 @@
 using CryptoTool.Algorithm.Interfaces;
 using Org.BouncyCastle.Crypto.Digests;
 using System;
-using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.SM3
 {
@@ -44,14 +43,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
             {
                 throw new Exceptions.CryptoException("SM3哈希计算失败", ex);
             }
-        }
-
-        /// <summary>
-        /// 异步计算哈希值
-        /// </summary>
-        public async Task<byte[]> ComputeHashAsync(byte[] data)
-        {
-            return await Task.Run(() => ComputeHash(data));
         }
 
         /// <summary>
@@ -202,16 +193,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM3
         {
             var hash = ComputeFileHash(filePath);
             return Utils.StringUtil.BytesToHex(hash, upperCase);
-        }
-
-        /// <summary>
-        /// 异步计算文件的SM3哈希值
-        /// </summary>
-        /// <param name="filePath">文件路径</param>
-        /// <returns>SM3哈希值</returns>
-        public async Task<byte[]> ComputeFileHashAsync(string filePath)
-        {
-            return await Task.Run(() => ComputeFileHash(filePath));
         }
 
         /// <summary>

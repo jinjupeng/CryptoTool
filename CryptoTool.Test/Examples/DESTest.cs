@@ -11,7 +11,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 运行DES算法测试
         /// </summary>
-        public static async Task RunTest()
+        public static void RunTest()
         {
             Console.WriteLine("=== DES算法测试 ===");
 
@@ -53,8 +53,8 @@ namespace CryptoTool.Test.Examples
 
                 // 异步测试
                 Console.WriteLine("\n--- 异步加密解密测试 ---");
-                byte[] asyncEncryptedData = await des.EncryptAsync(data, key, iv);
-                byte[] asyncDecryptedData = await des.DecryptAsync(asyncEncryptedData, key, iv);
+                byte[] asyncEncryptedData = des.Encrypt(data, key, iv);
+                byte[] asyncDecryptedData = des.Decrypt(asyncEncryptedData, key, iv);
                 string asyncDecryptedText = Encoding.UTF8.GetString(asyncDecryptedData);
                 bool asyncSuccess = testData == asyncDecryptedText;
                 Console.WriteLine($"异步测试结果: {(asyncSuccess ? "通过" : "失败")}");

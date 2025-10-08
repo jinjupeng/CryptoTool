@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿
 
 namespace CryptoTool.Algorithm.Interfaces
 {
@@ -25,16 +25,6 @@ namespace CryptoTool.Algorithm.Interfaces
         /// <param name="iv">初始化向量</param>
         /// <returns>解密后的数据</returns>
         byte[] Decrypt(byte[] encryptedData, byte[] key, byte[]? iv = null);
-
-        /// <summary>
-        /// 异步加密
-        /// </summary>
-        Task<byte[]> EncryptAsync(byte[] data, byte[] key, byte[]? iv = null);
-
-        /// <summary>
-        /// 异步解密
-        /// </summary>
-        Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null);
 
         /// <summary>
         /// 生成随机密钥

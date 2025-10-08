@@ -12,7 +12,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 运行SM4算法测试
         /// </summary>
-        public static async Task RunTest()
+        public static void RunTest()
         {
             Console.WriteLine("=== SM4算法测试 ===");
 
@@ -51,14 +51,6 @@ namespace CryptoTool.Test.Examples
                 bool isSuccess = testData == decryptedText;
                 Console.WriteLine($"\n--- 测试结果 ---");
                 Console.WriteLine($"测试结果: {(isSuccess ? "通过" : "失败")}");
-
-                // 异步测试
-                Console.WriteLine("\n--- 异步加密解密测试 ---");
-                byte[] asyncEncryptedData = await sm4.EncryptAsync(data, key, iv);
-                byte[] asyncDecryptedData = await sm4.DecryptAsync(asyncEncryptedData, key, iv);
-                string asyncDecryptedText = Encoding.UTF8.GetString(asyncDecryptedData);
-                bool asyncSuccess = testData == asyncDecryptedText;
-                Console.WriteLine($"异步测试结果: {(asyncSuccess ? "通过" : "失败")}");
 
                 // 不同模式测试
                 Console.WriteLine("\n--- 不同加密模式测试 ---");

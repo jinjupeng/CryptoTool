@@ -8,7 +8,6 @@ using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.SM4
 {
@@ -167,22 +166,6 @@ namespace CryptoTool.Algorithm.Algorithms.SM4
             {
                 throw new Exceptions.CryptoException("SM4解密失败", ex);
             }
-        }
-
-        /// <summary>
-        /// 异步加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] key, byte[]? iv = null)
-        {
-            return await Task.Run(() => Encrypt(data, key, iv));
-        }
-
-        /// <summary>
-        /// 异步解密
-        /// </summary>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null)
-        {
-            return await Task.Run(() => Decrypt(encryptedData, key, iv));
         }
 
         /// <summary>

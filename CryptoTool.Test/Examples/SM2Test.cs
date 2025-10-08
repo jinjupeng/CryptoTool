@@ -3,7 +3,6 @@ using CryptoTool.Algorithm.Factory;
 using System;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CryptoTool.Test.Examples
 {
@@ -12,7 +11,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 运行SM2算法测试
         /// </summary>
-        public static async Task RunTest()
+        public static void RunTest()
         {
             Console.WriteLine("=== SM2算法测试 ===");
 
@@ -64,20 +63,6 @@ namespace CryptoTool.Test.Examples
                 bool verifyResult = sm2.VerifySign(data, signature, publicKey);
                 Console.WriteLine($"签名验证结果: {(verifyResult ? "通过" : "失败")}");
 
-                // 异步测试
-                Console.WriteLine("\n--- 异步加密解密测试 ---");
-                byte[] asyncEncryptedData = await sm2.EncryptAsync(data, publicKey);
-                byte[] asyncDecryptedData = await sm2.DecryptAsync(asyncEncryptedData, privateKey);
-                string asyncDecryptedText = Encoding.UTF8.GetString(asyncDecryptedData);
-                bool asyncSuccess = testData == asyncDecryptedText;
-                Console.WriteLine($"异步加密解密测试结果: {(asyncSuccess ? "通过" : "失败")}");
-
-                // 异步签名测试
-                Console.WriteLine("\n--- 异步签名验证测试 ---");
-                byte[] asyncSignature = await sm2.SignAsync(data, privateKey);
-                bool asyncVerifyResult = await sm2.VerifySignAsync(data, asyncSignature, publicKey);
-                Console.WriteLine($"异步签名验证测试结果: {(asyncVerifyResult ? "通过" : "失败")}");
-
                 // 大数据测试
                 Console.WriteLine("\n--- 大数据测试 ---");
                 TestLargeData();
@@ -86,7 +71,7 @@ namespace CryptoTool.Test.Examples
                 Console.WriteLine("\n--- 多次加密测试 ---");
                 TestMultipleEncryption();
 
-                await TestSM2SignatureAlgorithm();
+                TestSM2SignatureAlgorithm();
 
 
             }
@@ -103,7 +88,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试SM2签名算法
         /// </summary>
-        public static async Task TestSM2SignatureAlgorithm()
+        public static void TestSM2SignatureAlgorithm()
         {
             Console.WriteLine("=== SM2签名算法测试 ===");
 
@@ -113,7 +98,7 @@ namespace CryptoTool.Test.Examples
 
             // 测试SM3withSM2签名
             Console.WriteLine("\n--- SM3withSM2 签名测试 ---");
-            await TestSM2WithSignature(testData, publicKey, privateKey, SignatureAlgorithm.SM3withSM2);
+            TestSM2WithSignature(testData, publicKey, privateKey, SignatureAlgorithm.SM3withSM2);
 
             Console.WriteLine("SM2签名算法测试完成！\n");
         }
@@ -178,18 +163,18 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 测试SM2指定签名算法
         /// </summary>
-        private static async Task TestSM2WithSignature(byte[] data, byte[] publicKey, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
+        private static void TestSM2WithSignature(byte[] data, byte[] publicKey, byte[] privateKey, SignatureAlgorithm signatureAlgorithm)
         {
             var _sm2Crypto = CryptoFactory.CreateSm2();
             try
             {
                 // 签名
-                var signature = await _sm2Crypto.SignAsync(data, privateKey, signatureAlgorithm);
+                var signature = _sm2Crypto.Sign(data, privateKey, signatureAlgorithm);
                 Console.WriteLine($"✓ 签名成功 (算法: {signatureAlgorithm})");
                 Console.WriteLine($"  签名长度: {signature.Length} 字节");
 
                 // 验证签名
-                var isValid = await _sm2Crypto.VerifySignAsync(data, signature, publicKey, signatureAlgorithm);
+                var isValid = _sm2Crypto.VerifySign(data, signature, publicKey, signatureAlgorithm);
 
                 if (isValid)
                 {

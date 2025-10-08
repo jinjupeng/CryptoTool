@@ -3,7 +3,6 @@ using CryptoTool.Algorithm.Interfaces;
 using CryptoTool.Algorithm.Utils;
 using System;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace CryptoTool.Algorithm.Algorithms.DES
 {
@@ -140,26 +139,6 @@ namespace CryptoTool.Algorithm.Algorithms.DES
             {
                 throw new CryptoException("DES解密失败", ex);
             }
-        }
-
-        /// <summary>
-        /// 异步加密
-        /// </summary>
-        public async Task<byte[]> EncryptAsync(byte[] data, byte[] key, byte[]? iv = null)
-        {
-            // 先进行参数验证
-            ValidateEncryptParameters(data, key, iv);
-            return await Task.Run(() => Encrypt(data, key, iv));
-        }
-
-        /// <summary>
-        /// 异步解密
-        /// </summary>
-        public async Task<byte[]> DecryptAsync(byte[] encryptedData, byte[] key, byte[]? iv = null)
-        {
-            // 先进行参数验证
-            ValidateDecryptParameters(encryptedData, key, iv);
-            return await Task.Run(() => Decrypt(encryptedData, key, iv));
         }
 
         /// <summary>

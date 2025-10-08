@@ -11,7 +11,7 @@ namespace CryptoTool.Test.Examples
         /// <summary>
         /// 运行MD5算法测试
         /// </summary>
-        public static async Task RunTest()
+        public static void RunTest()
         {
             Console.WriteLine("=== MD5算法测试 ===");
 
@@ -40,12 +40,6 @@ namespace CryptoTool.Test.Examples
                 byte[] hash2 = md5.ComputeHash(data);
                 bool isConsistent = hash.SequenceEqual(hash2);
                 Console.WriteLine($"哈希一致性测试: {(isConsistent ? "通过" : "失败")}");
-
-                // 异步测试
-                Console.WriteLine("\n--- 异步哈希计算测试 ---");
-                byte[] asyncHash = await md5.ComputeHashAsync(data);
-                bool asyncConsistent = hash.SequenceEqual(asyncHash);
-                Console.WriteLine($"异步哈希计算测试: {(asyncConsistent ? "通过" : "失败")}");
 
                 // 不同数据测试
                 Console.WriteLine("\n--- 不同数据哈希测试 ---");

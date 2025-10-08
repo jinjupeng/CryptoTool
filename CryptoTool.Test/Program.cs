@@ -8,7 +8,7 @@ namespace CryptoTool.Test
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine("=== 加密算法类库完整测试 ===");
@@ -31,25 +31,25 @@ namespace CryptoTool.Test
                 Console.WriteLine("开始运行所有算法测试...\n");
 
                 // 运行AES测试
-                await AESTest.RunTest();
+                AESTest.RunTest();
 
                 // 运行DES测试
-                await DESTest.RunTest();
+                DESTest.RunTest();
 
                 // 运行RSA测试
-                await RSATest.RunTest();
+                RSATest.RunTest();
 
                 // 运行SM2测试
-                await SM2Test.RunTest();
+                SM2Test.RunTest();
 
                 // 运行SM3测试
-                await SM3Test.RunTest();
+                SM3Test.RunTest();
 
                 // 运行SM4测试
-                await SM4Test.RunTest();
+                SM4Test.RunTest();
 
                 // 运行MD5测试
-                await MD5Test.RunTest();
+                MD5Test.RunTest();
 
                 Console.WriteLine("=== 所有算法测试完成 ===");
                 Console.WriteLine("按任意键退出...");
